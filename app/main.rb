@@ -19,28 +19,37 @@ class Game
     5.times_with_index do |id|
       @cards[id] = new_random_card id
     end
+
+    @player
   end
 
   def tick
-    x_c = ( grid.w / 2 ) - ( @cards.length * ( (@c_w + @card_offset) / 2) )
+    calc
+    render
+  end
+
+  def calc
+    calc_card_fixed_positions
+    calc_mouse_inputs
+    calc_debug_inputs
+  end
+
+  def calc_card_fixed_positions
+    x_s = ( grid.w / 2 ) - ( @cards.length * ( (@c_w + @card_offset) / 2) )
 
     @cards.each_with_index do |(id, c), i|
       if !c.grabbed
-        c.f_pos.x = x_c + (i * (@c_w + @card_offset))
+        c.f_pos.x = x_s + (i * (@c_w + @card_offset))
+        #c.f_ang = add code to handle index-based angling here
+        
+        c.angle = c.angle.lerp c.f_ang, 0.2
         c.pos.x = c.pos.x.lerp c.f_pos.x, 0.2
         c.pos.y = c.pos.y.lerp c.f_pos.y, 0.2
       end
     end
+  end
 
-    if inputs.keyboard.key_down.o
-      @cards.delete @cards.keys.last
-    end
-
-    if inputs.keyboard.key_down.p
-      new_id = (@cards.keys.last + 1)
-      @cards[new_id] = new_random_card new_id
-    end
-
+  def calc_mouse_inputs
     if state.currently_dragging_card_id
       c_ref = @cards[state.currently_dragging_card_id]
     else
@@ -60,11 +69,18 @@ class Game
         x: inputs.mouse.x - c_u_m.x,
         y: inputs.mouse.y - c_u_m.y,
       }
-    elsif
-      inputs.mouse.held and state.currently_dragging_card_id
+
+      state.click_hold_time = Kernel.tick_count
+    elsif inputs.mouse.held and state.currently_dragging_card_id
       c_ref.pos.x = inputs.mouse.x - state.mouse_point_inside_square.x
       c_ref.pos.y = inputs.mouse.y - state.mouse_point_inside_square.y
     elsif inputs.mouse.up and state.currently_dragging_card_id
+
+
+      if state.click_hold_time.elapsed_time < 20
+        play_card c_ref
+      end
+
       
       c_ref.grabbed = false
 
@@ -93,9 +109,17 @@ class Game
       state.currently_dragging_card_id = nil
     end
 
-    
+  end
 
-    render
+  def calc_debug_inputs
+    if inputs.keyboard.key_down.o
+      @cards.delete @cards.keys.last
+    end
+
+    if inputs.keyboard.key_down.p
+      new_id = (@cards.keys.last + 1)
+      @cards[new_id] = new_random_card new_id
+    end
   end
 
   def render
@@ -143,16 +167,13 @@ class Game
         x: 0,
         y: 20,
       },
+      angle: 100,
       f_pos:
       {
         x: 0,
         y: 20,
       },
-      center: 
-      {
-        x: @c_w / 2,
-        y: @c_h / 2,
-      },
+      f_ang: 0,
       w: @c_w,
       h: @c_h,
       r: Numeric.rand(0..255),
@@ -172,6 +193,7 @@ class Game
       r: card.r,
       g: card.g,
       b: card.b,
+      angle: card.angle,
       primitive_marker: :solid,
     }
   end
@@ -185,12 +207,19 @@ class Game
         y: c.pos.y,
         w: c.w,
         h: c.h,
+        angle: c.angle,
       }
     end
 
     return card_rects
   end
 
+end
+
+def play_card card
+  puts "CARD PLAYED - ID: #{card.id}"
+
+  #MARK CARD FOR DELETION HERE
 end
 
 
