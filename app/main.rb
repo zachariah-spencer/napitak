@@ -64,11 +64,32 @@ class Game
       inputs.mouse.held and state.currently_dragging_card_id
       c_ref.pos.x = inputs.mouse.x - state.mouse_point_inside_square.x
       c_ref.pos.y = inputs.mouse.y - state.mouse_point_inside_square.y
-    elsif inputs.mouse.up
-
+    elsif inputs.mouse.up and state.currently_dragging_card_id
       
-
       c_ref.grabbed = false
+
+      # Exclude the dragged card from the sorted order
+      other_cards = @cards.values.reject { |card| card[:id] == state.currently_dragging_card_id }
+      sorted_ids = other_cards.sort_by { |card| card[:pos][:x] }.map { |card| card[:id] }
+
+      # Calculate the center of the dragged card
+      dragged_center = c_ref.pos[:x] + (@c_w / 2)
+
+      # Find the index where the dragged card should be inserted
+      new_index = sorted_ids.find_index do |card_id|
+        card = @cards[card_id]
+        # Compare centers to decide insertion point
+        dragged_center < (card[:pos][:x] + (@c_w / 2))
+      end
+      # If none found, insert at the end
+      new_index ||= sorted_ids.length
+
+      # Insert the dragged card id at the computed index
+      sorted_ids.insert(new_index, state.currently_dragging_card_id)
+
+      # Rebuild @cards hash based on new sorted order
+      @cards = sorted_ids.map { |id| [id, @cards[id]] }.to_h
+
       state.currently_dragging_card_id = nil
     end
 
@@ -78,15 +99,23 @@ class Game
   end
 
   def render
+    back_render_layer = []
+    front_render_layer = []
 
     card_prefabs ||= []
     @cards.each do |id, c|
       card_prefab = prefab_card c
 
-      card_prefabs.append card_prefab
-    end
+      if c.grabbed
+        front_render_layer << card_prefab
+      else
+        card_prefabs.append card_prefab
+      end
 
-    outputs.primitives << 
+      
+    end
+    
+    back_render_layer << 
     [
       {
         x: 0,
@@ -101,6 +130,8 @@ class Game
 
       card_prefabs
     ]
+
+    outputs.primitives << [back_render_layer, front_render_layer]
     
   end
 
