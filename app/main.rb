@@ -11,6 +11,8 @@ class Game
   attr_gtk
 
   def initialize
+    @players_turn = true
+    @players_focus_remaining = 2
     @c_w = 100
     @c_h = 150
     @card_offset = 20
@@ -30,8 +32,18 @@ class Game
 
   def calc
     calc_card_fixed_positions
-    calc_mouse_inputs
+
+    if @players_turn
+      calc_mouse_inputs
+    end
+
+    calc_entity_removals
+
     calc_debug_inputs
+  end
+
+  def calc_entity_removals
+    @cards.reject! {|id, c| c.needs_removed }
   end
 
   def calc_card_fixed_positions
@@ -58,6 +70,10 @@ class Game
       c_ref = nil
     end
 
+    if inputs.mouse.click
+      puts @cards.keys
+    end
+
 
     if inputs.mouse.click and c_u_m
       state.currently_dragging_card_id = c_u_m.id
@@ -77,7 +93,7 @@ class Game
     elsif inputs.mouse.up and state.currently_dragging_card_id
 
 
-      if state.click_hold_time.elapsed_time < 20
+      if state.click_hold_time.elapsed_time < 20 and (Geometry.distance c_ref.pos, c_ref.f_pos) < 20
         play_card c_ref
       end
 
@@ -112,13 +128,27 @@ class Game
   end
 
   def calc_debug_inputs
-    if inputs.keyboard.key_down.o
+    if inputs.keyboard.key_down.o and @cards.length > 0
       @cards.delete @cards.keys.last
     end
 
     if inputs.keyboard.key_down.p
-      new_id = (@cards.keys.last + 1)
+      
+      new_id = nil
+
+      if @cards.length > 0
+        new_id = (@cards.keys.last + 1)
+      else
+        new_id = 0
+      end
+
+
       @cards[new_id] = new_random_card new_id
+    end
+
+    if inputs.keyboard.key_down.t and !@players_turn
+      @players_turn = true
+      @players_focus_remaining = 2
     end
   end
 
@@ -181,6 +211,9 @@ class Game
       b: Numeric.rand(0..255),
       primitive_marker: :solid,
       grabbed: false,
+      needs_removed: false,
+      type_id: 0,
+      focus_cost: 1,
     }
   end
 
@@ -217,9 +250,24 @@ class Game
 end
 
 def play_card card
-  puts "CARD PLAYED - ID: #{card.id}"
+  if @players_focus_remaining >= card.focus_cost
 
-  #MARK CARD FOR DELETION HERE
+    @players_focus_remaining -= card.focus_cost
+
+    if @players_focus_remaining <= 0
+      @players_turn = false
+    end
+  
+    #
+    # CARD BEHAVIOR HERE
+    #
+  
+    card.needs_removed = true
+  end
+
+  puts "Focus Remaining: #{@players_focus_remaining}"
+  puts "Card Costed This Much Focus to Play: #{card.focus_cost}"
+  
 end
 
 
