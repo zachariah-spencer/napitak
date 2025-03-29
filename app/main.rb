@@ -147,8 +147,18 @@ class Game
     end
 
     if inputs.keyboard.key_down.t and !@players_turn
+
+      new_id = nil
+
+      if @cards.length > 0
+        new_id = (@cards.keys.last + 1)
+      else
+        new_id = 0
+      end
+
       @players_turn = true
       @players_focus_remaining = 2
+      @cards[new_id] = new_random_card new_id
     end
   end
 
@@ -254,7 +264,7 @@ def play_card card
 
     @players_focus_remaining -= card.focus_cost
 
-    if @players_focus_remaining <= 0
+    if @players_focus_remaining <= 0 or @cards.length <= 1
       @players_turn = false
     end
   
