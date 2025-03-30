@@ -1,5 +1,4 @@
 def tick args
-
   $game ||= Game.new
   $game.args ||= args
 
@@ -7,14 +6,20 @@ def tick args
 
 end
 
+
+
+
+
+
+
 class Game
   attr_gtk
 
   def initialize
     @players_turn = true
     @players_focus_remaining = 2
-    @c_w = 100
-    @c_h = 150
+    @c_w = 160
+    @c_h = 160
     @card_offset = 20
     @cards = {}
 
@@ -133,32 +138,11 @@ class Game
     end
 
     if inputs.keyboard.key_down.p
-      
-      new_id = nil
-
-      if @cards.length > 0
-        new_id = (@cards.keys.last + 1)
-      else
-        new_id = 0
-      end
-
-
-      @cards[new_id] = new_random_card new_id
+      draw_card
     end
 
     if inputs.keyboard.key_down.t and !@players_turn
-
-      new_id = nil
-
-      if @cards.length > 0
-        new_id = (@cards.keys.last + 1)
-      else
-        new_id = 0
-      end
-
-      @players_turn = true
-      @players_focus_remaining = 2
-      @cards[new_id] = new_random_card new_id
+      begin_turn
     end
   end
 
@@ -186,9 +170,9 @@ class Game
         y: 0,
         w: args.grid.w,
         h: args.grid.h,
-        r: 20,
-        g: 20,
-        b: 60,
+        r: 150,
+        g: 150,
+        b: 250,
         primitive_marker: :solid,
       },
 
@@ -216,14 +200,15 @@ class Game
       f_ang: 0,
       w: @c_w,
       h: @c_h,
-      r: Numeric.rand(0..255),
+      r: Numeric.rand(200..255),
       g: Numeric.rand(0..255),
-      b: Numeric.rand(0..255),
+      b: Numeric.rand(200..255),
       primitive_marker: :solid,
       grabbed: false,
       needs_removed: false,
-      type_id: 0,
+      type_id: "000",
       focus_cost: 1,
+      path: "sprites/card-back-purple.png"
     }
   end
 
@@ -237,7 +222,8 @@ class Game
       g: card.g,
       b: card.b,
       angle: card.angle,
-      primitive_marker: :solid,
+      path: card.path,
+      primitive_marker: :sprite,
     }
   end
 
@@ -257,28 +243,70 @@ class Game
     return card_rects
   end
 
-end
-
-def play_card card
-  if @players_focus_remaining >= card.focus_cost
-
-    @players_focus_remaining -= card.focus_cost
-
-    if @players_focus_remaining <= 0 or @cards.length <= 1
-      @players_turn = false
-    end
-  
-    #
-    # CARD BEHAVIOR HERE
-    #
-  
-    card.needs_removed = true
+  def begin_turn
+    @players_turn = true
+    @players_focus_remaining = 2
+    draw_card
+    
   end
 
-  puts "Focus Remaining: #{@players_focus_remaining}"
-  puts "Card Costed This Much Focus to Play: #{card.focus_cost}"
+  def draw_card
+    new_id = nil
+
+    if @cards.length > 0
+      new_id = (@cards.keys.last + 1)
+    else
+      new_id = 0
+    end
+
+    @cards[new_id] = new_random_card new_id
+  end
+
+  def play_card card
+    if @players_focus_remaining >= card.focus_cost
   
+      @players_focus_remaining -= card.focus_cost
+  
+      if @players_focus_remaining <= 0 or @cards.length <= 1
+        @players_turn = false
+      end
+    
+      #
+      # CARD BEHAVIOR HERE
+      #
+    
+      card.needs_removed = true
+    end
+  
+    puts "Focus Remaining: #{@players_focus_remaining}"
+    puts "Card Costed This Much Focus to Play: #{card.focus_cost}"
+    
+  end
+
+  def get_card_types 
+    {
+      "001" => {
+        name: "Punch",
+        desc: "A basic punch",
+        fc: 1,
+        pow: 1,
+      },
+
+      "002" => {
+        name: "Kick",
+        desc: "A basic kick",
+        fc: 2,
+        pow: 3,
+      },
+    }
+  end
+
 end
+
+
+
+
+
 
 
 # reset is a top-level function that DR is aware of
