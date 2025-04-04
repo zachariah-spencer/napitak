@@ -7,7 +7,44 @@ def tick args
 end
 
 
+class Card
 
+  def initialize id
+    @id = "000"
+
+    @entity_id = id
+
+    @w = 160
+    @h = 160
+
+    @pos = {
+      x: 0,
+      y: 20,
+    }
+
+    @f_pos = {
+      x: 0,
+      y: 20,
+    }
+
+    @angle = 100
+    @f_angle = 0
+
+    @path = "sprites/card-back-purple.png"
+    
+    @r = Numeric.rand(200..255)
+    @g = Numeric.rand(0..255)
+    @b = Numeric.rand(200..255)
+
+    @primitive_marker = :solid
+
+    @grabbed = false
+    @needs_removed = false
+  end
+
+  
+
+end
 
 
 
@@ -16,11 +53,23 @@ class Game
   attr_gtk
 
   def initialize
+    @entities = {}
+
+    # Testing new way to handle entity_ids so it is separate from card type ids
+    puts @entities.keys
+    new_id = get_rand_id
+    @entities[new_id] = Card.new(new_id)
+    new_id2 = get_rand_id
+    @entities[new_id2] = Card.new(new_id2)
+    puts @entities.keys
+
+
     @players_turn = true
     @players_focus_remaining = 2
     @c_w = 160
     @c_h = 160
-    @card_offset = 20
+    @hand_offset = 20
+    @hand = {}
     @cards = {}
 
     5.times_with_index do |id|
@@ -52,11 +101,11 @@ class Game
   end
 
   def calc_card_fixed_positions
-    x_s = ( grid.w / 2 ) - ( @cards.length * ( (@c_w + @card_offset) / 2) )
+    x_s = ( grid.w / 2 ) - ( @cards.length * ( (@c_w + @hand_offset) / 2) )
 
     @cards.each_with_index do |(id, c), i|
       if !c.grabbed
-        c.f_pos.x = x_s + (i * (@c_w + @card_offset))
+        c.f_pos.x = x_s + (i * (@c_w + @hand_offset))
         #c.f_ang = add code to handle index-based angling here
         
         c.angle = c.angle.lerp c.f_ang, 0.2
@@ -299,6 +348,17 @@ class Game
         pow: 3,
       },
     }
+  end
+
+  def get_rand_id
+    new_id = Numeric.rand(0..999)
+
+    
+    while @entities.keys.include? new_id
+      new_id = Numeric.rand(0..999)
+    end
+
+    return new_id
   end
 
 end
