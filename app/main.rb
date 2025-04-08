@@ -7,15 +7,21 @@ def tick args
 end
 
 
+
+
+
 class Card
+  attr_accessor :grabbed, :needs_removed, :pos, :f_pos, :entity_id, :w, :id
 
-  def initialize id
-    @id = "000"
+  def initialize id, entity_id
+    @id = id
 
-    @entity_id = id
+    @entity_id = entity_id
 
     @w = 160
     @h = 160
+
+    @padding = 20
 
     @pos = {
       x: 0,
@@ -42,9 +48,46 @@ class Card
     @needs_removed = false
   end
 
-  
+  def calc_position num_cards, index
+    x_s = ( GTK.args.grid.w / 2 ) - ( num_cards * ( (@w + @padding) / 2) )
 
+    if !@grabbed
+      @f_pos.x = x_s + (index * (@w + @padding))
+      #c.f_angle = add code to handle index-based angling here
+      
+      @angle = @angle.lerp @f_angle, 0.2
+      @pos.x = @pos.x.lerp @f_pos.x, 0.2
+      @pos.y = @pos.y.lerp @f_pos.y, 0.2
+    end
+  end
+
+  def rect
+    {
+      id: @entity_id,
+      x: @pos.x,
+      y: @pos.y,
+      w: @w,
+      h: @h,
+      angle: @angle,
+    }
+  end
+
+  def prefab
+    {
+      x: @pos.x,
+      y: @pos.y,
+      w: @w,
+      h: @h,
+      r: @r,
+      g: @g,
+      b: @b,
+      angle: @angle,
+      path: @path,
+      primitive_marker: :sprite,
+    }
+  end
 end
+
 
 
 
@@ -53,30 +96,77 @@ class Game
   attr_gtk
 
   def initialize
-    @entities = {}
+    @ids = {
+      "p001" => {
+        name: "Rock Potion",
+        desc: "A basic potion that damages an enemy.",
+        fc: 1,
+        pow: 1,
+        path: "sprites/circle/green.png",
+        ingredients: [
+          "i001", "i004", "i004",
+        ],
+      },
 
-    # Testing new way to handle entity_ids so it is separate from card type ids
-    puts @entities.keys
-    new_id = get_rand_id
-    @entities[new_id] = Card.new(new_id)
-    new_id2 = get_rand_id
-    @entities[new_id2] = Card.new(new_id2)
-    puts @entities.keys
+      "p002" => {
+        name: "Fiery Potion",
+        desc: "A potion that catches an enemy on fire.",
+        fc: 2,
+        pow: 3,
+        path: "sprites/circle/orange.png",
+        ingredients: [
+          "i001", "i003", "i003",
+        ],
+      },
 
+      "p003" => {
+        name: "Ocean Potion",
+        desc: "A potion that sprays water at an enemy damaging them.",
+        fc: 1,
+        pow: 2,
+        path: "sprites/circle/blue.png",
+        ingredients: [
+          "i001", "i002", "i002",
+        ],
+      }
+    }
+
+    @ingredient_ids = {
+      "i001" => {
+        name: "Glass Bottle",
+        path: "sprites/hexagon/white.png",
+      },
+
+      "i002" => {
+        name: "Water",
+        path: "sprites/hexagon/blue.png",
+      },
+
+      "i003" => {
+        name: "Fire",
+        path: "sprites/hexagon/orange.png",
+      },
+
+      "i004" => {
+        name: "Earth",
+        path: "sprites/hexagon/green.png",
+      },
+
+      "i004" => {
+        name: "Air",
+        path: "sprites/hexagon/blue.png",
+      },
+    }
 
     @players_turn = true
     @players_focus_remaining = 2
-    @c_w = 160
-    @c_h = 160
-    @hand_offset = 20
+    @deck = {}
     @hand = {}
-    @cards = {}
 
-    5.times_with_index do |id|
-      @cards[id] = new_random_card id
+    5.times do
+      gen_new_card
     end
-
-    @player
+    
   end
 
   def tick
@@ -85,7 +175,7 @@ class Game
   end
 
   def calc
-    calc_card_fixed_positions
+    calc_card_positions
 
     if @players_turn
       calc_mouse_inputs
@@ -96,42 +186,28 @@ class Game
     calc_debug_inputs
   end
 
-  def calc_entity_removals
-    @cards.reject! {|id, c| c.needs_removed }
+  def calc_card_positions
+    @hand.each_with_index do |(id, c), i|
+      c.calc_position @hand.length, i
+    end
   end
 
-  def calc_card_fixed_positions
-    x_s = ( grid.w / 2 ) - ( @cards.length * ( (@c_w + @hand_offset) / 2) )
-
-    @cards.each_with_index do |(id, c), i|
-      if !c.grabbed
-        c.f_pos.x = x_s + (i * (@c_w + @hand_offset))
-        #c.f_ang = add code to handle index-based angling here
-        
-        c.angle = c.angle.lerp c.f_ang, 0.2
-        c.pos.x = c.pos.x.lerp c.f_pos.x, 0.2
-        c.pos.y = c.pos.y.lerp c.f_pos.y, 0.2
-      end
-    end
+  def calc_entity_removals
+    @hand.reject! {|id, c| c.needs_removed }
   end
 
   def calc_mouse_inputs
     if state.currently_dragging_card_id
-      c_ref = @cards[state.currently_dragging_card_id]
+      c_ref = @hand[state.currently_dragging_card_id]
     else
       #card_under_mouse lol
       c_u_m = Geometry.find_intersect_rect inputs.mouse, get_card_rects
       c_ref = nil
     end
 
-    if inputs.mouse.click
-      puts @cards.keys
-    end
-
-
     if inputs.mouse.click and c_u_m
       state.currently_dragging_card_id = c_u_m.id
-      c_ref = @cards[state.currently_dragging_card_id]
+      c_ref = @hand[state.currently_dragging_card_id]
       c_ref.grabbed = true
 
       state.mouse_point_inside_square = 
@@ -155,17 +231,17 @@ class Game
       c_ref.grabbed = false
 
       # Exclude the dragged card from the sorted order
-      other_cards = @cards.values.reject { |card| card[:id] == state.currently_dragging_card_id }
-      sorted_ids = other_cards.sort_by { |card| card[:pos][:x] }.map { |card| card[:id] }
+      other_cards = @hand.values.reject { |card| card.entity_id == state.currently_dragging_card_id }
+      sorted_ids = other_cards.sort_by { |card| card.pos.x }.map { |card| card.entity_id }
 
       # Calculate the center of the dragged card
-      dragged_center = c_ref.pos[:x] + (@c_w / 2)
+      dragged_center = c_ref.pos[:x] + (c_ref.w / 2)
 
       # Find the index where the dragged card should be inserted
       new_index = sorted_ids.find_index do |card_id|
-        card = @cards[card_id]
+        card = @hand[card_id]
         # Compare centers to decide insertion point
-        dragged_center < (card[:pos][:x] + (@c_w / 2))
+        dragged_center < (card.pos.x + (card.w / 2))
       end
       # If none found, insert at the end
       new_index ||= sorted_ids.length
@@ -173,8 +249,8 @@ class Game
       # Insert the dragged card id at the computed index
       sorted_ids.insert(new_index, state.currently_dragging_card_id)
 
-      # Rebuild @cards hash based on new sorted order
-      @cards = sorted_ids.map { |id| [id, @cards[id]] }.to_h
+      # Rebuild @hand hash based on new sorted order
+      @hand = sorted_ids.map { |id| [id, @hand[id]] }.to_h
 
       state.currently_dragging_card_id = nil
     end
@@ -182,12 +258,12 @@ class Game
   end
 
   def calc_debug_inputs
-    if inputs.keyboard.key_down.o and @cards.length > 0
-      @cards.delete @cards.keys.last
+    if inputs.keyboard.key_down.o and @hand.length > 0
+      @hand.delete @hand.keys.last
     end
 
     if inputs.keyboard.key_down.p
-      draw_card
+      gen_new_card
     end
 
     if inputs.keyboard.key_down.t and !@players_turn
@@ -199,94 +275,45 @@ class Game
     back_render_layer = []
     front_render_layer = []
 
-    card_prefabs ||= []
-    @cards.each do |id, c|
-      card_prefab = prefab_card c
+    background ||= {
+      x: 0,
+      y: 0,
+      w: args.grid.w,
+      h: args.grid.h,
+      r: 150,
+      g: 150,
+      b: 250,
+      primitive_marker: :solid,
+    }
+
+    hand ||= []
+    front_card = nil
+
+    # REFACTOR TO HAND
+    @hand.each do |id, c|
+      prefab = c.prefab
 
       if c.grabbed
-        front_render_layer << card_prefab
+        front_card = prefab
       else
-        card_prefabs.append card_prefab
+        hand.append prefab
       end
-
-      
     end
+
     
-    back_render_layer << 
-    [
-      {
-        x: 0,
-        y: 0,
-        w: args.grid.w,
-        h: args.grid.h,
-        r: 150,
-        g: 150,
-        b: 250,
-        primitive_marker: :solid,
-      },
 
-      card_prefabs
-    ]
-
-    outputs.primitives << [back_render_layer, front_render_layer]
     
+    back_render_layer << [ background, hand ]
+    front_render_layer << [ front_card ]
+
+    outputs.primitives << [ back_render_layer, front_render_layer ]
   end
 
-  def new_random_card id
-    {
-      id: id,
-      pos: 
-      {
-        x: 0,
-        y: 20,
-      },
-      angle: 100,
-      f_pos:
-      {
-        x: 0,
-        y: 20,
-      },
-      f_ang: 0,
-      w: @c_w,
-      h: @c_h,
-      r: Numeric.rand(200..255),
-      g: Numeric.rand(0..255),
-      b: Numeric.rand(200..255),
-      primitive_marker: :solid,
-      grabbed: false,
-      needs_removed: false,
-      type_id: "000",
-      focus_cost: 1,
-      path: "sprites/card-back-purple.png"
-    }
-  end
-
-  def prefab_card card;
-    {
-      x: card.pos.x,
-      y: card.pos.y,
-      w: card.w,
-      h: card.h,
-      r: card.r,
-      g: card.g,
-      b: card.b,
-      angle: card.angle,
-      path: card.path,
-      primitive_marker: :sprite,
-    }
-  end
-
+  # REFACTOR TO HAND
   def get_card_rects
     card_rects = []
-    @cards.each do |id, c|
-      card_rects << {
-        id: c.id,
-        x: c.pos.x,
-        y: c.pos.y,
-        w: c.w,
-        h: c.h,
-        angle: c.angle,
-      }
+    @hand.each do |id, c|
+      card_rects << c.rect
     end
 
     return card_rects
@@ -295,75 +322,51 @@ class Game
   def begin_turn
     @players_turn = true
     @players_focus_remaining = 2
-    draw_card
+    gen_new_card
     
   end
 
-  def draw_card
-    new_id = nil
-
-    if @cards.length > 0
-      new_id = (@cards.keys.last + 1)
-    else
-      new_id = 0
-    end
-
-    @cards[new_id] = new_random_card new_id
-  end
-
-  def play_card card
-    if @players_focus_remaining >= card.focus_cost
-  
-      @players_focus_remaining -= card.focus_cost
-  
-      if @players_focus_remaining <= 0 or @cards.length <= 1
-        @players_turn = false
-      end
-    
-      #
-      # CARD BEHAVIOR HERE
-      #
-    
-      card.needs_removed = true
-    end
-  
-    puts "Focus Remaining: #{@players_focus_remaining}"
-    puts "Card Costed This Much Focus to Play: #{card.focus_cost}"
-    
-  end
-
-  def get_card_types 
-    {
-      "001" => {
-        name: "Punch",
-        desc: "A basic punch",
-        fc: 1,
-        pow: 1,
-      },
-
-      "002" => {
-        name: "Kick",
-        desc: "A basic kick",
-        fc: 2,
-        pow: 3,
-      },
-    }
+  def gen_new_card
+    #HOW TO ADD A NEW CARD TO HAND (USE @deck FOR DECK)
+    new_ent_id = get_rand_id
+    @hand[new_ent_id] = Card.new("p001", new_ent_id)
   end
 
   def get_rand_id
     new_id = Numeric.rand(0..999)
 
     
-    while @entities.keys.include? new_id
+    while @hand.keys.include? new_id
       new_id = Numeric.rand(0..999)
     end
 
     return new_id
   end
 
+  def play_card card
+    # If card clicked is a potion and not an ingredient
+    if card.id[0] == "p"
+
+      if @players_focus_remaining >= @ids[card.id].fc
+    
+        @players_focus_remaining -= @ids[card.id].fc
+    
+        if @players_focus_remaining <= 0 or @hand.length <= 1
+          @players_turn = false
+        end
+      
+        #
+        # CARD BEHAVIOR HERE
+        #
+      
+        card.needs_removed = true
+      end
+    end
+
+
+
+  end
 end
-
-
 
 
 
@@ -375,5 +378,4 @@ def reset args
   # A new rng will be used GTK.reset is invoked
   GTK.set_rng (Time.now.to_f * 100).to_i
 end
-
 GTK.reset_next_tick
