@@ -11,7 +11,7 @@ end
 
 
 class Card
-  attr_accessor :grabbed, :needs_removed, :pos, :f_pos, :entity_id, :w, :id
+  attr_accessor :grabbed, :needs_removed, :pos, :f_pos, :entity_id, :w, :id, :fw, :fh, :selected
 
   def initialize id, entity_id
     @id = id
@@ -20,6 +20,8 @@ class Card
 
     @w = 160
     @h = 160
+    @fw = 160
+    @fh = 160
 
     @padding = 20
 
@@ -27,7 +29,6 @@ class Card
       x: 0,
       y: 20,
     }
-
     @f_pos = {
       x: 0,
       y: 20,
@@ -45,6 +46,7 @@ class Card
     @primitive_marker = :solid
 
     @grabbed = false
+    @selected = false
     @needs_removed = false
   end
 
@@ -56,8 +58,12 @@ class Card
       #c.f_angle = add code to handle index-based angling here
       
       @angle = @angle.lerp @f_angle, 0.2
+
       @pos.x = @pos.x.lerp @f_pos.x, 0.2
       @pos.y = @pos.y.lerp @f_pos.y, 0.2
+
+      @w = @w.lerp @fw, 0.2
+      @h = @h.lerp @fh, 0.2
     end
   end
 
@@ -96,7 +102,7 @@ class Game
   attr_gtk
 
   def initialize
-    @ids = {
+    @pids = {
       "p001" => {
         name: "Rock Potion",
         desc: "A basic potion that damages an enemy.",
@@ -128,10 +134,13 @@ class Game
         ingredients: [
           "i001", "i002", "i002",
         ],
-      }
+      },
     }
 
-    @ingredient_ids = {
+
+
+
+    @iids = {
       "i001" => {
         name: "Glass Bottle",
         path: "sprites/hexagon/white.png",
@@ -152,7 +161,7 @@ class Game
         path: "sprites/hexagon/green.png",
       },
 
-      "i004" => {
+      "i005" => {
         name: "Air",
         path: "sprites/hexagon/blue.png",
       },
@@ -162,11 +171,19 @@ class Game
     @players_focus_remaining = 2
     @deck = {}
     @hand = {}
+    @selected_cards = []
 
-    5.times do
-      gen_new_card
-    end
-    
+#    5.times do
+#      gen_new_card
+#    end
+    gen_new_card "i001"
+    gen_new_card "i002"
+    gen_new_card "i003"
+    gen_new_card "i003"
+    gen_new_card "i004"
+    gen_new_card "i005"
+
+
   end
 
   def tick
@@ -224,7 +241,7 @@ class Game
 
 
       if state.click_hold_time.elapsed_time < 20 and (Geometry.distance c_ref.pos, c_ref.f_pos) < 20
-        play_card c_ref
+        use_card c_ref
       end
 
       
@@ -326,10 +343,16 @@ class Game
     
   end
 
-  def gen_new_card
+  def gen_new_card id = nil
     #HOW TO ADD A NEW CARD TO HAND (USE @deck FOR DECK)
+
+    if id == nil
+      all_ids = @pids.keys + @iids.keys
+      id = all_ids.sample
+    end
+
     new_ent_id = get_rand_id
-    @hand[new_ent_id] = Card.new("p001", new_ent_id)
+    @hand[new_ent_id] = Card.new(id, new_ent_id)
   end
 
   def get_rand_id
@@ -343,29 +366,87 @@ class Game
     return new_id
   end
 
-  def play_card card
+  def use_card card
     # If card clicked is a potion and not an ingredient
     if card.id[0] == "p"
 
-      if @players_focus_remaining >= @ids[card.id].fc
+      #Handle deducting potion throwing focus cost
+      if @players_focus_remaining >= @pids[card.id].fc
     
-        @players_focus_remaining -= @ids[card.id].fc
+        @players_focus_remaining -= @pids[card.id].fc
     
         if @players_focus_remaining <= 0 or @hand.length <= 1
           @players_turn = false
         end
       
-        #
-        # CARD BEHAVIOR HERE
-        #
-      
+        ###
+        # POTION CARD BEHAVIOR HERE
+        ###
+
         card.needs_removed = true
+      end
+    elsif card.id[0] == "i"
+      ###
+      # INGREDIENT CARD BEHAVIOR HERE
+      ###
+
+      puts "INGREDIENT CLICKED"
+      
+      if !card.selected
+        card.selected = true
+        card.fw = 200
+        card.fh = 200
+        @selected_cards.append card
+      else
+        card.selected = false
+        card.fw = 160
+        card.fh = 160
+        @selected_cards.delete card
+      end
+
+      puts check_selected_cards_for_potion
+
+    end
+  end
+
+  # Helper method: builds a frequency hash for an array
+  def ingredient_counts ingredients
+    ingredients.each_with_object(Hash.new(0)) do |ingredient, counts|
+      counts[ingredient] += 1
+    end
+  end
+
+  # Call this method (for example, after adding a new ingredient card)
+  def check_selected_cards_for_potion
+    # Extract the id's from all currently selected ingredient cards.
+    selected_ids = @selected_cards.map &:id
+
+    # Build a frequency hash of selected ingredient IDs.
+    selected_counts = ingredient_counts selected_ids
+
+    matching_potion = nil
+
+    # Iterate through each potion definition in @pids.
+    @pids.each do |potion_id, potion|
+      # Build a frequency hash for the potion's ingredient list.
+      required_counts = ingredient_counts potion[:ingredients]
+      
+      # Check if the counts (and thus the ingredients including repeats) match exactly.
+      if selected_counts == required_counts
+        puts "Matching potion found: #{potion[:name]}"
+        matching_potion = { id: potion_id, data: potion }
+        break  # Exit once a match is found, or remove break if you want to find all matches.
       end
     end
 
+    unless matching_potion
+      puts "No matching potion for selected ingredients: #{selected_ids}"
+    end
 
-
+    matching_potion
   end
+
+
 end
 
 
