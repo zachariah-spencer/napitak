@@ -51,12 +51,20 @@ class Card
   end
 
   def calc_position num_cards, index
-    x_s = ( GTK.args.grid.w / 2 ) - ( num_cards * ( (@w + @padding) / 2) )
+    x_s = ( GTK.args.grid.w / 2 ) - ( num_cards * ( ( @w + @padding ) / 2 ) )
 
     if !@grabbed
+
       @f_pos.x = x_s + (index * (@w + @padding))
-      #c.f_angle = add code to handle index-based angling here
-      
+
+      if !@selected
+        @f_pos.y = 20
+        #c.f_angle = add code to handle index-based angling here
+      else
+        @f_pos.y = ( GTK.args.grid.h / 2 ) - ( @h / 2 )
+      end
+
+
       @angle = @angle.lerp @f_angle, 0.2
 
       @pos.x = @pos.x.lerp @f_pos.x, 0.2
@@ -65,6 +73,7 @@ class Card
       @w = @w.lerp @fw, 0.2
       @h = @h.lerp @fh, 0.2
     end
+
   end
 
   def rect
@@ -169,9 +178,10 @@ class Game
 
     @players_turn = true
     @players_focus_remaining = 2
+    @cards = {}
     @deck = {}
     @hand = {}
-    @selected_cards = []
+    @selected_cards = {}
 
 #    5.times do
 #      gen_new_card
@@ -207,15 +217,20 @@ class Game
     @hand.each_with_index do |(id, c), i|
       c.calc_position @hand.length, i
     end
+
+    @selected_cards.each_with_index do |(id, c), i|
+      c.calc_position @selected_cards.length, i
+    end
   end
 
   def calc_entity_removals
-    @hand.reject! {|id, c| c.needs_removed }
+    @hand.reject! { |id, c| c.needs_removed }
+    @cards.reject! { |id, c| c.needs_removed }
   end
 
   def calc_mouse_inputs
     if state.currently_dragging_card_id
-      c_ref = @hand[state.currently_dragging_card_id]
+      c_ref = @hand[state.currently_dragging_card_id] || @selected_cards[state.currently_dragging_card_id]
     else
       #card_under_mouse lol
       c_u_m = Geometry.find_intersect_rect inputs.mouse, get_card_rects
@@ -224,7 +239,7 @@ class Game
 
     if inputs.mouse.click and c_u_m
       state.currently_dragging_card_id = c_u_m.id
-      c_ref = @hand[state.currently_dragging_card_id]
+      c_ref = @hand[state.currently_dragging_card_id] || @selected_cards[state.currently_dragging_card_id]
       c_ref.grabbed = true
 
       state.mouse_point_inside_square = 
@@ -244,30 +259,31 @@ class Game
         use_card c_ref
       end
 
-      
+      # Re-fetch the card from either group.
+      c_ref = @hand[state.currently_dragging_card_id] || @selected_cards[state.currently_dragging_card_id]
       c_ref.grabbed = false
-
-      # Exclude the dragged card from the sorted order
-      other_cards = @hand.values.reject { |card| card.entity_id == state.currently_dragging_card_id }
-      sorted_ids = other_cards.sort_by { |card| card.pos.x }.map { |card| card.entity_id }
-
-      # Calculate the center of the dragged card
-      dragged_center = c_ref.pos[:x] + (c_ref.w / 2)
-
-      # Find the index where the dragged card should be inserted
-      new_index = sorted_ids.find_index do |card_id|
-        card = @hand[card_id]
-        # Compare centers to decide insertion point
-        dragged_center < (card.pos.x + (card.w / 2))
+      
+      # For active hand cards, perform reordering.
+      if @hand.key?(state.currently_dragging_card_id)
+        
+        # Exclude the dragged card from the current order.
+        other_cards = @hand.values.reject { |card| card.entity_id == state.currently_dragging_card_id }
+        sorted_ids = other_cards.sort_by { |card| card.pos.x }.map { |card| card.entity_id }
+        
+        # Calculate the center position of the dragged card.
+        dragged_center = c_ref.pos[:x] + (c_ref.w / 2)
+        
+        # Determine where to insert the dragged card.
+        new_index = sorted_ids.find_index do |card_id|
+          card = @hand[card_id]
+          dragged_center < (card.pos.x + (card.w / 2))
+        end
+        new_index ||= sorted_ids.length
+        sorted_ids.insert(new_index, state.currently_dragging_card_id)
+        
+        # Rebuild the active hand from these sorted IDs.
+        @hand = sorted_ids.map { |id| [id, @hand[id]] }.to_h
       end
-      # If none found, insert at the end
-      new_index ||= sorted_ids.length
-
-      # Insert the dragged card id at the computed index
-      sorted_ids.insert(new_index, state.currently_dragging_card_id)
-
-      # Rebuild @hand hash based on new sorted order
-      @hand = sorted_ids.map { |id| [id, @hand[id]] }.to_h
 
       state.currently_dragging_card_id = nil
     end
@@ -276,7 +292,9 @@ class Game
 
   def calc_debug_inputs
     if inputs.keyboard.key_down.o and @hand.length > 0
+      @cards.delete @hand.keys.last
       @hand.delete @hand.keys.last
+      
     end
 
     if inputs.keyboard.key_down.p
@@ -303,24 +321,24 @@ class Game
       primitive_marker: :solid,
     }
 
-    hand ||= []
+    cards ||= []
     front_card = nil
 
     # REFACTOR TO HAND
-    @hand.each do |id, c|
+    @cards.each do |id, c|
       prefab = c.prefab
 
       if c.grabbed
         front_card = prefab
       else
-        hand.append prefab
+        cards.append prefab
       end
     end
 
     
 
     
-    back_render_layer << [ background, hand ]
+    back_render_layer << [ background, cards ]
     front_render_layer << [ front_card ]
 
     outputs.primitives << [ back_render_layer, front_render_layer ]
@@ -329,11 +347,17 @@ class Game
   # REFACTOR TO HAND
   def get_card_rects
     card_rects = []
-    @hand.each do |id, c|
-      card_rects << c.rect
+
+    # Include all active hand cards
+    @hand.each do |id, card|
+      card_rects << card.rect
+    end
+    # Also include all selected cards
+    @selected_cards.each do |id, card|
+      card_rects << card.rect
     end
 
-    return card_rects
+    card_rects
   end
 
   def begin_turn
@@ -352,7 +376,9 @@ class Game
     end
 
     new_ent_id = get_rand_id
-    @hand[new_ent_id] = Card.new(id, new_ent_id)
+    new_card = Card.new(id, new_ent_id)
+    @cards[new_ent_id] = new_card
+    @hand[new_ent_id] = new_card
   end
 
   def get_rand_id
@@ -394,14 +420,22 @@ class Game
       
       if !card.selected
         card.selected = true
-        card.fw = 200
-        card.fh = 200
-        @selected_cards.append card
+        card.fw = 250
+        card.fh = 250
+        card.grabbed = false
+        @selected_cards[card.entity_id] = card
+        puts "DELETING ENTITY ID FROM HAND: #{card.entity_id}"
+        @hand.delete card.entity_id
+        puts "REMAINING KEYS IN @hand: #{@hand.keys}"
       else
         card.selected = false
         card.fw = 160
         card.fh = 160
-        @selected_cards.delete card
+        card.grabbed = false
+        puts "INSERTING ENTITY ID INTO HAND: #{card.entity_id}"
+        @hand[card.entity_id] = card
+        puts "REMAINING KEYS IN @hand: #{@hand.keys}"
+        @selected_cards.delete card.entity_id
       end
 
       puts check_selected_cards_for_potion
@@ -419,7 +453,7 @@ class Game
   # Call this method (for example, after adding a new ingredient card)
   def check_selected_cards_for_potion
     # Extract the id's from all currently selected ingredient cards.
-    selected_ids = @selected_cards.map &:id
+    selected_ids = @selected_cards.values.map &:id
 
     # Build a frequency hash of selected ingredient IDs.
     selected_counts = ingredient_counts selected_ids
