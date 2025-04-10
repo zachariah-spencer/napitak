@@ -4,7 +4,87 @@ def tick args
 
   $game.tick
 
+  create_combined_sprite args
+
+  # render the combined sprite
+  # using its name :card_combo
+  # have it move across the screen and rotate
+  args.outputs.primitives << { x: 150,
+                            y: 500,
+                            w: 160,
+                            h: 160,
+                            path: :card_combo,
+                            primitive_marker: :sprite,
+                          }
+
 end
+
+def create_combined_sprite args
+  # NOTE: you can have the construction of the combined
+  #       sprite to happen every tick or only once (if the
+  #       combined sprite never changes).
+  #
+  # if the combined sprite never changes, comment out the line
+  # below to only construct it on the first frame and then
+  # use the cached texture
+  return if Kernel.tick_count != 0 # <---- guard clause to only construct on first frame and cache
+
+  # define the dimensions of the combined sprite
+  # the name of the combined sprite is :two_squares
+  args.outputs[:card_combo].w = 160
+  args.outputs[:card_combo].h = 160
+
+  args.outputs[:card_combo].primitives << {
+    x: 0,
+    y: 0,
+    w: 160,
+    h: 160,
+    angle: 0,
+    path: "sprites/card-back-purple.png",
+  }
+
+  args.outputs[:card_combo].primitives << {
+    x: 40,
+    y: 40,
+    w: 80,
+    h: 80,
+    angle: 0,
+    path: "sprites/hexagon/indigo.png",
+  }
+
+  # add a label in the center of the render target
+  args.outputs[:card_combo].primitives << {
+    x: 80,
+    y: 135,
+    text: "CardName",
+    anchor_x: 0.5,
+    anchor_y: 0.5,
+    size_enum: 3,
+  }
+
+  # add a label in the center of the render target
+  args.outputs[:card_combo].primitives << {
+    x: 80,
+    y: 20,
+    text: "NUM",
+    anchor_x: 0.5,
+    anchor_y: 0.5,
+    size_enum: 1,
+  }
+end
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
