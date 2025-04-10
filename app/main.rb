@@ -4,97 +4,26 @@ def tick args
 
   $game.tick
 
-  create_combined_sprite args
+#  create_combined_sprite args
 
-  # render the combined sprite
-  # using its name :card_combo
-  # have it move across the screen and rotate
-  args.outputs.primitives << { x: 150,
-                            y: 500,
-                            w: 160,
-                            h: 160,
-                            path: :card_combo,
-                            primitive_marker: :sprite,
-                          }
+#  args.outputs.primitives << { x: 150,
+#                            y: 500,
+#                            w: 160,
+#                            h: 160,
+#                            path: :card_combo,
+#                            primitive_marker: :sprite,
+#                          }
 
 end
-
-def create_combined_sprite args
-  # NOTE: you can have the construction of the combined
-  #       sprite to happen every tick or only once (if the
-  #       combined sprite never changes).
-  #
-  # if the combined sprite never changes, comment out the line
-  # below to only construct it on the first frame and then
-  # use the cached texture
-  return if Kernel.tick_count != 0 # <---- guard clause to only construct on first frame and cache
-
-  # define the dimensions of the combined sprite
-  # the name of the combined sprite is :two_squares
-  args.outputs[:card_combo].w = 160
-  args.outputs[:card_combo].h = 160
-
-  args.outputs[:card_combo].primitives << {
-    x: 0,
-    y: 0,
-    w: 160,
-    h: 160,
-    angle: 0,
-    path: "sprites/card-back-purple.png",
-  }
-
-  args.outputs[:card_combo].primitives << {
-    x: 40,
-    y: 40,
-    w: 80,
-    h: 80,
-    angle: 0,
-    path: "sprites/hexagon/indigo.png",
-  }
-
-  # add a label in the center of the render target
-  args.outputs[:card_combo].primitives << {
-    x: 80,
-    y: 135,
-    text: "CardName",
-    anchor_x: 0.5,
-    anchor_y: 0.5,
-    size_enum: 3,
-  }
-
-  # add a label in the center of the render target
-  args.outputs[:card_combo].primitives << {
-    x: 80,
-    y: 20,
-    text: "NUM",
-    anchor_x: 0.5,
-    anchor_y: 0.5,
-    size_enum: 1,
-  }
-end
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 class Card
-  attr_accessor :grabbed, :needs_removed, :pos, :f_pos, :entity_id, :w, :id, :fw, :fh, :selected
+  attr_accessor :grabbed, :needs_removed, :pos, :f_pos, :entity_id, :w, :id, :fw, :fh, :selected, :name, :fc, :img
 
-  def initialize id, entity_id
+  def initialize id, entity_id, name, fc, img
     @id = id
+    @name = name
+    @fc = fc
 
     @entity_id = entity_id
 
@@ -117,13 +46,13 @@ class Card
     @angle = 100
     @f_angle = 0
 
-    @path = "sprites/card-back-purple.png"
+    @card_back_img = "sprites/card-back-purple.png"
+    @img = img
+    @composite_sprite = calc_render_target GTK.args
     
     @r = Numeric.rand(200..255)
     @g = Numeric.rand(0..255)
     @b = Numeric.rand(200..255)
-
-    @primitive_marker = :solid
 
     @grabbed = false
     @selected = false
@@ -173,14 +102,70 @@ class Card
       y: @pos.y,
       w: @w,
       h: @h,
-      r: @r,
-      g: @g,
-      b: @b,
-      angle: @angle,
-      path: @path,
+      #r: @r,
+      #g: @g,
+      #b: @b,
+      #angle: @angle,
+      path: :card_composite,
       primitive_marker: :sprite,
     }
   end
+
+  def calc_render_target args
+
+    # define the dimensions of the combined sprite
+    # the name of the combined sprite is :card_combo
+    args.outputs[:card_composite].w = 160
+    args.outputs[:card_composite].h = 160
+  
+    args.outputs[:card_composite].primitives << {
+      x: 0,
+      y: 0,
+      w: 160,
+      h: 160,
+      angle: 0,
+      path: @card_back_img,
+    }
+  
+    args.outputs[:card_composite].primitives << {
+      x: 40,
+      y: 40,
+      w: 80,
+      h: 80,
+      angle: 0,
+      path: @img,
+    }
+  
+    # add a label in the center of the render target
+    args.outputs[:card_composite].primitives << {
+      x: 80,
+      y: 135,
+      text: "#{@name}",
+      anchor_x: 0.5,
+      anchor_y: 0.5,
+      size_enum: 3,
+    }
+  
+    # add a label in the center of the render target
+    args.outputs[:card_composite].primitives << {
+      x: 80,
+      y: 20,
+      text: "#{@fc}",
+      anchor_x: 0.5,
+      anchor_y: 0.5,
+      size_enum: 1,
+    }
+
+    args.outputs.primitives << { 
+      x: 0,
+      y: 0,
+      w: 160,
+      h: 160,
+      path: :card_composite,
+      primitive_marker: :sprite,
+    }
+  end
+
 end
 
 
@@ -422,6 +407,18 @@ class Game
     front_render_layer << [ front_card ]
 
     outputs.primitives << [ back_render_layer, front_render_layer ]
+
+    @cards.each do |id, c|
+      outputs.primitives << c.prefab
+#      { 
+#      x: 0,
+#      y: 0,
+#      w: 160,
+#      h: 160,
+#      path: :card_composite,
+#      primitive_marker: :sprite,
+#      }
+    end
   end
 
   # REFACTOR TO HAND
@@ -455,8 +452,21 @@ class Game
       id = all_ids.sample
     end
 
+    name = "ERROR: NO NAME SET"
+    fc = 0
+    img = nil
+
+    if potion? id
+      name = @pids[id].name
+      fc = @pids[id].fc
+      img = @pids[id].path
+    else
+      name = @iids[id].name
+      img = @iids[id].path
+    end
+
     new_ent_id = get_rand_id
-    new_card = Card.new(id, new_ent_id)
+    new_card = Card.new(id, new_ent_id, name, fc, img)
     @cards[new_ent_id] = new_card
     @hand[new_ent_id] = new_card
   end
@@ -472,9 +482,13 @@ class Game
     return new_id
   end
 
+  def potion? cid
+    cid[0] == "p"
+  end
+
   def use_card card
     # If card clicked is a potion and not an ingredient
-    if card.id[0] == "p"
+    if potion? card.id
 
       #Handle deducting potion throwing focus cost
       if @players_focus_remaining >= @pids[card.id].fc
@@ -491,7 +505,7 @@ class Game
 
         card.needs_removed = true
       end
-    elsif card.id[0] == "i"
+    else
       ###
       # INGREDIENT CARD BEHAVIOR HERE
       ###
