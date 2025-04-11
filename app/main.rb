@@ -3,17 +3,6 @@ def tick args
   $game.args ||= args
 
   $game.tick
-
-#  create_combined_sprite args
-
-#  args.outputs.primitives << { x: 150,
-#                            y: 500,
-#                            w: 160,
-#                            h: 160,
-#                            path: :card_combo,
-#                            primitive_marker: :sprite,
-#                          }
-
 end
 
 
@@ -50,9 +39,9 @@ class Card
     @img = img
     @card_composite_sprite_ref = :"card_composite_#{entity_id}"
     
-    @r = Numeric.rand(200..255)
-    @g = Numeric.rand(0..255)
-    @b = Numeric.rand(200..255)
+    @r = Numeric.rand(100..200)
+    @g = Numeric.rand(50..100)
+    @b = Numeric.rand(100..200)
 
     @grabbed = false
     @selected = false
@@ -103,10 +92,7 @@ class Card
       y: @pos.y,
       w: @w,
       h: @h,
-      #r: @r,
-      #g: @g,
-      #b: @b,
-      #angle: @angle,
+      angle: @angle,
       path: @card_composite_sprite_ref,
       primitive_marker: :sprite,
     }
@@ -125,6 +111,9 @@ class Card
       w: 160,
       h: 160,
       angle: 0,
+      r: @r,
+      g: @g,
+      b: @b,
       path: @card_back_img,
     }
   
@@ -144,6 +133,9 @@ class Card
       text: "#{@name}",
       anchor_x: 0.5,
       anchor_y: 0.5,
+      r: 255,
+      g: 255,
+      b: 255,
       size_enum: 3,
     }
   
@@ -155,6 +147,9 @@ class Card
         text: "#{@fc}",
         anchor_x: 0.5,
         anchor_y: 0.5,
+        r: 255,
+        g: 255,
+        b: 255,
         size_enum: 1,
       }
     end
@@ -246,7 +241,6 @@ class Game
 
     @players_turn = true
     @players_focus_remaining = 2
-    @cards = {}
     @deck = {}
     @hand = {}
     @selected_cards = {}
@@ -261,7 +255,6 @@ class Game
     gen_new_card "i003"
     gen_new_card "i004"
     gen_new_card "i005"
-    gen_new_card "p001"
 
 
   end
@@ -297,12 +290,19 @@ class Game
 
   def calc_entity_removals
     @hand.reject! { |id, c| c.needs_removed }
-    @cards.reject! { |id, c| c.needs_removed }
   end
 
   def calc_keyboard_inputs
     if @matching_potion and inputs.keyboard.key_down.space 
-      puts "CRAFT A POTION"
+
+      gen_new_card @matching_potion.id
+
+      @selected_cards.each do |id, c|
+        @hand.delete c.entity_id
+        @selected_cards.delete c.entity_id
+      end
+
+      @matching_potion = nil
     end
   end
 
@@ -370,13 +370,13 @@ class Game
 
   def calc_debug_inputs
     if inputs.keyboard.key_down.o and @hand.length > 0
-      @cards.delete @hand.keys.last
-      @hand.delete @hand.keys.last
-      
+      c = @hand[@hand.keys.last]
+      move_card c, @deck, @hand
     end
 
-    if inputs.keyboard.key_down.p
-      gen_new_card
+    if inputs.keyboard.key_down.p and @deck.length > 0
+      c = @deck[@deck.keys.sample]
+      move_card c, @hand, @deck
     end
 
     if inputs.keyboard.key_down.t and !@players_turn
@@ -386,6 +386,7 @@ class Game
 
   def render
     back_render_layer = []
+    mid_render_layer = []
     front_render_layer = []
 
     background ||= {
@@ -393,9 +394,9 @@ class Game
       y: 0,
       w: args.grid.w,
       h: args.grid.h,
-      r: 150,
-      g: 150,
-      b: 250,
+      r: 10,
+      g: 10,
+      b: 20,
       primitive_marker: :solid,
     }
 
@@ -403,10 +404,11 @@ class Game
 
 
     cards ||= []
+    selected_cards ||= []
     front_card = nil
-
+    
     # REFACTOR TO HAND
-    @cards.each do |id, c|
+    @hand.each do |id, c|
       prefab = c.prefab
 
       if c.grabbed
@@ -416,11 +418,13 @@ class Game
       end
     end
 
+    @selected_cards.each { |id, c| selected_cards.append c.prefab }
     
 
 
     
     back_render_layer << [ background, cards ]
+    mid_render_layer << [ selected_cards ]
     front_render_layer << [ front_card ]
     if @matching_potion
       craftable_potion_tooltip ||= [
@@ -450,7 +454,7 @@ class Game
 
 
 
-    outputs.primitives << [ back_render_layer, front_render_layer ]
+    outputs.primitives << [ back_render_layer, mid_render_layer, front_render_layer ]
 
   end
 
@@ -474,7 +478,6 @@ class Game
     @players_turn = true
     @players_focus_remaining = 2
     gen_new_card
-    
   end
 
   def gen_new_card id = nil
@@ -500,8 +503,22 @@ class Game
 
     new_ent_id = get_rand_id
     new_card = Card.new(id, new_ent_id, name, fc, img)
-    @cards[new_ent_id] = new_card
-    @hand[new_ent_id] = new_card
+    move_card new_card, @deck
+  end
+
+  def move_card c, to, from = nil
+    to[c.entity_id] = c
+    from.delete c.entity_id if from
+
+    if from == @deck
+      c.pos.x = 0
+      c.pos.y = 0
+    elsif from == @hand
+      c.pos.x = grid.w / 2
+      c.pos.y = 20
+
+    end
+
   end
 
   def get_rand_id
