@@ -48,7 +48,7 @@ class Card
 
     @card_back_img = "sprites/card-back-purple.png"
     @img = img
-    @composite_sprite = calc_render_target GTK.args
+    @card_composite_sprite_ref = :"card_composite_#{entity_id}"
     
     @r = Numeric.rand(200..255)
     @g = Numeric.rand(0..255)
@@ -57,6 +57,7 @@ class Card
     @grabbed = false
     @selected = false
     @needs_removed = false
+    calc_render_target GTK.args
   end
 
   def calc_position num_cards, index
@@ -106,7 +107,7 @@ class Card
       #g: @g,
       #b: @b,
       #angle: @angle,
-      path: :card_composite,
+      path: @card_composite_sprite_ref,
       primitive_marker: :sprite,
     }
   end
@@ -115,10 +116,10 @@ class Card
 
     # define the dimensions of the combined sprite
     # the name of the combined sprite is :card_combo
-    args.outputs[:card_composite].w = 160
-    args.outputs[:card_composite].h = 160
+    args.outputs[@card_composite_sprite_ref].w = 160
+    args.outputs[@card_composite_sprite_ref].h = 160
   
-    args.outputs[:card_composite].primitives << {
+    args.outputs[@card_composite_sprite_ref].primitives << {
       x: 0,
       y: 0,
       w: 160,
@@ -127,7 +128,7 @@ class Card
       path: @card_back_img,
     }
   
-    args.outputs[:card_composite].primitives << {
+    args.outputs[@card_composite_sprite_ref].primitives << {
       x: 40,
       y: 40,
       w: 80,
@@ -137,7 +138,7 @@ class Card
     }
   
     # add a label in the center of the render target
-    args.outputs[:card_composite].primitives << {
+    args.outputs[@card_composite_sprite_ref].primitives << {
       x: 80,
       y: 135,
       text: "#{@name}",
@@ -146,22 +147,24 @@ class Card
       size_enum: 3,
     }
   
-    # add a label in the center of the render target
-    args.outputs[:card_composite].primitives << {
-      x: 80,
-      y: 20,
-      text: "#{@fc}",
-      anchor_x: 0.5,
-      anchor_y: 0.5,
-      size_enum: 1,
-    }
+    if @fc > 0
+      # add a label in the center of the render target
+      args.outputs[@card_composite_sprite_ref].primitives << {
+        x: 80,
+        y: 20,
+        text: "#{@fc}",
+        anchor_x: 0.5,
+        anchor_y: 0.5,
+        size_enum: 1,
+      }
+    end
 
     args.outputs.primitives << { 
       x: 0,
       y: 0,
       w: 160,
       h: 160,
-      path: :card_composite,
+      path: @card_composite_sprite_ref,
       primitive_marker: :sprite,
     }
   end
@@ -247,6 +250,7 @@ class Game
     @deck = {}
     @hand = {}
     @selected_cards = {}
+    @matching_potion = nil
 
 #    5.times do
 #      gen_new_card
@@ -257,6 +261,7 @@ class Game
     gen_new_card "i003"
     gen_new_card "i004"
     gen_new_card "i005"
+    gen_new_card "p001"
 
 
   end
@@ -386,6 +391,9 @@ class Game
       primitive_marker: :solid,
     }
 
+    
+
+
     cards ||= []
     front_card = nil
 
@@ -402,23 +410,40 @@ class Game
 
     
 
+
     
     back_render_layer << [ background, cards ]
     front_render_layer << [ front_card ]
+    if @matching_potion
+      craftable_potion_tooltip ||= [
+        {
+          x: grid.w / 2,
+          y: grid.h / 2,
+          text: "Press SPACE BAR to finalize brew!",
+          anchor_x: 0.5,
+          anchor_y: 0.5,
+          size_enum: 10,
+          r: 255,
+        },
+        {
+        x: grid.w / 2,
+        y: grid.h / 2 + 75,
+        text: "#{@matching_potion.data.name}",
+        anchor_x: 0.5,
+        anchor_y: 0.5,
+        size_enum: 10,
+        r: 255,
+        }
+      ]
+      
+
+      front_render_layer << [ craftable_potion_tooltip ]
+    end
+
+
 
     outputs.primitives << [ back_render_layer, front_render_layer ]
 
-    @cards.each do |id, c|
-      outputs.primitives << c.prefab
-#      { 
-#      x: 0,
-#      y: 0,
-#      w: 160,
-#      h: 160,
-#      path: :card_composite,
-#      primitive_marker: :sprite,
-#      }
-    end
   end
 
   # REFACTOR TO HAND
@@ -532,7 +557,7 @@ class Game
         @selected_cards.delete card.entity_id
       end
 
-      puts check_selected_cards_for_potion
+      @matching_potion = check_selected_cards_for_potion
 
     end
   end
