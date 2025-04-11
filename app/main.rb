@@ -27,7 +27,7 @@ class Card
     @fw = 160
     @fh = 160
 
-    @padding = 20
+    @padding = 5
 
     @pos = {
       x: 0,
@@ -57,16 +57,37 @@ class Card
 
   def calc_position num_cards, index
     x_s = ( GTK.args.grid.w / 2 ) - ( num_cards * ( ( @w + @padding ) / 2 ) )
-
     if !@grabbed
 
       @f_pos.x = x_s + (index * (@w + @padding))
 
       if !@selected
-        @f_pos.y = 20
-        #c.f_angle = add code to handle index-based angling here
+        
+        
+        
+        max_angle = -15.0  # Maximum rotation in degrees for the extreme cards
+        max_y = 30
+        center_index = (num_cards - 1) / 2.0
+        relative_index = index - center_index
+        normalized_distance = (index - center_index).abs / center_index
+
+        if num_cards == 2
+          @f_angle = (relative_index / center_index) * max_angle
+          @f_pos.y = max_y
+        elsif num_cards > 1
+          # Calculate the card's rotation as a fraction of the maximum angle
+          @f_angle = (relative_index / center_index) * max_angle
+          @f_pos.y = max_y * ( 1 - ( 3 * (normalized_distance)**2 )) + 50# +  ( 2 * (normalized_distance)**3 ) ) )# LINEAR: ((1 - normalized_distance) * max_y)
+
+        else
+          @f_angle = 0.0
+          @f_pos.y = max_y
+        end
+
+
       else
         @f_pos.y = ( GTK.args.grid.h / 2 ) - ( @h / 2 )
+        @f_angle = 0
       end
 
 
@@ -398,6 +419,10 @@ class Game
     mid_render_layer = []
     front_render_layer = []
 
+    cards ||= []
+    selected_cards ||= []
+    front_card = nil
+
     background ||= {
       x: 0,
       y: 0,
@@ -409,14 +434,29 @@ class Game
       primitive_marker: :solid,
     }
 
-    
+    left_panel ||= {
+      x: 0,
+      y: 0,
+      w: 200,
+      h: args.grid.h,
+      r: 50,
+      g: 50,
+      b: 50,
+      a: 50,
+      primitive_marker: :solid,
+    }
 
-
-    cards ||= []
-    selected_cards ||= []
-    front_card = nil
+    deck_sprite ||= {
+      x: 20,
+      y: 20,
+      w: 160,
+      h: 160,
+      r: 80,
+      g: 20,
+      b: 80,
+      primitive_marker: :solid,
+    }
     
-    # REFACTOR TO HAND
     @hand.each do |id, c|
       prefab = c.prefab
 
@@ -429,12 +469,6 @@ class Game
 
     @selected_cards.each { |id, c| selected_cards.append c.prefab }
     
-
-
-    
-    back_render_layer << [ background, cards ]
-    mid_render_layer << [ selected_cards ]
-    front_render_layer << [ front_card ]
     if @matching_potion
       craftable_potion_tooltip ||= [
         {
@@ -456,15 +490,13 @@ class Game
         r: 255,
         }
       ]
-      
-
       front_render_layer << [ craftable_potion_tooltip ]
     end
 
-
-
-    outputs.primitives << [ back_render_layer, mid_render_layer, front_render_layer ]
-
+    back_render_layer << [ left_panel ]
+    mid_render_layer << [ deck_sprite, cards, selected_cards ]
+    front_render_layer << [ front_card ]
+    outputs.primitives << [ background, back_render_layer, mid_render_layer, front_render_layer ]
   end
 
   # REFACTOR TO HAND
@@ -532,8 +564,8 @@ class Game
     from.delete c.entity_id if from
 
     if from == @deck
-      c.pos.x = 0
-      c.pos.y = 0
+      c.pos.x = 20
+      c.pos.y = 20
     elsif from == @hand
       c.pos.x = grid.w / 2
       c.pos.y = 20
