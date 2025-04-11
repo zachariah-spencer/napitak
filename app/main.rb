@@ -246,15 +246,9 @@ class Game
     @selected_cards = {}
     @matching_potion = nil
 
-#    5.times do
-#      gen_new_card
-#    end
-    gen_new_card "i001"
-    gen_new_card "i002"
-    gen_new_card "i003"
-    gen_new_card "i003"
-    gen_new_card "i004"
-    gen_new_card "i005"
+    8.times do
+      gen_new_card
+    end
 
 
   end
@@ -290,12 +284,16 @@ class Game
 
   def calc_entity_removals
     @hand.reject! { |id, c| c.needs_removed }
+    @deck.reject! { |id, c| c.needs_removed }
+    @selected_cards.reject! { |id, c| c.needs_removed }
+
   end
 
   def calc_keyboard_inputs
     if @matching_potion and inputs.keyboard.key_down.space 
 
-      gen_new_card @matching_potion.id
+      c = gen_new_card @matching_potion.id
+      move_card c, @hand, @deck
 
       @selected_cards.each do |id, c|
         @hand.delete c.entity_id
@@ -376,6 +374,11 @@ class Game
 
     if inputs.keyboard.key_down.p and @deck.length > 0
       c = @deck[@deck.keys.sample]
+      move_card c, @hand, @deck
+    end
+
+    if inputs.keyboard.key_down.b
+      c = gen_new_card "i001"
       move_card c, @hand, @deck
     end
 
@@ -481,12 +484,18 @@ class Game
   end
 
   def gen_new_card id = nil
-    #HOW TO ADD A NEW CARD TO HAND (USE @deck FOR DECK)
+    all_ids = @pids.keys + @iids.keys
 
     if id == nil
-      all_ids = @pids.keys + @iids.keys
-      id = all_ids.sample
+      #id = all_ids.sample
+      id = @iids.keys.sample
+      while id == "i001"
+        #id = all_ids.sample
+        id = @iids.keys.sample
+      end
     end
+
+    
 
     name = "ERROR: NO NAME SET"
     fc = 0
@@ -504,6 +513,12 @@ class Game
     new_ent_id = get_rand_id
     new_card = Card.new(id, new_ent_id, name, fc, img)
     move_card new_card, @deck
+
+    new_card
+  end
+
+  def draw_card
+    
   end
 
   def move_card c, to, from = nil
@@ -559,26 +574,22 @@ class Game
       ###
       # INGREDIENT CARD BEHAVIOR HERE
       ###
-
-      puts "INGREDIENT CLICKED"
       
       if !card.selected
         card.selected = true
         card.fw = 250
         card.fh = 250
         card.grabbed = false
+        
         @selected_cards[card.entity_id] = card
-        puts "DELETING ENTITY ID FROM HAND: #{card.entity_id}"
         @hand.delete card.entity_id
-        puts "REMAINING KEYS IN @hand: #{@hand.keys}"
       else
         card.selected = false
         card.fw = 160
         card.fh = 160
         card.grabbed = false
-        puts "INSERTING ENTITY ID INTO HAND: #{card.entity_id}"
+
         @hand[card.entity_id] = card
-        puts "REMAINING KEYS IN @hand: #{@hand.keys}"
         @selected_cards.delete card.entity_id
       end
 
