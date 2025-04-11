@@ -274,6 +274,8 @@ class Game
   def calc
     calc_card_positions
 
+    calc_keyboard_inputs
+
     if @players_turn
       calc_mouse_inputs
     end
@@ -296,6 +298,12 @@ class Game
   def calc_entity_removals
     @hand.reject! { |id, c| c.needs_removed }
     @cards.reject! { |id, c| c.needs_removed }
+  end
+
+  def calc_keyboard_inputs
+    if @matching_potion and inputs.keyboard.key_down.space 
+      puts "CRAFT A POTION"
+    end
   end
 
   def calc_mouse_inputs
