@@ -1,3 +1,9 @@
+# TODO
+# 1. Create two draw pile system
+# 2. Create enemy
+# 3. Create potency scaling system
+
+
 def tick args
   $game ||= Game.new
   $game.args ||= args
@@ -580,7 +586,7 @@ class Game
         card.fw = 250
         card.fh = 250
         card.grabbed = false
-        
+
         @selected_cards[card.entity_id] = card
         @hand.delete card.entity_id
       else
