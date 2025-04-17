@@ -17,7 +17,7 @@ end
 
 
 class Card
-  attr_accessor :grabbed, :needs_removed, :pos, :f_pos, :entity_id, :w, :id, :fw, :fh, :selected, :name, :fc, :img
+  attr_accessor :grabbed, :needs_removed, :pos, :f_pos, :entity_id, :w, :id, :fw, :fh, :selected, :name, :fc, :img, :padding
 
   def initialize id, entity_id, name, fc, img
     @id = id
@@ -277,18 +277,32 @@ class Game
       },
     }
 
-    @players_turn = true
+    @players_turn = false
     @players_focus_remaining = 2
     @deck = {}
     @hand = {}
     @selected_cards = {}
     @matching_potion = nil
     @max_hand_size = 8
+    @turn_stages = {
+      drawing_cards: 0,
+      playing_hand: 1,
+      cleanup: 2,
+    }
+
+    @turn_stage = nil
+    @turn_num = 0
 
     8.times do
       gen_new_card
     end
 
+    draw_card selected_draw_pile: "bottles"
+    2.times do
+      draw_card selected_draw_pile: "deck"
+    end
+
+    begin_turn_stage @turn_stages[:drawing_cards]
 
   end
 
@@ -343,6 +357,12 @@ class Game
     end
   end
 
+  def unselect_cards
+    @selected_cards.each do |id, c|
+      move_card c, @hand, @selected_cards
+    end
+  end
+
   def calc_mouse_inputs
     if state.currently_dragging_card_id
       c_ref = @hand[state.currently_dragging_card_id] || @selected_cards[state.currently_dragging_card_id]
@@ -353,66 +373,74 @@ class Game
     end
 
     if inputs.mouse.click
-      if Geometry.intersect_rect? inputs.mouse, get_deck_rect
+      if Geometry.intersect_rect? inputs.mouse, get_deck_rect and @turn_stage == @turn_stages[:drawing_cards]
         puts "clicked on deck"
         draw_card selected_draw_pile: "deck"
-      elsif Geometry.intersect_rect? inputs.mouse, get_bottles_rect
+        begin_turn_stage @turn_stages[:playing_cards]
+
+      elsif Geometry.intersect_rect? inputs.mouse, get_bottles_rect and @turn_stage == @turn_stages[:drawing_cards]
         puts "clicked on bottles"
         draw_card selected_draw_pile: "bottles"
-      elsif Geometry.intersect_rect? inputs.mouse, get_pass_button_rect
-        @players_turn = false
+        begin_turn_stage @turn_stages[:playing_cards]
+
+      elsif Geometry.intersect_rect? inputs.mouse, get_pass_button_rect and @turn_stage == @turn_stages[:playing_cards]
+        
+        begin_turn_stage @turn_stages[:cleanup]
+
       end
     end
 
-    if inputs.mouse.click and c_u_m
-      state.currently_dragging_card_id = c_u_m.id
-      c_ref = @hand[state.currently_dragging_card_id] || @selected_cards[state.currently_dragging_card_id]
-      c_ref.grabbed = true
+    if @turn_stage == @turn_stages[:playing_cards]
+      if inputs.mouse.click and c_u_m
+        state.currently_dragging_card_id = c_u_m.id
+        c_ref = @hand[state.currently_dragging_card_id] || @selected_cards[state.currently_dragging_card_id]
+        c_ref.grabbed = true
 
-      state.mouse_point_inside_square = 
-      {
-        x: inputs.mouse.x - c_u_m.x,
-        y: inputs.mouse.y - c_u_m.y,
-      }
+        state.mouse_point_inside_square = 
+        {
+          x: inputs.mouse.x - c_u_m.x,
+          y: inputs.mouse.y - c_u_m.y,
+        }
 
-      state.click_hold_time = Kernel.tick_count
-    elsif inputs.mouse.held and state.currently_dragging_card_id
-      c_ref.pos.x = inputs.mouse.x - state.mouse_point_inside_square.x
-      c_ref.pos.y = inputs.mouse.y - state.mouse_point_inside_square.y
-    elsif inputs.mouse.up and state.currently_dragging_card_id
+        state.click_hold_time = Kernel.tick_count
+      elsif inputs.mouse.held and state.currently_dragging_card_id
+        c_ref.pos.x = inputs.mouse.x - state.mouse_point_inside_square.x
+        c_ref.pos.y = inputs.mouse.y - state.mouse_point_inside_square.y
+      elsif inputs.mouse.up and state.currently_dragging_card_id
 
 
-      if state.click_hold_time.elapsed_time < 20 and (Geometry.distance c_ref.pos, c_ref.f_pos) < 20
-        use_card c_ref
-      end
-
-      # Re-fetch the card from either group.
-      c_ref = @hand[state.currently_dragging_card_id] || @selected_cards[state.currently_dragging_card_id]
-      c_ref.grabbed = false
-      
-      # For active hand cards, perform reordering.
-      if @hand.key?(state.currently_dragging_card_id)
-        
-        # Exclude the dragged card from the current order.
-        other_cards = @hand.values.reject { |card| card.entity_id == state.currently_dragging_card_id }
-        sorted_ids = other_cards.sort_by { |card| card.pos.x }.map { |card| card.entity_id }
-        
-        # Calculate the center position of the dragged card.
-        dragged_center = c_ref.pos[:x] + (c_ref.w / 2)
-        
-        # Determine where to insert the dragged card.
-        new_index = sorted_ids.find_index do |card_id|
-          card = @hand[card_id]
-          dragged_center < (card.pos.x + (card.w / 2))
+        if state.click_hold_time.elapsed_time < 20 and (Geometry.distance c_ref.pos, c_ref.f_pos) < 20
+          use_card c_ref
         end
-        new_index ||= sorted_ids.length
-        sorted_ids.insert(new_index, state.currently_dragging_card_id)
-        
-        # Rebuild the active hand from these sorted IDs.
-        @hand = sorted_ids.map { |id| [id, @hand[id]] }.to_h
-      end
 
-      state.currently_dragging_card_id = nil
+        # Re-fetch the card from either group.
+        c_ref = @hand[state.currently_dragging_card_id] || @selected_cards[state.currently_dragging_card_id]
+        c_ref.grabbed = false
+        
+        # For active hand cards, perform reordering.
+        if @hand.key?(state.currently_dragging_card_id)
+          
+          # Exclude the dragged card from the current order.
+          other_cards = @hand.values.reject { |card| card.entity_id == state.currently_dragging_card_id }
+          sorted_ids = other_cards.sort_by { |card| card.pos.x }.map { |card| card.entity_id }
+          
+          # Calculate the center position of the dragged card.
+          dragged_center = c_ref.pos[:x] + (c_ref.w / 2)
+          
+          # Determine where to insert the dragged card.
+          new_index = sorted_ids.find_index do |card_id|
+            card = @hand[card_id]
+            dragged_center < (card.pos.x + (card.w / 2))
+          end
+          new_index ||= sorted_ids.length
+          sorted_ids.insert(new_index, state.currently_dragging_card_id)
+          
+          # Rebuild the active hand from these sorted IDs.
+          @hand = sorted_ids.map { |id| [id, @hand[id]] }.to_h
+        end
+
+        state.currently_dragging_card_id = nil
+      end
     end
 
   end
@@ -432,7 +460,7 @@ class Game
     end
 
     if inputs.keyboard.key_down.t and !@players_turn
-      begin_turn
+      begin_turn_stage @turn_stages[:drawing_cards]
     end
   end
 
@@ -479,6 +507,24 @@ class Game
       primitive_marker: :solid,
     }
 
+    range = 255 - 0
+    x = (Kernel.tick_count * 10) % (2 * range)
+    osc_val = range - (x - range).abs
+
+    deck_highlight_border ||= {
+      x: 15,
+      y: 15,
+      w: 170,
+      h: 170,
+      anchor_x: 0,
+      anchor_y: 0,
+      r: 255,
+      g: 255,
+      b: 255,
+      a: osc_val,
+      primitive_marker: :solid,
+    }
+
     bottle_deck_sprite ||= {
       x: 20,
       y: 205,
@@ -489,6 +535,24 @@ class Game
       b: 80,
       primitive_marker: :solid,
     }
+
+    bottle_deck_highlight_border ||= {
+      x: 15,
+      y: 200,
+      w: 170,
+      h: 170,
+      anchor_x: 0,
+      anchor_y: 0,
+      r: 255,
+      g: 255,
+      b: 255,
+      a: osc_val,
+      primitive_marker: :solid,
+    }
+
+    if @turn_stage == @turn_stages[:drawing_cards]
+      mid_render_layer << [deck_highlight_border, bottle_deck_highlight_border]
+    end
 
     pass_button ||= {
       x: 20,
@@ -600,10 +664,28 @@ class Game
     card_rects
   end
 
-  def begin_turn
-    @players_turn = true
-    @players_focus_remaining = 2
-    gen_new_card
+  def begin_turn_stage new_stage
+    # new stage is of the format -> @turn_stages[:stage_symbol]
+    @turn_stage = new_stage 
+
+    if new_stage == @turn_stages[:drawing_cards]
+      puts "start drawing_cards stage"
+      @players_turn = true
+      @players_focus_remaining = 2
+      @turn_num += 1
+      
+    elsif new_stage == @turn_stages[:playing_cards]
+      puts "start playing_cards stage"
+
+
+
+    elsif new_stage == @turn_stages[:cleanup]
+      puts "start cleanup stage"
+      @players_turn = false
+      unselect_cards
+
+
+    end
   end
 
   def gen_new_card id = nil, to_deck = true
@@ -699,17 +781,29 @@ class Game
     to[c.entity_id] = c
     from.delete c.entity_id if from
 
-    if from == @deck
+    if to == @hand and from == @deck
       c.pos.x = 20
       c.pos.y = 20
 
-    elsif from == @hand
+    elsif to == @deck and from == @hand
       c.pos.x = grid.w / 2
       c.pos.y = 20
 
     elsif to == @hand && from == nil
       c.pos.x = 20
       c.pos.y = 200
+    elsif to == @hand && from == @selected_cards
+      c.selected = false
+      c.fw = 160
+      c.fh = 160
+      c.grabbed = false
+      c.padding = -60.0
+    elsif to == @selected_cards && from == @hand
+      c.selected = true
+      c.fw = 250
+      c.fh = 250
+      c.grabbed = false
+      c.padding = 5.0
     end
 
   end
@@ -754,21 +848,9 @@ class Game
       ###
       
       if !card.selected
-        card.selected = true
-        card.fw = 250
-        card.fh = 250
-        card.grabbed = false
-
-        @selected_cards[card.entity_id] = card
-        @hand.delete card.entity_id
+        move_card card, @selected_cards, @hand
       else
-        card.selected = false
-        card.fw = 160
-        card.fh = 160
-        card.grabbed = false
-
-        @hand[card.entity_id] = card
-        @selected_cards.delete card.entity_id
+        move_card card, @hand, @selected_cards
       end
 
       @matching_potion = check_selected_cards_for_potion
