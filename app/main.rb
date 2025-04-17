@@ -1,11 +1,3 @@
-# TODO
-# 1. Create @discards variable that holds cards that have been used in current combat
-#   a. Setup proper move events to the discards pile
-#   b. Setup a "reset deck" event that moves all discarded cards to the @deck list
-# 2. Create enemy
-# 3. Create potency scaling system
-
-
 def tick args
   $game ||= Game.new
   $game.args ||= args
@@ -280,6 +272,7 @@ class Game
     @deck = {}
     @hand = {}
     @selected_cards = {}
+    @discards = {}
     @matching_potion = nil
     @max_hand_size = 8
     @turn_stages = {
@@ -289,18 +282,13 @@ class Game
     }
 
     @turn_stage = nil
-    @turn_num = 0
+    @turn_num = -1
 
     8.times do
       gen_new_card
     end
 
-    draw_card selected_draw_pile: "bottles"
-    2.times do
-      draw_card selected_draw_pile: "deck"
-    end
-
-    begin_turn_stage @turn_stages[:drawing_cards]
+    begin_combat
 
   end
 
@@ -347,17 +335,11 @@ class Game
       move_card c, @hand, @deck
 
       @selected_cards.each do |id, c|
-        @hand.delete c.entity_id
+        move_card c, @discards, @hand
         @selected_cards.delete c.entity_id
       end
 
       @matching_potion = nil
-    end
-  end
-
-  def unselect_cards
-    @selected_cards.each do |id, c|
-      move_card c, @hand, @selected_cards
     end
   end
 
@@ -406,14 +388,15 @@ class Game
         c_ref.pos.y = inputs.mouse.y - state.mouse_point_inside_square.y
       elsif inputs.mouse.up and state.currently_dragging_card_id
 
+        # Re-fetch the card from either group.
+        c_ref = @hand[state.currently_dragging_card_id] || @selected_cards[state.currently_dragging_card_id]
+        c_ref.grabbed = false
 
         if state.click_hold_time.elapsed_time < 20 and (Geometry.distance c_ref.pos, c_ref.f_pos) < 20
           use_card c_ref
         end
 
-        # Re-fetch the card from either group.
-        c_ref = @hand[state.currently_dragging_card_id] || @selected_cards[state.currently_dragging_card_id]
-        c_ref.grabbed = false
+        
         
         # For active hand cards, perform reordering.
         if @hand.key?(state.currently_dragging_card_id)
@@ -725,37 +708,7 @@ class Game
     new_card
   end
 
-  def prompt_draw_card
-    #FIXME: Handle selecting a deck to draw from at beginning of turn 2 and onward
-    puts "prompt draw card called"
-  end
-
-  def get_deck_rect
-    {
-      x: 20,
-      y: 20,
-      w: 160,
-      h: 160,
-    }
-  end
-
-  def get_bottles_rect
-    {
-      x: 20,
-      y: 200, 
-      w: 160,
-      h: 160,
-    }
-  end
-
-  def get_pass_button_rect
-    {
-      x: 20,
-      y: grid.h - 50 - (60 / 2),
-      w: 160,
-      h: 60,
-    }
-  end
+  
 
   def draw_card selected_draw_pile:;
     if selected_draw_pile == "deck" and @deck.length > 0
@@ -767,6 +720,41 @@ class Game
       c = gen_new_card "i001", false
     end
     
+  end
+
+  def use_card card
+    # If card clicked is a potion and not an ingredient
+    if potion? card.id
+
+      #Handle deducting potion throwing focus cost
+      if @players_focus_remaining >= @pids[card.id].fc
+    
+        @players_focus_remaining -= @pids[card.id].fc
+    
+        if @players_focus_remaining <= 0 or @hand.length <= 1
+          @players_turn = false
+        end
+      
+        ###
+        # POTION CARD BEHAVIOR HERE
+        ###
+
+        move_card card, @discards, @hand
+      end
+    else
+      ###
+      # INGREDIENT CARD BEHAVIOR HERE
+      ###
+      
+      if !card.selected
+        move_card card, @selected_cards, @hand
+      else
+        move_card card, @hand, @selected_cards
+      end
+
+      @matching_potion = check_selected_cards_for_potion
+
+    end
   end
 
   def move_card c, to, from = nil
@@ -806,6 +794,10 @@ class Game
 
   end
 
+  def potion? cid
+    cid[0] == "p"
+  end
+
   def get_rand_id
     new_id = Numeric.rand(0..999)
 
@@ -817,42 +809,56 @@ class Game
     return new_id
   end
 
-  def potion? cid
-    cid[0] == "p"
+  def get_deck_rect
+    {
+      x: 20,
+      y: 20,
+      w: 160,
+      h: 160,
+    }
   end
 
-  def use_card card
-    # If card clicked is a potion and not an ingredient
-    if potion? card.id
+  def get_bottles_rect
+    {
+      x: 20,
+      y: 200, 
+      w: 160,
+      h: 160,
+    }
+  end
 
-      #Handle deducting potion throwing focus cost
-      if @players_focus_remaining >= @pids[card.id].fc
+  def get_pass_button_rect
+    {
+      x: 20,
+      y: grid.h - 50 - (60 / 2),
+      w: 160,
+      h: 60,
+    }
+  end
+
+  def begin_combat
+    puts "start begin_combat"
     
-        @players_focus_remaining -= @pids[card.id].fc
-    
-        if @players_focus_remaining <= 0 or @hand.length <= 1
-          @players_turn = false
-        end
-      
-        ###
-        # POTION CARD BEHAVIOR HERE
-        ###
+    @turn_num = 0
+    draw_card selected_draw_pile: "bottles"
+    2.times do
+      draw_card selected_draw_pile: "deck"
+    end
 
-        card.needs_removed = true
-      end
-    else
-      ###
-      # INGREDIENT CARD BEHAVIOR HERE
-      ###
-      
-      if !card.selected
-        move_card card, @selected_cards, @hand
-      else
-        move_card card, @hand, @selected_cards
-      end
+    begin_turn_stage @turn_stages[:drawing_cards]
 
-      @matching_potion = check_selected_cards_for_potion
+    puts "end begin_combat"
+  end
 
+  def reset_deck
+    @discards.each do |id, c|
+      move_card c, @deck, @discards
+    end
+  end
+
+  def unselect_cards
+    @selected_cards.each do |id, c|
+      move_card c, @hand, @selected_cards
     end
   end
 

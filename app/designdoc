@@ -1,0 +1,13 @@
+TODO
+1. Create enemy
+  a. enemy should have hp that decreases when certain potions are cast at it
+  b. enemy should be able to die when hp is <= 0
+  c. enemy should attack player in a variety of ways on its turn, allow vfx/animations to play, then pass the turn back to the player
+  d. use a hash to hold enemy attack behaviors
+2. Create potency scaling system
+
+
+
+
+
+Player should attain base ingredients
