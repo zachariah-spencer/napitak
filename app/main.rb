@@ -1,7 +1,5 @@
 # TODO
-# 1. Create two draw pile system
-#   a. Setup prompt at beginning of turn that highlights two piles and awaits user click event, don't allow cards to be played until this happens
-# 2. Create @discards variable that holds cards that have been used in current combat
+# 1. Create @discards variable that holds cards that have been used in current combat
 #   a. Setup proper move events to the discards pile
 #   b. Setup a "reset deck" event that moves all discarded cards to the @deck list
 # 2. Create enemy
