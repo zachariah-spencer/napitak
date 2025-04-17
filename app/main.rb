@@ -1,5 +1,9 @@
 # TODO
 # 1. Create two draw pile system
+#   a. Setup prompt at beginning of turn that highlights two piles and awaits user click event, don't allow cards to be played until this happens
+# 2. Create @discards variable that holds cards that have been used in current combat
+#   a. Setup proper move events to the discards pile
+#   b. Setup a "reset deck" event that moves all discarded cards to the @deck list
 # 2. Create enemy
 # 3. Create potency scaling system
 
@@ -27,7 +31,7 @@ class Card
     @fw = 160
     @fh = 160
 
-    @padding = 5
+    @padding = -60.0
 
     @pos = {
       x: 0,
@@ -74,10 +78,17 @@ class Card
         if num_cards == 2
           @f_angle = (relative_index / center_index) * max_angle
           @f_pos.y = max_y
+        elsif num_cards == 3
+          @f_angle = (relative_index / center_index) * 0.75 * max_angle
+          @f_pos.y = max_y * ( 1 - ( 1 * (normalized_distance)**2 )) + 25
+        elsif num_cards == 4
+          @f_angle = (relative_index / center_index) * max_angle
+          @f_pos.y = max_y * ( 1 - ( 1.5 * (normalized_distance)**2 )) + 50
+
         elsif num_cards > 1
           # Calculate the card's rotation as a fraction of the maximum angle
           @f_angle = (relative_index / center_index) * max_angle
-          @f_pos.y = max_y * ( 1 - ( 3 * (normalized_distance)**2 )) + 50# +  ( 2 * (normalized_distance)**3 ) ) )# LINEAR: ((1 - normalized_distance) * max_y)
+          @f_pos.y = max_y * ( 1 - ( 2 * (normalized_distance)**2 )) + ( 0.75 * (12.5 * num_cards))# +  ( 2 * (normalized_distance)**3 ) ) )# LINEAR: ((1 - normalized_distance) * max_y)
 
         else
           @f_angle = 0.0
@@ -272,6 +283,7 @@ class Game
     @hand = {}
     @selected_cards = {}
     @matching_potion = nil
+    @max_hand_size = 8
 
     8.times do
       gen_new_card
@@ -340,6 +352,18 @@ class Game
       c_ref = nil
     end
 
+    if inputs.mouse.click
+      if Geometry.intersect_rect? inputs.mouse, get_deck_rect
+        puts "clicked on deck"
+        draw_card selected_draw_pile: "deck"
+      elsif Geometry.intersect_rect? inputs.mouse, get_bottles_rect
+        puts "clicked on bottles"
+        draw_card selected_draw_pile: "bottles"
+      elsif Geometry.intersect_rect? inputs.mouse, get_pass_button_rect
+        @players_turn = false
+      end
+    end
+
     if inputs.mouse.click and c_u_m
       state.currently_dragging_card_id = c_u_m.id
       c_ref = @hand[state.currently_dragging_card_id] || @selected_cards[state.currently_dragging_card_id]
@@ -400,13 +424,11 @@ class Game
     end
 
     if inputs.keyboard.key_down.p and @deck.length > 0
-      c = @deck[@deck.keys.sample]
-      move_card c, @hand, @deck
+      draw_card selected_draw_pile: "deck"
     end
 
     if inputs.keyboard.key_down.b
-      c = gen_new_card "i001"
-      move_card c, @hand, @deck
+      draw_card selected_draw_pile: "bottles"
     end
 
     if inputs.keyboard.key_down.t and !@players_turn
@@ -456,6 +478,69 @@ class Game
       b: 80,
       primitive_marker: :solid,
     }
+
+    bottle_deck_sprite ||= {
+      x: 20,
+      y: 205,
+      w: 160,
+      h: 160,
+      r: 80,
+      g: 80,
+      b: 80,
+      primitive_marker: :solid,
+    }
+
+    pass_button ||= {
+      x: 20,
+      y: grid.h - 50 - (60 / 2),
+      w: 160,
+      h: 60,
+      r: 100,
+      g: 20,
+      b: 20,
+      primitive_marker: :solid,
+    }
+
+    players_turn_label ||= {
+      x: grid.w / 2,
+      y: grid.h - 50,
+      size_enum: 10,
+      r: 255,
+      g: 255,
+      b: 255,
+      alignment_enum: 1,
+      text: "YOUR TURN",
+    }
+
+    players_focus_remaining_label ||= {
+      x: grid.w - 50,
+      y: grid.h - 50,
+      size_enum: 10,
+      r: 255,
+      g: 255,
+      b: 255,
+      alignment_enum: 2,
+      text: "Focus: #{@players_focus_remaining}",
+    }
+
+
+
+    if @players_turn
+      front_render_layer << players_turn_label
+      front_render_layer << players_focus_remaining_label
+    end
+
+    pass_button_label ||= {
+      x: 20 + (pass_button.w / 2),
+      y: grid.h - (pass_button.h / 2),
+      text: "PASS",
+      size_enum: 10,
+      alignment_enum: 1,
+      r: 255,
+      g: 255,
+      b: 255,
+      primitive_marker: :label,
+    }
     
     @hand.each do |id, c|
       prefab = c.prefab
@@ -494,7 +579,7 @@ class Game
     end
 
     back_render_layer << [ left_panel ]
-    mid_render_layer << [ deck_sprite, cards, selected_cards ]
+    mid_render_layer << [ deck_sprite, bottle_deck_sprite, pass_button, pass_button_label, cards, selected_cards ]
     front_render_layer << [ front_card ]
     outputs.primitives << [ background, back_render_layer, mid_render_layer, front_render_layer ]
   end
@@ -521,7 +606,7 @@ class Game
     gen_new_card
   end
 
-  def gen_new_card id = nil
+  def gen_new_card id = nil, to_deck = true
     all_ids = @pids.keys + @iids.keys
 
     if id == nil
@@ -550,26 +635,81 @@ class Game
 
     new_ent_id = get_rand_id
     new_card = Card.new(id, new_ent_id, name, fc, img)
-    move_card new_card, @deck
+
+    if to_deck
+      move_card new_card, @deck
+    else
+      move_card new_card, @hand
+    end
 
     new_card
   end
 
-  def draw_card
+  def prompt_draw_card
+    #FIXME: Handle selecting a deck to draw from at beginning of turn 2 and onward
+    puts "prompt draw card called"
+  end
+
+  def get_deck_rect
+    {
+      x: 20,
+      y: 20,
+      w: 160,
+      h: 160,
+    }
+  end
+
+  def get_bottles_rect
+    {
+      x: 20,
+      y: 200, 
+      w: 160,
+      h: 160,
+    }
+  end
+
+  def get_pass_button_rect
+    {
+      x: 20,
+      y: grid.h - 50 - (60 / 2),
+      w: 160,
+      h: 60,
+    }
+  end
+
+  def draw_card selected_draw_pile:;
+    if selected_draw_pile == "deck" and @deck.length > 0
+      # Draw a card from deck
+      c = @deck[@deck.keys.sample]
+      move_card c, @hand, @deck
+    elsif selected_draw_pile == "bottles"
+      # Draw bottle
+      c = gen_new_card "i001", false
+    end
     
   end
 
   def move_card c, to, from = nil
+
+    if to == @hand && @hand.length == @max_hand_size
+      puts "ERROR: Max Hand Size Reached"
+      return
+    end
+
     to[c.entity_id] = c
     from.delete c.entity_id if from
 
     if from == @deck
       c.pos.x = 20
       c.pos.y = 20
+
     elsif from == @hand
       c.pos.x = grid.w / 2
       c.pos.y = 20
 
+    elsif to == @hand && from == nil
+      c.pos.x = 20
+      c.pos.y = 200
     end
 
   end
