@@ -50,12 +50,14 @@ class Card
   end
 
   def calc_position num_cards, index
-    x_s = ( GTK.args.grid.w / 2 ) - ( num_cards * ( ( @w + @padding ) / 2 ) )
+    x_s = ( GTK.args.grid.w / 2) - ( num_cards * ( ( @w + @padding ) / 2 ) )
     if !@grabbed
 
       @f_pos.x = x_s + (index * (@w + @padding))
 
       if !@selected
+      # slight offset to x position if cards are "fanned" because the angling makes them look off-center otherwise
+      @f_pos.x = x_s + (index * (@w + @padding)) - 20
         
         
         
@@ -78,7 +80,7 @@ class Card
         elsif num_cards > 1
           # Calculate the card's rotation as a fraction of the maximum angle
           @f_angle = (relative_index / center_index) * max_angle
-          @f_pos.y = max_y * ( 1 - ( 2 * (normalized_distance)**2 )) + ( 0.75 * (12.5 * num_cards))# +  ( 2 * (normalized_distance)**3 ) ) )# LINEAR: ((1 - normalized_distance) * max_y)
+          @f_pos.y = max_y * ( 1 - ( 2 * (normalized_distance)**2 )) + ( 0.75 * (12.5 * num_cards)) # +  ( 2 * (normalized_distance)**3 ) ) )# LINEAR: ((1 - normalized_distance) * max_y)
 
         else
           @f_angle = 0.0
@@ -90,16 +92,16 @@ class Card
         @f_pos.y = ( GTK.args.grid.h / 2 ) - ( @h / 2 )
         @f_angle = 0
       end
-
-
-      @angle = @angle.lerp @f_angle, 0.2
-
       @pos.x = @pos.x.lerp @f_pos.x, 0.2
       @pos.y = @pos.y.lerp @f_pos.y, 0.2
 
       @w = @w.lerp @fw, 0.2
       @h = @h.lerp @fh, 0.2
+    else
+      @f_angle = 0
     end
+
+    @angle = @angle.lerp @f_angle, 0.2
 
   end
 
@@ -202,6 +204,11 @@ class Game
   attr_gtk
 
   def initialize
+    @potion_traits = {
+      damage: 0,
+      healing: 1,
+    }
+
     @pids = {
       "p001" => {
         name: "Rock Potion",
@@ -212,6 +219,7 @@ class Game
         ingredients: [
           "i001", "i004", "i004",
         ],
+        traits: [],
       },
 
       "p002" => {
@@ -222,6 +230,9 @@ class Game
         path: "sprites/circle/orange.png",
         ingredients: [
           "i001", "i003", "i003",
+        ],
+        traits: [
+          @potion_traits[:damage]
         ],
       },
 
@@ -234,6 +245,19 @@ class Game
         ingredients: [
           "i001", "i002", "i002",
         ],
+        traits: [],
+      },
+
+      "p004" => {
+        name: "Wind Potion",
+        desc: "A potion that shoots air at an enemy damaging them.",
+        fc: 2,
+        pow: 4,
+        path: "sprites/circle/indigo.png",
+        ingredients: [
+          "i001", "i005", "i005",
+        ],
+        traits: [],
       },
     }
 
@@ -263,12 +287,13 @@ class Game
 
       "i005" => {
         name: "Air",
-        path: "sprites/hexagon/blue.png",
+        path: "sprites/hexagon/indigo.png",
       },
     }
 
     @players_turn = false
     @players_focus_remaining = 2
+    @player_hp = 20
     @deck = {}
     @hand = {}
     @selected_cards = {}
@@ -280,13 +305,21 @@ class Game
       playing_hand: 1,
       cleanup: 2,
     }
-
     @turn_stage = nil
     @turn_num = -1
+
+    @enemy = {
+      hp: 10,
+      damage: 1,
+    }
+
 
     8.times do
       gen_new_card
     end
+
+    debug_card = gen_new_card "p002"
+    move_card debug_card, @hand, @deck
 
     begin_combat
 
@@ -446,9 +479,10 @@ class Game
   end
 
   def render
-    back_render_layer = []
-    mid_render_layer = []
-    front_render_layer = []
+    render_layer_1 = []
+    render_layer_2 = []
+    render_layer_3 = []
+    render_layer_4 = []
 
     cards ||= []
     selected_cards ||= []
@@ -532,7 +566,7 @@ class Game
     }
 
     if @turn_stage == @turn_stages[:drawing_cards]
-      mid_render_layer << [deck_highlight_border, bottle_deck_highlight_border]
+      render_layer_2 << [deck_highlight_border, bottle_deck_highlight_border]
     end
 
     pass_button ||= {
@@ -548,31 +582,92 @@ class Game
 
     players_turn_label ||= {
       x: grid.w / 2,
-      y: grid.h - 50,
+      y: grid.h / 2,
       size_enum: 10,
       r: 255,
       g: 255,
       b: 255,
+      a: osc_val,
       alignment_enum: 1,
       text: "YOUR TURN",
     }
 
-    players_focus_remaining_label ||= {
-      x: grid.w - 50,
-      y: grid.h - 50,
-      size_enum: 10,
+    enemy_sprite ||= {
+      x: grid.w / 2 - 100,
+      y: grid.h - 250,
+      w: 200,
+      h: 200,
+      r: 150,
+      g: 0,
+      b: 0,
+      primitive_marker: :solid,
+    }
+
+    enemy_hp_label ||= {
+      x: grid.w / 2,
+      y: grid.h - 270,
+      alignment_enum: 1,
+      size_enum: 5,
+      r: 150,
+      g: 0,
+      b: 0,
+      text: "#{@enemy.hp}/10",
+      primitive_marker: :label,
+    }
+
+
+    player_focus_label_header ||= {
+      x: 100,
+      y: grid.h - 125,
+      alignment_enum: 1,
+      size_enum: 8,
       r: 255,
       g: 255,
       b: 255,
-      alignment_enum: 2,
-      text: "Focus: #{@players_focus_remaining}",
+      text: "FOCUS",
+      primitive_marker: :label,
+    }
+    player_focus_label ||= {
+      x: 100,
+      y: grid.h - 175,
+      alignment_enum: 1,
+      size_enum: 8,
+      r: 0,
+      g: 150,
+      b: 150,
+      text: "#{@players_focus_remaining}",
+      primitive_marker: :label,
+    }
+
+    player_hp_label_header ||= {
+      x: 100,
+      y: grid.h - 225,
+      alignment_enum: 1,
+      size_enum: 8,
+      r: 255,
+      g: 255,
+      b: 255,
+      text: "HP",
+      primitive_marker: :label,
+    }
+    player_hp_label ||= {
+      x: 100,
+      y: grid.h - 275,
+      alignment_enum: 1,
+      size_enum: 8,
+      r: 0,
+      g: 150,
+      b: 0,
+      text: "#{@player_hp}/10",
+      primitive_marker: :label,
     }
 
 
 
+
+
     if @players_turn
-      front_render_layer << players_turn_label
-      front_render_layer << players_focus_remaining_label
+      render_layer_2 << players_turn_label
     end
 
     pass_button_label ||= {
@@ -620,29 +715,13 @@ class Game
         r: 255,
         }
       ]
-      front_render_layer << [ craftable_potion_tooltip ]
+      render_layer_3 << [ craftable_potion_tooltip ]
     end
 
-    back_render_layer << [ left_panel ]
-    mid_render_layer << [ deck_sprite, bottle_deck_sprite, pass_button, pass_button_label, cards, selected_cards ]
-    front_render_layer << [ front_card ]
-    outputs.primitives << [ background, back_render_layer, mid_render_layer, front_render_layer ]
-  end
-
-  # REFACTOR TO HAND
-  def get_card_rects
-    card_rects = []
-
-    # Include all active hand cards
-    @hand.each do |id, card|
-      card_rects << card.rect
-    end
-    # Also include all selected cards
-    @selected_cards.each do |id, card|
-      card_rects << card.rect
-    end
-
-    card_rects
+    render_layer_1 << [ left_panel, enemy_sprite, enemy_hp_label, player_hp_label_header, player_hp_label, player_focus_label_header, player_focus_label, ]
+    render_layer_2 << [ deck_sprite, bottle_deck_sprite, pass_button, pass_button_label, cards, selected_cards ]
+    render_layer_3 << [ front_card ]
+    outputs.primitives << [ background, render_layer_1, render_layer_2, render_layer_3, render_layer_4 ]
   end
 
   def begin_turn_stage new_stage
@@ -725,11 +804,11 @@ class Game
   def use_card card
     # If card clicked is a potion and not an ingredient
     if potion? card.id
+      potion_info = @pids[card.id]
 
       #Handle deducting potion throwing focus cost
-      if @players_focus_remaining >= @pids[card.id].fc
-    
-        @players_focus_remaining -= @pids[card.id].fc
+      if @players_focus_remaining >= potion_info.fc
+        @players_focus_remaining -= potion_info.fc
     
         if @players_focus_remaining <= 0 or @hand.length <= 1
           @players_turn = false
@@ -738,6 +817,16 @@ class Game
         ###
         # POTION CARD BEHAVIOR HERE
         ###
+
+        puts potion_info.traits
+        if potion_info.traits.include? @potion_traits[:damage]
+          puts "THIS POTION DOES DAMAGE"
+          @enemy.hp -= potion_info.pow
+
+          if @enemy.hp <= 0
+            puts "ENEMY DIED"
+          end
+        end
 
         move_card card, @discards, @hand
       end
@@ -796,6 +885,21 @@ class Game
 
   def potion? cid
     cid[0] == "p"
+  end
+
+  def get_card_rects
+    card_rects = []
+
+    # Include all active hand cards
+    @hand.each do |id, card|
+      card_rects << card.rect
+    end
+    # Also include all selected cards
+    @selected_cards.each do |id, card|
+      card_rects << card.rect
+    end
+
+    card_rects
   end
 
   def get_rand_id
