@@ -7,9 +7,9 @@ end
 
 
 class Card
-  attr_accessor :grabbed, :needs_removed, :pos, :f_pos, :entity_id, :w, :id, :fw, :fh, :selected, :name, :fc, :img, :padding
+  attr_accessor :grabbed, :needs_removed, :pos, :f_pos, :entity_id, :w, :id, :fw, :fh, :selected, :name, :fc, :img, :padding, :pow
 
-  def initialize id, entity_id, name, fc, img
+  def initialize id, entity_id, name, fc, img, pow
     @id = id
     @name = name
     @fc = fc
@@ -37,6 +37,7 @@ class Card
 
     @card_back_img = "sprites/card-back-purple.png"
     @img = img
+    @pow = pow
     @card_composite_sprite_ref = :"card_composite_#{entity_id}"
     
     @r = Numeric.rand(100..200)
@@ -170,18 +171,46 @@ class Card
     }
   
     if @fc > 0
-      # add a label in the center of the render target
-      args.outputs[@card_composite_sprite_ref].primitives << {
-        x: 80,
-        y: 20,
-        text: "#{@fc}",
-        anchor_x: 0.5,
-        anchor_y: 0.5,
-        r: 255,
-        g: 255,
-        b: 255,
-        size_enum: 1,
-      }
+      if @id[0] == "i"
+        # add a label in the center of the render target
+        args.outputs[@card_composite_sprite_ref].primitives << {
+          x: 80,
+          y: 20,
+          text: "#{@fc}",
+          anchor_x: 0.5,
+          anchor_y: 0.5,
+          r: 0,
+          g: 150,
+          b: 150,
+          size_enum: 1,
+        }
+      else
+        # add a label in the center of the render target
+        args.outputs[@card_composite_sprite_ref].primitives << {
+          x: 20,
+          y: 20,
+          text: "#{@fc}",
+          anchor_x: 0.5,
+          anchor_y: 0.5,
+          r: 0,
+          g: 150,
+          b: 150,
+          size_enum: 1,
+        }
+
+        # add a label in the center of the render target
+        args.outputs[@card_composite_sprite_ref].primitives << {
+          x: 140,
+          y: 20,
+          text: "#{@pow}",
+          anchor_x: 0.5,
+          anchor_y: 0.5,
+          r: 255,
+          g: 255,
+          b: 0,
+          size_enum: 1,
+        }
+      end
     end
 
     args.outputs.primitives << { 
@@ -192,12 +221,21 @@ class Card
       path: @card_composite_sprite_ref,
       primitive_marker: :sprite,
     }
+
   end
 
 end
 
 
+class CardTrait
+  attr_accessor :id, :power
 
+  def initialize id, power
+    @id = id
+    @power = power
+  end
+
+end 
 
 
 class Game
@@ -219,7 +257,9 @@ class Game
         ingredients: [
           "i001", "i004", "i004",
         ],
-        traits: [],
+        traits: [
+          CardTrait.new(@potion_traits[:damage], 1),
+        ],
       },
 
       "p002" => {
@@ -232,7 +272,7 @@ class Game
           "i001", "i003", "i003",
         ],
         traits: [
-          @potion_traits[:damage]
+          CardTrait.new(@potion_traits[:damage], 3),
         ],
       },
 
@@ -245,7 +285,9 @@ class Game
         ingredients: [
           "i001", "i002", "i002",
         ],
-        traits: [],
+        traits: [
+          CardTrait.new(@potion_traits[:healing], 2),
+        ],
       },
 
       "p004" => {
@@ -257,7 +299,9 @@ class Game
         ingredients: [
           "i001", "i005", "i005",
         ],
-        traits: [],
+        traits: [
+          CardTrait.new(@potion_traits[:damage], 4),
+        ],
       },
     }
 
@@ -294,6 +338,7 @@ class Game
     @players_turn = false
     @players_focus_remaining = 2
     @player_hp = 20
+    @player_max_hp = 20
     @deck = {}
     @hand = {}
     @selected_cards = {}
@@ -304,13 +349,20 @@ class Game
       drawing_cards: 0,
       playing_hand: 1,
       cleanup: 2,
+      enemy_turn: 3,
     }
     @turn_stage = nil
     @turn_num = -1
 
     @enemy = {
       hp: 10,
+      max_hp: 10,
       damage: 1,
+      attacks: {
+        att1: 0,
+        att2: 1,
+        att3: 2,
+      }
     }
 
 
@@ -611,7 +663,7 @@ class Game
       r: 150,
       g: 0,
       b: 0,
-      text: "#{@enemy.hp}/10",
+      text: "#{@enemy.hp}/#{@enemy.max_hp}",
       primitive_marker: :label,
     }
 
@@ -658,7 +710,7 @@ class Game
       r: 0,
       g: 150,
       b: 0,
-      text: "#{@player_hp}/10",
+      text: "#{@player_hp}/#{@player_max_hp}",
       primitive_marker: :label,
     }
 
@@ -737,14 +789,22 @@ class Game
     elsif new_stage == @turn_stages[:playing_cards]
       puts "start playing_cards stage"
 
-
-
     elsif new_stage == @turn_stages[:cleanup]
       puts "start cleanup stage"
       @players_turn = false
       unselect_cards
+      begin_turn_stage @turn_stages[:enemy_turn]
 
+    elsif new_stage == @turn_stages[:enemy_turn]
+      enemy_attack
+      begin_turn_stage @turn_stages[:drawing_cards]
+    end
+  end
 
+  def enemy_attack
+    @player_hp -= 1
+    if @player_hp <= 0
+      puts "PLAYER DIED"
     end
   end
 
@@ -770,13 +830,14 @@ class Game
       name = @pids[id].name
       fc = @pids[id].fc
       img = @pids[id].path
+      pow = @pids[id].pow
     else
       name = @iids[id].name
       img = @iids[id].path
     end
 
     new_ent_id = get_rand_id
-    new_card = Card.new(id, new_ent_id, name, fc, img)
+    new_card = Card.new(id, new_ent_id, name, fc, img, pow)
 
     if to_deck
       move_card new_card, @deck
@@ -811,20 +872,28 @@ class Game
         @players_focus_remaining -= potion_info.fc
     
         if @players_focus_remaining <= 0 or @hand.length <= 1
-          @players_turn = false
+          begin_turn_stage @turn_stages[:cleanup]
         end
       
         ###
         # POTION CARD BEHAVIOR HERE
         ###
-
-        puts potion_info.traits
-        if potion_info.traits.include? @potion_traits[:damage]
+        damage_trait = potion_info.traits.detect { |t| t.id == @potion_traits[:damage] }
+        healing_trait = potion_info.traits.detect { |t| t.id == @potion_traits[:healing] }
+        if damage_trait
           puts "THIS POTION DOES DAMAGE"
-          @enemy.hp -= potion_info.pow
+          @enemy.hp -= damage_trait.power
 
           if @enemy.hp <= 0
             puts "ENEMY DIED"
+          end
+
+        elsif healing_trait
+          puts "THIS POTION DOES HEALING"
+          @player_hp += healing_trait.power
+
+          if @player_hp >= @player_max_hp
+            @player_hp = @player_max_hp
           end
         end
 
