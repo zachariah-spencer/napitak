@@ -335,6 +335,12 @@ class Game
       },
     }
 
+    @turn_stages = {
+      drawing_cards: 0,
+      playing_hand: 1,
+      cleanup: 2,
+      enemy_turn: 3,
+    }
     @players_turn = false
     @players_focus_remaining = 2
     @player_hp = 20
@@ -345,28 +351,35 @@ class Game
     @discards = {}
     @matching_potion = nil
     @max_hand_size = 8
-    @turn_stages = {
-      drawing_cards: 0,
-      playing_hand: 1,
-      cleanup: 2,
-      enemy_turn: 3,
-    }
     @turn_stage = nil
     @turn_num = -1
+    @status_nums = []
 
     @enemy = {
-      hp: 10,
-      max_hp: 10,
+      turn_start_tick_count: 0,
+      attacked: false,
+      hp: 5,
+      max_hp: 5,
       damage: 1,
+      # percentage chance of the enemy using each attack is the key and the attack details itself is the value
       attacks: {
-        att1: 0,
-        att2: 1,
-        att3: 2,
-      }
+        70 => {
+          name: "Attack 1",
+          damage: 1,
+        },
+        20 => {
+          name: "Attack 2",
+          damage: 2,
+        },
+        10 => {
+          name: "Attack 3",
+          damage: 3,
+        },
+      },
     }
 
 
-    8.times do
+    10.times do
       gen_new_card "i004"
     end
 
@@ -384,16 +397,70 @@ class Game
 
   def calc
     calc_card_positions
-
     calc_keyboard_inputs
 
     if @players_turn
       calc_mouse_inputs
+    else
+      calc_enemy
     end
 
+    calc_particles
     calc_entity_removals
-
     calc_debug_inputs
+  end
+
+  def calc_enemy
+    if @enemy.turn_start_tick_count.elapsed_time == 1.seconds
+      enemy_attack
+    end
+
+    if @enemy.turn_start_tick_count.elapsed_time == 2.seconds
+      begin_turn_stage @turn_stages[:drawing_cards]
+    end
+  end
+
+  def status_num x:, y:, text:, r:, g:, b:;
+    outputs[:stat_num].w = 300
+    outputs[:stat_num].h = 300
+    outputs[:stat_num] << {
+      text: text,
+      x: 0,
+      y: 0,
+      size_enum: 5,
+      anchor_x: 0,
+      anchor_y: 0,
+      primitive_marker: :label,
+
+      r: r,
+      g: g,
+      b: b,
+      a: 255,
+    }
+
+    new_num = outputs[:stat_num]
+
+    @status_nums << {
+      x: x - 150,
+      y: y - 150,
+      w: 300,
+      h: 300,
+      angle: Numeric.rand(-30..30),
+      path: new_num,
+      primitive_marker: :sprite,
+      start_tick_count: Kernel.tick_count,
+      needs_removed: false,
+    }
+  end
+
+  def calc_particles
+    @status_nums.each do |s|
+      s.y += 3.5
+      #s.a -= 10
+      if s.start_tick_count.elapsed_time >= 0.5.seconds
+        s.needs_removed = true
+      end
+    end
   end
 
   def calc_card_positions
@@ -410,6 +477,7 @@ class Game
     @hand.reject! { |id, c| c.needs_removed }
     @deck.reject! { |id, c| c.needs_removed }
     @selected_cards.reject! { |id, c| c.needs_removed }
+    @status_nums.reject! { |s| s.needs_removed }
 
   end
 
@@ -795,6 +863,7 @@ class Game
     render_layer_1 << [ left_panel, enemy_sprite, enemy_hp_label, player_hp_label_header, player_hp_label, player_focus_label_header, player_focus_label, ]
     render_layer_2 << [ deck_sprite, deck_card_count_label, bottle_deck_sprite, pass_button, pass_button_label, cards, selected_cards ]
     render_layer_3 << [ front_card ]
+    render_layer_4 << [ @status_nums ]
     outputs.primitives << [ background, render_layer_1, render_layer_2, render_layer_3, render_layer_4 ]
   end
 
@@ -818,16 +887,41 @@ class Game
       begin_turn_stage @turn_stages[:enemy_turn]
 
     elsif new_stage == @turn_stages[:enemy_turn]
-      enemy_attack
-      begin_turn_stage @turn_stages[:drawing_cards]
+      @enemy.turn_start_tick_count = Kernel.tick_count
+      @enemy.attacked = false
     end
   end
 
   def enemy_attack
-    @player_hp -= 1
+    attack = enemy_pick_attack
+    
+    status_num x: (grid.w / 2) + Numeric.rand(-50..50), y: grid.h - 160 + Numeric.rand(-50..50), text: "#{attack[:name]}", r: 255, g: 255, b: 255
+
+    status_num x: (grid.w / 2) + Numeric.rand(-50..50), y: grid.h - 400 + Numeric.rand(-50..50), text: "#{attack[:damage]}", r: 255, g: 0, b: 0
+
+    @player_hp -= attack[:damage]
     if @player_hp <= 0
       puts "PLAYER DIED"
     end
+
+    @enemy.attacked = true
+  end
+
+  def enemy_pick_attack
+    rand_n = Numeric.rand(0..100)
+    att_probs = @enemy.attacks.keys
+    attacks = @enemy[:attacks]
+    attack = 0
+
+    if rand_n >= 0 and rand_n < att_probs[0]
+      attack = attacks[att_probs[0]]
+    elsif rand_n  >= att_probs[0] and rand_n < ( att_probs[0] + att_probs[1] )
+      attack = attacks[att_probs[1]]
+    elsif rand_n >= ( att_probs[0] + att_probs[1] ) and rand_n < ( att_probs[0]+ att_probs[1] + att_probs[2] )
+      attack = attacks[att_probs[2]]
+    end
+
+    attack
   end
 
   def gen_new_card id = nil, to_deck = true
