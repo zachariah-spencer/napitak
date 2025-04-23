@@ -367,11 +367,11 @@ class Game
 
 
     8.times do
-      gen_new_card
+      gen_new_card "i004"
     end
 
-    debug_card = gen_new_card "p002"
-    move_card debug_card, @hand, @deck
+    # debug_card = gen_new_card "p002"
+    # move_card debug_card, @hand, @deck
 
     begin_combat
 
@@ -441,12 +441,21 @@ class Game
       if Geometry.intersect_rect? inputs.mouse, get_deck_rect and @turn_stage == @turn_stages[:drawing_cards]
         puts "clicked on deck"
         draw_card selected_draw_pile: "deck"
-        begin_turn_stage @turn_stages[:playing_cards]
+        puts actions_available?
+        if actions_available?
+          begin_turn_stage @turn_stages[:playing_cards]
+        else
+          begin_turn_stage @turn_stages[:cleanup]
+        end
 
       elsif Geometry.intersect_rect? inputs.mouse, get_bottles_rect and @turn_stage == @turn_stages[:drawing_cards]
         puts "clicked on bottles"
         draw_card selected_draw_pile: "bottles"
-        begin_turn_stage @turn_stages[:playing_cards]
+        if actions_available?
+          begin_turn_stage @turn_stages[:playing_cards]
+        else
+          begin_turn_stage @turn_stages[:cleanup]
+        end
 
       elsif Geometry.intersect_rect? inputs.mouse, get_pass_button_rect and @turn_stage == @turn_stages[:playing_cards]
         
@@ -572,6 +581,19 @@ class Game
       g: 20,
       b: 80,
       primitive_marker: :solid,
+    }
+
+    deck_card_count_label ||= {
+      text: "#{@deck.keys.length}",
+      x: 100,
+      y: 100,
+      anchor_x: 0.5,
+      anchor_y: 0.5,
+      size_enum: 10,
+      r: 255,
+      g: 255,
+      b: 255,
+      primitive_marker: :label,
     }
 
     range = 255 - 0
@@ -771,7 +793,7 @@ class Game
     end
 
     render_layer_1 << [ left_panel, enemy_sprite, enemy_hp_label, player_hp_label_header, player_hp_label, player_focus_label_header, player_focus_label, ]
-    render_layer_2 << [ deck_sprite, bottle_deck_sprite, pass_button, pass_button_label, cards, selected_cards ]
+    render_layer_2 << [ deck_sprite, deck_card_count_label, bottle_deck_sprite, pass_button, pass_button_label, cards, selected_cards ]
     render_layer_3 << [ front_card ]
     outputs.primitives << [ background, render_layer_1, render_layer_2, render_layer_3, render_layer_4 ]
   end
@@ -862,6 +884,29 @@ class Game
     
   end
 
+  def potions_in_hand
+    n = 0
+    @hand.each do |id, c|
+      n += 1 if potion?(c.id)
+    end
+
+    n
+
+  end
+
+  def ingredients_in_hand
+    n = 0
+    @hand.each do |id, c|
+      n += 1 if not potion?(c.id)
+    end
+
+    n
+  end
+
+  def actions_available?
+    return true if ( @players_focus_remaining > 0 and potions_in_hand >= 1 ) or ( ingredients_in_hand >= 3 ) else false
+  end
+
   def use_card card
     # If card clicked is a potion and not an ingredient
     if potion? card.id
@@ -870,10 +915,8 @@ class Game
       #Handle deducting potion throwing focus cost
       if @players_focus_remaining >= potion_info.fc
         @players_focus_remaining -= potion_info.fc
-    
-        if @players_focus_remaining <= 0 or @hand.length <= 1
-          begin_turn_stage @turn_stages[:cleanup]
-        end
+
+        move_card card, @discards, @hand
       
         ###
         # POTION CARD BEHAVIOR HERE
@@ -897,7 +940,10 @@ class Game
           end
         end
 
-        move_card card, @discards, @hand
+        puts actions_available?
+        if not actions_available?
+          begin_turn_stage @turn_stages[:cleanup]
+        end
       end
     else
       ###
@@ -1013,12 +1059,16 @@ class Game
     puts "start begin_combat"
     
     @turn_num = 0
-    draw_card selected_draw_pile: "bottles"
     2.times do
+      draw_card selected_draw_pile: "bottles"
+    end
+
+    4.times do
       draw_card selected_draw_pile: "deck"
     end
 
     begin_turn_stage @turn_stages[:drawing_cards]
+    begin_turn_stage @turn_stages[:playing_cards]
 
     puts "end begin_combat"
   end
