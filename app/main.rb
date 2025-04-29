@@ -353,7 +353,12 @@ class Game
     @max_hand_size = 8
     @turn_stage = nil
     @turn_num = -1
-    @status_nums = []
+    @status_labels = []
+
+    # keeps track of whether a render target for the specific number
+    # has been created already
+    @created_prefabs = {}
+
 
     @enemy = {
       turn_start_tick_count: 0,
@@ -390,6 +395,81 @@ class Game
 
   end
 
+  def create_particle_rt! number, r, g, b, scale
+    # if the render target for the number has already been created
+    # (and cached). return/exit early since we don't want to bust the
+    # texture that's already been created for us
+    return @created_prefabs[number] if @created_prefabs[number]
+    path = number.to_s
+
+    # if it hasn't been created, then create a RT with the name equal to
+    # to the number. add it to the lookup of created_prefabs
+    @created_prefabs[number] = path
+
+    # set RT properties
+    outputs[path].w = scale
+    outputs[path].h = scale
+    outputs[path].background_color = [0, 0, 0, 0]
+
+    # add the label to the render target
+    outputs[path].labels << {
+      x: 15,
+      y: 15,
+      text: number.to_s,
+      anchor_x: 0.5,
+      anchor_y: 0.5,
+      size_px: scale,
+      r: r,
+      g: g,
+      b: b,
+    }
+  end
+
+  def status_label x, y, t, r = 255, g = 255, b = 255, scale = 30
+
+    @status_labels << {
+        x: x,
+        y: y,
+        created_at: Kernel.tick_count,
+        text: t,
+        a: 255,
+        angle: 0,
+        scale: scale,
+        r: r,
+        g: g,
+        b: b,
+      }
+
+  end
+
+  # returns the particle prefab
+  def status_label_prefab s_l
+    # create the rt for the particle (this will return/no-op if the RT
+    # has already been created)
+    path = create_particle_rt! s_l.text, s_l.r, s_l.g, s_l.b, s_l.scale
+
+    # if the particle was created this frame, skip its render
+    # since the RT won't be processed until the next tick
+    if s_l.created_at == Kernel.tick_count
+      nil
+    else
+      # return a prefab that represents the RT/label as a sprite
+      { x: s_l.x,
+        y: s_l.y,
+        w: s_l.scale,
+        h: s_l.scale,
+        anchor_x: 0.5,
+        anchor_y: 0.5,
+        path: path,
+        r: s_l.r,
+        g: s_l.g,
+        b: s_l.b,
+        a: s_l.a,
+        angle: s_l.angle 
+      }
+    end
+  end
+
   def tick
     calc
     render
@@ -420,46 +500,13 @@ class Game
     end
   end
 
-  def status_num x:, y:, text:, r:, g:, b:;
-    outputs[:stat_num].w = 300
-    outputs[:stat_num].h = 300
-    outputs[:stat_num] << {
-      text: text,
-      x: 0,
-      y: 0,
-      size_enum: 5,
-      anchor_x: 0,
-      anchor_y: 0,
-      primitive_marker: :label,
-
-      r: r,
-      g: g,
-      b: b,
-      a: 255,
-    }
-
-    new_num = outputs[:stat_num]
-
-    @status_nums << {
-      x: x - 150,
-      y: y - 150,
-      w: 300,
-      h: 300,
-      angle: Numeric.rand(-30..30),
-      path: new_num,
-      primitive_marker: :sprite,
-      start_tick_count: Kernel.tick_count,
-      needs_removed: false,
-    }
-  end
-
   def calc_particles
-    @status_nums.each do |s|
-      s.y += 3.5
-      #s.a -= 10
-      if s.start_tick_count.elapsed_time >= 0.5.seconds
-        s.needs_removed = true
-      end
+    # process each particle setting their alpha
+    # make them spin, and set their y value
+    @status_labels.each do |particle|
+      particle.a -= 5
+      particle.angle += 10
+      particle.y += 3
     end
   end
 
@@ -477,7 +524,11 @@ class Game
     @hand.reject! { |id, c| c.needs_removed }
     @deck.reject! { |id, c| c.needs_removed }
     @selected_cards.reject! { |id, c| c.needs_removed }
-    @status_nums.reject! { |s| s.needs_removed }
+
+    # reject all particles with an alpha less than equal to 0
+    @status_labels.reject! do |particle|
+      particle.a <= 0
+    end
 
   end
 
@@ -616,6 +667,11 @@ class Game
     cards ||= []
     selected_cards ||= []
     front_card = nil
+
+    # for each particle, construct a prefab
+    render_layer_4 << @status_labels.map do |particle|
+      status_label_prefab particle
+    end
 
     background ||= {
       x: 0,
@@ -895,9 +951,11 @@ class Game
   def enemy_attack
     attack = enemy_pick_attack
     
-    status_num x: (grid.w / 2) + Numeric.rand(-50..50), y: grid.h - 160 + Numeric.rand(-50..50), text: "#{attack[:name]}", r: 255, g: 255, b: 255
+    # status_num x: (grid.w / 2) + Numeric.rand(-50..50), y: grid.h - 160 + Numeric.rand(-50..50), text: "#{attack[:name]}", r: 255, g: 255, b: 255
 
-    status_num x: (grid.w / 2) + Numeric.rand(-50..50), y: grid.h - 400 + Numeric.rand(-50..50), text: "#{attack[:damage]}", r: 255, g: 0, b: 0
+    # status_num x: (grid.w / 2) + Numeric.rand(-50..50), y: grid.h - 400 + Numeric.rand(-50..50), text: "#{attack[:damage]}", r: 255, g: 0, b: 0
+
+    status_label 80, (grid.h - 275), "#{attack[:damage]}", 255, 165, 0, 50
 
     @player_hp -= attack[:damage]
     if @player_hp <= 0
@@ -1020,6 +1078,7 @@ class Game
         if damage_trait
           puts "THIS POTION DOES DAMAGE"
           @enemy.hp -= damage_trait.power
+          status_label (grid.w / 2), (grid.h - 250), "#{damage_trait.power}", 255, 165, 0, 80
 
           if @enemy.hp <= 0
             puts "ENEMY DIED"
@@ -1028,6 +1087,8 @@ class Game
         elsif healing_trait
           puts "THIS POTION DOES HEALING"
           @player_hp += healing_trait.power
+          status_label 80, (grid.h - 275), "#{damage_trait.power}", 0, 255, 0, 80
+          
 
           if @player_hp >= @player_max_hp
             @player_hp = @player_max_hp
