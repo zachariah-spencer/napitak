@@ -11,51 +11,38 @@ class Game
             enemy_turn: 3,
         }
 
-        @deck = {}
         @hand = {}
         @selected_cards = {}
-        @discards = {}
+
+        starting_cards ||= []
+        10.times do
+          new_card = gen_new_card "p001"
+          starting_cards << new_card
+        end
+
+        @deck = Deck.new(starting_cards)
+        
         @matching_potion = nil
         @max_hand_size = 8
         @turn_stage = nil
         @turn_num = -1
+        
+        
+        # currently list of status_labels to render to the screen at any given frame
         @status_labels = []
-    
-        # keeps track of whether a render target for the specific number
-        # has been created already
+
+        # keeps track of whether an entity with a specific entity_id has been created already
+        @created_entity_ids = []
+        # keeps track of whether a render target for the specific number has been created already
         @created_prefabs = {}
     
     
         @player = Player.new()
         @enemy = Enemy.new(10)
+
+        @player.potions.add(gen_new_card "p001")
+    
         
-        {
-            turn_start_tick_count: 0,
-            attacked: false,
-            hp: 5,
-            max_hp: 5,
-            damage: 1,
-            # percentage chance of the enemy using each attack is the key and the attack details itself is the value
-            attacks: {
-            70 => {
-                name: "Attack 1",
-                damage: 1,
-            },
-            20 => {
-                name: "Attack 2",
-                damage: 2,
-            },
-            10 => {
-                name: "Attack 3",
-                damage: 3,
-            },
-            },
-        }
-    
-    
-        10.times do
-            gen_new_card "i004"
-        end
     
         begin_combat
   
@@ -131,7 +118,7 @@ class Game
       }
   
       deck_card_count_label ||= {
-        text: "#{@deck.keys.length}",
+        text: "#{@deck.size}",
         x: 100,
         y: 100,
         anchor_x: 0.5,
@@ -146,49 +133,6 @@ class Game
       range = 255 - 0
       x = (Kernel.tick_count * 10) % (2 * range)
       osc_val = range - (x - range).abs
-  
-      deck_highlight_border ||= {
-        x: 15,
-        y: 15,
-        w: 170,
-        h: 170,
-        anchor_x: 0,
-        anchor_y: 0,
-        r: 255,
-        g: 255,
-        b: 255,
-        a: osc_val,
-        primitive_marker: :solid,
-      }
-  
-      bottle_deck_sprite ||= {
-        x: 20,
-        y: 205,
-        w: 160,
-        h: 160,
-        r: 80,
-        g: 80,
-        b: 80,
-        primitive_marker: :solid,
-      }
-  
-      bottle_deck_highlight_border ||= {
-        x: 15,
-        y: 200,
-        w: 170,
-        h: 170,
-        anchor_x: 0,
-        anchor_y: 0,
-        r: 255,
-        g: 255,
-        b: 255,
-        a: osc_val,
-        primitive_marker: :solid,
-      }
-  
-      if @turn_stage == @turn_stages[:drawing_cards]
-        render_layer_2 << [deck_highlight_border, bottle_deck_highlight_border]
-      end
   
       pass_button ||= {
         x: 20,
@@ -340,7 +284,7 @@ class Game
       end
   
       render_layer_1 << [ left_panel, enemy_sprite, enemy_hp_label, player_hp_label_header, player_hp_label, player_focus_label_header, player_focus_label, ]
-      render_layer_2 << [ deck_sprite, deck_card_count_label, bottle_deck_sprite, pass_button, pass_button_label, cards, selected_cards ]
+      render_layer_2 << [ deck_sprite, deck_card_count_label, pass_button, pass_button_label, cards, selected_cards ]
       render_layer_3 << [ front_card ]
       render_layer_4 << [ @status_nums ]
       outputs.primitives << [ background, render_layer_1, render_layer_2, render_layer_3, render_layer_4 ]
@@ -378,7 +322,6 @@ class Game
     
       def calc_entity_removals
         @hand.reject! { |id, c| c.needs_removed }
-        @deck.reject! { |id, c| c.needs_removed }
         @selected_cards.reject! { |id, c| c.needs_removed }
     
         # reject all particles with an alpha less than equal to 0
@@ -389,18 +332,22 @@ class Game
       end
     
       def calc_keyboard_inputs
-        if @matching_potion and inputs.keyboard.key_down.space 
-    
-          c = gen_new_card @matching_potion.id
-          move_card c, @hand, @deck
-    
-          @selected_cards.each do |id, c|
-            move_card c, @discards, @hand
-            @selected_cards.delete c.entity_id
-          end
-    
-          @matching_potion = nil
-        end
+        # WILL MOVE TO CRAFTING ENCOUNTER
+        #
+        #
+        # if @matching_potion and inputs.keyboard.key_down.space 
+ 
+        #   c = gen_new_card @matching_potion.id
+        #   move_card c, @hand, @deck
+
+        #   @selected_cards.each do |id, c|
+        #     @deck.discard c
+        #     @hand.delete c.entity_id
+        #     @selected_cards.delete c.entity_id
+        #   end
+
+        #   @matching_potion = nil
+        # end
       end
     
       def calc_mouse_inputs
@@ -415,23 +362,6 @@ class Game
         if inputs.mouse.click
           if Geometry.intersect_rect? inputs.mouse, get_deck_rect and @turn_stage == @turn_stages[:drawing_cards]
             puts "clicked on deck"
-            draw_card selected_draw_pile: "deck"
-            puts actions_available?
-            if actions_available?
-              begin_turn_stage @turn_stages[:playing_cards]
-            else
-              begin_turn_stage @turn_stages[:cleanup]
-            end
-    
-          elsif Geometry.intersect_rect? inputs.mouse, get_bottles_rect and @turn_stage == @turn_stages[:drawing_cards]
-            puts "clicked on bottles"
-            draw_card selected_draw_pile: "bottles"
-            if actions_available?
-              begin_turn_stage @turn_stages[:playing_cards]
-            else
-              begin_turn_stage @turn_stages[:cleanup]
-            end
-    
           elsif Geometry.intersect_rect? inputs.mouse, get_pass_button_rect and @turn_stage == @turn_stages[:playing_cards]
             
             begin_turn_stage @turn_stages[:cleanup]
@@ -496,21 +426,8 @@ class Game
       end
     
       def calc_debug_inputs
-        if inputs.keyboard.key_down.o and @hand.length > 0
-          c = @hand[@hand.keys.last]
-          move_card c, @deck, @hand
-        end
-    
         if inputs.keyboard.key_down.p and @deck.length > 0
-          draw_card selected_draw_pile: "deck"
-        end
-    
-        if inputs.keyboard.key_down.b
-          draw_card selected_draw_pile: "bottles"
-        end
-    
-        if inputs.keyboard.key_down.t and !@player.my_turn?
-          begin_turn_stage @turn_stages[:drawing_cards]
+          draw_card
         end
     end
   
@@ -523,6 +440,8 @@ class Game
         @player.my_turn = true
         @player.focus = @player.max_focus
         @turn_num += 1
+        draw_card
+        begin_turn_stage @turn_stages[:playing_cards]
         
       elsif new_stage == @turn_stages[:playing_cards]
         puts "start playing_cards stage"
@@ -570,28 +489,26 @@ class Game
       new_ent_id = get_rand_id
       new_card = Card.new(id, new_ent_id, name, fc, img, pow)
   
-      if to_deck
-        move_card new_card, @deck
-      else
-        move_card new_card, @hand
-      end
-  
       new_card
     end
   
     
-  
-    def draw_card selected_draw_pile:;
-      if selected_draw_pile == "deck" and @deck.length > 0
-        # Draw a card from deck
-        c = @deck[@deck.keys.sample]
-        move_card c, @hand, @deck
-      elsif selected_draw_pile == "bottles"
-        # Draw bottle
-        c = gen_new_card "i001", false
-      end
-      
+    def draw_card
+      card = @deck.draw
+      @hand[card.entity_id] = card
     end
+  
+    # def draw_card selected_draw_pile:;
+    #   if selected_draw_pile == "deck" and @deck.length > 0
+    #     # Draw a card from deck
+    #     c = @deck[@deck.keys.sample]
+    #     move_card c, @hand, @deck
+    #   elsif selected_draw_pile == "bottles"
+    #     # Draw bottle
+    #     c = gen_new_card "i001", false
+    #   end
+    #   
+    # end
   
     def potions_in_hand
       n = 0
@@ -625,7 +542,9 @@ class Game
         if @player.focus >= potion_info.fc
           @player.focus -= potion_info.fc
   
-          move_card card, @discards, @hand
+          @deck.discard card
+          @hand.delete card.entity_id
+          # move_card card, @discards, @hand
         
           ###
           # POTION CARD BEHAVIOR HERE
@@ -663,11 +582,7 @@ class Game
         # INGREDIENT CARD BEHAVIOR HERE
         ###
         
-        if !card.selected
-          move_card card, @selected_cards, @hand
-        else
-          move_card card, @hand, @selected_cards
-        end
+        toggle_card_selected card
   
         @matching_potion = check_selected_cards_for_potion
   
@@ -730,6 +645,8 @@ class Game
       card_rects
     end
   
+
+    #FIXME: Needs refactored to check for all cards instanced into the game not just cards in @hand
     def get_rand_id
       new_id = Numeric.rand(0..999)
   
@@ -750,15 +667,6 @@ class Game
       }
     end
   
-    def get_bottles_rect
-      {
-        x: 20,
-        y: 200, 
-        w: 160,
-        h: 160,
-      }
-    end
-  
     def get_pass_button_rect
       {
         x: 20,
@@ -772,12 +680,8 @@ class Game
       puts "start begin_combat"
       
       @turn_num = 0
-      2.times do
-        draw_card selected_draw_pile: "bottles"
-      end
-  
-      4.times do
-        draw_card selected_draw_pile: "deck"
+      3.times do
+        draw_card # selected_draw_pile: "bottles"
       end
   
       begin_turn_stage @turn_stages[:drawing_cards]
@@ -787,14 +691,20 @@ class Game
     end
   
     def reset_deck
-      @discards.each do |id, c|
-        move_card c, @deck, @discards
-      end
+      @deck.reshuffle
     end
   
+    def toggle_card_selected c
+      if !c.selected
+        move_card c, @selected_cards, @hand
+      else
+        move_card c, @hand, @selected_cards
+      end
+    end
+
     def unselect_cards
       @selected_cards.each do |id, c|
-        move_card c, @hand, @selected_cards
+        toggle_card_selected c
       end
     end
   

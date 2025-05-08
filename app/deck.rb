@@ -1,0 +1,46 @@
+# A simple Deck abstraction to manage drawing, discarding, and reshuffling cards.
+class Deck
+    attr_reader :draw_pile, :discard_pile
+  
+    # Initialize with an optional array of cards.
+    def initialize(cards = [])
+      @draw_pile = cards.dup
+      @discard_pile = []
+    end
+  
+    # Add a card into the draw pile.
+    def add(card)
+      @draw_pile << card
+    end
+  
+    # Draw a card: reshuffle if needed, then remove and return one.
+    def draw
+      reshuffle if @draw_pile.empty? && !@discard_pile.empty?
+      card = @draw_pile.sample
+      @draw_pile.delete(card)
+      card
+    end
+  
+    # Discard a card into the discard pile.
+    def discard(card)
+      @discard_pile << card
+    end
+  
+    # Move all discarded cards back into the draw pile and shuffle.
+    def reshuffle
+      @draw_pile.concat(@discard_pile)
+      @discard_pile.clear
+      @draw_pile.shuffle!
+    end
+  
+    # Number of cards remaining in the draw pile.
+    def size
+      @draw_pile.size
+    end
+  
+    # Check whether the draw pile is empty.
+    def empty?
+      @draw_pile.empty?
+    end
+
+end

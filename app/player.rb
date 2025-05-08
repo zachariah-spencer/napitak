@@ -1,5 +1,5 @@
 class Player
-    attr_accessor :hp, :max_hp, :focus, :max_focus
+    attr_accessor :hp, :max_hp, :focus, :max_focus, :potions, :ingredients
 
     def initialize
         $player = self
@@ -9,6 +9,10 @@ class Player
         @max_hp = 20
         @focus = 0
         @max_focus = 2
+        
+        @ingredients = Inventory.new()
+        @potions = Inventory.new()
+
     end
 
     # setter

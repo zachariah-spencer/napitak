@@ -3,6 +3,8 @@ require_relative 'globals.rb'
 require_relative 'enemy.rb'
 require_relative 'game.rb'
 require_relative 'player.rb'
+require_relative 'deck.rb'
+require_relative 'inventory.rb'
 
 def tick args
   $game ||= Game.new
