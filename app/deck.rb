@@ -4,7 +4,7 @@ class Deck
   
     # Initialize with an optional array of cards.
     def initialize(cards = [])
-      @draw_pile = cards.dup
+      @draw_pile = Array(cards).flatten.dup
       @discard_pile = []
     end
   

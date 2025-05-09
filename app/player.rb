@@ -4,7 +4,7 @@ class Player
     def initialize
         $player = self
 
-        @my_turn = false
+        @my_turn = true
         @hp = 20
         @max_hp = 20
         @focus = 0

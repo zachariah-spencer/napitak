@@ -32,9 +32,9 @@ class Card
       @pow = pow
       @card_composite_sprite_ref = :"card_composite_#{entity_id}"
       
-      @r = Numeric.rand(100..200)
-      @g = Numeric.rand(50..100)
-      @b = Numeric.rand(100..200)
+      @r = 150# Numeric.rand(100..200)
+      @g = 150# Numeric.rand(50..100)
+      @b = 150# Numeric.rand(100..200)
   
       @grabbed = false
       @selected = false

@@ -14,13 +14,8 @@ class Game
         @hand = {}
         @selected_cards = {}
 
-        starting_cards ||= []
-        10.times do
-          new_card = gen_new_card "p001"
-          starting_cards << new_card
-        end
-
-        @deck = Deck.new(starting_cards)
+        # @deck = Deck.new(starting_cards)
+        
         
         @matching_potion = nil
         @max_hand_size = 8
@@ -40,7 +35,9 @@ class Game
         @player = Player.new()
         @enemy = Enemy.new(10)
 
-        @player.potions.add(gen_new_card "p001")
+        10.times do
+          @player.potions.add(gen_new_card("p001"))
+        end
     
         
     
@@ -118,7 +115,7 @@ class Game
       }
   
       deck_card_count_label ||= {
-        text: "#{@deck.size}",
+        text: "#{@player.potions.size}",
         x: 100,
         y: 100,
         anchor_x: 0.5,
@@ -426,7 +423,7 @@ class Game
       end
     
       def calc_debug_inputs
-        if inputs.keyboard.key_down.p and @deck.length > 0
+        if inputs.keyboard.key_down.p and @player.potions.size > 0
           draw_card
         end
     end
@@ -494,7 +491,7 @@ class Game
   
     
     def draw_card
-      card = @deck.draw
+      card = @player.potions.draw
       @hand[card.entity_id] = card
     end
   
@@ -542,7 +539,7 @@ class Game
         if @player.focus >= potion_info.fc
           @player.focus -= potion_info.fc
   
-          @deck.discard card
+          @player.potions.discard card
           @hand.delete card.entity_id
           # move_card card, @discards, @hand
         
@@ -599,15 +596,15 @@ class Game
       to[c.entity_id] = c
       from.delete c.entity_id if from
   
-      if to == @hand and from == @deck
-        c.pos.x = 20
-        c.pos.y = 20
-  
-      elsif to == @deck and from == @hand
-        c.pos.x = grid.w / 2
-        c.pos.y = 20
-  
-      elsif to == @hand && from == nil
+      #if to == @hand and from == @deck
+      #   c.pos.x = 20
+      #   c.pos.y = 20
+  # 
+      # elsif to == @deck and from == @hand
+      #   c.pos.x = grid.w / 2
+      #   c.pos.y = 20
+  # 
+      if to == @hand && from == nil
         c.pos.x = 20
         c.pos.y = 200
       elsif to == @hand && from == @selected_cards
