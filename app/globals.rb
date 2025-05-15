@@ -97,6 +97,6 @@ $iids = {
 $player = nil
 $enemy = nil
 
-def status_label x, y, text, r = 255, g = 255, b = 255, scale = 30
-    $game.status_label(x, y, text, r, g, b, scale)
+def status_label(x, y, t, r, g, b, scale)
+    $game.status_label(x, y, t, r, g, b, scale)
 end
