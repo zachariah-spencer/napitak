@@ -56,4 +56,52 @@ class Enemy
         attack
       end
 
+    def render layer_num
+    l0 = []
+    l1 = []
+    l2 = []
+    l3 = []
+    l4 = []
+
+    case layer_num
+    when 0
+      return l0
+    when 1
+
+      enemy_sprite ||= {
+        x: GTK.args.grid.w / 2 - 100,
+        y: GTK.args.grid.h - 250,
+        w: 200,
+        h: 200,
+        r: 150,
+        g: 0,
+        b: 0,
+        primitive_marker: :solid,
+      }
+
+      enemy_hp_label ||= {
+        x: GTK.args.grid.w / 2,
+        y: GTK.args.grid.h - 270,
+        alignment_enum: 1,
+        size_enum: 5,
+        r: 150,
+        g: 0,
+        b: 0,
+        text: "#{@hp}/#{@max_hp}",
+        primitive_marker: :label,
+      }
+
+      l1 << [ enemy_sprite, enemy_hp_label ]
+      return l1
+    when 2
+      return l2
+    when 3
+      return l3
+    when 4
+      return l4
+    else
+      # puts "combat.rb: Invalid Render Argument"
+    end
+  end
+
 end

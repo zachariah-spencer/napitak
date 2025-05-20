@@ -8,23 +8,31 @@ class Game
 
     # keeps track of whether an entity with a specific entity_id has been created already
     @created_entity_ids = []
-
     # currently list of status_labels to render to the screen at any given frame
     @status_labels = []
-
     # keeps track of whether a render target for the specific number has been created already
     @created_prefabs = {}
+    # the game's official instantiation of a Player for an individual game.
+    @player = nil
 
-
+    new_run
     change_scene "combat"
+  end
+
+  def new_run
+    @player = Player.new()
   end
 
   def change_scene new_scene
     @scene = new_scene
 
-    if @scene == "combat"
-      @scene_ref = Combat.new
+    case @scene
+    when "combat"
+      @scene_ref = Combat.new()
+    when "alchemy_table"
+      @scene_ref = AlchemyTable.new("a", max_uses: 10)
     end
+
   end
 
   def tick

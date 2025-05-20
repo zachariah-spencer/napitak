@@ -1,11 +1,15 @@
-require_relative 'card.rb'
-require_relative 'globals.rb'
-require_relative 'enemy.rb'
 require_relative 'game.rb'
-require_relative 'player.rb'
-require_relative 'deck.rb'
-require_relative 'inventory.rb'
-require_relative 'combat.rb'
+require_relative 'globals.rb'
+
+require_relative 'models/enemy.rb'
+require_relative 'models/player.rb'
+require_relative 'models/card.rb'
+
+require_relative 'services/deck.rb'
+require_relative 'services/inventory.rb'
+
+require_relative 'scenes/combat.rb'
+require_relative 'scenes/alchemy_table.rb'
 
 def tick args
   $game ||= Game.new

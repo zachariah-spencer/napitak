@@ -1,5 +1,6 @@
 class Combat
   attr_gtk
+  attr
 
   def initialize
 
@@ -19,7 +20,7 @@ class Combat
     @turn_num = -1
 
 
-    @player = Player.new()
+    @player = $player
     @enemy = Enemy.new(10)
 
     10.times do
@@ -104,29 +105,6 @@ class Combat
         primitive_marker: :solid,
       }
 
-      enemy_sprite ||= {
-        x: grid.w / 2 - 100,
-        y: grid.h - 250,
-        w: 200,
-        h: 200,
-        r: 150,
-        g: 0,
-        b: 0,
-        primitive_marker: :solid,
-      }
-
-      enemy_hp_label ||= {
-        x: grid.w / 2,
-        y: grid.h - 270,
-        alignment_enum: 1,
-        size_enum: 5,
-        r: 150,
-        g: 0,
-        b: 0,
-        text: "#{@enemy.hp}/#{@enemy.max_hp}",
-        primitive_marker: :label,
-      }
-
       player_hp_label_header ||= {
         x: 100,
         y: grid.h - 225,
@@ -175,7 +153,7 @@ class Combat
         primitive_marker: :label,
       }
 
-      l1 << [ left_panel, enemy_sprite, enemy_hp_label, player_hp_label_header, player_hp_label, player_focus_label_header, player_focus_label ]
+      l1 << [ left_panel, @enemy.render(1),player_hp_label_header, player_hp_label, player_focus_label_header, player_focus_label ]
       return l1
 
     when 2
@@ -258,7 +236,6 @@ class Combat
     else
       # puts "combat.rb: Invalid Render Argument"
     end
-
 
 =begin
     if @matching_potion
