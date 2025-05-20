@@ -32,7 +32,7 @@ class Combat
   
   def tick
     calc
-    render
+    render(10)
   end
   
   def calc
@@ -48,180 +48,17 @@ class Combat
     calc_debug_inputs
   end
   
-  def render
-    render_layer_1 = []
-    render_layer_2 = []
-    render_layer_3 = []
-    render_layer_4 = []
+  def render layer_num
+    l0 = []
+    l1 = []
+    l2 = []
+    l3 = []
+    l4 = []
 
     cards ||= []
     selected_cards ||= []
     front_card = nil
 
-    background ||= {
-      x: 0,
-      y: 0,
-      w: args.grid.w,
-      h: args.grid.h,
-      r: 10,
-      g: 10,
-      b: 20,
-      primitive_marker: :solid,
-    }
-
-    left_panel ||= {
-      x: 0,
-      y: 0,
-      w: 200,
-      h: args.grid.h,
-      r: 50,
-      g: 50,
-      b: 50,
-      a: 50,
-      primitive_marker: :solid,
-    }
-
-    deck_sprite ||= {
-      x: 20,
-      y: 20,
-      w: 160,
-      h: 160,
-      r: 80,
-      g: 20,
-      b: 80,
-      primitive_marker: :solid,
-    }
-
-    deck_card_count_label ||= {
-      text: "#{@player.potions.size}",
-      x: 100,
-      y: 100,
-      anchor_x: 0.5,
-      anchor_y: 0.5,
-      size_enum: 10,
-      r: 255,
-      g: 255,
-      b: 255,
-      primitive_marker: :label,
-    }
-
-    range = 255 - 0
-    x = (Kernel.tick_count * 10) % (2 * range)
-    osc_val = range - (x - range).abs
-
-    pass_button ||= {
-      x: 20,
-      y: grid.h - 50 - (60 / 2),
-      w: 160,
-      h: 60,
-      r: 100,
-      g: 20,
-      b: 20,
-      primitive_marker: :solid,
-    }
-
-    players_turn_label ||= {
-      x: grid.w / 2,
-      y: grid.h / 2,
-      size_enum: 10,
-      r: 255,
-      g: 255,
-      b: 255,
-      a: osc_val,
-      alignment_enum: 1,
-      text: "YOUR TURN",
-    }
-
-    enemy_sprite ||= {
-      x: grid.w / 2 - 100,
-      y: grid.h - 250,
-      w: 200,
-      h: 200,
-      r: 150,
-      g: 0,
-      b: 0,
-      primitive_marker: :solid,
-    }
-
-    enemy_hp_label ||= {
-      x: grid.w / 2,
-      y: grid.h - 270,
-      alignment_enum: 1,
-      size_enum: 5,
-      r: 150,
-      g: 0,
-      b: 0,
-      text: "#{@enemy.hp}/#{@enemy.max_hp}",
-      primitive_marker: :label,
-    }
-
-
-    player_focus_label_header ||= {
-      x: 100,
-      y: grid.h - 125,
-      alignment_enum: 1,
-      size_enum: 8,
-      r: 255,
-      g: 255,
-      b: 255,
-      text: "FOCUS",
-      primitive_marker: :label,
-    }
-    player_focus_label ||= {
-      x: 100,
-      y: grid.h - 175,
-      alignment_enum: 1,
-      size_enum: 8,
-      r: 0,
-      g: 150,
-      b: 150,
-      text: "#{@player.focus}",
-      primitive_marker: :label,
-    }
-
-    player_hp_label_header ||= {
-      x: 100,
-      y: grid.h - 225,
-      alignment_enum: 1,
-      size_enum: 8,
-      r: 255,
-      g: 255,
-      b: 255,
-      text: "HP",
-      primitive_marker: :label,
-    }
-    player_hp_label ||= {
-      x: 100,
-      y: grid.h - 275,
-      alignment_enum: 1,
-      size_enum: 8,
-      r: 0,
-      g: 150,
-      b: 0,
-      text: "#{@player.hp}/#{@player.max_hp}",
-      primitive_marker: :label,
-    }
-
-
-
-
-
-    if @player.my_turn?
-      render_layer_2 << players_turn_label
-    end
-
-    pass_button_label ||= {
-      x: 20 + (pass_button.w / 2),
-      y: grid.h - (pass_button.h / 2),
-      text: "PASS",
-      size_enum: 10,
-      alignment_enum: 1,
-      r: 255,
-      g: 255,
-      b: 255,
-      primitive_marker: :label,
-    }
-    
     @hand.each do |id, c|
       prefab = c.prefab
 
@@ -232,8 +69,198 @@ class Combat
       end
     end
 
-    @selected_cards.each { |id, c| selected_cards.append c.prefab }
-    
+    range = 255 - 0
+    x = (Kernel.tick_count * 10) % (2 * range)
+    osc_val = range - (x - range).abs
+
+    case layer_num
+    when 0
+
+      background ||= {
+        x: 0,
+        y: 0,
+        w: args.grid.w,
+        h: args.grid.h,
+        r: 10,
+        g: 10,
+        b: 20,
+        primitive_marker: :solid,
+      }
+
+      l0 << [ background ]
+      return l0
+
+    when 1
+
+      left_panel ||= {
+        x: 0,
+        y: 0,
+        w: 200,
+        h: args.grid.h,
+        r: 50,
+        g: 50,
+        b: 50,
+        a: 50,
+        primitive_marker: :solid,
+      }
+
+      enemy_sprite ||= {
+        x: grid.w / 2 - 100,
+        y: grid.h - 250,
+        w: 200,
+        h: 200,
+        r: 150,
+        g: 0,
+        b: 0,
+        primitive_marker: :solid,
+      }
+
+      enemy_hp_label ||= {
+        x: grid.w / 2,
+        y: grid.h - 270,
+        alignment_enum: 1,
+        size_enum: 5,
+        r: 150,
+        g: 0,
+        b: 0,
+        text: "#{@enemy.hp}/#{@enemy.max_hp}",
+        primitive_marker: :label,
+      }
+
+      player_hp_label_header ||= {
+        x: 100,
+        y: grid.h - 225,
+        alignment_enum: 1,
+        size_enum: 8,
+        r: 255,
+        g: 255,
+        b: 255,
+        text: "HP",
+        primitive_marker: :label,
+      }
+
+      player_hp_label ||= {
+        x: 100,
+        y: grid.h - 275,
+        alignment_enum: 1,
+        size_enum: 8,
+        r: 0,
+        g: 150,
+        b: 0,
+        text: "#{@player.hp}/#{@player.max_hp}",
+        primitive_marker: :label,
+      }
+
+      player_focus_label_header ||= {
+        x: 100,
+        y: grid.h - 125,
+        alignment_enum: 1,
+        size_enum: 8,
+        r: 255,
+        g: 255,
+        b: 255,
+        text: "FOCUS",
+        primitive_marker: :label,
+      }
+
+      player_focus_label ||= {
+        x: 100,
+        y: grid.h - 175,
+        alignment_enum: 1,
+        size_enum: 8,
+        r: 0,
+        g: 150,
+        b: 150,
+        text: "#{@player.focus}",
+        primitive_marker: :label,
+      }
+
+      l1 << [ left_panel, enemy_sprite, enemy_hp_label, player_hp_label_header, player_hp_label, player_focus_label_header, player_focus_label ]
+      return l1
+
+    when 2
+      deck_sprite ||= {
+        x: 20,
+        y: 20,
+        w: 160,
+        h: 160,
+        r: 80,
+        g: 20,
+        b: 80,
+        primitive_marker: :solid,
+      }
+
+      deck_card_count_label ||= {
+        text: "#{@player.potions.size}",
+        x: 100,
+        y: 100,
+        anchor_x: 0.5,
+        anchor_y: 0.5,
+        size_enum: 10,
+        r: 255,
+        g: 255,
+        b: 255,
+        primitive_marker: :label,
+      }
+
+      pass_button ||= {
+        x: 20,
+        y: grid.h - 50 - (60 / 2),
+        w: 160,
+        h: 60,
+        r: 100,
+        g: 20,
+        b: 20,
+        primitive_marker: :solid,
+      }
+
+      pass_button_label ||= {
+        x: 20 + (pass_button.w / 2),
+        y: grid.h - (pass_button.h / 2),
+        text: "PASS",
+        size_enum: 10,
+        alignment_enum: 1,
+        r: 255,
+        g: 255,
+        b: 255,
+        primitive_marker: :label,
+      }
+
+      players_turn_label ||= {
+        x: grid.w / 2,
+        y: grid.h / 2,
+        size_enum: 10,
+        r: 255,
+        g: 255,
+        b: 255,
+        a: osc_val,
+        alignment_enum: 1,
+        text: "YOUR TURN",
+      }
+
+      if @player.my_turn?
+        l2 << players_turn_label
+      end
+
+      @selected_cards.each { |id, c| selected_cards.append c.prefab }
+
+
+      l2 << [ deck_sprite, deck_card_count_label, pass_button, pass_button_label, cards, selected_cards ]
+      return l2
+
+    when 3
+
+      l3 << [ front_card ]
+      return l3
+
+    when 4
+      return l4
+    else
+      # puts "combat.rb: Invalid Render Argument"
+    end
+
+
+=begin
     if @matching_potion
       craftable_potion_tooltip ||= [
         {
@@ -255,14 +282,9 @@ class Combat
         r: 255,
         }
       ]
-      render_layer_3 << [ craftable_potion_tooltip ]
+      l3 << [ craftable_potion_tooltip ]
     end
-
-    render_layer_1 << [ left_panel, enemy_sprite, enemy_hp_label, player_hp_label_header, player_hp_label, player_focus_label_header, player_focus_label, ]
-    render_layer_2 << [ deck_sprite, deck_card_count_label, pass_button, pass_button_label, cards, selected_cards ]
-    render_layer_3 << [ front_card ]
-    render_layer_4 << [ @status_nums ]
-    outputs.primitives << [ background, render_layer_1, render_layer_2, render_layer_3, render_layer_4 ]
+=end
   end
 
   def calc_enemy

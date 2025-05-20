@@ -31,20 +31,35 @@ class Game
     if @scene_ref
       @scene_ref.args = args
       @scene_ref.tick
-    end
-
-    render_layer_4 = []
-    # for each particle, construct a prefab
-    render_layer_4 << @status_labels.map do |particle|
-      status_label_prefab particle
+      render
     end
 
     calc_particles
-    outputs.primitives << render_layer_4
-    # reject all particles with an alpha less than equal to 0
-    @status_labels.reject! do |particle|
-      particle.a <= 0
+  end
+
+  def render
+    l0 = []
+    l1 = []
+    l2 = []
+    l3 = []
+    l4 = []
+
+    if @scene_ref
+      
+      l0 << @scene_ref.render(0)
+      l1 << @scene_ref.render(1)
+      l2 << @scene_ref.render(2)
+      l3 << @scene_ref.render(3)
+      l4 << @scene_ref.render(4)
+
     end
+
+    # for each particle, construct a prefab
+    l4 << @status_labels.map do |particle|
+      status_label_prefab particle
+    end
+
+    outputs.primitives << [ l0, l1, l2, l3, l4 ]
   end
 
   def calc_particles
@@ -54,6 +69,11 @@ class Game
       particle.a -= 5
       particle.angle += 10
       particle.y += 3
+    end
+
+    # reject all particles with an alpha less than equal to 0
+    @status_labels.reject! do |particle|
+      particle.a <= 0
     end
   end
 
