@@ -30,16 +30,7 @@ class Game
     end
 
     def gen_new_card id = nil, to_deck = true
-        all_ids = $pids.keys + $iids.keys
-
-        if id == nil
-            #id = all_ids.sample
-            id = $iids.keys.sample
-            while id == "i001"
-                #id = all_ids.sample
-                id = $iids.keys.sample
-            end
-        end
+        id = $pids.keys.sample if id == nil
     
         name = $pids[id].name
         fc = $pids[id].fc
@@ -74,7 +65,7 @@ class Game
         when "combat"
             @scene_ref = Combat.new()
         when "alchemy_table"
-            @scene_ref = AlchemyTable.new(@recipe_book, max_uses: 3)
+            @scene_ref = AlchemyTable.new(max_uses: 3)
         end
 
     end

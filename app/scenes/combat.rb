@@ -257,13 +257,11 @@ class Combat
         end
         
         if inputs.mouse.click
-        if Geometry.intersect_rect? inputs.mouse, get_deck_rect and @turn_stage == @turn_stages[:drawing_cards]
-            puts "clicked on deck"
-        elsif Geometry.intersect_rect? inputs.mouse, get_pass_button_rect and @turn_stage == @turn_stages[:playing_cards]
-            
-            begin_turn_stage @turn_stages[:cleanup]
-
-        end
+            if Geometry.intersect_rect? inputs.mouse, get_deck_rect and @turn_stage == @turn_stages[:drawing_cards]
+                puts "clicked on deck"
+            elsif Geometry.intersect_rect? inputs.mouse, get_pass_button_rect and @turn_stage == @turn_stages[:playing_cards]
+                begin_turn_stage @turn_stages[:cleanup]
+            end
         end
         
         if @turn_stage == @turn_stages[:playing_cards]

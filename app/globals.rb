@@ -95,7 +95,9 @@ $iids = {
 }
 
 $player = nil
+$recipe_book = nil
 $enemy = nil
+
 
 def status_label(x, y, t, r, g, b, scale)
     $game.status_label(x, y, t, r, g, b, scale)
