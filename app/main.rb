@@ -7,6 +7,7 @@ require_relative 'models/card.rb'
 
 require_relative 'services/deck.rb'
 require_relative 'services/inventory.rb'
+require_relative 'services/recipe_book.rb'
 
 require_relative 'scenes/combat.rb'
 require_relative 'scenes/alchemy_table.rb'

@@ -16,7 +16,7 @@ $pids = {
     ],
     traits: [
         { 
-            $traits[:damage] => 1,
+            $traits[:damage] => 2,
         }
     ],
     },
