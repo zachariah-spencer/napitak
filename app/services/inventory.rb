@@ -22,6 +22,10 @@ class Inventory
         deck.discard(card)
     end
 
+    def remove(card)
+        deck.remove(card)
+    end
+
     # How many cards remain in the draw pile?
     def size
         deck.size

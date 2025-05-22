@@ -25,6 +25,10 @@ class Deck
     def discard(card)
       @discard_pile << card
     end
+
+    def remove(card)
+        @draw_pile.delete(card)
+    end
   
     # Move all discarded cards back into the draw pile and shuffle.
     def reshuffle

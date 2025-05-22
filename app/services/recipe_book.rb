@@ -10,7 +10,7 @@ class RecipeBook
     def initialize(potion_defs = $pids, ingredient_defs = $iids)
         $recipe_book = self
 
-        @player = $player
+        # @player = $player
         @potion_defs = potion_defs
         @ingredient_defs = ingredient_defs
         @unlocked_recipes = ["p001", "p002"]
@@ -33,14 +33,17 @@ class RecipeBook
         return false unless unlocked?(recipe_id)
         required = @potion_defs[recipe_id][:ingredients]
 
-        #required.all? do |ing_id, amt|
-        #    # @player.ingredients.all_cards.count { |card| card.id == ing_id } >= amt
-        # end
+        required.all? do |ing_id, amt|
+            $player.ingredients.all_cards.count { |card| card.id == ing_id } >= amt
+        end
     end
 
     # Consume ingredients and produce a new PotionCard
     def craft(recipe_id)
+
+        # check if recipe is unlocked and sufficient ingredients are possessed by player
         raise "Recipe not unlocked: #{recipe_id}" unless unlocked?(recipe_id)
+        
         unless can_craft?(recipe_id)
             raise "Insufficient ingredients for #{recipe_id}"
         end
@@ -49,15 +52,15 @@ class RecipeBook
         @potion_defs[recipe_id][:ingredients].each do |ing_id, amt|
             amt.times do
                 # find a card in inventory matching ing_id
-                card = @player.ingredients.deck.draw_pile.find { |c| c.id == ing_id }
-                @player.ingredients.discard(card)
+                card = $player.ingredients.deck.draw_pile.find { |c| c.id == ing_id }
+                $player.ingredients.remove(card)
             end
         end
 
         # Instantiate the potion card (assumes gen_new_card utility exists)
         potion_card = gen_new_card(recipe_id)
         # Add to player's potion inventory
-        @player.potions.add(potion_card)
+        $player.potions.add(potion_card)
         potion_card
     end
 end

@@ -11,9 +11,10 @@ $pids = {
     fc: 1,
     pow: 1,
     path: "sprites/circle/green.png",
-    ingredients: [
-        "i001", "i004", "i004",
-    ],
+    ingredients: {
+        "i001" => 1,
+        "i004" => 2,
+    },
     traits: [
         { 
             $traits[:damage] => 2,
@@ -28,7 +29,8 @@ $pids = {
     pow: 3,
     path: "sprites/circle/orange.png",
     ingredients: [
-        "i001", "i003", "i003",
+        "i001" => 1,
+        "i003" => 2,
     ],
     traits: [
         $traits[:damage] => 3,
@@ -42,7 +44,8 @@ $pids = {
     pow: 2,
     path: "sprites/circle/blue.png",
     ingredients: [
-        "i001", "i002", "i002",
+        "i001" => 1, 
+        "i002" => 2,
     ],
     traits: [
         $traits[:healing] => 2,
@@ -56,7 +59,8 @@ $pids = {
     pow: 4,
     path: "sprites/circle/indigo.png",
     ingredients: [
-        "i001", "i005", "i005",
+        "i001" => 1, 
+        "i005" => 2,
     ],
     traits: [
         $traits[:damage] => 4,
@@ -69,7 +73,7 @@ $pids = {
 
 $iids = {
     "i001" => {
-    name: "Glass Bottle",
+    name: "Bottle",
     path: "sprites/hexagon/white.png",
     },
 
@@ -101,4 +105,49 @@ $enemy = nil
 
 def status_label(x, y, t, r, g, b, scale)
     $game.status_label(x, y, t, r, g, b, scale)
+end
+
+def gen_new_card id = nil, to_deck = true
+    all_ids = $pids.keys + $iids.keys
+
+    if id == nil
+        #id = all_ids.sample
+        id = $iids.keys.sample
+        while id == "i001"
+            #id = all_ids.sample
+            id = $iids.keys.sample
+        end
+    end
+
+    name = nil
+    fc = 0
+    img = nil
+
+    if id[0] == "p"
+        name = $pids[id].name
+        fc = $pids[id].fc
+        img = $pids[id].path
+        pow = $pids[id].pow
+    else
+        name = $iids[id].name
+        img = $iids[id].path
+    end
+
+    new_ent_id = get_rand_id
+    new_card = Card.new(id, new_ent_id, name, fc, img, pow)
+
+    new_card
+end
+
+def get_rand_id
+    ingredient_ids = $player.ingredients.all_cards.map(&:entity_id)
+    potion_ids = $player.potions.all_cards.map(&:entity_id)
+    all_entity_ids = ingredient_ids + potion_ids
+    new_id = Numeric.rand(1..50000)
+
+    while all_entity_ids.include?(new_id)
+        new_id = Numeric.rand(1..50000)
+    end
+
+    return new_id
 end

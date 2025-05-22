@@ -229,17 +229,17 @@ class Combat
 
     def calc_enemy
         if @enemy.turn_start_tick_count.elapsed_time == 1.seconds
-        @enemy.attack
+            @enemy.attack
         end
 
         if @enemy.turn_start_tick_count.elapsed_time == 2.seconds
-        begin_turn_stage @turn_stages[:drawing_cards]
+            begin_turn_stage @turn_stages[:drawing_cards]
         end
     end
         
     def calc_card_positions
         @hand.each_with_index do |(id, c), i|
-        c.calc_position @hand.length, i
+            c.calc_position @hand.length, i
         end
     end
         
@@ -283,8 +283,8 @@ class Combat
         elsif inputs.mouse.up and state.currently_dragging_card_id
 
             # Re-fetch the card from either group.
-            c_ref = @hand[state.currently_dragging_card_id] ||
             c_ref.grabbed = false
+            c_ref = @hand[state.currently_dragging_card_id]
 
             if state.click_hold_time.elapsed_time < 20 and (Geometry.distance c_ref.pos, c_ref.f_pos) < 20
             use_card c_ref
@@ -370,7 +370,7 @@ class Combat
 
             if damage_trait
                 @enemy.hp -= damage_trait
-                status_label((GTK.args.grid.w / 2), (GTK.args.grid.h - 250), "#{damage_trait}", 255, 165, 0, 80)
+                status_label((GTK.args.grid.w / 2), (GTK.args.grid.h - 250), "#{damage_trait}", 255, 165, 0, 100)
 
                 if @enemy.hp <= 0
                     # enemy dies
@@ -378,7 +378,7 @@ class Combat
                 end
             elsif healing_trait
                 @player.hp += healing_trait
-                status_label(80, (GTK.args.grid.h - 275), "#{damage_trait}", 0, 255, 0, 80)
+                status_label(80, (GTK.args.grid.h - 275), "#{damage_trait}", 0, 255, 0, 100)
 
                 if @player.hp >= @player.max_hp
                     @player.hp = @player.max_hp

@@ -30,7 +30,7 @@ class Enemy
     def attack
         attack = select_attack
         puts attack
-        status_label 80, (GTK.args.grid.h - 275), "#{attack[:damage]}", 255, 165, 0, 50
+        status_label(80, (GTK.args.grid.h - 275), "#{attack[:damage]}", 255, 165, 0, 100)
     
         $player.hp -= attack[:damage]
         if $player.hp <= 0
