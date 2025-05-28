@@ -11,7 +11,6 @@ class Combat
             enemy_turn: 3,
         }
         @hand = {}
-        @selected_cards = {}
         @matching_potion = nil
         @max_hand_size = 8
         @turn_stage = nil
@@ -45,17 +44,16 @@ class Combat
         l4 = []
 
         cards ||= []
-        selected_cards ||= []
         front_card = nil
 
         @hand.each do |id, c|
         prefab = c.prefab
 
-        if c.grabbed
-            front_card = prefab
-        else
-            cards.append prefab
-        end
+            if c.grabbed
+                front_card = prefab
+            else
+                cards.append prefab
+            end
         end
 
         range = 255 - 0
@@ -208,7 +206,7 @@ class Combat
             l2 << players_turn_label
         end
 
-        l2 << [ deck_sprite, deck_card_count_label, pass_button, pass_button_label, cards, selected_cards ]
+        l2 << [ deck_sprite, deck_card_count_label, pass_button, pass_button_label, cards ]
         return l2
 
         when 3
@@ -249,11 +247,11 @@ class Combat
         
     def calc_mouse_inputs
         if state.currently_dragging_card_id
-        c_ref = @hand[state.currently_dragging_card_id]
-        else
-        #card_under_mouse lol
-        c_u_m = Geometry.find_intersect_rect inputs.mouse, get_card_rects
-        c_ref = nil
+                c_ref = @hand[state.currently_dragging_card_id]
+            else
+                #card_under_mouse lol
+                c_u_m = Geometry.find_intersect_rect inputs.mouse, get_card_rects
+                c_ref = nil
         end
         
         if inputs.mouse.click
@@ -265,57 +263,57 @@ class Combat
         end
         
         if @turn_stage == @turn_stages[:playing_cards]
-        if inputs.mouse.click and c_u_m
-            state.currently_dragging_card_id = c_u_m.id
-            c_ref = @hand[state.currently_dragging_card_id]
-            c_ref.grabbed = true
+            if inputs.mouse.click and c_u_m
+                state.currently_dragging_card_id = c_u_m.id
+                c_ref = @hand[state.currently_dragging_card_id]
+                c_ref.grabbed = true
 
-            state.mouse_point_inside_square = 
-            {
-            x: inputs.mouse.x - c_u_m.x,
-            y: inputs.mouse.y - c_u_m.y,
-            }
+                state.mouse_point_inside_square = 
+                {
+                x: inputs.mouse.x - c_u_m.x,
+                y: inputs.mouse.y - c_u_m.y,
+                }
 
-            state.click_hold_time = Kernel.tick_count
-        elsif inputs.mouse.held and state.currently_dragging_card_id
-            c_ref.pos.x = inputs.mouse.x - state.mouse_point_inside_square.x
-            c_ref.pos.y = inputs.mouse.y - state.mouse_point_inside_square.y
-        elsif inputs.mouse.up and state.currently_dragging_card_id
+                state.click_hold_time = Kernel.tick_count
+            elsif inputs.mouse.held and state.currently_dragging_card_id
+                c_ref.pos.x = inputs.mouse.x - state.mouse_point_inside_square.x
+                c_ref.pos.y = inputs.mouse.y - state.mouse_point_inside_square.y
+            elsif inputs.mouse.up and state.currently_dragging_card_id
 
-            # Re-fetch the card from either group.
-            c_ref.grabbed = false
-            c_ref = @hand[state.currently_dragging_card_id]
+                # Re-fetch the card from either group.
+                c_ref.grabbed = false
+                c_ref = @hand[state.currently_dragging_card_id]
 
-            if state.click_hold_time.elapsed_time < 20 and (Geometry.distance c_ref.pos, c_ref.f_pos) < 20
-            use_card c_ref
+                if state.click_hold_time.elapsed_time < 20 and (Geometry.distance c_ref.pos, c_ref.f_pos) < 20
+                use_card c_ref
+                end
+
+                
+                
+                # For active hand cards, perform reordering.
+                if @hand.key?(state.currently_dragging_card_id)
+                
+                # Exclude the dragged card from the current order.
+                other_cards = @hand.values.reject { |card| card.entity_id == state.currently_dragging_card_id }
+                sorted_ids = other_cards.sort_by { |card| card.pos.x }.map { |card| card.entity_id }
+                
+                # Calculate the center position of the dragged card.
+                dragged_center = c_ref.pos[:x] + (c_ref.w / 2)
+                
+                # Determine where to insert the dragged card.
+                new_index = sorted_ids.find_index do |card_id|
+                    card = @hand[card_id]
+                    dragged_center < (card.pos.x + (card.w / 2))
+                end
+                new_index ||= sorted_ids.length
+                sorted_ids.insert(new_index, state.currently_dragging_card_id)
+                
+                # Rebuild the active hand from these sorted IDs.
+                @hand = sorted_ids.map { |id| [id, @hand[id]] }.to_h
+                end
+
+                state.currently_dragging_card_id = nil
             end
-
-            
-            
-            # For active hand cards, perform reordering.
-            if @hand.key?(state.currently_dragging_card_id)
-            
-            # Exclude the dragged card from the current order.
-            other_cards = @hand.values.reject { |card| card.entity_id == state.currently_dragging_card_id }
-            sorted_ids = other_cards.sort_by { |card| card.pos.x }.map { |card| card.entity_id }
-            
-            # Calculate the center position of the dragged card.
-            dragged_center = c_ref.pos[:x] + (c_ref.w / 2)
-            
-            # Determine where to insert the dragged card.
-            new_index = sorted_ids.find_index do |card_id|
-                card = @hand[card_id]
-                dragged_center < (card.pos.x + (card.w / 2))
-            end
-            new_index ||= sorted_ids.length
-            sorted_ids.insert(new_index, state.currently_dragging_card_id)
-            
-            # Rebuild the active hand from these sorted IDs.
-            @hand = sorted_ids.map { |id| [id, @hand[id]] }.to_h
-            end
-
-            state.currently_dragging_card_id = nil
-        end
         end
     end
     

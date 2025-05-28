@@ -4,6 +4,8 @@ require_relative 'globals.rb'
 require_relative 'models/enemy.rb'
 require_relative 'models/player.rb'
 require_relative 'models/card.rb'
+require_relative 'models/potion_card.rb'
+require_relative 'models/ingredient_card.rb'
 
 require_relative 'services/deck.rb'
 require_relative 'services/inventory.rb'

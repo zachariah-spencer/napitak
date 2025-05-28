@@ -123,18 +123,22 @@ def gen_new_card id = nil, to_deck = true
     fc = 0
     img = nil
 
+    new_ent_id = get_rand_id
+
     if id[0] == "p"
         name = $pids[id].name
         fc = $pids[id].fc
         img = $pids[id].path
         pow = $pids[id].pow
+        new_card = PotionCard.new(id, new_ent_id, name, fc, img, pow)
     else
         name = $iids[id].name
         img = $iids[id].path
+        new_card = IngredientCard.new(id, new_ent_id, name, fc, img, pow)
     end
 
-    new_ent_id = get_rand_id
-    new_card = Card.new(id, new_ent_id, name, fc, img, pow)
+    
+    
 
     new_card
 end
