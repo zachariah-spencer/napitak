@@ -40,7 +40,6 @@ class RecipeBook
 
     # Consume ingredients and produce a new PotionCard
     def craft(recipe_id)
-
         # check if recipe is unlocked and sufficient ingredients are possessed by player
         raise "Recipe not unlocked: #{recipe_id}" unless unlocked?(recipe_id)
         
@@ -51,6 +50,7 @@ class RecipeBook
         # Remove required ingredients
         @potion_defs[recipe_id][:ingredients].each do |ing_id, amt|
             amt.times do
+                #FIXME: REMOVE INGREDIENTS FROM ALL INVENTORY SOURCES AND
                 # find a card in inventory matching ing_id
                 card = $player.ingredients.deck.draw_pile.find { |c| c.id == ing_id }
                 $player.ingredients.remove(card)
@@ -62,5 +62,43 @@ class RecipeBook
         # Add to player's potion inventory
         $player.potions.add(potion_card)
         potion_card
+    end
+
+    def craftable_potion?(proposed_ingredients)
+        # Extract the id's from all currently selected ingredient cards.
+        selected_ids = proposed_ingredients.values.map &:id
+
+        # Build a frequency hash of selected ingredient IDs.
+        selected_counts = ingredient_counts(selected_ids)
+
+        matching_potion = nil
+
+        # Iterate through each potion definition in $pids.
+        $pids.each do |potion_id, potion|
+            # Build a frequency hash for the potion's ingredient list.
+            required_counts = ingredient_counts(potion[:ingredients])
+            
+            # Check if the counts (and thus the ingredients including repeats) match exactly.
+            if selected_counts == required_counts
+                puts "Matching potion found: #{potion[:name]}"
+                matching_potion = { id: potion_id, data: potion }
+                break  # Exit once a match is found, or remove break if you want to find all matches.
+            end
+        end
+
+        unless matching_potion
+            puts "No matching potion for selected ingredients: #{selected_ids}"
+        end
+        matching_potion
+    end
+
+    def ingredient_counts(ingredients)
+        if ingredients.is_a?(Hash)
+            # already id => count
+            ingredients.dup
+        else
+            # array of ids
+            ingredients.each_with_object(Hash.new(0)) { |id, h| h[id] += 1 }
+        end
     end
 end

@@ -14,11 +14,16 @@ class Deck
     end
   
     # Draw a card: reshuffle if needed, then remove and return one.
-    def draw
-      reshuffle if @draw_pile.empty? && !@discard_pile.empty?
-      card = @draw_pile.sample
-      @draw_pile.delete(card)
-      card
+    def draw(random_sample = false)
+        if random_sample
+            card = (@draw_pile + @discard_pile).sample()
+            card
+        else
+            reshuffle if @draw_pile.empty? && !@discard_pile.empty?
+            card = @draw_pile.sample
+            @draw_pile.delete(card)
+            card
+        end
     end
   
     # Discard a card into the discard pile.

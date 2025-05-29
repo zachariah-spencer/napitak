@@ -25,7 +25,7 @@ class Card
         y: 20,
       }
   
-      @angle = 100
+      @angle = 0
       @f_angle = 0
   
       @card_back_img = "sprites/card-back-purple.png"
@@ -74,14 +74,14 @@ class Card
   
       # define the dimensions of the combined sprite
       # the name of the combined sprite is :card_combo
-      args.outputs[@card_composite_sprite_ref].w = 160
-      args.outputs[@card_composite_sprite_ref].h = 160
+      args.outputs[@card_composite_sprite_ref].w = @w
+      args.outputs[@card_composite_sprite_ref].h = @h
     
       args.outputs[@card_composite_sprite_ref].primitives << {
         x: 0,
         y: 0,
-        w: 160,
-        h: 160,
+        w: @w,
+        h: @h,
         angle: 0,
         r: @r,
         g: @g,
@@ -157,8 +157,8 @@ class Card
       args.outputs.primitives << { 
         x: 0,
         y: 0,
-        w: 160,
-        h: 160,
+        w: @w,
+        h: @h,
         path: @card_composite_sprite_ref,
         primitive_marker: :sprite,
       }

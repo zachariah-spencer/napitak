@@ -8,6 +8,8 @@ class AlchemyTable
         @recipe_book = $recipe_book
         @uses_left = max_uses
         @visible_ingredients = {}
+        @selected_ingredients = {}
+        @craftable_potion = nil
     end
 
     def cleanup()
@@ -18,9 +20,7 @@ class AlchemyTable
         if @recipe_book.can_craft?(recipe_id)
             potion = @recipe_book.craft(recipe_id)
             puts "CRAFTED #{potion.name}"
-            # status_label(..., "Crafted #{potion.name}!") 
         else
-            # status_label(..., "Cannot craft #{recipe_id}") 
             puts "CANNOT CRAFT #{recipe_id}"
         end
 
@@ -39,13 +39,12 @@ class AlchemyTable
 
     def calc()
         calc_card_positions
-
         calc_mouse_inputs
-
+        calc_keyboard_inputs
     end
 
     def calc_card_positions
-        @visible_ingredients.each_with_index do |(id, c), i|
+        @visible_ingredients.merge(@selected_ingredients).each_with_index do |(id, c), i|
             c.calc_position(@visible_ingredients.length, i)
         end
     end
@@ -58,16 +57,22 @@ class AlchemyTable
         l4 = []
 
         cards ||= []
+        sel_cards ||= []
         front_card = nil
 
         @visible_ingredients.each do |id, c|
-        prefab = c.prefab
+            prefab = c.prefab
 
             if c.grabbed
                 front_card = prefab
             else
                 cards.append prefab
             end
+        end
+
+        @selected_ingredients.each do |id, c|
+            sel_cards.append(c.prefab)
+
         end
 
         case layer_num
@@ -131,121 +136,17 @@ class AlchemyTable
             }
 
 
-            l2 << [ encounter_label, craft_btn(), refresh_btn(), leave_btn(), ing_deck(), cards ]
+            l2 << [ encounter_label, leave_btn(), ing_deck(), cards ]
             return l2
         when 3
 
-            l3 << [ front_card ]
+            l3 << [ front_card, sel_cards ]
             return l3
         when 4
             return l4
         else
         # puts "combat.rb: Invalid Render Argument"
         end
-    end
-
-    def craft_btn()
-
-        GTK.args.outputs[:craft_btn].w = 150
-        GTK.args.outputs[:craft_btn].h = 75
-
-        GTK.args.outputs[:craft_btn].primitives << {
-            x: 0,
-            y: 0,
-            w: 150,
-            h: 75,
-            angle: 0,
-            r: 0,
-            g: 0,
-            b: 0,
-            primitive_marker: :solid,
-        }
-
-        GTK.args.outputs[:craft_btn].primitives << {
-            x: 5,
-            y: 5,
-            w: 140,
-            h: 65,
-            angle: 0,
-            r: 255,
-            g: 20,
-            b: 20,
-            primitive_marker: :solid,
-        }
-
-        GTK.args.outputs[:craft_btn].primitives << {
-            x: 150 / 2,
-            y: 75 / 2,
-            text: "CRAFT",
-            anchor_x: 0.5,
-            anchor_y: 0.5,
-            r: 0,
-            g: 0,
-            b: 0,
-            size_enum: 3,
-        }
-
-        {
-            x: GTK.args.grid.w - 175,
-            y: GTK.args.grid.h - 100,
-            w: 150,
-            h: 75,
-            angle: 0,
-            path: :craft_btn,
-            primitive_marker: :sprite,
-        }
-    end
-
-    def refresh_btn()
-
-        GTK.args.outputs[:refresh_btn].w = 150
-        GTK.args.outputs[:refresh_btn].h = 75
-
-        GTK.args.outputs[:refresh_btn].primitives << {
-            x: 0,
-            y: 0,
-            w: 150,
-            h: 75,
-            angle: 0,
-            r: 0,
-            g: 0,
-            b: 0,
-            primitive_marker: :solid,
-        }
-
-        GTK.args.outputs[:refresh_btn].primitives << {
-            x: 5,
-            y: 5,
-            w: 140,
-            h: 65,
-            angle: 0,
-            r: 20,
-            g: 255,
-            b: 20,
-            primitive_marker: :solid,
-        }
-
-        GTK.args.outputs[:refresh_btn].primitives << {
-            x: 150 / 2,
-            y: 75 / 2,
-            text: "REFRESH",
-            anchor_x: 0.5,
-            anchor_y: 0.5,
-            r: 0,
-            g: 0,
-            b: 0,
-            size_enum: 3,
-        }
-
-        {
-            x: GTK.args.grid.w - 175,
-            y: GTK.args.grid.h - (100 * 2),
-            w: 150,
-            h: 75,
-            angle: 0,
-            path: :refresh_btn,
-            primitive_marker: :sprite,
-        }
     end
 
     def leave_btn()
@@ -352,9 +253,24 @@ class AlchemyTable
         }
     end
 
+    def get_card_rects
+        rects = []
+        (@visible_ingredients.merge(@selected_ingredients)).each do |id, card|
+            rects << {
+            x: card.pos.x,
+            y: card.pos.y,
+            w: card.fw,
+            h: card.fh,
+            id: id
+            }
+        end
+        rects
+    end
+
     def draw_card
-        card = $player.ingredients.draw
-        $player.ingredients.remove(card)
+        card = $player.ingredients.draw(true)
+        # $player.ingredients.grab(card)
+        # $player.ingredients.remove(card)
         @visible_ingredients[card.entity_id] = card
 
 
@@ -365,41 +281,18 @@ class AlchemyTable
 
     def calc_mouse_inputs()
         if GTK.args.inputs.mouse.click
-            if Geometry.intersect_rect? inputs.mouse, craft_btn()
-                puts "clicked on crafting_button"
-                craft_or_refresh("p001")
-            elsif Geometry.intersect_rect? inputs.mouse, refresh_btn()
-                puts "click on refresh_btn"
-            elsif Geometry.intersect_rect? inputs.mouse, leave_btn()
+            if Geometry.intersect_rect? inputs.mouse, leave_btn()
                 puts "clicked on leave_btn"
                 leave()
-            elsif Geometry.intersect_rect? inputs.mouse, ing_deck()
-                puts "clicked on ing_deck"
-                # draw_card
             end
         end
-
         calc_card_drag_inputs()
-
-
-
-
-    end
-
-    def get_card_rects()
-        card_rects = []
-
-        # Include all active hand cards
-        @visible_ingredients.each do |id, card|
-            card_rects << card.rect
-        end
-
-        card_rects
     end
 
     def calc_card_drag_inputs()
         if state.currently_dragging_card_id
-                c_ref = @visible_ingredients[state.currently_dragging_card_id]
+                id    = state.currently_dragging_card_id
+                c_ref = @visible_ingredients[id] || @selected_ingredients[id]
             else
                 c_u_m = Geometry.find_intersect_rect inputs.mouse, get_card_rects
                 c_ref = nil
@@ -414,8 +307,9 @@ class AlchemyTable
         end
 
         if inputs.mouse.click and c_u_m
-            state.currently_dragging_card_id = c_u_m.id
-            c_ref = @visible_ingredients[state.currently_dragging_card_id]
+            card_id = c_u_m[:id]  
+            state.currently_dragging_card_id = card_id
+            c_ref = @visible_ingredients[card_id] || @selected_ingredients[card_id]
             c_ref.grabbed = true
 
             state.mouse_point_inside_square = 
@@ -430,17 +324,64 @@ class AlchemyTable
             c_ref.pos.y = inputs.mouse.y - state.mouse_point_inside_square.y
 
         elsif inputs.mouse.up and state.currently_dragging_card_id
+            
+
+            if state.click_hold_time.elapsed_time < 20 and (Geometry.distance c_ref.pos, c_ref.f_pos) < 20
+                use_card(c_ref)
+            end
+
             # Re-fetch the card from either group.
             c_ref.f_pos.x = c_ref.pos.x
             c_ref.f_pos.y = c_ref.pos.y
             c_ref.grabbed = false
-
-            if state.click_hold_time.elapsed_time < 20 and (Geometry.distance c_ref.pos, c_ref.f_pos) < 20
-                # use_card c_ref
-                puts "USE CARD"
-            end
-
             state.currently_dragging_card_id = nil
         end
     end
+
+    def use_card(c)
+        puts "CALLED USE CARD"
+        toggle_card_selected(c)
+        @craftable_potion = @recipe_book.craftable_potion?(@selected_ingredients)
+    end
+
+    def unselect_cards
+        @selected_ingredients.each do |id, c|
+            toggle_card_selected(c)
+        end
+    end
+    
+    def toggle_card_selected c
+        if not c.selected
+            move_card(c, @selected_ingredients, @visible_ingredients) 
+        else 
+            move_card(c, @visible_ingredients, @selected_ingredients)
+        end
+    end
+
+    def move_card(c, to, from)
+        to[c.entity_id] = c
+        from.delete c.entity_id if from
+
+        if to == @visible_ingredients && from == @selected_ingredients
+            c.selected = false
+            c.fw = 160
+            c.fh = 160
+            c.grabbed = false
+            c.padding = -60.0
+        elsif to == @selected_ingredients && from == @visible_ingredients
+            c.selected = true
+            c.fw = 250
+            c.fh = 250
+            c.grabbed = false
+            c.padding = 5.0
+        end
+    end
+
+    def calc_keyboard_inputs
+        if @craftable_potion and inputs.keyboard.key_down.space 
+            c = craft_or_refresh(@craftable_potion.id)
+            @craftable_potion = nil
+        end
+    end
+
 end
