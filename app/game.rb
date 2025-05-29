@@ -24,13 +24,18 @@ class Game
     def new_run
         @player = Player.new()
 
-        10.times do
-            @player.potions.add(gen_new_card("p001"))
+        6.times do
+            # @player.potions.add(gen_new_card("p001"))
+            @player.ingredients.add(gen_new_card("i001"))
+            @player.ingredients.add(gen_new_card("i002"))
+            @player.ingredients.add(gen_new_card("i003"))
+            @player.ingredients.add(gen_new_card("i004"))
+            @player.ingredients.add(gen_new_card("i005"))
         end
 
-        @player.ingredients.add(gen_new_card("i001"))
-        @player.ingredients.add(gen_new_card("i004"))
-        @player.ingredients.add(gen_new_card("i004"))
+        4.times do
+            @player.potions.add(gen_new_card("p001"))
+        end
     end
 
     def change_scene(prev_sc:, next_sc:)

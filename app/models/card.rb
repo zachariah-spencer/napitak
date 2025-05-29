@@ -1,5 +1,5 @@
 class Card
-    attr_accessor :grabbed, :needs_removed, :pos, :f_pos, :entity_id, :w, :id, :fw, :fh, :selected, :name, :fc, :img, :padding, :pow
+    attr_accessor :grabbed, :needs_removed, :pos, :f_pos, :entity_id, :w, :id, :fw, :fh, :selected, :name, :fc, :img, :padding, :pow, :activation_time
   
     def initialize id, entity_id, name, fc, img, pow
       @id = id
@@ -40,6 +40,7 @@ class Card
       @grabbed = false
       @selected = false
       @needs_removed = false
+      @activation_time = 0.0
       calc_render_target GTK.args
     end
   

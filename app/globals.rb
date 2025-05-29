@@ -28,10 +28,10 @@ $pids = {
     fc: 2,
     pow: 3,
     path: "sprites/circle/orange.png",
-    ingredients: [
+    ingredients: {
         "i001" => 1,
         "i003" => 2,
-    ],
+    },
     traits: [
         $traits[:damage] => 3,
     ],
@@ -43,10 +43,10 @@ $pids = {
     fc: 1,
     pow: 2,
     path: "sprites/circle/blue.png",
-    ingredients: [
+    ingredients: {
         "i001" => 1, 
         "i002" => 2,
-    ],
+    },
     traits: [
         $traits[:healing] => 2,
     ],
@@ -58,10 +58,10 @@ $pids = {
     fc: 2,
     pow: 4,
     path: "sprites/circle/indigo.png",
-    ingredients: [
+    ingredients: {
         "i001" => 1, 
         "i005" => 2,
-    ],
+    },
     traits: [
         $traits[:damage] => 4,
     ],

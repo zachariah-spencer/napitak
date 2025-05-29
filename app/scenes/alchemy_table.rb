@@ -1,3 +1,5 @@
+require 'app/models/scroll_list_widget.rb'
+
 class AlchemyTable
     attr_gtk
     attr
@@ -10,22 +12,23 @@ class AlchemyTable
         @visible_ingredients = {}
         @selected_ingredients = {}
         @craftable_potion = nil
+
+        @ing_menu_widget = ScrollListWidget.new(items: @player.ingredients.all_cards, x: 20, y: GTK.args.grid.h / 2 - 250, w: 160, h: 500, uid: 1)
+        @pot_menu_widget = ScrollListWidget.new(items: @player.potions.all_cards, x: GTK.args.grid.w - 20 - 160, y: GTK.args.grid.h / 2 - 250, w: 160, h: 500, uid: 2)
     end
 
     def cleanup()
         puts 'cleanup alchemy_table.rb'
     end
 
-    def craft_or_refresh(recipe_id)
+    def craft(recipe_id)
         if @recipe_book.can_craft?(recipe_id)
             potion = @recipe_book.craft(recipe_id)
             puts "CRAFTED #{potion.name}"
+            @selected_ingredients.clear()
+            @pot_menu_widget.add_item(potion)
         else
             puts "CANNOT CRAFT #{recipe_id}"
-        end
-
-        $player.ingredients.all_cards.each do |c|
-            puts c.name
         end
     end
 
@@ -34,6 +37,8 @@ class AlchemyTable
     end
 
     def tick()
+        @ing_menu_widget.tick(GTK.args.inputs)
+        @pot_menu_widget.tick(GTK.args.inputs)
         calc()
     end
 
@@ -136,13 +141,14 @@ class AlchemyTable
             }
 
 
-            l2 << [ encounter_label, leave_btn(), ing_deck(), cards ]
+            l2 << [ encounter_label, leave_btn(), cards ]
             return l2
         when 3
 
             l3 << [ front_card, sel_cards ]
             return l3
         when 4
+            l4 << [ @ing_menu_widget.render(), @pot_menu_widget.render() ]
             return l4
         else
         # puts "combat.rb: Invalid Render Argument"
@@ -172,9 +178,9 @@ class AlchemyTable
             w: 140,
             h: 65,
             angle: 0,
-            r: 20,
-            g: 20,
-            b: 255,
+            r: 100,
+            g: 150,
+            b: 150,
             primitive_marker: :solid,
         }
 
@@ -191,64 +197,12 @@ class AlchemyTable
         }
 
         {
-            x: 25,
-            y: GTK.args.grid.h - (100),
+            x: GTK.args.grid.w - 25 - 150,
+            y: 20,
             w: 150,
             h: 75,
             angle: 0,
             path: :leave_btn,
-            primitive_marker: :sprite,
-        }
-    end
-
-    def ing_deck()
-        
-        GTK.args.outputs[:ing_deck].w = 160
-        GTK.args.outputs[:ing_deck].h = 160
-
-        GTK.args.outputs[:ing_deck].primitives << {
-            x: 0,
-            y: 0,
-            w: 160,
-            h: 160,
-            angle: 0,
-            r: 0,
-            g: 0,
-            b: 0,
-            primitive_marker: :solid,
-        }
-
-        GTK.args.outputs[:ing_deck].primitives << {
-            x: 5,
-            y: 5,
-            w: 150,
-            h: 150,
-            angle: 0,
-            r: 255,
-            g: 20,
-            b: 255,
-            primitive_marker: :solid,
-        }
-
-        GTK.args.outputs[:ing_deck].primitives << {
-            x: 160 / 2,
-            y: 160 / 2,
-            text: "INGREDIENTS",
-            anchor_x: 0.5,
-            anchor_y: 0.5,
-            r: 0,
-            g: 0,
-            b: 0,
-            size_enum: 3,
-        }
-
-        {
-            x: 20,
-            y: GTK.args.grid.h / 2 - (160 / 2),
-            w: 160,
-            h: 160,
-            angle: 0,
-            path: :ing_deck,
             primitive_marker: :sprite,
         }
     end
@@ -267,15 +221,9 @@ class AlchemyTable
         rects
     end
 
-    def draw_card
-        card = $player.ingredients.draw(true)
-        # $player.ingredients.grab(card)
-        # $player.ingredients.remove(card)
+    def draw_card(ingredient)
+        card = $player.ingredients.all_cards.find { |c| c == ingredient }
         @visible_ingredients[card.entity_id] = card
-
-
-
-        puts card
         card
     end
 
@@ -298,13 +246,23 @@ class AlchemyTable
                 c_ref = nil
         end
 
-        if Geometry.intersect_rect? inputs.mouse, ing_deck() and inputs.mouse.click
-            c_ref = draw_card
+        if clicked = @ing_menu_widget.selected_item
+            puts "Clicked: #{clicked.name}"
+            c_ref = draw_card(@ing_menu_widget.remove_item(@ing_menu_widget.selected_item))
+            c_ref.activation_time = Kernel.tick_count
             c_u_m = c_ref.rect()
-            c_u_m.x = ing_deck().x
-            c_u_m.y = ing_deck().y
+            c_u_m.x = GTK.args.inputs.mouse.x - 80
+            c_u_m.y = GTK.args.inputs.mouse.y - 80
             c_ref.grabbed = true
         end
+
+        # if Geometry.intersect_rect? inputs.mouse, ing_deck() and inputs.mouse.click
+        #      c_ref = draw_card
+        #      c_u_m = c_ref.rect()
+        #      c_u_m.x = ing_deck().x
+        #      c_u_m.y = ing_deck().y
+        #      c_ref.grabbed = true
+        # end
 
         if inputs.mouse.click and c_u_m
             card_id = c_u_m[:id]  
@@ -326,8 +284,13 @@ class AlchemyTable
         elsif inputs.mouse.up and state.currently_dragging_card_id
             
 
-            if state.click_hold_time.elapsed_time < 20 and (Geometry.distance c_ref.pos, c_ref.f_pos) < 20
-                use_card(c_ref)
+            if state.click_hold_time.elapsed_time < 20 and (Geometry.distance c_ref.pos, c_ref.f_pos) < 20 and (c_ref.activation_time.elapsed_time > 0.25.seconds)
+                    use_card(c_ref)
+            end
+
+            if inputs.mouse.intersect_rect?(@ing_menu_widget.rect())
+                @ing_menu_widget.add_item(c_ref)
+                @visible_ingredients.reject! { | id, c | c == c_ref }
             end
 
             # Re-fetch the card from either group.
@@ -379,7 +342,7 @@ class AlchemyTable
 
     def calc_keyboard_inputs
         if @craftable_potion and inputs.keyboard.key_down.space 
-            c = craft_or_refresh(@craftable_potion.id)
+            c = craft(@craftable_potion.id)
             @craftable_potion = nil
         end
     end
