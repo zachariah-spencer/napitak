@@ -8,6 +8,7 @@ class ScrollListWidget
         @height        = h
         @item_height   = item_height
         @scroll_y      = 0
+        @scroll_vel    = 0
         @hovered_idx   = nil
         @selected_item = nil
         @uid = uid
@@ -160,9 +161,16 @@ class ScrollListWidget
             delta = wheel[:y] 
 
             if delta != 0
-                @scroll_y = (@scroll_y + delta * 10).clamp(-max_offset, 0)
+                @scroll_vel += delta * 1.75
                 # @scroll_y = (@scroll_y - delta * 10).clamp(0, max_offset)
             end
+
+            if @scroll_vel != 0 
+                @scroll_y += (@scroll_vel)
+                @scroll_y = @scroll_y.clamp(-max_offset, 0)
+            end
+
+            @scroll_vel *= 0.90
         end
     end
 
