@@ -5,7 +5,6 @@ class Inventory
     # Initialize with an optional array of card instances
     def initialize(cards = [])
         @deck = Deck.new(cards)
-        @in_hand = []
     end
 
     # Draw a card from the inventory (reshuffles automatically if needed)
@@ -32,6 +31,10 @@ class Inventory
         deck.size
     end
 
+    def discard_size
+        deck.discard_size
+    end
+
     # True if no cards are left to draw
     def empty?
         deck.empty?
@@ -43,17 +46,15 @@ class Inventory
     end
 
     def all_ingredients()
-        deck.draw_pile + deck.discard_pile + @in_hand
+        deck.draw_pile + deck.discard_pile
     end
 
     def grab(card)
         deck.remove(card)
-        @in_hand.append(card)
     end
 
     def return(card)
         deck.add(card)
-        @in_hand.delete(card)
     end
 
 end

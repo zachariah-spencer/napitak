@@ -45,7 +45,11 @@ class Deck
   
     # Number of cards remaining in the draw pile.
     def size
-      @draw_pile.size
+        @draw_pile.size
+    end
+
+    def discard_size
+        @discard_pile.size
     end
   
     # Check whether the draw pile is empty.

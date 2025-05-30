@@ -24,11 +24,28 @@ class AlchemyTable
     def craft(recipe_id)
         if @recipe_book.can_craft?(recipe_id)
             potion = @recipe_book.craft(recipe_id)
-            puts "CRAFTED #{potion.name}"
             @selected_ingredients.clear()
             @pot_menu_widget.add_item(potion)
+
+            puts "CRAFTED #{potion.name}"
+
+            update_uses_left()
         else
             puts "CANNOT CRAFT #{recipe_id}"
+        end
+    end
+
+    def refresh(potion_card)
+        potion_card.uses_left = potion_card.max_uses
+        potion_card.update_sprite()
+        update_uses_left()
+    end
+
+    def update_uses_left()
+        @uses_left -= 1
+        if @uses_left <= 0
+            puts "USES EXHAUSTED, EXITING ALCHEMY LAB ENCOUNTER"
+            leave()
         end
     end
 
@@ -141,7 +158,7 @@ class AlchemyTable
             }
 
 
-            l2 << [ encounter_label, leave_btn(), cards ]
+            l2 << [ encounter_label, leave_btn(), potions_label(), ingredients_label(),cards ]
             return l2
         when 3
 
@@ -153,6 +170,108 @@ class AlchemyTable
         else
         # puts "combat.rb: Invalid Render Argument"
         end
+    end
+
+    def potions_label()
+        GTK.args.outputs[:potions_label].w = 150
+        GTK.args.outputs[:potions_label].h = 75
+
+        GTK.args.outputs[:potions_label].primitives << {
+            x: 0,
+            y: 0,
+            w: 150,
+            h: 75,
+            angle: 0,
+            r: 0,
+            g: 0,
+            b: 0,
+            primitive_marker: :solid,
+        }
+
+        GTK.args.outputs[:potions_label].primitives << {
+            x: 5,
+            y: 5,
+            w: 140,
+            h: 65,
+            angle: 0,
+            r: 180,
+            g: 50,
+            b: 50,
+            primitive_marker: :solid,
+        }
+
+        GTK.args.outputs[:potions_label].primitives << {
+            x: 150 / 2,
+            y: 75 / 2,
+            text: "POTIONS",
+            anchor_x: 0.5,
+            anchor_y: 0.5,
+            r: 0,
+            g: 0,
+            b: 0,
+            size_enum: 3,
+        }
+
+        {
+            x: GTK.args.grid.w - 25 - 150,
+            y: GTK.args.grid.h - 20 - 75,
+            w: 150,
+            h: 75,
+            angle: 0,
+            path: :potions_label,
+            primitive_marker: :sprite,
+        }
+    end
+
+    def ingredients_label()
+        GTK.args.outputs[:ingredients_label].w = 150
+        GTK.args.outputs[:ingredients_label].h = 75
+
+        GTK.args.outputs[:ingredients_label].primitives << {
+            x: 0,
+            y: 0,
+            w: 150,
+            h: 75,
+            angle: 0,
+            r: 0,
+            g: 0,
+            b: 0,
+            primitive_marker: :solid,
+        }
+
+        GTK.args.outputs[:ingredients_label].primitives << {
+            x: 5,
+            y: 5,
+            w: 140,
+            h: 65,
+            angle: 0,
+            r: 180,
+            g: 50,
+            b: 50,
+            primitive_marker: :solid,
+        }
+
+        GTK.args.outputs[:ingredients_label].primitives << {
+            x: 150 / 2,
+            y: 75 / 2,
+            text: "INGREDIENTS",
+            anchor_x: 0.5,
+            anchor_y: 0.5,
+            r: 0,
+            g: 0,
+            b: 0,
+            size_enum: 3,
+        }
+
+        {
+            x: 25,
+            y: GTK.args.grid.h - 20 - 75,
+            w: 150,
+            h: 75,
+            angle: 0,
+            path: :ingredients_label,
+            primitive_marker: :sprite,
+        }
     end
 
     def leave_btn()
@@ -234,6 +353,15 @@ class AlchemyTable
                 leave()
             end
         end
+
+        if clicked = @pot_menu_widget.selected_item
+            puts "Clicked: #{clicked.name}"
+            potion_card = clicked
+            if potion_card.uses_left < potion_card.max_uses
+                refresh(clicked)
+            end
+        end
+
         calc_card_drag_inputs()
     end
 

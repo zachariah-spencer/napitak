@@ -33,7 +33,7 @@ class Game
             @player.ingredients.add(gen_new_card("i005"))
         end
 
-        4.times do
+        6.times do
             @player.potions.add(gen_new_card("p001"))
         end
     end

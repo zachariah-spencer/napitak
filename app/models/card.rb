@@ -1,7 +1,7 @@
 class Card
-    attr_accessor :grabbed, :needs_removed, :pos, :f_pos, :entity_id, :w, :id, :fw, :fh, :selected, :name, :fc, :img, :padding, :pow, :activation_time
+    attr_accessor :grabbed, :needs_removed, :pos, :f_pos, :entity_id, :w, :id, :fw, :fh, :selected, :name, :fc, :img, :padding, :max_uses, :activation_time, :uses_left
   
-    def initialize id, entity_id, name, fc, img, pow
+    def initialize id, entity_id, name, fc, img, max_uses = 0
       @id = id
       @name = name
       @fc = fc
@@ -30,7 +30,8 @@ class Card
   
       @card_back_img = "sprites/card-back-purple.png"
       @img = img
-      @pow = pow
+      @max_uses = max_uses
+      @uses_left = max_uses
       @card_composite_sprite_ref = :"card_composite_#{entity_id}"
       
       @r = 150# Numeric.rand(100..200)
@@ -69,6 +70,10 @@ class Card
         path: @card_composite_sprite_ref,
         primitive_marker: :sprite,
       }
+    end
+
+    def update_sprite()
+        calc_render_target(GTK.args)
     end
   
     def calc_render_target args
@@ -142,9 +147,9 @@ class Card
   
           # add a label in the center of the render target
           args.outputs[@card_composite_sprite_ref].primitives << {
-            x: 140,
+            x: 120,
             y: 20,
-            text: "#{@pow}",
+            text: "#{@uses_left} / #{@max_uses}",
             anchor_x: 0.5,
             anchor_y: 0.5,
             r: 255,

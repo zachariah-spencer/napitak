@@ -6,65 +6,65 @@ $traits = {
 
 $pids = {
     "p001" => {
-    name: "Rock Potion",
-    desc: "A basic potion that damages an enemy.",
-    fc: 1,
-    pow: 1,
-    path: "sprites/circle/green.png",
-    ingredients: {
-        "i001" => 1,
-        "i004" => 2,
-    },
-    traits: [
-        { 
-            $traits[:damage] => 2,
-        }
-    ],
+        name: "Rock Potion",
+        desc: "A basic potion that damages an enemy.",
+        fc: 1,
+        max_uses: 1,
+        path: "sprites/circle/green.png",
+        ingredients: {
+            "i001" => 1,
+            "i004" => 2,
+        },
+        traits: [
+            { 
+                $traits[:damage] => 2,
+            }
+        ],
     },
 
     "p002" => {
-    name: "Fiery Potion",
-    desc: "A potion that catches an enemy on fire.",
-    fc: 2,
-    pow: 3,
-    path: "sprites/circle/orange.png",
-    ingredients: {
-        "i001" => 1,
-        "i003" => 2,
-    },
-    traits: [
-        $traits[:damage] => 3,
-    ],
+        name: "Fiery Potion",
+        desc: "A potion that catches an enemy on fire.",
+        fc: 2,
+        max_uses: 3,
+        path: "sprites/circle/orange.png",
+        ingredients: {
+            "i001" => 1,
+            "i003" => 2,
+        },
+        traits: [
+            $traits[:damage] => 3,
+        ],
     },
 
     "p003" => {
-    name: "Ocean Potion",
-    desc: "A potion that sprays water at an enemy damaging them.",
-    fc: 1,
-    pow: 2,
-    path: "sprites/circle/blue.png",
-    ingredients: {
-        "i001" => 1, 
-        "i002" => 2,
-    },
-    traits: [
-        $traits[:healing] => 2,
-    ],
+        name: "Ocean Potion",
+        desc: "A potion that sprays water at an enemy damaging them.",
+        fc: 1,
+        max_uses: 2,
+        path: "sprites/circle/blue.png",
+        ingredients: {
+            "i001" => 1, 
+            "i002" => 2,
+        },
+        traits: [
+            $traits[:healing] => 2,
+        ],
     },
 
     "p004" => {
-    name: "Wind Potion",
-    desc: "A potion that shoots air at an enemy damaging them.",
-    fc: 2,
-    pow: 4,
-    path: "sprites/circle/indigo.png",
-    ingredients: {
-        "i001" => 1, 
-        "i005" => 2,
-    },
-    traits: [
-        $traits[:damage] => 4,
-    ],
+        name: "Wind Potion",
+        desc: "A potion that shoots air at an enemy damaging them.",
+        fc: 2,
+        max_uses: 4,
+        path: "sprites/circle/indigo.png",
+        ingredients: {
+            "i001" => 1, 
+            "i005" => 2,
+        },
+        traits: [
+            $traits[:damage] => 4,
+        ],
     },
 }
 
@@ -129,12 +129,12 @@ def gen_new_card id = nil, to_deck = true
         name = $pids[id].name
         fc = $pids[id].fc
         img = $pids[id].path
-        pow = $pids[id].pow
-        new_card = PotionCard.new(id, new_ent_id, name, fc, img, pow)
+        max_uses = $pids[id].max_uses
+        new_card = PotionCard.new(id, new_ent_id, name, fc, img, max_uses)
     else
         name = $iids[id].name
         img = $iids[id].path
-        new_card = IngredientCard.new(id, new_ent_id, name, fc, img, pow)
+        new_card = IngredientCard.new(id, new_ent_id, name, fc, img)
     end
 
     

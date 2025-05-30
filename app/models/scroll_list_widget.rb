@@ -126,6 +126,16 @@ class ScrollListWidget
                 text:      item.name,
                 size_enum: 1
             }
+
+            if item.id[0] == "p"
+                # uses left label for potions
+                GTK.args.outputs[path].labels << {
+                    x:         local_x + 96,
+                    y:         local_y + (@item_height / 2) + 20,
+                    text: "#{item.uses_left} / #{item.max_uses}",
+                    size_enum: 1
+                }
+            end
         end
 
         # 3) composite the RT back into main outputs

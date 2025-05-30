@@ -13,7 +13,7 @@ class RecipeBook
         # @player = $player
         @potion_defs = potion_defs
         @ingredient_defs = ingredient_defs
-        @unlocked_recipes = ["p001", "p002"]
+        @unlocked_recipes = ["p001", "p002", "p003", "p004"]
     end
 
     # List all known recipe IDs

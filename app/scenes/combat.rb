@@ -167,6 +167,30 @@ class Combat
             primitive_marker: :label,
         }
 
+        discards_sprite ||= {
+            x: 20,
+            y: 200,
+            w: 160,
+            h: 160,
+            r: 40,
+            g: 40,
+            b: 90,
+            primitive_marker: :solid,
+        }
+
+        discards_card_count_label ||= {
+            text: "#{@player.potions.discard_size}",
+            x: 100,
+            y: 280,
+            anchor_x: 0.5,
+            anchor_y: 0.5,
+            size_enum: 10,
+            r: 255,
+            g: 255,
+            b: 255,
+            primitive_marker: :label,
+        }
+
         pass_button ||= {
             x: 20,
             y: GTK.args.grid.h - 50 - (60 / 2),
@@ -206,7 +230,7 @@ class Combat
             l2 << players_turn_label
         end
 
-        l2 << [ deck_sprite, deck_card_count_label, pass_button, pass_button_label, cards ]
+        l2 << [ deck_sprite, deck_card_count_label, discards_sprite, discards_card_count_label, pass_button, pass_button_label, cards ]
         return l2
 
         when 3
@@ -223,6 +247,9 @@ class Combat
 
     def cleanup
         puts 'cleanup combat.rb'
+        @hand.each do |id, c|
+            @player.potions.add(c)
+        end
     end
 
     def calc_enemy
@@ -356,8 +383,12 @@ class Combat
         potion_info = $pids[card.id]
 
         # handle deducting potion throwing focus cost
-        if @player.focus >= potion_info.fc
+        if @player.focus >= potion_info.fc and card.uses_left > 0
             @player.focus -= potion_info.fc
+
+            card.uses_left -= 1
+
+            card.update_sprite()
 
             @player.potions.discard card
             @hand.delete card.entity_id
