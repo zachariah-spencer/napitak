@@ -8,8 +8,8 @@ class Inventory
     end
 
     # Draw a card from the inventory (reshuffles automatically if needed)
-    def draw
-        deck.draw
+    def draw(random_sample = false)
+        deck.draw(random_sample)
     end
 
     # Add a card back into the inventory (to the draw pile)
@@ -22,9 +22,17 @@ class Inventory
         deck.discard(card)
     end
 
+    def remove(card)
+        deck.remove(card)
+    end
+
     # How many cards remain in the draw pile?
     def size
         deck.size
+    end
+
+    def discard_size
+        deck.discard_size
     end
 
     # True if no cards are left to draw
@@ -35,6 +43,18 @@ class Inventory
     # Returns all cards currently in the inventory (draw + discard)
     def all_cards
         deck.draw_pile + deck.discard_pile
+    end
+
+    def all_ingredients()
+        deck.draw_pile + deck.discard_pile
+    end
+
+    def grab(card)
+        deck.remove(card)
+    end
+
+    def return(card)
+        deck.add(card)
     end
 
 end

@@ -25,36 +25,24 @@ class Game
         @player = Player.new()
 
         10.times do
-            @player.potions.add(gen_new_card("p001"))
-        end
-    end
-
-    def gen_new_card id = nil, to_deck = true
-        id = $pids.keys.sample if id == nil
-    
-        name = $pids[id].name
-        fc = $pids[id].fc
-        img = $pids[id].path
-        pow = $pids[id].pow
-
-        new_ent_id = get_rand_id
-        new_card = Card.new(id, new_ent_id, name, fc, img, pow)
-
-        new_card
-    end
-
-    #FIXME: Needs refactored to check for all cards instanced into the game not just cards in @hand
-    def get_rand_id
-        ingredient_ids = @player.ingredients.all_cards.map(&:entity_id)
-        potion_ids = @player.potions.all_cards.map(&:entity_id)
-        all_entity_ids = ingredient_ids + potion_ids
-        new_id = Numeric.rand(1..50000)
-
-        while all_entity_ids.include?(new_id)
-            new_id = Numeric.rand(1..50000)
+            @player.ingredients.add(gen_new_card("i001"))
         end
 
-        return new_id
+        4.times do
+            @player.ingredients.add(gen_new_card("i004"))
+        end
+
+        4.times do
+            @player.ingredients.add(gen_new_card("i005"))
+        end
+
+        4.times do
+            @player.ingredients.add(gen_new_card("i003"))
+        end
+
+        4.times do
+            @player.ingredients.add(gen_new_card("i002"))
+        end
     end
 
     def change_scene(prev_sc:, next_sc:)
@@ -158,7 +146,7 @@ class Game
             text: t,
             a: 255,
             angle: 0,
-            scale: scale,
+            scale: scale / 2,
             r: r,
             g: g,
             b: b,

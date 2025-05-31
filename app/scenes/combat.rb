@@ -11,7 +11,6 @@ class Combat
             enemy_turn: 3,
         }
         @hand = {}
-        @selected_cards = {}
         @matching_potion = nil
         @max_hand_size = 8
         @turn_stage = nil
@@ -45,17 +44,16 @@ class Combat
         l4 = []
 
         cards ||= []
-        selected_cards ||= []
         front_card = nil
 
         @hand.each do |id, c|
         prefab = c.prefab
 
-        if c.grabbed
-            front_card = prefab
-        else
-            cards.append prefab
-        end
+            if c.grabbed
+                front_card = prefab
+            else
+                cards.append prefab
+            end
         end
 
         range = 255 - 0
@@ -169,6 +167,30 @@ class Combat
             primitive_marker: :label,
         }
 
+        discards_sprite ||= {
+            x: 20,
+            y: 200,
+            w: 160,
+            h: 160,
+            r: 40,
+            g: 40,
+            b: 90,
+            primitive_marker: :solid,
+        }
+
+        discards_card_count_label ||= {
+            text: "#{@player.potions.discard_size}",
+            x: 100,
+            y: 280,
+            anchor_x: 0.5,
+            anchor_y: 0.5,
+            size_enum: 10,
+            r: 255,
+            g: 255,
+            b: 255,
+            primitive_marker: :label,
+        }
+
         pass_button ||= {
             x: 20,
             y: GTK.args.grid.h - 50 - (60 / 2),
@@ -208,7 +230,7 @@ class Combat
             l2 << players_turn_label
         end
 
-        l2 << [ deck_sprite, deck_card_count_label, pass_button, pass_button_label, cards, selected_cards ]
+        l2 << [ deck_sprite, deck_card_count_label, discards_sprite, discards_card_count_label, pass_button, pass_button_label, cards ]
         return l2
 
         when 3
@@ -225,21 +247,24 @@ class Combat
 
     def cleanup
         puts 'cleanup combat.rb'
+        @hand.each do |id, c|
+            @player.potions.add(c)
+        end
     end
 
     def calc_enemy
         if @enemy.turn_start_tick_count.elapsed_time == 1.seconds
-        @enemy.attack
+            @enemy.attack
         end
 
         if @enemy.turn_start_tick_count.elapsed_time == 2.seconds
-        begin_turn_stage @turn_stages[:drawing_cards]
+            begin_turn_stage @turn_stages[:drawing_cards]
         end
     end
         
     def calc_card_positions
         @hand.each_with_index do |(id, c), i|
-        c.calc_position @hand.length, i
+            c.calc_position @hand.length, i
         end
     end
         
@@ -249,11 +274,11 @@ class Combat
         
     def calc_mouse_inputs
         if state.currently_dragging_card_id
-        c_ref = @hand[state.currently_dragging_card_id]
-        else
-        #card_under_mouse lol
-        c_u_m = Geometry.find_intersect_rect inputs.mouse, get_card_rects
-        c_ref = nil
+                c_ref = @hand[state.currently_dragging_card_id]
+            else
+                #card_under_mouse lol
+                c_u_m = Geometry.find_intersect_rect inputs.mouse, get_card_rects
+                c_ref = nil
         end
         
         if inputs.mouse.click
@@ -265,57 +290,57 @@ class Combat
         end
         
         if @turn_stage == @turn_stages[:playing_cards]
-        if inputs.mouse.click and c_u_m
-            state.currently_dragging_card_id = c_u_m.id
-            c_ref = @hand[state.currently_dragging_card_id]
-            c_ref.grabbed = true
+            if inputs.mouse.click and c_u_m
+                state.currently_dragging_card_id = c_u_m.id
+                c_ref = @hand[state.currently_dragging_card_id]
+                c_ref.grabbed = true
 
-            state.mouse_point_inside_square = 
-            {
-            x: inputs.mouse.x - c_u_m.x,
-            y: inputs.mouse.y - c_u_m.y,
-            }
+                state.mouse_point_inside_square = 
+                {
+                x: inputs.mouse.x - c_u_m.x,
+                y: inputs.mouse.y - c_u_m.y,
+                }
 
-            state.click_hold_time = Kernel.tick_count
-        elsif inputs.mouse.held and state.currently_dragging_card_id
-            c_ref.pos.x = inputs.mouse.x - state.mouse_point_inside_square.x
-            c_ref.pos.y = inputs.mouse.y - state.mouse_point_inside_square.y
-        elsif inputs.mouse.up and state.currently_dragging_card_id
+                state.click_hold_time = Kernel.tick_count
+            elsif inputs.mouse.held and state.currently_dragging_card_id
+                c_ref.pos.x = inputs.mouse.x - state.mouse_point_inside_square.x
+                c_ref.pos.y = inputs.mouse.y - state.mouse_point_inside_square.y
+            elsif inputs.mouse.up and state.currently_dragging_card_id
 
-            # Re-fetch the card from either group.
-            c_ref = @hand[state.currently_dragging_card_id] ||
-            c_ref.grabbed = false
+                # Re-fetch the card from either group.
+                c_ref.grabbed = false
+                c_ref = @hand[state.currently_dragging_card_id]
 
-            if state.click_hold_time.elapsed_time < 20 and (Geometry.distance c_ref.pos, c_ref.f_pos) < 20
-            use_card c_ref
+                if state.click_hold_time.elapsed_time < 20 and (Geometry.distance c_ref.pos, c_ref.f_pos) < 20
+                use_card c_ref
+                end
+
+                
+                
+                # For active hand cards, perform reordering.
+                if @hand.key?(state.currently_dragging_card_id)
+                
+                # Exclude the dragged card from the current order.
+                other_cards = @hand.values.reject { |card| card.entity_id == state.currently_dragging_card_id }
+                sorted_ids = other_cards.sort_by { |card| card.pos.x }.map { |card| card.entity_id }
+                
+                # Calculate the center position of the dragged card.
+                dragged_center = c_ref.pos[:x] + (c_ref.w / 2)
+                
+                # Determine where to insert the dragged card.
+                new_index = sorted_ids.find_index do |card_id|
+                    card = @hand[card_id]
+                    dragged_center < (card.pos.x + (card.w / 2))
+                end
+                new_index ||= sorted_ids.length
+                sorted_ids.insert(new_index, state.currently_dragging_card_id)
+                
+                # Rebuild the active hand from these sorted IDs.
+                @hand = sorted_ids.map { |id| [id, @hand[id]] }.to_h
+                end
+
+                state.currently_dragging_card_id = nil
             end
-
-            
-            
-            # For active hand cards, perform reordering.
-            if @hand.key?(state.currently_dragging_card_id)
-            
-            # Exclude the dragged card from the current order.
-            other_cards = @hand.values.reject { |card| card.entity_id == state.currently_dragging_card_id }
-            sorted_ids = other_cards.sort_by { |card| card.pos.x }.map { |card| card.entity_id }
-            
-            # Calculate the center position of the dragged card.
-            dragged_center = c_ref.pos[:x] + (c_ref.w / 2)
-            
-            # Determine where to insert the dragged card.
-            new_index = sorted_ids.find_index do |card_id|
-                card = @hand[card_id]
-                dragged_center < (card.pos.x + (card.w / 2))
-            end
-            new_index ||= sorted_ids.length
-            sorted_ids.insert(new_index, state.currently_dragging_card_id)
-            
-            # Rebuild the active hand from these sorted IDs.
-            @hand = sorted_ids.map { |id| [id, @hand[id]] }.to_h
-            end
-
-            state.currently_dragging_card_id = nil
-        end
         end
     end
     
@@ -346,8 +371,11 @@ class Combat
     end
         
     def draw_card
-        card = @player.potions.draw
-        @hand[card.entity_id] = card
+        if @player.potions.all_cards.size > 0
+            card = @player.potions.draw
+            puts card
+            @hand[card.entity_id] = card
+        end
     end
     
     def actions_available?
@@ -358,8 +386,12 @@ class Combat
         potion_info = $pids[card.id]
 
         # handle deducting potion throwing focus cost
-        if @player.focus >= potion_info.fc
+        if @player.focus >= potion_info.fc and card.uses_left > 0
             @player.focus -= potion_info.fc
+
+            card.uses_left -= 1
+
+            card.update_sprite()
 
             @player.potions.discard card
             @hand.delete card.entity_id
@@ -370,7 +402,7 @@ class Combat
 
             if damage_trait
                 @enemy.hp -= damage_trait
-                status_label((GTK.args.grid.w / 2), (GTK.args.grid.h - 250), "#{damage_trait}", 255, 165, 0, 80)
+                status_label((GTK.args.grid.w / 2), (GTK.args.grid.h - 250), "#{damage_trait}", 255, 165, 0, 100)
 
                 if @enemy.hp <= 0
                     # enemy dies
@@ -378,7 +410,7 @@ class Combat
                 end
             elsif healing_trait
                 @player.hp += healing_trait
-                status_label(80, (GTK.args.grid.h - 275), "#{damage_trait}", 0, 255, 0, 80)
+                status_label(80, (GTK.args.grid.h - 275), "#{damage_trait}", 0, 255, 0, 100)
 
                 if @player.hp >= @player.max_hp
                     @player.hp = @player.max_hp
@@ -425,7 +457,7 @@ class Combat
     def begin_combat
         @turn_num = 0
         3.times do
-            draw_card # selected_draw_pile: "bottles"
+            draw_card
         end
 
         begin_turn_stage @turn_stages[:drawing_cards]

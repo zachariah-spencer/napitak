@@ -14,16 +14,26 @@ class Deck
     end
   
     # Draw a card: reshuffle if needed, then remove and return one.
-    def draw
-      reshuffle if @draw_pile.empty? && !@discard_pile.empty?
-      card = @draw_pile.sample
-      @draw_pile.delete(card)
-      card
+    def draw(random_sample = false)
+        if random_sample
+            card = (@draw_pile + @discard_pile).sample()
+            card
+        else
+            reshuffle if @draw_pile.empty? && !@discard_pile.empty?
+            card = @draw_pile.sample
+            @draw_pile.delete(card)
+            card
+        end
     end
   
     # Discard a card into the discard pile.
     def discard(card)
       @discard_pile << card
+    end
+
+    def remove(card)
+        @draw_pile.delete(card)
+        card
     end
   
     # Move all discarded cards back into the draw pile and shuffle.
@@ -35,7 +45,11 @@ class Deck
   
     # Number of cards remaining in the draw pile.
     def size
-      @draw_pile.size
+        @draw_pile.size
+    end
+
+    def discard_size
+        @discard_pile.size
     end
   
     # Check whether the draw pile is empty.
