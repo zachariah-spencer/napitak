@@ -1,7 +1,7 @@
 class ScrollListWidget
     attr_reader :selected_item
 
-    def initialize(items:, x:, y:, w:, h:, item_height: 64, uid:)
+    def initialize(items:, x:, y:, w:, h:, item_height: 85, uid:)
         @items         = items
         @x, @y         = x, y
         @width         = w
@@ -111,30 +111,42 @@ class ScrollListWidget
             color = (@hovered_idx == idx) ? [80, 80, 80] : [100, 100, 100]
             GTK.args.outputs[path].solids << [local_x + 5, local_y + 5, @width - 10, @item_height - 10, *color]
 
-            # icon
-            GTK.args.outputs[path].sprites << {
-                x:    local_x + 32,
-                y:    local_y + (@item_height / 2) - 8,
-                w:    32,
-                h:    32,
-                path: item.img
-            }
-
+            
             # label
             GTK.args.outputs[path].labels << {
-                x:         local_x + 8,
-                y:         local_y + (@item_height / 2) - 8,
+                x:         local_x + 75,
+                y:         local_y + (@item_height / 2) - 4,
                 text:      item.name,
-                size_enum: 1
+                size_enum: 1,
+                alignment_enum: 1
             }
 
             if item.id[0] == "p"
                 # uses left label for potions
                 GTK.args.outputs[path].labels << {
-                    x:         local_x + 96,
-                    y:         local_y + (@item_height / 2) + 20,
-                    text: "#{item.uses_left} / #{item.max_uses}",
-                    size_enum: 1
+                    x:         local_x + 140,
+                    y:         local_y + (@item_height / 2) + 25,
+                    text: "#{item.uses_left}/#{item.max_uses}",
+                    alignment_enum: 2,
+                    size_enum: 1,
+                }
+
+                # icon for potions
+                GTK.args.outputs[path].sprites << {
+                    x:    local_x + 50 - 16,
+                    y:    local_y + (@item_height / 2) - 3,
+                    w:    32,
+                    h:    32,
+                    path: item.img
+                }
+            elsif item.id[0] == "i"
+                # icon
+                GTK.args.outputs[path].sprites << {
+                    x:    local_x + 75 - 16,
+                    y:    local_y + (@item_height / 2) - 8,
+                    w:    32,
+                    h:    32,
+                    path: item.img
                 }
             end
         end
@@ -161,7 +173,7 @@ class ScrollListWidget
             delta = wheel[:y] 
 
             if delta != 0
-                @scroll_vel += delta * 1.75
+                @scroll_vel += delta * 2.5
                 # @scroll_y = (@scroll_y - delta * 10).clamp(0, max_offset)
             end
 

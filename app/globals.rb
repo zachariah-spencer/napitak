@@ -9,7 +9,7 @@ $pids = {
         name: "Rock Potion",
         desc: "A basic potion that damages an enemy.",
         fc: 1,
-        max_uses: 1,
+        max_uses: 10,
         path: "sprites/circle/green.png",
         ingredients: {
             "i001" => 1,

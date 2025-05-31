@@ -371,8 +371,11 @@ class Combat
     end
         
     def draw_card
-        card = @player.potions.draw
-        @hand[card.entity_id] = card
+        if @player.potions.all_cards.size > 0
+            card = @player.potions.draw
+            puts card
+            @hand[card.entity_id] = card
+        end
     end
     
     def actions_available?
@@ -454,7 +457,7 @@ class Combat
     def begin_combat
         @turn_num = 0
         3.times do
-            draw_card # selected_draw_pile: "bottles"
+            draw_card
         end
 
         begin_turn_stage @turn_stages[:drawing_cards]

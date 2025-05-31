@@ -147,11 +147,12 @@ class Card
   
           # add a label in the center of the render target
           args.outputs[@card_composite_sprite_ref].primitives << {
-            x: 120,
+            x: 122.5,
             y: 20,
-            text: "#{@uses_left} / #{@max_uses}",
+            text: "#{@uses_left}/#{@max_uses}",
             anchor_x: 0.5,
             anchor_y: 0.5,
+            alignment_enum: 2,
             r: 255,
             g: 255,
             b: 0,

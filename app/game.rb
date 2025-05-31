@@ -24,17 +24,24 @@ class Game
     def new_run
         @player = Player.new()
 
-        6.times do
-            # @player.potions.add(gen_new_card("p001"))
+        10.times do
             @player.ingredients.add(gen_new_card("i001"))
-            @player.ingredients.add(gen_new_card("i002"))
-            @player.ingredients.add(gen_new_card("i003"))
+        end
+
+        4.times do
             @player.ingredients.add(gen_new_card("i004"))
+        end
+
+        4.times do
             @player.ingredients.add(gen_new_card("i005"))
         end
 
-        6.times do
-            @player.potions.add(gen_new_card("p001"))
+        4.times do
+            @player.ingredients.add(gen_new_card("i003"))
+        end
+
+        4.times do
+            @player.ingredients.add(gen_new_card("i002"))
         end
     end
 
