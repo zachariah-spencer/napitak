@@ -13,6 +13,7 @@ require_relative 'services/recipe_book.rb'
 
 require_relative 'scenes/combat.rb'
 require_relative 'scenes/alchemy_table.rb'
+require_relative 'scenes/rewards_screen.rb'
 
 def tick args
   $game ||= Game.new

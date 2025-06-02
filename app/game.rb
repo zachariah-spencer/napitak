@@ -54,6 +54,8 @@ class Game
             @scene_ref = Combat.new()
         when "alchemy_table"
             @scene_ref = AlchemyTable.new(max_uses: 3)
+        when "rewards_screen"
+            @scene_ref = RewardsScreen.new()
         end
 
     end

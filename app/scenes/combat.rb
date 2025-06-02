@@ -406,6 +406,7 @@ class Combat
 
                 if @enemy.hp <= 0
                     # enemy dies
+                    puts "enemy died"
                     end_combat
                 end
             elsif healing_trait
@@ -422,7 +423,7 @@ class Combat
     end
 
     def end_combat()
-        $game.change_scene(prev_sc: @sc_id, next_sc: "alchemy_table")
+        $game.change_scene(prev_sc: @sc_id, next_sc: "rewards_screen")
     end
     
     def get_card_rects
