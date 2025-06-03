@@ -107,7 +107,7 @@ def status_label(x, y, t, r, g, b, scale)
     $game.status_label(x, y, t, r, g, b, scale)
 end
 
-def gen_new_card id = nil, to_deck = true
+def gen_new_card(id = nil, is_reward: false)
     all_ids = $pids.keys + $iids.keys
 
     if id == nil
@@ -125,16 +125,22 @@ def gen_new_card id = nil, to_deck = true
 
     new_ent_id = get_rand_id
 
-    if id[0] == "p"
-        name = $pids[id].name
-        fc = $pids[id].fc
-        img = $pids[id].path
-        max_uses = $pids[id].max_uses
-        new_card = PotionCard.new(id, new_ent_id, name, fc, img, max_uses)
-    else
+    if is_reward
         name = $iids[id].name
         img = $iids[id].path
-        new_card = IngredientCard.new(id, new_ent_id, name, fc, img)
+        new_card = IngredientRewardCard.new(id, new_ent_id, name, fc, img)
+    else
+        if id[0] == "p"
+            name = $pids[id].name
+            fc = $pids[id].fc
+            img = $pids[id].path
+            max_uses = $pids[id].max_uses
+            new_card = PotionCard.new(id, new_ent_id, name, fc, img, max_uses)
+        else
+            name = $iids[id].name
+            img = $iids[id].path
+            new_card = IngredientCard.new(id, new_ent_id, name, fc, img)
+        end
     end
 
     

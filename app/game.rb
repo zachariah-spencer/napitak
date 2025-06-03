@@ -18,30 +18,16 @@ class Game
         @recipe_book = RecipeBook.new()
 
         new_run
-        change_scene(prev_sc: "", next_sc: "alchemy_table")
+        # change_scene(prev_sc: "", next_sc: "alchemy_table")
+        change_scene(prev_sc: "", next_sc: "rewards_screen")
     end
 
     def new_run
         @player = Player.new()
 
-        10.times do
-            @player.ingredients.add(gen_new_card("i001"))
-        end
 
         4.times do
-            @player.ingredients.add(gen_new_card("i004"))
-        end
-
-        4.times do
-            @player.ingredients.add(gen_new_card("i005"))
-        end
-
-        4.times do
-            @player.ingredients.add(gen_new_card("i003"))
-        end
-
-        4.times do
-            @player.ingredients.add(gen_new_card("i002"))
+            @player.potions.add(gen_new_card("p001"))
         end
     end
 
