@@ -1,7 +1,7 @@
-class ScrollListWidget
+class ScrollListWidgetH
   attr_reader :selected_item
 
-  def initialize(items:, x:, y:, w:, h:, uid:, item_height: 85)
+  def initialize(items:, x:, y:, w:, h:, uid:, item_width: 120)
     @items = items
     @x, @y = x, y
     @width = w

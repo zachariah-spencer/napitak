@@ -1,22 +1,22 @@
-require_relative 'game.rb'
-require_relative 'globals.rb'
+require_relative "game"
+require_relative "globals"
 
-require_relative 'models/enemy.rb'
-require_relative 'models/player.rb'
-require_relative 'models/card.rb'
-require_relative 'models/potion_card.rb'
-require_relative 'models/ingredient_card.rb'
-require_relative 'models/ingredient_reward_card.rb'
+require_relative "models/enemy"
+require_relative "models/player"
+require_relative "models/card"
+require_relative "models/potion_card"
+require_relative "models/ingredient_card"
+require_relative "models/ingredient_reward_card"
 
-require_relative 'services/deck.rb'
-require_relative 'services/inventory.rb'
-require_relative 'services/recipe_book.rb'
+require_relative "services/deck"
+require_relative "services/inventory"
+require_relative "services/recipe_book"
 
-require_relative 'scenes/combat.rb'
-require_relative 'scenes/alchemy_table.rb'
-require_relative 'scenes/rewards_screen.rb'
+require_relative "scenes/combat"
+require_relative "scenes/alchemy_table"
+require_relative "scenes/rewards_screen"
 
-def tick args
+def tick(args)
   $game ||= Game.new
   $game.args ||= args
 
@@ -25,7 +25,7 @@ end
 
 # reset is a top-level function that DR is aware of
 # and will be invoked before GTK.reset occurs.
-def reset args
+def reset(_args)
   # A new rng will be used GTK.reset is invoked
   GTK.set_rng (Time.now.to_f * 100).to_i
 end

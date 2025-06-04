@@ -1,62 +1,67 @@
 class Enemy
+  attr_accessor :hp, :max_hp, :turn_start_tick_count, :attacked, :attacks
 
-    attr_accessor :hp, :max_hp, :turn_start_tick_count, :attacked, :attacks
+  def initialize(hp)
+    $enemy = self
 
-    
-    def initialize hp
-        $enemy = self
+    @turn_start_tick_count = 0
+    @attacked = false
+    @hp = hp
+    @max_hp = hp
 
-        @turn_start_tick_count = 0
-        @attacked = false
-        @hp = hp
-        @max_hp = hp
+    @attacks = {
+      70 => {
+        name: "Basic Attack",
+        damage: 1
+      },
+      20 => {
+        name: "Power Attack",
+        damage: 2
+      },
+      10 => {
+        name: "Ultimate Attack",
+        damage: 4
+      }
+    }
+  end
 
-        @attacks = {
-            70 => {
-                name: "Basic Attack",
-                damage: 1,
-            },
-            20 => {
-                name: "Power Attack",
-                damage: 2,
-            },
-            10 => {
-                name: "Ultimate Attack",
-                damage: 4,
-            },
-        }
+  def attack
+    attack = select_attack
+    puts attack
+    status_label(
+      80,
+      (GTK.args.grid.h - 275),
+      "#{attack[:damage]}",
+      255,
+      165,
+      0,
+      100
+    )
+
+    $player.hp -= attack[:damage]
+    puts "PLAYER DIED" if $player.hp <= 0
+
+    attacked = true
+  end
+
+  def select_attack
+    rand_n = Numeric.rand(0..100)
+    att_probs = @attacks.keys
+    attack = 0
+
+    if rand_n >= 0 and rand_n < att_probs[0]
+      attack = @attacks[att_probs[0]]
+    elsif rand_n >= att_probs[0] and rand_n < (att_probs[0] + att_probs[1])
+      attack = @attacks[att_probs[1]]
+    elsif rand_n >= (att_probs[0] + att_probs[1]) and
+          rand_n < (att_probs[0] + att_probs[1] + att_probs[2])
+      attack = @attacks[att_probs[2]]
     end
 
-    def attack
-        attack = select_attack
-        puts attack
-        status_label(80, (GTK.args.grid.h - 275), "#{attack[:damage]}", 255, 165, 0, 100)
-    
-        $player.hp -= attack[:damage]
-        if $player.hp <= 0
-            puts "PLAYER DIED"
-        end
-    
-        attacked = true
-    end
+    attack
+  end
 
-    def select_attack
-        rand_n = Numeric.rand(0..100)
-        att_probs = @attacks.keys
-        attack = 0
-    
-        if rand_n >= 0 and rand_n < att_probs[0]
-          attack = @attacks[att_probs[0]]
-        elsif rand_n  >= att_probs[0] and rand_n < ( att_probs[0] + att_probs[1] )
-          attack = @attacks[att_probs[1]]
-        elsif rand_n >= ( att_probs[0] + att_probs[1] ) and rand_n < ( att_probs[0]+ att_probs[1] + att_probs[2] )
-          attack = @attacks[att_probs[2]]
-        end
-    
-        attack
-      end
-
-    def render layer_num
+  def render(layer_num)
     l0 = []
     l1 = []
     l2 = []
@@ -67,7 +72,6 @@ class Enemy
     when 0
       return l0
     when 1
-
       enemy_sprite ||= {
         x: GTK.args.grid.w / 2 - 100,
         y: GTK.args.grid.h - 250,
@@ -76,7 +80,7 @@ class Enemy
         r: 150,
         g: 0,
         b: 0,
-        primitive_marker: :solid,
+        primitive_marker: :solid
       }
 
       enemy_hp_label ||= {
@@ -88,10 +92,10 @@ class Enemy
         g: 0,
         b: 0,
         text: "#{@hp}/#{@max_hp}",
-        primitive_marker: :label,
+        primitive_marker: :label
       }
 
-      l1 << [ enemy_sprite, enemy_hp_label ]
+      l1 << [enemy_sprite, enemy_hp_label]
       return l1
     when 2
       return l2
@@ -103,5 +107,4 @@ class Enemy
       # puts "combat.rb: Invalid Render Argument"
     end
   end
-
 end

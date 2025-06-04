@@ -1,16 +1,17 @@
 require "app/models/scroll_list_widget"
 
-class AlchemyTable
+class AlchemyLab
   attr_gtk
   attr
 
-  def initialize(max_uses:)
-    @sc_id = "alchemy_table"
+  def initialize(max_uses:, max_ingredients:)
+    @sc_id = "alchemy_lab"
     @player = $player
     @recipe_book = $recipe_book
     @uses_left = max_uses
     @visible_ingredients = {}
     @selected_ingredients = {}
+    @collected_ingredients = {}
     @craftable_potion = nil
 
     @ing_menu_widget =
