@@ -428,7 +428,7 @@ class Combat
         status_label(
           80,
           (GTK.args.grid.h - 275),
-          "#{damage_trait}",
+          "#{healing_trait}",
           0,
           255,
           0,

@@ -10,6 +10,7 @@ class AlchemyLab
     @player = $player
     @recipe_book = $recipe_book
     @uses_left = max_uses
+    @max_ingredients = max_ingredients
     @visible_ingredients = {}
     @selected_ingredients = {}
     @stored_ingredients = Inventory.new()
@@ -205,7 +206,7 @@ class AlchemyLab
         r: 255,
         g: 255,
         b: 255,
-        text: "Alchemy Table",
+        text: "Alchemy Lab",
         primitive_marker: :label
       }
 
@@ -468,6 +469,8 @@ class AlchemyLab
       c_ref = @visible_ingredients[card_id] || @selected_ingredients[card_id]
       c_ref.grabbed = true
 
+      reorder_cards(c_ref)
+
       state.mouse_point_inside_square = {
         x: inputs.mouse.x - c_u_m.x,
         y: inputs.mouse.y - c_u_m.y
@@ -483,9 +486,9 @@ class AlchemyLab
         use_card(c_ref)
       end
 
-      if inputs.mouse.intersect_rect?(@ing_menu_widget.rect)
-        @ing_menu_widget.add_item(c_ref)
-        @visible_ingredients.reject! { |id, c| c == c_ref }
+      if inputs.mouse.intersect_rect?(@ing_menu_widget.rect) and @ing_menu_widget.items?.count < @max_ingredients
+          @ing_menu_widget.add_item(c_ref)
+          @visible_ingredients.reject! { |id, c| c == c_ref }
       end
 
       if inputs.mouse.intersect_rect?(@stored_ing_menu_widget.rect)
@@ -543,5 +546,10 @@ class AlchemyLab
 
     craft(@craftable_potion.id)
     @craftable_potion = nil
+  end
+
+  def reorder_cards(latest_card)
+    @visible_ingredients.back(latest_card.entity_id) if @visible_ingredients.key?(latest_card.entity_id)
+    @selected_ingredients.back(latest_card.entity_id) if @selected_ingredients.key?(latest_card.entity_id)
   end
 end

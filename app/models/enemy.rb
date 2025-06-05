@@ -39,7 +39,7 @@ class Enemy
     )
 
     $player.hp -= attack[:damage]
-    puts "PLAYER DIED" if $player.hp <= 0
+    GTK.reboot if $player.hp <= 0
 
     @attacked = true
   end

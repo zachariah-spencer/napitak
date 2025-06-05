@@ -17,6 +17,24 @@ require_relative "scenes/alchemy_table"
 require_relative "scenes/alchemy_lab"
 require_relative "scenes/rewards_screen"
 
+class Hash
+
+  def front(key)
+    raise "Hash.front(key): key passed in as argument is not found in the hash" if !key?(key) 
+    value = delete(key)
+    # Build a new hash with the one pair first, then the rest:
+    replace({ key => value }.merge(self))
+    self
+  end
+
+  def back(key)
+    raise "Hash.back(key): key passed in as argument is not found in the hash" if !key?(key) 
+    value = delete(key)
+    self[key] = value
+    self
+  end
+end
+
 def tick(args)
   $game ||= Game.new
   $game.args ||= args
@@ -30,4 +48,4 @@ def reset(_args)
   # A new rng will be used GTK.reset is invoked
   GTK.set_rng (Time.now.to_f * 100).to_i
 end
-GTK.reset_next_tick
+GTK.reset_next_tick()
