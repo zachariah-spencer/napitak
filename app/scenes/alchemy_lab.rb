@@ -378,8 +378,9 @@ class AlchemyLab
     rects
   end
 
-  def draw_card(ingredient)
-    card = $player.ingredients.all_cards.find { |c| c == ingredient }
+  def draw_card(card)
+    return nil unless card
+
     @visible_ingredients[card.entity_id] = card
     card
   end
