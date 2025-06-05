@@ -1,3 +1,4 @@
+require "app/models/scroll_list_widget_h"
 require "app/models/scroll_list_widget"
 
 class AlchemyLab
@@ -12,11 +13,20 @@ class AlchemyLab
     @visible_ingredients = {}
     @selected_ingredients = {}
     @collected_ingredients = {}
+    @stored_ingredients = Inventory.new()
     @craftable_potion = nil
+
+    10.times.each do
+      random_ingredient_id = $iids.keys().sample()
+      random_ingredient_card = gen_new_card(random_ingredient_id)
+      @stored_ingredients.add(random_ingredient_card)
+    end
+
+    puts @stored_ingredients.all_cards
 
     @ing_menu_widget =
       ScrollListWidget.new(
-        items: @player.ingredients.all_cards,
+        items: [],
         x: 20,
         y: GTK.args.grid.h / 2 - 250,
         w: 160,
@@ -31,6 +41,16 @@ class AlchemyLab
         w: 160,
         h: 500,
         uid: 2
+      )
+
+    @collected_ing_menu_widget =
+      ScrollListWidgetH.new(
+        items: @stored_ingredients.all_cards,
+        x: GTK.args.grid.w / 2 - 250,
+        y: 20,
+        w: 500,
+        h: 100,
+        uid: 3
       )
   end
 
@@ -73,6 +93,7 @@ class AlchemyLab
   def tick
     @ing_menu_widget.tick(GTK.args.inputs)
     @pot_menu_widget.tick(GTK.args.inputs)
+    @collected_ing_menu_widget.tick(GTK.args.inputs)
     calc
   end
 
@@ -181,7 +202,7 @@ class AlchemyLab
       l3 << [front_card, sel_cards]
       l3
     when 4
-      l4 << [@ing_menu_widget.render, @pot_menu_widget.render]
+      l4 << [@ing_menu_widget.render, @pot_menu_widget.render, @collected_ing_menu_widget.render]
       l4
     else
       # puts "combat.rb: Invalid Render Argument"
@@ -388,15 +409,56 @@ class AlchemyLab
       c_ref = nil
     end
 
-    if clicked = @ing_menu_widget.selected_item
+    # if clicked = @ing_menu_widget.selected_item
+    #   puts "Clicked: #{clicked.name}"
+    #   c_ref =
+    #     draw_card(@ing_menu_widget.remove_item(@ing_menu_widget.selected_item))
+    #   c_ref.activation_time = Kernel.tick_count
+    #   c_u_m = c_ref.rect
+    #   c_u_m.x = GTK.args.inputs.mouse.x - 80
+    #   c_u_m.y = GTK.args.inputs.mouse.y - 80
+    #   c_ref.grabbed = true
+    # end
+
+    # try to pop a clicked ingredient from the ing_menu
+    if clicked = @ing_menu_widget.pop_clicked
       puts "Clicked: #{clicked.name}"
-      c_ref =
-        draw_card(@ing_menu_widget.remove_item(@ing_menu_widget.selected_item))
-      c_ref.activation_time = Kernel.tick_count
-      c_u_m = c_ref.rect
-      c_u_m.x = GTK.args.inputs.mouse.x - 80
-      c_u_m.y = GTK.args.inputs.mouse.y - 80
-      c_ref.grabbed = true
+      new_card = @ing_menu_widget.remove_item(clicked)
+      if new_card
+        c_ref = draw_card(new_card)
+        if c_ref
+          c_ref.activation_time = Kernel.tick_count
+          c_u_m = c_ref.rect
+          c_u_m.x = GTK.args.inputs.mouse.x - 80
+          c_u_m.y = GTK.args.inputs.mouse.y - 80
+          c_ref.grabbed = true
+        end
+      end
+    end
+
+    # if clicked = @collected_ing_menu_widget.selected_item
+    #   puts "Clicked: #{clicked.name}"
+    #   c_ref = draw_card(@collected_ing_menu_widget.remove_item(@collected_ing_menu_widget.selected_item))
+    #   c_ref.activation_time = Kernel.tick_count
+    #   c_u_m = c_ref.rect
+    #   c_u_m.x = GTK.args.inputs.mouse.x - 80
+    #   c_u_m.y = GTK.args.inputs.mouse.y - 80
+    #   c_ref.grabbed = true
+    # end
+    # try to pop a clicked ingredient from the collected_ing_menu
+    if clicked = @collected_ing_menu_widget.pop_clicked
+      puts "Clicked: #{clicked.name}"
+      new_card = @collected_ing_menu_widget.remove_item(clicked)
+      if new_card
+        c_ref = draw_card(new_card)
+        if c_ref
+          c_ref.activation_time = Kernel.tick_count
+          c_u_m = c_ref.rect
+          c_u_m.x = GTK.args.inputs.mouse.x - 80
+          c_u_m.y = GTK.args.inputs.mouse.y - 80
+          c_ref.grabbed = true
+        end
+      end
     end
 
     # if Geometry.intersect_rect? inputs.mouse, ing_deck() and inputs.mouse.click
@@ -418,18 +480,23 @@ class AlchemyLab
         y: inputs.mouse.y - c_u_m.y
       }
       state.click_hold_time = Kernel.tick_count
-    elsif inputs.mouse.held and state.currently_dragging_card_id
+    elsif inputs.mouse.held and state.currently_dragging_card_id and c_ref
       c_ref.pos.x = inputs.mouse.x - state.mouse_point_inside_square.x
       c_ref.pos.y = inputs.mouse.y - state.mouse_point_inside_square.y
     elsif inputs.mouse.up and state.currently_dragging_card_id
       if state.click_hold_time.elapsed_time < 20 and
-           (Geometry.distance c_ref.pos, c_ref.f_pos) < 20 and
-           (c_ref.activation_time.elapsed_time > 0.25.seconds)
+          (Geometry.distance c_ref.pos, c_ref.f_pos) < 20 and
+          (c_ref.activation_time.elapsed_time > 0.25.seconds)
         use_card(c_ref)
       end
 
       if inputs.mouse.intersect_rect?(@ing_menu_widget.rect)
         @ing_menu_widget.add_item(c_ref)
+        @visible_ingredients.reject! { |id, c| c == c_ref }
+      end
+
+      if inputs.mouse.intersect_rect?(@collected_ing_menu_widget.rect)
+        @collected_ing_menu_widget.add_item(c_ref)
         @visible_ingredients.reject! { |id, c| c == c_ref }
       end
 

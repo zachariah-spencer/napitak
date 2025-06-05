@@ -14,6 +14,7 @@ require_relative "services/recipe_book"
 
 require_relative "scenes/combat"
 require_relative "scenes/alchemy_table"
+require_relative "scenes/alchemy_lab"
 require_relative "scenes/rewards_screen"
 
 def tick(args)

@@ -19,13 +19,15 @@ class Game
 
     new_run
     # change_scene(prev_sc: "", next_sc: "alchemy_table")
-    change_scene(prev_sc: "", next_sc: "rewards_screen")
+    change_scene(prev_sc: "", next_sc: "alchemy_lab")
   end
 
   def new_run
     @player = Player.new()
 
-    4.times { @player.potions.add(gen_new_card("p001")) }
+    20.times { @player.potions.add(gen_new_card("p001")) }
+
+    20.times { @player.ingredients.add(gen_new_card("i002")) }
   end
 
   def change_scene(prev_sc:, next_sc:)
