@@ -66,6 +66,26 @@ class AlchemyTable
   end
 
   def leave
+
+    # consolidate all ingredient cards into the player's inventory
+    new_cards = []
+
+    # items still inside the vertical ingredient menu
+    if @ing_menu_widget.respond_to?(:items?)
+      new_cards.concat(@ing_menu_widget.items?)
+    else
+      new_cards.concat(@ing_menu_widget.instance_variable_get(:@items))
+    end
+
+    # cards currently on the table but not selected
+    new_cards.concat(@visible_ingredients.values)
+
+    # cards that are currently selected for crafting
+    new_cards.concat(@selected_ingredients.values)
+
+    # overwrite the player's ingredients with this collection
+    @player.ingredients = Inventory.new(new_cards)
+
     $game.change_scene(prev_sc: @sc_id, next_sc: "combat")
   end
 
@@ -356,8 +376,9 @@ class AlchemyTable
     rects
   end
 
-  def draw_card(ingredient)
-    card = $player.ingredients.all_cards.find { |c| c == ingredient }
+  def draw_card(card)
+    return nil unless card
+
     @visible_ingredients[card.entity_id] = card
     card
   end
@@ -387,24 +408,20 @@ class AlchemyTable
       c_ref = nil
     end
 
-    if clicked = @ing_menu_widget.selected_item
+    if clicked = @ing_menu_widget.pop_clicked
       puts "Clicked: #{clicked.name}"
-      c_ref =
-        draw_card(@ing_menu_widget.remove_item(@ing_menu_widget.selected_item))
-      c_ref.activation_time = Kernel.tick_count
-      c_u_m = c_ref.rect
-      c_u_m.x = GTK.args.inputs.mouse.x - 80
-      c_u_m.y = GTK.args.inputs.mouse.y - 80
-      c_ref.grabbed = true
+      new_card = @ing_menu_widget.remove_item(clicked)
+      if new_card
+        c_ref = draw_card(new_card)
+        if c_ref
+          c_ref.activation_time = Kernel.tick_count
+          c_u_m = c_ref.rect
+          c_u_m.x = GTK.args.inputs.mouse.x - 80
+          c_u_m.y = GTK.args.inputs.mouse.y - 80
+          c_ref.grabbed = true
+        end
+      end
     end
-
-    # if Geometry.intersect_rect? inputs.mouse, ing_deck() and inputs.mouse.click
-    #      c_ref = draw_card
-    #      c_u_m = c_ref.rect()
-    #      c_u_m.x = ing_deck().x
-    #      c_u_m.y = ing_deck().y
-    #      c_ref.grabbed = true
-    # end
 
     if inputs.mouse.click and c_u_m
       card_id = c_u_m[:id]

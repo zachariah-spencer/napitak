@@ -86,6 +86,26 @@ class AlchemyLab
   end
 
   def leave
+
+    # consolidate all ingredient cards into the player's inventory
+    new_cards = []
+
+    # items still inside the vertical ingredient menu
+    if @ing_menu_widget.respond_to?(:items?)
+      new_cards.concat(@ing_menu_widget.items?)
+    else
+      new_cards.concat(@ing_menu_widget.instance_variable_get(:@items))
+    end
+
+    # cards currently on the table but not selected
+    new_cards.concat(@visible_ingredients.values)
+
+    # cards that are currently selected for crafting
+    new_cards.concat(@selected_ingredients.values)
+
+    # overwrite the player's ingredients with this collection
+    @player.ingredients = Inventory.new(new_cards)
+
     $game.change_scene(prev_sc: @sc_id, next_sc: "combat")
   end
 
