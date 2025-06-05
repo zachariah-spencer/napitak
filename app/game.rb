@@ -26,8 +26,6 @@ class Game
     @player = Player.new()
 
     20.times { @player.potions.add(gen_new_card("p001")) }
-
-    20.times { @player.ingredients.add(gen_new_card("i002")) }
   end
 
   def change_scene(prev_sc:, next_sc:)

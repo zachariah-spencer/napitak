@@ -28,6 +28,10 @@ class ScrollListWidget
     item
   end
 
+  def items?
+    return @items
+  end
+
   # update scroll, clear last click, then detect a new one
   def tick(inputs)
     handle_scroll(inputs)

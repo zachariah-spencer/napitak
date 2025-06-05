@@ -12,17 +12,14 @@ class AlchemyLab
     @uses_left = max_uses
     @visible_ingredients = {}
     @selected_ingredients = {}
-    @collected_ingredients = {}
     @stored_ingredients = Inventory.new()
     @craftable_potion = nil
 
-    10.times.each do
+    50.times.each do
       random_ingredient_id = $iids.keys().sample()
       random_ingredient_card = gen_new_card(random_ingredient_id)
       @stored_ingredients.add(random_ingredient_card)
     end
-
-    puts @stored_ingredients.all_cards
 
     @ing_menu_widget =
       ScrollListWidget.new(
@@ -43,13 +40,13 @@ class AlchemyLab
         uid: 2
       )
 
-    @collected_ing_menu_widget =
+    @stored_ing_menu_widget =
       ScrollListWidgetH.new(
         items: @stored_ingredients.all_cards,
         x: GTK.args.grid.w / 2 - 250,
-        y: 20,
+        y: 10,
         w: 500,
-        h: 100,
+        h: 120,
         uid: 3
       )
   end
@@ -59,8 +56,10 @@ class AlchemyLab
   end
 
   def craft(recipe_id)
-    if @recipe_book.can_craft?(recipe_id)
-      potion = @recipe_book.craft(recipe_id)
+
+
+    if @recipe_book.can_craft?(recipe_id, ingredients_inventory: @stored_ingredients.all_cards)
+      potion = @recipe_book.craft(recipe_id, ingredients_inventory: @stored_ingredients.all_cards)
       @selected_ingredients.clear
       @pot_menu_widget.add_item(potion)
 
@@ -93,7 +92,7 @@ class AlchemyLab
   def tick
     @ing_menu_widget.tick(GTK.args.inputs)
     @pot_menu_widget.tick(GTK.args.inputs)
-    @collected_ing_menu_widget.tick(GTK.args.inputs)
+    @stored_ing_menu_widget.tick(GTK.args.inputs)
     calc
   end
 
@@ -202,7 +201,7 @@ class AlchemyLab
       l3 << [front_card, sel_cards]
       l3
     when 4
-      l4 << [@ing_menu_widget.render, @pot_menu_widget.render, @collected_ing_menu_widget.render]
+      l4 << [@ing_menu_widget.render, @pot_menu_widget.render, @stored_ing_menu_widget.render]
       l4
     else
       # puts "combat.rb: Invalid Render Argument"
@@ -410,17 +409,6 @@ class AlchemyLab
       c_ref = nil
     end
 
-    # if clicked = @ing_menu_widget.selected_item
-    #   puts "Clicked: #{clicked.name}"
-    #   c_ref =
-    #     draw_card(@ing_menu_widget.remove_item(@ing_menu_widget.selected_item))
-    #   c_ref.activation_time = Kernel.tick_count
-    #   c_u_m = c_ref.rect
-    #   c_u_m.x = GTK.args.inputs.mouse.x - 80
-    #   c_u_m.y = GTK.args.inputs.mouse.y - 80
-    #   c_ref.grabbed = true
-    # end
-
     # try to pop a clicked ingredient from the ing_menu
     if clicked = @ing_menu_widget.pop_clicked
       puts "Clicked: #{clicked.name}"
@@ -437,19 +425,10 @@ class AlchemyLab
       end
     end
 
-    # if clicked = @collected_ing_menu_widget.selected_item
-    #   puts "Clicked: #{clicked.name}"
-    #   c_ref = draw_card(@collected_ing_menu_widget.remove_item(@collected_ing_menu_widget.selected_item))
-    #   c_ref.activation_time = Kernel.tick_count
-    #   c_u_m = c_ref.rect
-    #   c_u_m.x = GTK.args.inputs.mouse.x - 80
-    #   c_u_m.y = GTK.args.inputs.mouse.y - 80
-    #   c_ref.grabbed = true
-    # end
-    # try to pop a clicked ingredient from the collected_ing_menu
-    if clicked = @collected_ing_menu_widget.pop_clicked
+    # try to pop a clicked ingredient from the stored_ing_menu
+    if clicked = @stored_ing_menu_widget.pop_clicked
       puts "Clicked: #{clicked.name}"
-      new_card = @collected_ing_menu_widget.remove_item(clicked)
+      new_card = @stored_ing_menu_widget.remove_item(clicked)
       if new_card
         c_ref = draw_card(new_card)
         if c_ref
@@ -462,13 +441,6 @@ class AlchemyLab
       end
     end
 
-    # if Geometry.intersect_rect? inputs.mouse, ing_deck() and inputs.mouse.click
-    #      c_ref = draw_card
-    #      c_u_m = c_ref.rect()
-    #      c_u_m.x = ing_deck().x
-    #      c_u_m.y = ing_deck().y
-    #      c_ref.grabbed = true
-    # end
 
     if inputs.mouse.click and c_u_m
       card_id = c_u_m[:id]
@@ -496,8 +468,8 @@ class AlchemyLab
         @visible_ingredients.reject! { |id, c| c == c_ref }
       end
 
-      if inputs.mouse.intersect_rect?(@collected_ing_menu_widget.rect)
-        @collected_ing_menu_widget.add_item(c_ref)
+      if inputs.mouse.intersect_rect?(@stored_ing_menu_widget.rect)
+        @stored_ing_menu_widget.add_item(c_ref)
         @visible_ingredients.reject! { |id, c| c == c_ref }
       end
 

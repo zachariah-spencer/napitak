@@ -15,7 +15,7 @@ class ScrollListWidgetH
     @uid = uid
 
     # Scrollbar state
-    @scroll_bar_height = 8
+    @scroll_bar_height = 20
     @scroll_bar_dragging = false
     @scroll_bar_drag_start_mouse_x = 0
     @scroll_bar_thumb_x_at_drag_start = 0

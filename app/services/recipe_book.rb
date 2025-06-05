@@ -29,30 +29,29 @@ class RecipeBook
 
   # Check if player has sufficient ingredients in their inventory to craft recipe
   # Player should have an ingredient inventory with `deck` responding to `count`
-  def can_craft?(recipe_id)
+  def can_craft?(recipe_id, ingredients_inventory: $player.ingredients.all_cards)
     return false unless unlocked?(recipe_id)
     required = @potion_defs[recipe_id][:ingredients]
 
     required.all? do |ing_id, amt|
-      $player.ingredients.all_cards.count { |card| card.id == ing_id } >= amt
+      ingredients_inventory.count { |card| card.id == ing_id } >= amt
     end
   end
 
   # Consume ingredients and produce a new PotionCard
-  def craft(recipe_id)
+  def craft(recipe_id, ingredients_inventory: $player.ingredients.all_cards)
     # check if recipe is unlocked and sufficient ingredients are possessed by player
     raise "Recipe not unlocked: #{recipe_id}" unless unlocked?(recipe_id)
 
-    unless can_craft?(recipe_id)
+    unless can_craft?(recipe_id, ingredients_inventory: ingredients_inventory)
       raise "Insufficient ingredients for #{recipe_id}"
     end
 
     # Remove required ingredients
     @potion_defs[recipe_id][:ingredients].each do |ing_id, amt|
       amt.times do
-        #FIXME: REMOVE INGREDIENTS FROM ALL INVENTORY SOURCES AND
         # find a card in inventory matching ing_id
-        card = $player.ingredients.deck.draw_pile.find { |c| c.id == ing_id }
+        card = ingredients_inventory.find { |c| c.id == ing_id }
         $player.ingredients.remove(card)
       end
     end
