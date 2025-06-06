@@ -13,6 +13,13 @@ class Deck
     @draw_pile << card
   end
 
+  def check_for_reshuffle
+    if @draw_pile.empty? && !@discard_pile.empty?
+      reshuffle 
+      $player.add_stun(1)
+    end
+  end
+
   # Draw a card: reshuffle if needed, then remove and return one.
   def draw(random_sample = false)
     if random_sample

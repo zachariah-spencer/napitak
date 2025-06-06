@@ -13,12 +13,18 @@ class RecipeBook
     # @player = $player
     @potion_defs = potion_defs
     @ingredient_defs = ingredient_defs
-    @unlocked_recipes = %w[p001 p002 p003 p004]
+    @unlocked_recipes = %w[p001 p002 p003 p004 i006]
+
+    all_recipe_ids
   end
 
   # List all known recipe IDs
   def all_recipe_ids
-    @potion_defs.keys
+    @potion_defs.keys + craftable_ingredients?.keys
+  end
+
+  def all_craftables
+    craftable_ingredients?.merge(@potion_defs)
   end
 
   # Check if a player has unlocked a given recipe
@@ -31,7 +37,7 @@ class RecipeBook
   # Player should have an ingredient inventory with `deck` responding to `count`
   def can_craft?(recipe_id, ingredients_inventory: $player.ingredients.all_cards)
     return false unless unlocked?(recipe_id)
-    required = @potion_defs[recipe_id][:ingredients]
+    required = all_craftables[recipe_id][:ingredients]
 
     required.all? do |ing_id, amt|
       ingredients_inventory.count { |card| card.id == ing_id } >= amt
@@ -48,7 +54,7 @@ class RecipeBook
     end
 
     # Remove required ingredients
-    @potion_defs[recipe_id][:ingredients].each do |ing_id, amt|
+    all_craftables[recipe_id][:ingredients].each do |ing_id, amt|
       amt.times do
         # find a card in inventory matching ing_id
         card = ingredients_inventory.find { |c| c.id == ing_id }
@@ -57,10 +63,16 @@ class RecipeBook
     end
 
     # Instantiate the potion card (assumes gen_new_card utility exists)
-    potion_card = gen_new_card(recipe_id)
+    card = gen_new_card(recipe_id)
     # Add to player's potion inventory
-    $player.potions.add(potion_card)
-    potion_card
+
+    if is_potion(card.id)
+      $player.potions.add(card)
+    else
+      $player.ingredients.add(card)
+    end
+
+    card
   end
 
   def craftable_potion?(proposed_ingredients)
@@ -73,7 +85,7 @@ class RecipeBook
     matching_potion = nil
 
     # Iterate through each potion definition in $pids.
-    $pids.each do |potion_id, potion|
+    all_craftables.each do |potion_id, potion|
       # Build a frequency hash for the potion's ingredient list.
       required_counts = ingredient_counts(potion[:ingredients])
 

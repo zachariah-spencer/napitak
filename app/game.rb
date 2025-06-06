@@ -36,7 +36,7 @@ class Game
     when "alchemy_table"
       @scene_ref = AlchemyTable.new(max_uses: 3)
     when "alchemy_lab"
-      @scene_ref = AlchemyLab.new(max_uses: 10, max_ingredients: 2)
+      @scene_ref = AlchemyLab.new(max_uses: 10, max_ingredients: 5)
     when "rewards_screen"
       @scene_ref = RewardsScreen.new()
     end

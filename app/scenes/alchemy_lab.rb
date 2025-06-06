@@ -62,7 +62,12 @@ class AlchemyLab
     if @recipe_book.can_craft?(recipe_id, ingredients_inventory: @stored_ingredients.all_cards)
       potion = @recipe_book.craft(recipe_id, ingredients_inventory: @stored_ingredients.all_cards)
       @selected_ingredients.clear
-      @pot_menu_widget.add_item(potion)
+
+      if is_potion(potion.id)
+        @pot_menu_widget.add_item(potion)
+      else
+        @ing_menu_widget.add_item(potion)
+      end
 
       puts "CRAFTED #{potion.name}"
 

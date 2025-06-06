@@ -345,11 +345,22 @@ class Combat
     end
   end
 
+  def skip_turn
+    begin_turn_stage(@turn_stages[:enemy_turn])
+  end
+
   def begin_turn_stage(new_stage)
     # new stage is of the format -> @turn_stages[:stage_symbol]
     @turn_stage = new_stage
 
     if new_stage == @turn_stages[:drawing_cards]
+      @player.potions.check_for_reshuffle
+      if @player.stunned_turns > 0
+        skip_turn
+        @player.stunned_turns -= 1
+        return
+      end
+
       puts "start drawing_cards stage"
       @player.my_turn = true
       @player.focus = @player.max_focus

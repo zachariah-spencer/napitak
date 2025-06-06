@@ -52,27 +52,52 @@ $pids = {
 }
 
 $iids = {
+  # T0
   "i001" => {
     name: "Bottle",
-    path: "sprites/hexagon/white.png"
+    path: "sprites/hexagon/white.png",
+    base: true
   },
   "i002" => {
     name: "Water",
-    path: "sprites/hexagon/blue.png"
+    path: "sprites/hexagon/blue.png",
+    base: true
   },
   "i003" => {
     name: "Fire",
-    path: "sprites/hexagon/orange.png"
+    path: "sprites/hexagon/orange.png",
+    base: true
   },
   "i004" => {
     name: "Earth",
-    path: "sprites/hexagon/green.png"
+    path: "sprites/hexagon/green.png",
+    base: true
   },
   "i005" => {
     name: "Air",
-    path: "sprites/hexagon/indigo.png"
+    path: "sprites/hexagon/indigo.png",
+    base: true
+  },
+
+  # T1
+  "i006" => {
+    name: "Steam",
+    path: "sprites/hexagon/indigo.png",
+    base: false,
+    ingredients: {
+      "i002" => 1,
+      "i003" => 1
+    },
   }
 }
+
+def craftable_ingredients?
+  @ingredient_defs.select { |id, ing| !ing.base }
+end
+
+def is_potion(item_id)
+  item_id[0] == 'p'
+end
 
 $player = nil
 $recipe_book = nil

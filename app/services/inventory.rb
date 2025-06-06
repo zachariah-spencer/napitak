@@ -12,6 +12,10 @@ class Inventory
     deck.draw(random_sample)
   end
 
+  def check_for_reshuffle
+    deck.check_for_reshuffle
+  end
+
   # Add a card back into the inventory (to the draw pile)
   def add(card)
     deck.add(card)

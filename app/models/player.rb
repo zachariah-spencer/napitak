@@ -1,6 +1,6 @@
 class Player
   attr_gtk
-  attr :ingredients, :potions, :focus, :max_focus, :hp, :max_hp
+  attr :ingredients, :potions, :focus, :max_focus, :hp, :max_hp, :stunned_turns
 
   def initialize
     $player = self
@@ -10,6 +10,7 @@ class Player
     @max_hp = 20
     @focus = 0
     @max_focus = 2
+    @stunned_turns = 0
 
     @ingredients = Inventory.new()
     @potions = Inventory.new()
@@ -23,5 +24,9 @@ class Player
   # predicate reader
   def my_turn?
     @my_turn
+  end
+
+  def add_stun(num_turns)
+    @stunned_turns += num_turns
   end
 end

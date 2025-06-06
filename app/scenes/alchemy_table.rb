@@ -41,7 +41,12 @@ class AlchemyTable
     if @recipe_book.can_craft?(recipe_id)
       potion = @recipe_book.craft(recipe_id)
       @selected_ingredients.clear
-      @pot_menu_widget.add_item(potion)
+      
+      if is_potion(potion.id)
+        @pot_menu_widget.add_item(potion)
+      else
+        @ing_menu_widget.add_item(potion)
+      end
 
       puts "CRAFTED #{potion.name}"
 
