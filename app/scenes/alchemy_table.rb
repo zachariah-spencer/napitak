@@ -41,7 +41,7 @@ class AlchemyTable
     if @recipe_book.can_craft?(recipe_id)
       potion = @recipe_book.craft(recipe_id)
       @selected_ingredients.clear
-      
+
       if is_potion(potion.id)
         @pot_menu_widget.add_item(potion)
       else
@@ -71,7 +71,6 @@ class AlchemyTable
   end
 
   def leave
-
     # consolidate all ingredient cards into the player's inventory
     new_cards = []
 
@@ -395,7 +394,7 @@ class AlchemyTable
       leave
     end
 
-    if clicked = @pot_menu_widget.selected_item
+    if (clicked = @pot_menu_widget.selected_item)
       puts "Clicked: #{clicked.name}"
       potion_card = clicked
       refresh(clicked) if potion_card.uses_left < potion_card.max_uses
