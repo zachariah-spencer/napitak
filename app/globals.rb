@@ -120,6 +120,7 @@ $player = nil
 $recipe_book = nil
 $enemy = nil
 $encounter_manager = nil
+$tutorials = true
 
 def status_label(x, y, t, r, g, b, scale)
   $game.status_label(x, y, t, r, g, b, scale)

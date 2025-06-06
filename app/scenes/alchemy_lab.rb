@@ -50,6 +50,26 @@ class AlchemyLab
         h: 120,
         uid: 3
       )
+
+    if $encounter_manager.encounters_completed? == 0 and $tutorials
+      puts "RUN TUTORIAL"
+      @tutorials = InfoBoxChain.new([
+        [
+          { x:  GTK.args.grid.w / 2 - 300, y: 500, width:600, height:80, text:"Within the laboratory you can", duration:180 },
+          { x: GTK.args.grid.w / 2 - 300, y: 420, width:600, height:80, text:"combine ingredients with a",   duration:180 },
+          { x: GTK.args.grid.w / 2 - 300, y: 340, width:600, height:80, text:"bottle to craft powerful potions.",   duration:180 },
+        ],
+        [
+          { x:  GTK.args.grid.w / 2 - 300, y: 500, width:600, height:80, text:"You can also pick up to 5", duration:180 },
+          { x: GTK.args.grid.w / 2 - 300, y: 420, width:600, height:80, text:"ingredients to take with you.",   duration:180 },
+        ],
+        [
+          { x:  GTK.args.grid.w / 2 - 300, y: 500, width:600, height:80, text:"Craft up to 10 potions for your", duration:180 },
+          { x: GTK.args.grid.w / 2 - 300, y: 420, width:600, height:80, text:"deck before you start your",   duration:180 },
+          { x: GTK.args.grid.w / 2 - 300, y: 340, width:600, height:80, text:"journey into the wilderness.",   duration:180 },
+        ],
+      ])
+    end
   end
 
   def cleanup
@@ -93,6 +113,7 @@ class AlchemyLab
     return unless @uses_left <= 0
 
     puts "USES EXHAUSTED, EXITING ALCHEMY LAB ENCOUNTER"
+    @tutorials
     leave
   end
 
@@ -116,6 +137,8 @@ class AlchemyLab
     # overwrite the player's ingredients with this collection
     @player.ingredients = Inventory.new(new_cards)
 
+
+    $encounter_manager.inc_encounters_completed
     $game.change_scene(prev_sc: @sc_id, next_sc: "map")
   end
 

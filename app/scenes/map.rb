@@ -8,6 +8,15 @@ class Map
     @sc_id = "map"
     @encounter_manager = $encounter_manager
     @encounter_manager.next_choices?
+
+    if @encounter_manager.encounters_completed? == 0 and $tutorials
+      @tutorials = InfoBoxChain.new(
+        [
+        { x:  GTK.args.grid.w / 2 - 150, y: 500, width:300, height:80, text:"Welcome, alchemist!", duration:90 },
+        { x: GTK.args.grid.w / 2 - 400, y: 500, width:800, height:80, text:"Click the card to enter your Laboratory!",   duration:90 },
+        ]
+      )
+    end
   end
 
   def tick
@@ -15,6 +24,8 @@ class Map
       c.tick
 
       if (clicked = c.pop_clicked)
+        @tutorials&.cancel if @tutorials
+
         $game.change_scene(
           prev_sc: "map",
           next_sc: clicked[:id]

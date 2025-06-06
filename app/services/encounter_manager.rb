@@ -15,6 +15,15 @@ class EncounterManager
                                         ["alchemy_lab"]
                       ]
     @map_layer = 1
+    @encounters_completed = 0
+  end
+
+  def encounters_completed?
+    @encounters_completed
+  end
+
+  def inc_encounters_completed
+    @encounters_completed += 1
   end
 
   def card!(id)

@@ -1,6 +1,6 @@
 class Game
   attr_gtk
-  attr
+  attr :tutorials
 
   def initialize
     @scene = ""
@@ -76,6 +76,7 @@ class Game
     l4 << @status_labels.map { |particle| status_label_prefab particle }
 
     outputs.primitives << [l0, l1, l2, l3, l4]
+    InfoBox.render(GTK.args)
   end
 
   def calc_particles
