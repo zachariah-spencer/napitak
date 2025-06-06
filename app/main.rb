@@ -11,16 +11,19 @@ require_relative "models/ingredient_reward_card"
 require_relative "services/deck"
 require_relative "services/inventory"
 require_relative "services/recipe_book"
+require_relative "services/encounter_manager"
 
 require_relative "scenes/combat"
 require_relative "scenes/alchemy_table"
 require_relative "scenes/alchemy_lab"
 require_relative "scenes/rewards_screen"
+require_relative "scenes/map"
 
 class Hash
-
   def front(key)
-    raise "Hash.front(key): key passed in as argument is not found in the hash" if !key?(key) 
+    if !key?(key)
+      raise "Hash.front(key): key passed in as argument is not found in the hash"
+    end
     value = delete(key)
     # Build a new hash with the one pair first, then the rest:
     replace({ key => value }.merge(self))
@@ -28,7 +31,9 @@ class Hash
   end
 
   def back(key)
-    raise "Hash.back(key): key passed in as argument is not found in the hash" if !key?(key) 
+    if !key?(key)
+      raise "Hash.back(key): key passed in as argument is not found in the hash"
+    end
     value = delete(key)
     self[key] = value
     self

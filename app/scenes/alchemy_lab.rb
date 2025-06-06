@@ -112,7 +112,7 @@ class AlchemyLab
     # overwrite the player's ingredients with this collection
     @player.ingredients = Inventory.new(new_cards)
 
-    $game.change_scene(prev_sc: @sc_id, next_sc: "combat")
+    $game.change_scene(prev_sc: @sc_id, next_sc: "map")
   end
 
   def tick
@@ -547,7 +547,7 @@ class AlchemyLab
   end
 
   def calc_keyboard_inputs
-    return unless @craftable_potion and inputs.keyboard.key_down.space
+    return unless @craftable_potion and inputs.keyboard.key_down.space or @craftable_potion and inputs.touch
 
     craft(@craftable_potion.id)
     @craftable_potion = nil

@@ -39,6 +39,8 @@ class Game
       @scene_ref = AlchemyLab.new(max_uses: 10, max_ingredients: 5)
     when "rewards_screen"
       @scene_ref = RewardsScreen.new()
+    when "map"
+      @scene_ref = Map.new()
     end
   end
 

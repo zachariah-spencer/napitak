@@ -90,7 +90,7 @@ class AlchemyTable
     # overwrite the player's ingredients with this collection
     @player.ingredients = Inventory.new(new_cards)
 
-    $game.change_scene(prev_sc: @sc_id, next_sc: "combat")
+    $game.change_scene(prev_sc: @sc_id, next_sc: "map")
   end
 
   def tick

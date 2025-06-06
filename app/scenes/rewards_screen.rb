@@ -30,7 +30,7 @@ class RewardsScreen
         @picks -= 1
 
         if @picks <= 0
-          $game.change_scene(prev_sc: @sc_id, next_sc: "alchemy_table")
+          $game.change_scene(prev_sc: @sc_id, next_sc: "map")
         end
       end
     end
