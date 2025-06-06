@@ -29,9 +29,7 @@ class RewardsScreen
         clicked_card[:ref].use()
         @picks -= 1
 
-        if @picks <= 0
-          $game.change_scene(prev_sc: @sc_id, next_sc: "map")
-        end
+        $game.change_scene(prev_sc: @sc_id, next_sc: "map") if @picks <= 0
       end
     end
 

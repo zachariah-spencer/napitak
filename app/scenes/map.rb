@@ -6,12 +6,20 @@ class Map
 
   def initialize
     @sc_id = "map"
-    @encounter_manager = EncounterManager.new
+    @encounter_manager = $encounter_manager
+    @encounter_manager.next_choices?
   end
 
   def tick
-    if GTK.args.inputs.keyboard.key_down.l or GTK.args.inputs.touch
-      $game.change_scene(prev_sc: "map", next_sc: @encounter_manager.rand_encounter?)
+    @encounter_manager.choices?.each do |c|
+      c.tick
+
+      if (clicked = c.pop_clicked)
+        $game.change_scene(
+          prev_sc: "map",
+          next_sc: clicked[:id]
+          )
+      end
     end
   end
 
@@ -21,6 +29,24 @@ class Map
     l2 = []
     l3 = []
     l4 = []
+
+    choice_cards ||= []
+
+    count = @encounter_manager.choices?.size
+    spacing = 275
+    center = GTK.args.grid.w / 2
+
+    # total span from first to last card
+    total_span = spacing * (count - 1)
+    # x-coordinate of the first card
+    start_x = center - (total_span / 2.0)
+
+    @encounter_manager.choices?.each_with_index do |c, idx|
+      c.f_pos.x = (start_x + spacing * idx) - (c.fw / 2)
+      c.f_pos.y = GTK.args.grid.h / 2 - 112.5
+
+      choice_cards << c.prefab
+    end
 
     case layer_num
     when 0
@@ -35,7 +61,7 @@ class Map
         primitive_marker: :solid
       }
 
-      l0 << [ background ]
+      l0 << [background]
 
       l0
     when 1
@@ -78,11 +104,11 @@ class Map
         primitive_marker: :label
       }
 
-      l2 << [
-        encounter_label,
-      ]
+      l2 << [encounter_label, choice_cards]
       l2
     when 3
+
+
       l3 << []
       l3
     when 4

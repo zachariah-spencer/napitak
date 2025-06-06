@@ -14,12 +14,14 @@ class Game
     @created_prefabs = {}
     # the game's official instantiation of a Player for an individual game.
     @player = nil
+    new_run
     # the game's official instantiation of a RecipeBook, persists between runs
     @recipe_book = RecipeBook.new()
+    @encounter_manager = EncounterManager.new
 
-    new_run
-    # change_scene(prev_sc: "", next_sc: "alchemy_table")
-    change_scene(prev_sc: "", next_sc: "alchemy_lab")
+      
+      # change_scene(prev_sc: "", next_sc: "alchemy_table")
+      change_scene(prev_sc: "", next_sc: "map")
   end
 
   def new_run
@@ -45,6 +47,7 @@ class Game
   end
 
   def tick
+
     if @scene_ref
       @scene_ref.args = args
       @scene_ref.tick

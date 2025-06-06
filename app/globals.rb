@@ -47,7 +47,7 @@ $pids = {
       "i001" => 1,
       "i005" => 2
     },
-    traits: [$traits[:damage] => 4]
+    traits: [$traits[:damage] => 20]
   }
 }
 
@@ -78,7 +78,6 @@ $iids = {
     path: "sprites/hexagon/indigo.png",
     base: true
   },
-
   # T1
   "i006" => {
     name: "Steam",
@@ -87,8 +86,26 @@ $iids = {
     ingredients: {
       "i002" => 1,
       "i003" => 1
-    },
+    }
   }
+}
+
+$encounters = {
+  "alchemy_lab" => {
+    name: "Laboratory",
+    path: "sprites/triangle/equilateral/indigo.png",
+    chance: 0
+  },
+  "combat" => {
+    name: "Combat",
+    path: "sprites/triangle/equilateral/red.png",
+    chance: 1
+  },
+  "alchemy_table" => {
+    name: "Alchemy Workbench",
+    path: "sprites/triangle/equilateral/yellow.png",
+    chance: 1
+  },
 }
 
 def craftable_ingredients?
@@ -96,12 +113,13 @@ def craftable_ingredients?
 end
 
 def is_potion(item_id)
-  item_id[0] == 'p'
+  item_id[0] == "p"
 end
 
 $player = nil
 $recipe_book = nil
 $enemy = nil
+$encounter_manager = nil
 
 def status_label(x, y, t, r, g, b, scale)
   $game.status_label(x, y, t, r, g, b, scale)

@@ -53,14 +53,19 @@ class AlchemyLab
   end
 
   def cleanup
-    puts "cleanup alchemy_table.rb"
+    puts "cleanup alchemy_lab.rb"
   end
 
   def craft(recipe_id)
-
-
-    if @recipe_book.can_craft?(recipe_id, ingredients_inventory: @stored_ingredients.all_cards)
-      potion = @recipe_book.craft(recipe_id, ingredients_inventory: @stored_ingredients.all_cards)
+    if @recipe_book.can_craft?(
+         recipe_id,
+         ingredients_inventory: @stored_ingredients.all_cards
+       )
+      potion =
+        @recipe_book.craft(
+          recipe_id,
+          ingredients_inventory: @stored_ingredients.all_cards
+        )
       @selected_ingredients.clear
 
       if is_potion(potion.id)
@@ -92,7 +97,6 @@ class AlchemyLab
   end
 
   def leave
-
     # consolidate all ingredient cards into the player's inventory
     new_cards = []
 
@@ -227,7 +231,11 @@ class AlchemyLab
       l3 << [front_card, sel_cards]
       l3
     when 4
-      l4 << [@ing_menu_widget.render, @pot_menu_widget.render, @stored_ing_menu_widget.render]
+      l4 << [
+        @ing_menu_widget.render,
+        @pot_menu_widget.render,
+        @stored_ing_menu_widget.render
+      ]
       l4
     else
       # puts "combat.rb: Invalid Render Argument"
@@ -467,7 +475,6 @@ class AlchemyLab
       end
     end
 
-
     if inputs.mouse.click and c_u_m
       card_id = c_u_m[:id]
       state.currently_dragging_card_id = card_id
@@ -486,14 +493,15 @@ class AlchemyLab
       c_ref.pos.y = inputs.mouse.y - state.mouse_point_inside_square.y
     elsif inputs.mouse.up and state.currently_dragging_card_id
       if state.click_hold_time.elapsed_time < 20 and
-          (Geometry.distance c_ref.pos, c_ref.f_pos) < 20 and
-          (c_ref.activation_time.elapsed_time > 0.25.seconds)
+           (Geometry.distance c_ref.pos, c_ref.f_pos) < 20 and
+           (c_ref.activation_time.elapsed_time > 0.25.seconds)
         use_card(c_ref)
       end
 
-      if inputs.mouse.intersect_rect?(@ing_menu_widget.rect) and @ing_menu_widget.items?.count < @max_ingredients
-          @ing_menu_widget.add_item(c_ref)
-          @visible_ingredients.reject! { |id, c| c == c_ref }
+      if inputs.mouse.intersect_rect?(@ing_menu_widget.rect) and
+           @ing_menu_widget.items?.count < @max_ingredients
+        @ing_menu_widget.add_item(c_ref)
+        @visible_ingredients.reject! { |id, c| c == c_ref }
       end
 
       if inputs.mouse.intersect_rect?(@stored_ing_menu_widget.rect)
@@ -547,14 +555,18 @@ class AlchemyLab
   end
 
   def calc_keyboard_inputs
-    return unless @craftable_potion and inputs.keyboard.key_down.space or @craftable_potion and inputs.touch
+    return unless @craftable_potion and inputs.keyboard.key_down.space
 
     craft(@craftable_potion.id)
     @craftable_potion = nil
   end
 
   def reorder_cards(latest_card)
-    @visible_ingredients.back(latest_card.entity_id) if @visible_ingredients.key?(latest_card.entity_id)
-    @selected_ingredients.back(latest_card.entity_id) if @selected_ingredients.key?(latest_card.entity_id)
+    if @visible_ingredients.key?(latest_card.entity_id)
+      @visible_ingredients.back(latest_card.entity_id)
+    end
+    if @selected_ingredients.key?(latest_card.entity_id)
+      @selected_ingredients.back(latest_card.entity_id)
+    end
   end
 end
