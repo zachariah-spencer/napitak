@@ -177,6 +177,8 @@ class AlchemyLab
   end
 
   def leave
+    @tutorials&.cancel if @tutorials
+
     # consolidate all ingredient cards into the player's inventory
     new_cards = []
 

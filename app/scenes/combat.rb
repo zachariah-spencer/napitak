@@ -40,15 +40,14 @@ class Combat
     l4 = []
 
     cards ||= []
-    front_card = nil
+    front_card = []
 
     @hand.each do |id, c|
-      prefab = c.prefab
 
       if c.grabbed
-        front_card = prefab
+        front_card << c.prefab
       else
-        cards.append prefab
+        cards << c.prefab
       end
     end
 
@@ -261,7 +260,10 @@ class Combat
   end
 
   def calc_card_positions
-    @hand.each_with_index { |(id, c), i| c.calc_position @hand.length, i }
+    @hand.each_with_index do |(id, c), i|
+      c.calc_position(@hand.length, i)
+      c.tick()
+    end
   end
 
   def calc_entity_removals
@@ -295,7 +297,7 @@ class Combat
 
         state.mouse_point_inside_square = {
           x: inputs.mouse.x - c_u_m.x,
-          y: inputs.mouse.y - c_u_m.y
+          y: inputs.mouse.y - c_u_m.y,
         }
 
         state.click_hold_time = Kernel.tick_count

@@ -111,7 +111,7 @@ class Map
         r: 255,
         g: 255,
         b: 255,
-        text: "Map",
+        text: "Please Select an Encounter",
         primitive_marker: :label
       }
 
