@@ -9,7 +9,7 @@ class InfoBox
 
   # call this in your main tick to update & draw all boxes
   def self.render(args)
-     # 0) first thing: fire last frame’s callbacks
+    # 0) first thing: fire last frame’s callbacks
     @@pending_next_frame.each(&:call)
     @@pending_next_frame.clear
 

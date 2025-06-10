@@ -107,7 +107,7 @@ class Map
         x: GTK.args.grid.w / 2,
         y: GTK.args.grid.h - 50,
         alignment_enum: 1,
-        size_enum: 8,
+        size_px: Math.sin(Kernel.tick_count * 0.08) * 4 + 40,
         r: 255,
         g: 255,
         b: 255,

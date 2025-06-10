@@ -63,7 +63,7 @@ class Game
   end
 
   def handle_pause
-    if GTK.args.inputs.keyboard.key_down.p
+    if GTK.args.inputs.keyboard.key_down.escape or (GTK.args.inputs.mouse.click and Geometry.intersect_rect?(GTK.args.inputs.mouse, pause_btn))
       toggle_pause(paused_scene_ref: @scene_ref)
     end
   end
@@ -100,7 +100,21 @@ class Game
     l4 << @status_labels.map { |particle| status_label_prefab particle }
 
     outputs.primitives << [l0, l1, l2, l3, l4]
-    InfoBox.render(GTK.args)
+
+    outputs.primitives << pause_btn if not @paused
+
+    InfoBox.render(GTK.args) if not @paused
+  end
+
+  def pause_btn(x: 195, y: GTK.args.grid.h - 45, w: 50, h: 50)
+    {
+      x: x,
+      y: y,
+      w: w,
+      h: h,
+      angle: 135,
+      path: "sprites/isometric/red.png"
+    }
   end
 
   def calc_particles
