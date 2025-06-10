@@ -1,6 +1,6 @@
 class Combat
   attr_gtk
-  attr
+  attr :sc_id
 
   def initialize
     @sc_id = "combat"
@@ -278,6 +278,8 @@ class Combat
       c_u_m = Geometry.find_intersect_rect inputs.mouse, get_card_rects
       c_ref = nil
     end
+
+    @player.hovered_cards = Geometry.find_all_intersect_rect inputs.mouse, get_card_rects
 
     if inputs.mouse.click
       if Geometry.intersect_rect? inputs.mouse, get_deck_rect and

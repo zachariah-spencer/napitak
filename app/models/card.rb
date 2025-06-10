@@ -78,7 +78,6 @@ class Card
 
   def calc_hover
     @hovered = Geometry.intersect_rect?(GTK.args.inputs.mouse, rect)
-
     if @hovered
       @tt_f_a = 255
     else
@@ -132,8 +131,8 @@ class Card
     }
 
     args.outputs[@card_composite_sprite_ref].primitives << {
-      x: 40,
-      y: 40,
+      x: @w / 2 - 40,
+      y: @h / 2 - 40,
       w: 80,
       h: 80,
       angle: 0,
@@ -142,8 +141,8 @@ class Card
 
     # add a label in the center of the render target
     args.outputs[@card_composite_sprite_ref].primitives << {
-      x: 80,
-      y: 135,
+      x: @w / 2,
+      y: @h / 1.25,
       text: "#{@name}",
       anchor_x: 0.5,
       anchor_y: 0.5,
@@ -155,49 +154,49 @@ class Card
 
     if @fc > 0
       if @id[0] == "i"
-        # add a label in the center of the render target
-        args.outputs[@card_composite_sprite_ref].primitives << {
-          x: 80,
-          y: 20,
-          text: "#{@fc}",
-          anchor_x: 0.5,
-          anchor_y: 0.5,
-          r: 0,
-          g: 150,
-          b: 150,
-          size_enum: 1
-        }
+      #   # add a label in the center of the render target
+      #   args.outputs[@card_composite_sprite_ref].primitives << {
+      #     x: 80,
+      #     y: 20,
+      #     text: "#{@fc}",
+      #     anchor_x: 0.5,
+      #     anchor_y: 0.5,
+      #     r: 0,
+      #     g: 150,
+      #     b: 150,
+      #     size_enum: 1
+      #   }
       else
-        # add a label in the center of the render target
-        args.outputs[@card_composite_sprite_ref].primitives << {
-          x: 20,
-          y: 20,
-          text: "#{@fc}",
-          anchor_x: 0.5,
-          anchor_y: 0.5,
-          r: 0,
-          g: 150,
-          b: 150,
-          size_enum: 1
-        }
+      #   # add a label in the center of the render target
+      #   args.outputs[@card_composite_sprite_ref].primitives << {
+      #     x: 20,
+      #     y: 20,
+      #     text: "#{@fc}",
+      #     anchor_x: 0.5,
+      #     anchor_y: 0.5,
+      #     r: 0,
+      #     g: 150,
+      #     b: 150,
+      #     size_enum: 1
+      #   }
 
         if @hovered
           render_tooltip(args)
         end
 
-        # add a label in the center of the render target
-        args.outputs[@card_composite_sprite_ref].primitives << {
-          x: 122.5,
-          y: 20,
-          text: "#{@uses_left}/#{@max_uses}",
-          anchor_x: 0.5,
-          anchor_y: 0.5,
-          alignment_enum: 2,
-          r: 255,
-          g: 255,
-          b: 0,
-          size_enum: 1
-        }
+        # # add a label in the center of the render target
+        # args.outputs[@card_composite_sprite_ref].primitives << {
+        #   x: 122.5,
+        #   y: 20,
+        #   text: "#{@uses_left}/#{@max_uses}",
+        #   anchor_x: 0.5,
+        #   anchor_y: 0.5,
+        #   alignment_enum: 2,
+        #   r: 255,
+        #   g: 255,
+        #   b: 0,
+        #   size_enum: 1
+        # }
       end
     end
 
@@ -376,5 +375,9 @@ class Card
         b: 0,
       }
     end
+  end
+
+  def front_card?
+    $player.hovered_cards[$player.hovered_cards.size - 1].id == self.entity_id
   end
 end

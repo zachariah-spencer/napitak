@@ -2,7 +2,7 @@ require "app/models/scroll_list_widget"
 
 class AlchemyTable
   attr_gtk
-  attr
+  attr :sc_id
 
   def initialize(max_uses:)
     @sc_id = "alchemy_table"
@@ -204,7 +204,19 @@ class AlchemyTable
       l3 << [front_card, sel_cards]
       l3
     when 4
-      l4 << [@ing_menu_widget.render, @pot_menu_widget.render]
+      uses_left_label ||= {
+        x: GTK.args.grid.w / 2,
+        y: 50,
+        alignment_enum: 1,
+        size_enum: 8,
+        r: 255,
+        g: 255,
+        b: 255,
+        text: "Brewing Capacity: #{@uses_left}",
+        primitive_marker: :label
+      }
+
+      l4 << [@ing_menu_widget.render, @pot_menu_widget.render, uses_left_label]
       l4
     else
       # puts "combat.rb: Invalid Render Argument"

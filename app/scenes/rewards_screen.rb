@@ -1,6 +1,6 @@
 class RewardsScreen
   attr_gtk
-  attr
+  attr :sc_id
 
   def initialize(choices: 4, picks: 2)
     puts "init RewardsScreen"
@@ -21,6 +21,7 @@ class RewardsScreen
 
   def tick
     calc_card_positions
+    $player.hovered_cards = Geometry.find_all_intersect_rect inputs.mouse, get_card_rects
 
     if GTK.args.inputs.mouse.click
       clicked_card = Geometry.find_intersect_rect inputs.mouse, get_card_rects()
@@ -105,7 +106,18 @@ class RewardsScreen
       l3 << [front_card]
       return l3
     when 4
-      l4 << []
+      rewards_left_label = {
+        x: GTK.args.grid.w / 2,
+        y: 100,
+        alignment_enum: 1,
+        size_px: Math.sin(Kernel.tick_count * 0.08) * 4 + 80,
+        r: 255,
+        g: 255,
+        b: 255,
+        text: "Loot #{@picks} new ingredients!",
+        primitive_marker: :label
+      }
+      l4 << [ rewards_left_label ]
       return l4
     else
       # puts "combat.rb: Invalid Render Argument"
@@ -113,6 +125,9 @@ class RewardsScreen
   end
 
   def calc_card_positions
-    @choices.each_with_index { |(id, c), i| c.calc_position @choices.length, i }
+    @choices.each_with_index do |(id, c), i| 
+      c.calc_position @choices.length, i
+      c.tick
+    end
   end
 end

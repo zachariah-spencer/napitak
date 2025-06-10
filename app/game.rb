@@ -5,6 +5,8 @@ class Game
   def initialize
     @scene = ""
     @scene_ref = nil
+    @paused_scene_ref = nil
+    @paused = false
 
     # keeps track of whether an entity with a specific entity_id has been created already
     @created_entity_ids = []
@@ -46,7 +48,29 @@ class Game
     end
   end
 
+  def toggle_pause(paused_scene_ref: nil)
+    @paused = !@paused
+
+    if @paused
+      @scene = "pause_menu"
+      @paused_scene_ref = paused_scene_ref if paused_scene_ref
+      @scene_ref = PauseMenu.new
+    else
+      @scene = @paused_scene_ref.sc_id
+      @scene_ref.cleanup
+      @scene_ref = @paused_scene_ref
+    end
+  end
+
+  def handle_pause
+    if GTK.args.inputs.keyboard.key_down.p
+      toggle_pause(paused_scene_ref: @scene_ref)
+    end
+  end
+
   def tick
+    handle_pause
+
 
     if @scene_ref
       @scene_ref.args = args

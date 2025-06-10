@@ -10,6 +10,15 @@ class PotionCard < Card
     puts @potencies
   end
 
+  def calc_hover
+    @hovered = Geometry.intersect_rect?(GTK.args.inputs.mouse, rect)
+    if @hovered and front_card?
+      @tt_f_a = 255
+    else
+      @tt_f_a = 0
+    end
+  end
+
   def calc_position(num_cards, index)
     x_s = (GTK.args.grid.w / 2) - (num_cards * ((@w + @padding) / 2))
     if !@grabbed

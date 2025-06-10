@@ -3,7 +3,7 @@ require "app/models/scroll_list_widget"
 
 class AlchemyLab
   attr_gtk
-  attr
+  attr :sc_id
 
   def initialize(max_uses:, max_ingredients:)
     @sc_id = "alchemy_lab"
@@ -15,6 +15,8 @@ class AlchemyLab
     @selected_ingredients = {}
     @stored_ingredients = Inventory.new()
     @craftable_potion = nil
+
+    10.times.each { @stored_ingredients.add(gen_new_card("i001")) }
 
     50.times.each do
       random_ingredient_id = $iids.keys().sample()
@@ -315,7 +317,6 @@ class AlchemyLab
       l3
     when 4
       if @craftable_potion
-        puts @craftable_potion
         craftable_potion_label ||= {
           x: GTK.args.grid.w / 2,
           y: GTK.args.grid.h / 2 + 150,
@@ -606,9 +607,7 @@ class AlchemyLab
     end
 
     if GTK.args.inputs.mouse.click &&
-        Geometry.intersect_rect?(inputs.mouse, craft_btn) &&
-        @craftable_potion
-
+         Geometry.intersect_rect?(inputs.mouse, craft_btn) && @craftable_potion
       puts "clicked on craft_btn"
       craft(@craftable_potion.id)
       @craftable_potion = nil

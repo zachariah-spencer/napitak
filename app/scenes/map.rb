@@ -2,7 +2,7 @@ require "app/services/encounter_manager"
 
 class Map
   attr_gtk
-  attr
+  attr :sc_id
 
   def initialize
     @sc_id = "map"
