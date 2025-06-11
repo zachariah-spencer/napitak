@@ -15,7 +15,7 @@ class Journal
     spacing = 50
     start_x = -75
     $recipe_book.unlocked_recipes.each do |recipe_id|
-      @recipe_cards << RecipeCard.new(x: start_x + ((200 + spacing) * col), y: (GTK.args.grid.h - 90) - ((285 - spacing) * row), w: 175, h: 175, id: recipe_id)
+      @recipe_cards << RecipeCard.new(x: start_x + ((200 + spacing) * col), y: (GTK.args.grid.h - 90) - ((285 - spacing) * row), w: 185, h: 185, id: recipe_id)
       
       puts "COLUMN: #{col}, ROW: #{row}"
       
@@ -42,6 +42,14 @@ class Journal
     l2 = []
     l3 = []
     l4 = []
+
+    @recipe_cards.each do |card|
+      if card.hovered
+        l4 << card.prefab
+      else
+        l3 << card.prefab
+      end
+    end
 
     case layer_num
     when 0
@@ -105,9 +113,6 @@ class Journal
       l3 << [ back_btn ]
       l3
     when 4
-      @recipe_cards.each do |card|
-        l4 << card.prefab
-      end
       l4 << []
       l4
     else

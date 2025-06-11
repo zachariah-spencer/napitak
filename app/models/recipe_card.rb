@@ -1,6 +1,6 @@
 class RecipeCard
   attr_gtk
-  attr
+  attr :hovered
 
   def initialize(x:, y:, w:, h:, id:)
     @entity_id = new_id?
@@ -24,8 +24,6 @@ class RecipeCard
     @hovered_h = h * 1.25
     @normal_w = w
     @normal_h = h
-
-    puts @id
     
     # Setup for potion data
     if is_potion(@id)
@@ -58,7 +56,7 @@ class RecipeCard
           @ingredient_images << $iids[iid].path
         end
       end
-
+      puts @ingredient_images
     end
 
     @card_composite_sprite_ref = :"card_composite_#{@entity_id}"
@@ -81,7 +79,7 @@ class RecipeCard
     if @hovered
       @fw = @hovered_w
       @fh = @hovered_h
-      @tt_f_a = 255 if is_potion(@id)
+      @tt_f_a = 255 # if is_potion(@id)
     else
       @fw = @normal_w
       @fh = @normal_h
@@ -179,7 +177,7 @@ class RecipeCard
       primitive_marker: :sprite
     }
 
-    if is_potion(@id) and @hovered
+    if @hovered
       render_tooltip(args)
     end
   end
@@ -214,13 +212,36 @@ class RecipeCard
       }
     end
 
+    args.outputs[@card_composite_tooltip_ref].primitives << {
+      x: @w - 50,
+      y: @h * 1.2,
+      w: 100,
+      h: 100,
+      angle: 0,
+      path: @potion_image
+    }
+
+    if @ingredient_images
+      start_x = @w - (25 * @ingredient_images.size)
+      @ingredient_images.each_with_index do |img_path, idx|
+        args.outputs[@card_composite_tooltip_ref].primitives << {
+          x: start_x + ((50 * idx)),
+          y: @h / 2,
+          w: 40,
+          h: 40,
+          angle: 0,
+          path: img_path
+        }
+      end
+    end
+
     if is_potion(@id)
       parsed_description = String.wrapped_lines @desc, 25
       # add a label in the center of the render target
       args.outputs[@card_composite_tooltip_ref].primitives << parsed_description.map_with_index do |s, i| 
         {
         x: @w,
-        y: 250,
+        y: @h,
         text: "#{s}",
         anchor_x: 0.5,
         anchor_y: i,
