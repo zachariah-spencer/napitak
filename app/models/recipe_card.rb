@@ -1,88 +1,96 @@
-class Card
-  attr_accessor :grabbed,
-                :needs_removed,
-                :pos,
-                :f_pos,
-                :entity_id,
-                :w,
-                :id,
-                :fw,
-                :fh,
-                :selected,
-                :name,
-                :fc,
-                :img,
-                :padding,
-                :max_uses,
-                :activation_time,
-                :uses_left,
-                :hovered
+class RecipeCard
+  attr_gtk
+  attr
 
-  def initialize(id, entity_id, name, fc, img, max_uses = 0, desc = "", potencies = {})
-    @id = id
-    @name = name
-    @fc = fc
-    @desc = desc
-    @potencies = potencies
-
-    @entity_id = entity_id
+  def initialize(x:, y:, w:, h:, id:)
+    @entity_id = new_id?
     @floating_seed = Numeric.rand(0.0..100.0)
 
-    @w = 160
-    @h = 160
-    @fw = 160
-    @fh = 160
-    @ttw = 1000
-    @tth = 1000
+    @id = id
 
-    @padding = -60.0
-
-    @pos = { x: 0, y: 20 }
-    @f_pos = { x: 0, y: 20 }
-
+    @pos = { x: x, y: y }
+    @w = w
+    @h = h
     @angle = 0
-    @f_angle = 0
+    @tt_a = 0
 
-    @card_back_img = "sprites/card-back-purple.png"
-    @img = img
-    @max_uses = max_uses
-    @uses_left = max_uses
-    @card_composite_sprite_ref = :"card_composite_#{entity_id}"
-    @card_composite_tooltip_ref = :"card_composite_tooltip_#{entity_id}"
+    @f_pos = { x: x, y: y }
+    @fw = w
+    @fh = h
+    @f_angle = 0
+    @tt_f_a = 0
+
+    @hovered_w = w * 1.25
+    @hovered_h = h * 1.25
+    @normal_w = w
+    @normal_h = h
+
+    puts @id
+    
+    # Setup for potion data
+    if is_potion(@id)
+      @name = $pids[id].name
+      @desc = $pids[id].desc
+      @fc = $pids[id].fc
+      @max_uses = $pids[id].max_uses
+      @potencies = $pids[id].traits
+
+      @card_back_image = "sprites/card-back-purple.png"
+      @potion_image = $pids[id].path
+      @ingredient_images = []
+      $pids[id].ingredients.keys.each do |iid|
+        @ingredient_images << $iids[iid].path
+      end
+    
+    # Setup for ingredient data
+    else
+      @name = $iids[id].name
+      @desc = nil
+      @fc = nil
+      @max_uses = nil
+      @potencies = nil
+
+      @card_back_image = "sprites/card-back-purple.png"
+      @potion_image = $iids[id].path
+      @ingredient_images = []
+      if not $iids[id].base
+        $iids[id].ingredients.keys.each do |iid|
+          @ingredient_images << $iids[iid].path
+        end
+      end
+
+    end
+
+    @card_composite_sprite_ref = :"card_composite_#{@entity_id}"
+    @card_composite_tooltip_ref = :"card_composite_tooltip_#{@entity_id}"
 
     @r = 150 # Numeric.rand(100..200)
     @g = 150 # Numeric.rand(50..100)
     @b = 150 # Numeric.rand(100..200)
-
-    @grabbed = false
-    @selected = false
     @hovered = false
-    @tt_a = 0
-    @tt_f_a = 0
-    @needs_removed = false
-    @activation_time = 0.0
-    calc_render_target GTK.args
   end
 
   def tick()
     calc_hover
+    calc_sprite_updates
     calc_render_target(GTK.args)
-  end
-
-  def calc_position(num_cards, index)
-  end
-
-  def rect
-    { id: @entity_id, x: @pos.x, y: @pos.y, w: @w, h: @h, angle: @angle }
   end
 
   def calc_hover
     @hovered = Geometry.intersect_rect?(GTK.args.inputs.mouse, rect)
     if @hovered
-      @tt_f_a = 255
+      @fw = @hovered_w
+      @fh = @hovered_h
+      @tt_f_a = 255 if is_potion(@id)
     else
+      @fw = @normal_w
+      @fh = @normal_h
       @tt_f_a = 0
     end
+  end
+
+  def rect
+    { id: @entity_id, x: @pos.x, y: @pos.y, w: @w, h: @h, angle: @angle }
   end
 
   def prefab
@@ -96,8 +104,8 @@ class Card
       primitive_marker: :sprite
     }
     tt_sprite = {
-      x: @pos.x - (@w / 2),
-      y: @pos.y + (@h + 80) - (@h / 2),
+      x: GTK.args.grid.w / 2 - @w * 2 / 2,
+      y: GTK.args.grid.h / 2 - @h * 2 / 2,
       w: @w * 2,
       h: @h * 2,
       a: @tt_a,
@@ -108,13 +116,23 @@ class Card
     return [ card_sprite, tt_sprite ]
   end
 
-  def update_sprite()
-    calc_render_target(GTK.args)
+  def calc_sprite_updates
+    if not @hovered
+        @f_pos.y =
+          @f_pos.y +
+            (Math.sin(@floating_seed + Kernel.tick_count * 0.03) * 0.05)
+        @f_angle = Math.sin(@floating_seed + Kernel.tick_count * 0.005) * 2
+      end
+
+    @pos.x = @pos.x.lerp @f_pos.x, 0.2
+    @pos.y = @pos.y.lerp @f_pos.y, 0.2
+    @w = @w.lerp @fw, 0.2
+    @h = @h.lerp @fh, 0.2
+    @angle = @angle.lerp @f_angle, 0.2
+    @tt_a = @tt_a.lerp(@tt_f_a, 0.2)
   end
 
   def calc_render_target(args)
-    # define the dimensions of the combined sprite
-    # the name of the combined sprite is :card_combo
     args.outputs[@card_composite_sprite_ref].w = @w
     args.outputs[@card_composite_sprite_ref].h = @h
 
@@ -127,7 +145,7 @@ class Card
       r: @r,
       g: @g,
       b: @b,
-      path: @card_back_img
+      path: @card_back_image
     }
 
     args.outputs[@card_composite_sprite_ref].primitives << {
@@ -136,7 +154,7 @@ class Card
       w: 80,
       h: 80,
       angle: 0,
-      path: @img
+      path: @potion_image
     }
 
     # add a label in the center of the render target
@@ -161,13 +179,12 @@ class Card
       primitive_marker: :sprite
     }
 
-    if is_potion(self.id) and @hovered
+    if is_potion(@id) and @hovered
       render_tooltip(args)
     end
   end
 
   def render_tooltip(args)
-
     args.outputs[@card_composite_tooltip_ref].w = @w * 2
     args.outputs[@card_composite_tooltip_ref].h = @h * 2
     # add a label in the center of the render target
@@ -185,8 +202,8 @@ class Card
     parsed_name = String.wrapped_lines @name, 15
     args.outputs[@card_composite_tooltip_ref].primitives << parsed_name.map_with_index do |s, i| 
       {
-      x: 165,
-      y: 280,
+      x: @w,
+      y: @h * 2 - 80,
       text: "#{s}",
       anchor_x: 0.5,
       anchor_y: i,
@@ -197,51 +214,52 @@ class Card
       }
     end
 
-    parsed_description = String.wrapped_lines @desc, 25
-    # add a label in the center of the render target
-    args.outputs[@card_composite_tooltip_ref].primitives << parsed_description.map_with_index do |s, i| 
-      {
-      x: 165,
-      y: 250,
-      text: "#{s}",
-      anchor_x: 0.5,
-      anchor_y: i,
-      r: 255,
-      g: 255,
-      b: 255,
-      size_enum: 1
-      }
-    end
+    if is_potion(@id)
+      parsed_description = String.wrapped_lines @desc, 25
+      # add a label in the center of the render target
+      args.outputs[@card_composite_tooltip_ref].primitives << parsed_description.map_with_index do |s, i| 
+        {
+        x: @w,
+        y: 250,
+        text: "#{s}",
+        anchor_x: 0.5,
+        anchor_y: i,
+        r: 255,
+        g: 255,
+        b: 255,
+        size_enum: 5
+        }
+      end
 
-    args.outputs[@card_composite_tooltip_ref].primitives << 
-      {
-      x: 55,
-      y: 65,
-      text: "Focus",
-      anchor_x: 0.5,
-      anchor_y: 0.5,
-      r: 255,
-      g: 255,
-      b: 255,
-      size_enum: 1
-      }
+      args.outputs[@card_composite_tooltip_ref].primitives << 
+        {
+        x: 55,
+        y: 65,
+        text: "Focus",
+        anchor_x: 0.5,
+        anchor_y: 0.5,
+        r: 255,
+        g: 255,
+        b: 255,
+        size_enum: 1
+        }
 
-    args.outputs[@card_composite_tooltip_ref].primitives << 
-      {
-      x: 55,
-      y: 35,
-      text: "#{@fc}",
-      anchor_x: 0.5,
-      anchor_y: 0.5,
-      r: 255,
-      g: 255,
-      b: 255,
-      size_enum: 1
-      }
+      args.outputs[@card_composite_tooltip_ref].primitives << 
+        {
+        x: 55,
+        y: 35,
+        text: "#{@fc}",
+        anchor_x: 0.5,
+        anchor_y: 0.5,
+        r: 255,
+        g: 255,
+        b: 255,
+        size_enum: 1
+        }
 
       args.outputs[@card_composite_tooltip_ref].primitives << 
       {
-      x: 270,
+      x: @w * 2 - 60,
       y: 65,
       text: "Potencies",
       anchor_x: 0.5,
@@ -275,7 +293,7 @@ class Card
 
       args.outputs[@card_composite_tooltip_ref].primitives << 
       {
-      x: 160,
+      x: @w,
       y: 65,
       text: "Charges",
       anchor_x: 0.5,
@@ -288,9 +306,9 @@ class Card
 
       args.outputs[@card_composite_tooltip_ref].primitives << 
       {
-      x: 160,
+      x: @w,
       y: 35,
-      text: "#{@uses_left} / #{@max_uses}",
+      text: "#{@max_uses}",
       anchor_x: 0.5,
       anchor_y: 0.5,
       r: 255,
@@ -298,16 +316,7 @@ class Card
       b: 255,
       size_enum: 1
       }
-
-    # args.outputs.labels << parsed_.map_with_index do |s, i|
-    #   {
-    #     x: 80,
-    #     y: 80,
-    #     anchor_x: 0.5,
-    #     anchor_y: i,
-    #     text: s
-    #   }
-    # end
+    end
 
     args.outputs.primitives << {
       x: 0,
@@ -334,9 +343,5 @@ class Card
         b: 0,
       }
     end
-  end
-
-  def front_card?
-    $player.hovered_cards[$player.hovered_cards.size - 1].id == self.entity_id
   end
 end

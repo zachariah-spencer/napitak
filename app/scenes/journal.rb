@@ -2,11 +2,38 @@ class Journal
   attr_gtk
   attr :sc_id
 
-  def initialize
+  def initialize(pause_menu_instance:)
     @sc_id = "journal"
+    @pause_menu_instance = pause_menu_instance
+    @recipe_ids = $recipe_book.unlocked_recipes
+    @recipe_cards = []
+
+    max_col = 4
+    max_row = 4
+    col = 1
+    row = 1
+    spacing = 50
+    start_x = -75
+    $recipe_book.unlocked_recipes.each do |recipe_id|
+      @recipe_cards << RecipeCard.new(x: start_x + ((200 + spacing) * col), y: (GTK.args.grid.h - 90) - ((285 - spacing) * row), w: 175, h: 175, id: recipe_id)
+      
+      puts "COLUMN: #{col}, ROW: #{row}"
+      
+      if col % max_col == 0
+        row += 1
+        col = 0
+      end 
+      col += 1
+    end
+
+    
   end
 
   def tick
+    @recipe_cards.each do |card|
+      card.tick
+    end
+    calc
   end
 
   def render(layer_num)
@@ -57,7 +84,7 @@ class Journal
         primitive_marker: :solid
       }
 
-      l1 << [left_panel, right_panel]
+      # l1 << [left_panel, right_panel]
       l1
     when 2
       encounter_label ||= {
@@ -75,9 +102,12 @@ class Journal
       l2 << [encounter_label]
       l2
     when 3
-      l3 << []
+      l3 << [ back_btn ]
       l3
     when 4
+      @recipe_cards.each do |card|
+        l4 << card.prefab
+      end
       l4 << []
       l4
     else
@@ -85,7 +115,22 @@ class Journal
     end
   end
 
+  def back_btn
+    {
+        x: 20,
+        y: GTK.args.grid.h - 20 - 40 ,
+        w: 40,
+        h: 40,
+        path: "sprites/circle/red.png",
+        angle: 0
+    }
+  end
+
   def calc
+    if GTK.args.inputs.mouse.click and Geometry.intersect_rect?(GTK.args.inputs.mouse, back_btn)
+      cleanup
+      @pause_menu_instance.go_back
+    end
   end
 
   def cleanup

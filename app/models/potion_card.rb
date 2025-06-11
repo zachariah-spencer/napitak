@@ -6,7 +6,7 @@ class PotionCard < Card
     super.initialize
 
     @desc = $pids[id].desc
-    @potencies = $pids[id].traits[0]
+    @potencies = $pids[id].traits
     puts @potencies
   end
 

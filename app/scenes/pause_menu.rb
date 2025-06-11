@@ -34,7 +34,7 @@ class PauseMenu
   def calc_main
     $game.toggle_pause if GTK.args.inputs.mouse.click and Geometry.intersect_rect?(GTK.args.inputs.mouse, resume_btn)
     if GTK.args.inputs.mouse.click and Geometry.intersect_rect?(GTK.args.inputs.mouse, journal_btn)
-        @journal_instance = Journal.new
+        @journal_instance = Journal.new(pause_menu_instance: self)
         @pause_screen = "journal" 
     end
     
@@ -48,7 +48,7 @@ class PauseMenu
   end
 
   def calc_settings
-    @pause_screen = "main" if GTK.args.inputs.mouse.click and Geometry.intersect_rect?(GTK.args.inputs.mouse, back_btn)
+    go_back if GTK.args.inputs.mouse.click and Geometry.intersect_rect?(GTK.args.inputs.mouse, back_btn)
   end
 
   def tick_journal
@@ -134,6 +134,10 @@ class PauseMenu
         path: "sprites/circle/red.png",
         angle: 0
     }
+  end
+
+  def go_back
+    @pause_screen = "main"
   end
 
   def resume_btn

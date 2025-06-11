@@ -18,8 +18,9 @@ class Map
       )
     end
   end
-
+  
   def tick
+    
     @encounter_manager.choices?.each do |c|
       c.tick
 

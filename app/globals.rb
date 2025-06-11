@@ -1,5 +1,7 @@
 $traits = { damage: 0, healing: 1, blight: 2 }
 
+$entity_ids = []
+
 $pids = {
   "p001" => {
     name: "Rock Potion",
@@ -87,6 +89,16 @@ $iids = {
       "i002" => 1,
       "i003" => 1
     }
+  },
+
+  "i007" => {
+    name: "Lightning",
+    path: "sprites/hexagon/yellow.png",
+    base: false,
+    ingredients: {
+      "i003" => 1,
+      "i005" => 1
+    }
   }
 }
 
@@ -143,6 +155,7 @@ def gen_new_card(id = nil, is_reward: false)
   img = nil
 
   new_ent_id = get_rand_id
+  $entity_ids << new_ent_id
 
   if is_reward
     name = $iids[id].name
@@ -166,12 +179,13 @@ def gen_new_card(id = nil, is_reward: false)
 end
 
 def get_rand_id
-  ingredient_ids = $player.ingredients.all_cards.map(&:entity_id)
-  potion_ids = $player.potions.all_cards.map(&:entity_id)
-  all_entity_ids = ingredient_ids + potion_ids
   new_id = Numeric.rand(1..50_000)
-
-  new_id = Numeric.rand(1..50_000) while all_entity_ids.include?(new_id)
-
+  new_id = Numeric.rand(1..50_000) while $entity_ids.include?(new_id)
   return new_id
+end
+
+def new_id?
+  new_ent_id = get_rand_id
+  $entity_ids << new_ent_id
+  new_ent_id
 end

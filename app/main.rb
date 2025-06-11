@@ -10,6 +10,7 @@ require_relative "models/ingredient_reward_card"
 require_relative "models/encounter_card"
 require_relative "models/info_box"
 require_relative "models/info_box_chain"
+require_relative "models/recipe_card"
 
 require_relative "services/deck"
 require_relative "services/inventory"

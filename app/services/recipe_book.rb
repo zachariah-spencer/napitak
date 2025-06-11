@@ -1,7 +1,7 @@
 # RecipeBook manages available recipes and crafting logic.
 class RecipeBook
   attr_gtk
-  attr
+  attr :unlocked_recipes
 
   # Initialize with global recipe definitions and ingredient definitions.
   # potion_defs: hash mapping recipe_id to data, e.g.:
@@ -13,7 +13,7 @@ class RecipeBook
     # @player = $player
     @potion_defs = potion_defs
     @ingredient_defs = ingredient_defs
-    @unlocked_recipes = %w[p001 p002 p003 p004 i006]
+    @unlocked_recipes = %w[p001 p002 p003 p004 i006 i007]
 
     all_recipe_ids
   end
