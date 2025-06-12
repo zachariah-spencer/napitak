@@ -1,0 +1,139 @@
+class Journal
+  attr_gtk
+  attr :sc_id
+
+  def initialize(pause_menu_instance:)
+    @sc_id = "journal"
+    @pause_menu_instance = pause_menu_instance
+    @recipe_ids = $recipe_book.unlocked_recipes
+    @recipe_cards = []
+
+    max_col = 4
+    max_row = 4
+    col = 1
+    row = 1
+    spacing = 50
+    start_x = -75
+    $recipe_book.unlocked_recipes.each do |recipe_id|
+      @recipe_cards << RecipeCard.new(x: start_x + ((200 + spacing) * col), y: (GTK.args.grid.h - 90) - ((285 - spacing) * row), w: 185, h: 185, id: recipe_id)
+      
+      puts "COLUMN: #{col}, ROW: #{row}"
+      
+      if col % max_col == 0
+        row += 1
+        col = 0
+      end 
+      col += 1
+    end
+  end
+
+  def tick
+    @recipe_cards.each do |card|
+      card.tick
+    end
+    calc
+  end
+
+  def render(layer_num)
+    l0 = []
+    l1 = []
+    l2 = []
+    l3 = []
+    l4 = []
+
+    @recipe_cards.each do |card|
+      if card.hovered
+        l4 << card.prefab
+      else
+        l3 << card.prefab
+      end
+    end
+
+    case layer_num
+    when 0
+      background ||= {
+        x: 0,
+        y: 0,
+        w: GTK.args.grid.w,
+        h: GTK.args.grid.h,
+        r: 10,
+        g: 10,
+        b: 20,
+        primitive_marker: :solid
+      }
+
+      l0 << [background]
+
+      l0
+    when 1
+      left_panel ||= {
+        x: 0,
+        y: 0,
+        w: 200,
+        h: GTK.args.grid.h,
+        r: 50,
+        g: 50,
+        b: 50,
+        a: 50,
+        primitive_marker: :solid
+      }
+
+      right_panel ||= {
+        x: GTK.args.grid.w - 200,
+        y: 0,
+        w: 200,
+        h: GTK.args.grid.h,
+        r: 50,
+        g: 50,
+        b: 50,
+        a: 50,
+        primitive_marker: :solid
+      }
+
+      # l1 << [left_panel, right_panel]
+      l1
+    when 2
+      encounter_label ||= {
+        x: GTK.args.grid.w / 2,
+        y: GTK.args.grid.h - 50,
+        alignment_enum: 1,
+        size_px: Math.sin(Kernel.tick_count * 0.08) * 4 + 40,
+        r: 255,
+        g: 255,
+        b: 255,
+        text: "Journal",
+        primitive_marker: :label
+      }
+      l2 << [encounter_label]
+      l2
+    when 3
+      l3 << [ back_btn ]
+      l3
+    when 4
+      l4 << []
+      l4
+    else
+      # puts "combat.rb: Invalid Render Argument"
+    end
+  end
+
+  def back_btn
+    {
+        x: 20,
+        y: GTK.args.grid.h - 20 - 40 ,
+        w: 40,
+        h: 40,
+        path: "sprites/circle/red.png",
+        angle: 0
+    }
+  end
+
+  def calc
+    if GTK.args.inputs.mouse.click and Geometry.intersect_rect?(GTK.args.inputs.mouse, back_btn)
+      cleanup
+      @pause_menu_instance.go_back
+    end
+  end
+
+  def cleanup; end
+end

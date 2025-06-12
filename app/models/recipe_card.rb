@@ -1,6 +1,6 @@
 class RecipeCard
   attr_gtk
-  attr :hovered
+  attr :hovered, :pos
 
   def initialize(x:, y:, w:, h:, id:)
     @entity_id = new_id?
