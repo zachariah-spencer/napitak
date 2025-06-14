@@ -90,7 +90,6 @@ $iids = {
       "i003" => 1
     }
   },
-
   "i007" => {
     name: "Lightning",
     path: "sprites/hexagon/yellow.png",
@@ -98,7 +97,7 @@ $iids = {
     ingredients: {
       "i003" => 1,
       "i005" => 1
-    },
+    }
   }
 }
 
@@ -117,7 +116,7 @@ $encounters = {
     name: "Alchemy Workbench",
     path: "sprites/triangle/equilateral/yellow.png",
     chance: 1
-  },
+  }
 }
 
 def craftable_ingredients?
@@ -131,6 +130,7 @@ end
 $player = nil
 $recipe_book = nil
 $enemy = nil
+$files = nil
 $encounter_manager = nil
 $tutorials = true
 

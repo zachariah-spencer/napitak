@@ -3,7 +3,9 @@ class Game
   attr :tutorials
 
   def initialize
-    @scene = ""
+    @autosaved = false
+
+    @scene = $files.save_data&.[]("scene")
     @scene_ref = nil
     @paused_scene_ref = nil
     @paused = false
@@ -21,10 +23,9 @@ class Game
     # the game's official instantiation of a RecipeBook, persists between runs
     @recipe_book = RecipeBook.new()
     @encounter_manager = EncounterManager.new
-
-      
-      # change_scene(prev_sc: "", next_sc: "alchemy_table")
-      change_scene(prev_sc: "", next_sc: "map")
+    
+    change_scene(prev_sc: "", next_sc: @scene) if @scene
+    change_scene(prev_sc: "", next_sc: "map") if not @scene
   end
 
   def new_run
@@ -40,6 +41,8 @@ class Game
     else
       @pause_button_pos = 195
     end
+
+    $files.save_data["scene"] = next_sc
 
     case @scene
     when "combat"
@@ -72,14 +75,20 @@ class Game
   end
 
   def handle_pause
-    if GTK.args.inputs.keyboard.key_down.escape or (GTK.args.inputs.mouse.click and Geometry.intersect_rect?(GTK.args.inputs.mouse, pause_btn(x: @pause_button_pos)))
+    if GTK.args.inputs.keyboard.key_down.escape or
+         (
+           GTK.args.inputs.mouse.click and
+             Geometry.intersect_rect?(
+               GTK.args.inputs.mouse,
+               pause_btn(x: @pause_button_pos)
+             )
+         )
       toggle_pause(paused_scene_ref: @scene_ref)
     end
   end
 
   def tick
     handle_pause
-
 
     if @scene_ref
       @scene_ref.args = args
@@ -88,6 +97,11 @@ class Game
 
     render
     calc_particles
+
+    
+    puts "SAVE_DATA: #{$files.save_data}\n"
+    # puts $files.save_data
+    $files.write if GTK.quit_requested? and not @autosaved
   end
 
   def render
@@ -116,14 +130,7 @@ class Game
   end
 
   def pause_btn(x: 195, y: GTK.args.grid.h - 45, w: 50, h: 50)
-    {
-      x: x,
-      y: y,
-      w: w,
-      h: h,
-      angle: 135,
-      path: "sprites/isometric/red.png"
-    }
+    { x: x, y: y, w: w, h: h, angle: 135, path: "sprites/isometric/red.png" }
   end
 
   def calc_particles

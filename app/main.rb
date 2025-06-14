@@ -16,6 +16,7 @@ require_relative "services/deck"
 require_relative "services/inventory"
 require_relative "services/recipe_book"
 require_relative "services/encounter_manager"
+require_relative "services/files"
 
 require_relative "scenes/combat"
 require_relative "scenes/alchemy_table"
@@ -48,10 +49,14 @@ class Hash
 end
 
 def tick(args)
-  $game ||= Game.new
-  $game.args ||= args
+  $files ||= Files.new
 
-  $game.tick
+  # GTK.on_tick_count(Kernel.tick_count + 60) do
+    $game ||= Game.new
+    $game.args ||= args
+  # end
+
+  $game.tick if $game != nil
 end
 
 # reset is a top-level function that DR is aware of
