@@ -24,6 +24,7 @@ require_relative "scenes/rewards_screen"
 require_relative "scenes/map"
 require_relative "scenes/pause_menu"
 require_relative "scenes/journal"
+require_relative "scenes/run_summary"
 
 class Hash
   def front(key)

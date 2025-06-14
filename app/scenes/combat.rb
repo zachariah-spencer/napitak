@@ -17,6 +17,8 @@ class Combat
     @turn_num = -1
     @player = $player
     @enemy = Enemy.new(10)
+    @defeat_banner_visible = false
+    @defeat_banner_alpha = 0
 
     begin_combat
   end
@@ -29,6 +31,9 @@ class Combat
     calc_card_positions
 
     @player.my_turn? ? calc_mouse_inputs : calc_enemy
+
+    @defeat_banner_alpha = @defeat_banner_alpha.lerp(255, 0.02) if @defeat_banner_visible
+
     calc_entity_removals
   end
 
@@ -200,12 +205,22 @@ class Combat
         primitive_marker: :solid
       }
 
+      if $player.focus == $player.max_focus
+        pass_btn_text = "PASS"
+        pass_btn_size = 10
+      else
+        pass_btn_text = "NEXT TURN"
+        pass_btn_size = 5
+      end
+
       pass_button_label ||= {
         x: 20 + (pass_button.w / 2),
-        y: GTK.args.grid.h - (pass_button.h / 2),
-        text: "PASS",
-        size_enum: 10,
+        y: GTK.args.grid.h - 50,
+        text: "#{pass_btn_text}",
+        size_enum: pass_btn_size,
         alignment_enum: 1,
+        anchor_x: 0.5,
+        anchor_y: 0.5,
         r: 255,
         g: 255,
         b: 255,
@@ -240,6 +255,37 @@ class Combat
       l3 << [front_card]
       return l3
     when 4
+      if @defeat_banner_visible
+        defeat_banner_label ||= {
+          x: GTK.args.grid.w / 2,
+          y: GTK.args.grid.h / 2,
+          alignment_enum: 1,
+          anchor_x: 0.5,
+          anchor_y: 0.5,
+          size_enum: 20,
+          r: 255,
+          g: 255,
+          b: 255,
+          a: @defeat_banner_alpha,
+          text: "DEFEAT",
+          primitive_marker: :label
+        }
+
+        defeat_banner ||= {
+          x: 0,
+          y: GTK.args.grid.h / 2 - 100,
+          w: GTK.args.grid.w,
+          h: 200,
+          r: 150,
+          g: 0,
+          b: 0,
+          a: @defeat_banner_alpha,
+          primitive_marker: :solid
+        }
+
+        l4 << [ defeat_banner, defeat_banner_label ]
+      end
+
       return l4
     else
       # puts "combat.rb: Invalid Render Argument"
@@ -252,10 +298,22 @@ class Combat
   end
 
   def calc_enemy
-    @enemy.attack if @enemy.turn_start_tick_count.elapsed_time == 1.seconds
+    $player.died = @enemy.attack if @enemy.turn_start_tick_count.elapsed_time == 1.seconds
 
     if @enemy.turn_start_tick_count.elapsed_time == 2.seconds
-      begin_turn_stage @turn_stages[:drawing_cards]
+      if $player.died
+        # signal defeat on screen
+        @defeat_banner_visible = true
+      else
+        # start next turn
+        begin_turn_stage @turn_stages[:drawing_cards]
+      end
+    end
+
+    # if player was defeated
+    if @enemy.turn_start_tick_count.elapsed_time == 5.seconds and $player.died
+      # wait 3 more seconds and leave combat scene to end run
+      $game.change_scene(prev_sc: "combat", next_sc: "run_summary")
     end
   end
 

@@ -7,6 +7,7 @@ class Game
     @scene_ref = nil
     @paused_scene_ref = nil
     @paused = false
+    @pause_button_pos = 195
 
     # keeps track of whether an entity with a specific entity_id has been created already
     @created_entity_ids = []
@@ -34,6 +35,12 @@ class Game
     @scene_ref.cleanup if prev_sc != ""
     @scene = next_sc
 
+    if next_sc == "run_summary"
+      @pause_button_pos = -5
+    else
+      @pause_button_pos = 195
+    end
+
     case @scene
     when "combat"
       @scene_ref = Combat.new()
@@ -45,6 +52,8 @@ class Game
       @scene_ref = RewardsScreen.new()
     when "map"
       @scene_ref = Map.new()
+    when "run_summary"
+      @scene_ref = RunSummary.new()
     end
   end
 
@@ -63,7 +72,7 @@ class Game
   end
 
   def handle_pause
-    if GTK.args.inputs.keyboard.key_down.escape or (GTK.args.inputs.mouse.click and Geometry.intersect_rect?(GTK.args.inputs.mouse, pause_btn))
+    if GTK.args.inputs.keyboard.key_down.escape or (GTK.args.inputs.mouse.click and Geometry.intersect_rect?(GTK.args.inputs.mouse, pause_btn(x: @pause_button_pos)))
       toggle_pause(paused_scene_ref: @scene_ref)
     end
   end
@@ -101,7 +110,7 @@ class Game
 
     outputs.primitives << [l0, l1, l2, l3, l4]
 
-    outputs.primitives << pause_btn if not @paused
+    outputs.primitives << pause_btn(x: @pause_button_pos) if not @paused
 
     InfoBox.render(GTK.args) if not @paused
   end

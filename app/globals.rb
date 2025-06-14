@@ -49,7 +49,7 @@ $pids = {
       "i001" => 1,
       "i005" => 2
     },
-    traits: [$traits[:damage] => 20]
+    traits: [$traits[:damage] => 4]
   }
 }
 

@@ -1,5 +1,6 @@
 class Enemy
-  attr_accessor :hp, :max_hp, :turn_start_tick_count, :attacked, :attacks
+  attr_gtk
+  attr :hp, :max_hp, :turn_start_tick_count, :attacked, :attacks
 
   def initialize(hp)
     $enemy = self
@@ -37,11 +38,15 @@ class Enemy
       0,
       100
     )
-
     $player.hp -= attack[:damage]
-    GTK.reboot if $player.hp <= 0
-
     @attacked = true
+
+    if $player.hp <= 0
+    $player.hp = 0
+      return true
+    else
+      return false
+    end
   end
 
   def select_attack
@@ -77,10 +82,8 @@ class Enemy
         y: GTK.args.grid.h - 250,
         w: 200,
         h: 200,
-        r: 150,
-        g: 0,
-        b: 0,
-        primitive_marker: :solid
+        path: "sprites/wolf.png",
+        primitive_marker: :sprite
       }
 
       enemy_hp_label ||= {

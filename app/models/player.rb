@@ -1,6 +1,6 @@
 class Player
   attr_gtk
-  attr :ingredients, :potions, :focus, :max_focus, :hp, :max_hp, :stunned_turns, :hovered_cards
+  attr :ingredients, :potions, :focus, :max_focus, :hp, :max_hp, :stunned_turns, :hovered_cards, :died
 
   def initialize
     $player = self
@@ -9,9 +9,10 @@ class Player
     @hp = 20
     @max_hp = 20
     @focus = 0
-    @max_focus = 2
+    @max_focus = 3
     @stunned_turns = 0
     @hovered_cards = []
+    @died = false
 
     @ingredients = Inventory.new()
     @potions = Inventory.new()
