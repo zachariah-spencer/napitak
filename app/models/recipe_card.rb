@@ -1,8 +1,8 @@
 class RecipeCard
   attr_gtk
-  attr :hovered, :pos
+  attr :hovered, :pos, :page
 
-  def initialize(x:, y:, w:, h:, id:)
+  def initialize(x:, y:, w:, h:, id:, page: -1)
     @entity_id = new_id?
     @floating_seed = Numeric.rand(0.0..100.0)
 
@@ -66,6 +66,7 @@ class RecipeCard
     @g = 150 # Numeric.rand(50..100)
     @b = 150 # Numeric.rand(100..200)
     @hovered = false
+    @page = page
   end
 
   def tick()
