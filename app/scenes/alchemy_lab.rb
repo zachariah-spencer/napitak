@@ -135,6 +135,16 @@ class AlchemyLab
 
   def cleanup
     puts "cleanup alchemy_lab.rb"
+    potions_save_data = []
+    @player.potions.all_cards.each { |c| potions_save_data << c.save_data? }
+
+    puts potions_save_data
+
+    ingredients_save_data = []
+    @player.ingredients.all_cards.each { |c| ingredients_save_data << c.save_data? }
+
+    $files.save_data["player"]["potions"] = potions_save_data
+    $files.save_data["player"]["ingredients"] = ingredients_save_data
   end
 
   def craft(recipe_id)

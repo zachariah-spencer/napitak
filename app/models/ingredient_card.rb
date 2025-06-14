@@ -1,6 +1,11 @@
 require_relative "card.rb"
 
 class IngredientCard < Card
+
+  def save_data?
+    @id
+  end
+
   def calc_position(num_cards, index)
     # x_s = ( GTK.args.grid.w / 2) - ( num_cards * ( ( @w + @padding ) / 2 ) )
     if !@grabbed

@@ -18,18 +18,43 @@ class Game
     # keeps track of whether a render target for the specific number has been created already
     @created_prefabs = {}
     # the game's official instantiation of a Player for an individual game.
-    @player = nil
-    new_run
+    @player = Player.new()
     # the game's official instantiation of a RecipeBook, persists between runs
     @recipe_book = RecipeBook.new()
-    @encounter_manager = EncounterManager.new
-    
+    @encounter_manager = EncounterManager.new()
+
+    if $files.save_data["player"]["potions"]
+      $files.save_data["player"]["potions"].each do |data|
+        id = data["id"]
+        uses = data["uses_left"].to_i
+        @player.potions.add(
+          PotionCard.new(
+            id,
+            new_id?,
+            $pids[id].name,
+            $pids[id].fc,
+            $pids[id].path,
+            $pids[id].max_uses,
+            uses_left: uses
+          )
+        )
+      end
+    end
+
+    if $files.save_data["player"]["ingredients"]
+      $files.save_data["player"]["ingredients"].each do |id|
+        @player.ingredients.add(
+          IngredientCard.new(id, new_id?, $iids[id].name, -1, $iids[id].path)
+        )
+      end
+    end
+
     change_scene(prev_sc: "", next_sc: @scene) if @scene
     change_scene(prev_sc: "", next_sc: "map") if not @scene
   end
 
   def new_run
-    @player = Player.new()
+    # reset vars for new run
   end
 
   def change_scene(prev_sc:, next_sc:)
@@ -41,8 +66,6 @@ class Game
     else
       @pause_button_pos = 195
     end
-
-    $files.save_data["scene"] = next_sc
 
     case @scene
     when "combat"
@@ -58,6 +81,8 @@ class Game
     when "run_summary"
       @scene_ref = RunSummary.new()
     end
+
+    $files.save_data["scene"] = next_sc
   end
 
   def toggle_pause(paused_scene_ref: nil)
@@ -98,9 +123,7 @@ class Game
     render
     calc_particles
 
-    
-    puts "SAVE_DATA: #{$files.save_data}\n"
-    # puts $files.save_data
+    # puts $files.save_data to file
     $files.write if GTK.quit_requested? and not @autosaved
   end
 

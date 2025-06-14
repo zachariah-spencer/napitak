@@ -167,7 +167,16 @@ def gen_new_card(id = nil, is_reward: false)
       fc = $pids[id].fc
       img = $pids[id].path
       max_uses = $pids[id].max_uses
-      new_card = PotionCard.new(id, new_ent_id, name, fc, img, max_uses)
+      new_card =
+        PotionCard.new(
+          id,
+          new_ent_id,
+          name,
+          fc,
+          img,
+          max_uses,
+          uses_left: max_uses
+        )
     else
       name = $iids[id].name
       img = $iids[id].path

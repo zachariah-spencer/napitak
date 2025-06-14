@@ -32,7 +32,8 @@ class Combat
 
     @player.my_turn? ? calc_mouse_inputs : calc_enemy
 
-    @defeat_banner_alpha = @defeat_banner_alpha.lerp(255, 0.02) if @defeat_banner_visible
+    @defeat_banner_alpha =
+      @defeat_banner_alpha.lerp(255, 0.02) if @defeat_banner_visible
 
     calc_entity_removals
   end
@@ -48,12 +49,7 @@ class Combat
     front_card = []
 
     @hand.each do |id, c|
-
-      if c.grabbed
-        front_card << c.prefab
-      else
-        cards << c.prefab
-      end
+      c.grabbed ? front_card << c.prefab : cards << c.prefab
     end
 
     range = 255 - 0
@@ -283,7 +279,7 @@ class Combat
           primitive_marker: :solid
         }
 
-        l4 << [ defeat_banner, defeat_banner_label ]
+        l4 << [defeat_banner, defeat_banner_label]
       end
 
       return l4
@@ -295,10 +291,16 @@ class Combat
   def cleanup
     puts "cleanup combat.rb"
     @hand.each { |id, c| @player.potions.add(c) }
+
+    potions_save_data = []
+    @player.potions.all_cards.each { |c| potions_save_data << c.save_data? }
+
+    $files.save_data["player"]["potions"] = potions_save_data
   end
 
   def calc_enemy
-    $player.died = @enemy.attack if @enemy.turn_start_tick_count.elapsed_time == 1.seconds
+    $player.died = @enemy.attack if @enemy.turn_start_tick_count.elapsed_time ==
+      1.seconds
 
     if @enemy.turn_start_tick_count.elapsed_time == 2.seconds
       if $player.died
@@ -337,7 +339,8 @@ class Combat
       c_ref = nil
     end
 
-    @player.hovered_cards = Geometry.find_all_intersect_rect inputs.mouse, get_card_rects
+    @player.hovered_cards =
+      Geometry.find_all_intersect_rect inputs.mouse, get_card_rects
 
     if inputs.mouse.click
       if Geometry.intersect_rect? inputs.mouse, get_deck_rect and
@@ -357,7 +360,7 @@ class Combat
 
         state.mouse_point_inside_square = {
           x: inputs.mouse.x - c_u_m.x,
-          y: inputs.mouse.y - c_u_m.y,
+          y: inputs.mouse.y - c_u_m.y
         }
 
         state.click_hold_time = Kernel.tick_count

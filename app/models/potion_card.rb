@@ -1,13 +1,36 @@
 require_relative "card.rb"
 
 class PotionCard < Card
-
-  def initialize(id, entity_id, name, fc, img, max_uses = 0, desc = "", potencies = {})
-    super.initialize
+  def initialize(
+    id,
+    entity_id,
+    name,
+    fc,
+    img,
+    max_uses = 0,
+    desc = "",
+    potencies = {},
+    uses_left: nil
+  )
+    super(
+      id,
+      entity_id,
+      name,
+      fc,
+      img,
+      max_uses,
+      desc,
+      potencies,
+      uses_left: uses_left
+    )
 
     @desc = $pids[id].desc
     @potencies = $pids[id].traits
     puts @potencies
+  end
+
+  def save_data?
+    { id: @id.to_s, uses_left: @uses_left.to_s }
   end
 
   def calc_hover

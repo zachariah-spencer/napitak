@@ -18,7 +18,17 @@ class Card
                 :uses_left,
                 :hovered
 
-  def initialize(id, entity_id, name, fc, img, max_uses = 0, desc = "", potencies = {})
+  def initialize(
+    id,
+    entity_id,
+    name,
+    fc,
+    img,
+    max_uses = 0,
+    desc = "",
+    potencies = {},
+    uses_left: nil
+  )
     @id = id
     @name = name
     @fc = fc
@@ -46,7 +56,7 @@ class Card
     @card_back_img = "sprites/card-back-purple.png"
     @img = img
     @max_uses = max_uses
-    @uses_left = max_uses
+    @uses_left = uses_left || max_uses
     @card_composite_sprite_ref = :"card_composite_#{entity_id}"
     @card_composite_tooltip_ref = :"card_composite_tooltip_#{entity_id}"
 
@@ -105,7 +115,7 @@ class Card
       path: @card_composite_tooltip_ref,
       primitive_marker: :sprite
     }
-    return [ card_sprite, tt_sprite ]
+    return card_sprite, tt_sprite
   end
 
   def update_sprite()
@@ -161,13 +171,10 @@ class Card
       primitive_marker: :sprite
     }
 
-    if is_potion(self.id) and @hovered
-      render_tooltip(args)
-    end
+    render_tooltip(args) if is_potion(self.id) and @hovered
   end
 
   def render_tooltip(args)
-
     args.outputs[@card_composite_tooltip_ref].w = @w * 2
     args.outputs[@card_composite_tooltip_ref].h = @h * 2
     # add a label in the center of the render target
@@ -180,41 +187,44 @@ class Card
       g: 20,
       b: 40,
       a: 180,
-      primitive_marker: :solid,
+      primitive_marker: :solid
     }
     parsed_name = String.wrapped_lines @name, 15
-    args.outputs[@card_composite_tooltip_ref].primitives << parsed_name.map_with_index do |s, i| 
+    args.outputs[
+      @card_composite_tooltip_ref
+    ].primitives << parsed_name.map_with_index do |s, i|
       {
-      x: 165,
-      y: 280,
-      text: "#{s}",
-      anchor_x: 0.5,
-      anchor_y: i,
-      r: 255,
-      g: 255,
-      b: 255,
-      size_enum: 10
+        x: 165,
+        y: 280,
+        text: "#{s}",
+        anchor_x: 0.5,
+        anchor_y: i,
+        r: 255,
+        g: 255,
+        b: 255,
+        size_enum: 10
       }
     end
 
     parsed_description = String.wrapped_lines @desc, 25
     # add a label in the center of the render target
-    args.outputs[@card_composite_tooltip_ref].primitives << parsed_description.map_with_index do |s, i| 
+    args.outputs[
+      @card_composite_tooltip_ref
+    ].primitives << parsed_description.map_with_index do |s, i|
       {
-      x: 165,
-      y: 250,
-      text: "#{s}",
-      anchor_x: 0.5,
-      anchor_y: i,
-      r: 255,
-      g: 255,
-      b: 255,
-      size_enum: 1
+        x: 165,
+        y: 250,
+        text: "#{s}",
+        anchor_x: 0.5,
+        anchor_y: i,
+        r: 255,
+        g: 255,
+        b: 255,
+        size_enum: 1
       }
     end
 
-    args.outputs[@card_composite_tooltip_ref].primitives << 
-      {
+    args.outputs[@card_composite_tooltip_ref].primitives << {
       x: 55,
       y: 65,
       text: "Focus",
@@ -224,10 +234,9 @@ class Card
       g: 255,
       b: 255,
       size_enum: 1
-      }
+    }
 
-    args.outputs[@card_composite_tooltip_ref].primitives << 
-      {
+    args.outputs[@card_composite_tooltip_ref].primitives << {
       x: 55,
       y: 35,
       text: "#{@fc}",
@@ -237,10 +246,9 @@ class Card
       g: 255,
       b: 255,
       size_enum: 1
-      }
+    }
 
-      args.outputs[@card_composite_tooltip_ref].primitives << 
-      {
+    args.outputs[@card_composite_tooltip_ref].primitives << {
       x: 270,
       y: 65,
       text: "Potencies",
@@ -250,15 +258,13 @@ class Card
       g: 255,
       b: 255,
       size_enum: 1
-      }
+    }
 
-      @potencies.each do |trait|
-        trait.each_with_index do |(trait_id, potency_val), idx|
-          color = trait_color?(trait_id)
+    @potencies.each do |trait|
+      trait.each_with_index do |(trait_id, potency_val), idx|
+        color = trait_color?(trait_id)
 
-          args.outputs[@card_composite_tooltip_ref].primitives << 
-          # will need to be fixed later to work with list of potencies using index
-          {
+        args.outputs[@card_composite_tooltip_ref].primitives << { # will need to be fixed later to work with list of potencies using index
           x: @w * 2 - 60,
           y: 35,
           text: "#{potency_val.to_s}",
@@ -268,13 +274,11 @@ class Card
           g: color.g,
           b: color.b,
           size_enum: 1
-          }
-        end
+        }
       end
-      
+    end
 
-      args.outputs[@card_composite_tooltip_ref].primitives << 
-      {
+    args.outputs[@card_composite_tooltip_ref].primitives << {
       x: 160,
       y: 65,
       text: "Charges",
@@ -284,10 +288,9 @@ class Card
       g: 255,
       b: 255,
       size_enum: 1
-      }
+    }
 
-      args.outputs[@card_composite_tooltip_ref].primitives << 
-      {
+    args.outputs[@card_composite_tooltip_ref].primitives << {
       x: 160,
       y: 35,
       text: "#{@uses_left} / #{@max_uses}",
@@ -297,7 +300,7 @@ class Card
       g: 255,
       b: 255,
       size_enum: 1
-      }
+    }
 
     # args.outputs.labels << parsed_.map_with_index do |s, i|
     #   {
@@ -322,17 +325,9 @@ class Card
   def trait_color?(trait)
     case trait
     when $traits[:damage]
-      {
-        r: 255,
-        g: 0,
-        b: 0,
-      }
+      { r: 255, g: 0, b: 0 }
     when $traits[:healing]
-      {
-        r: 0,
-        g: 255,
-        b: 0,
-      }
+      { r: 0, g: 255, b: 0 }
     end
   end
 

@@ -6,8 +6,16 @@ class Map
 
   def initialize
     @sc_id = "map"
+
+    @choices = []
     @encounter_manager = $encounter_manager
-    @encounter_manager.next_choices?
+    if $files.save_data["scene"] == "map" and $files.save_data["map_layer"] != 1
+      choice_ids = $files.save_data["map_choices"]
+      choice_ids.each { |id| @choices << EncounterCard.new(id) }
+      puts @choices
+    else
+      @choices = @encounter_manager.next_choices?
+    end
 
     if @encounter_manager.encounters_completed? == 0 and $tutorials
       @tutorials = InfoBoxChain.new(
@@ -20,8 +28,7 @@ class Map
   end
   
   def tick
-    
-    @encounter_manager.choices?.each do |c|
+    @choices.each do |c|
       c.tick
 
       if (clicked = c.pop_clicked)
@@ -44,7 +51,7 @@ class Map
 
     choice_cards ||= []
 
-    count = @encounter_manager.choices?.size
+    count = @choices.size
     spacing = 275
     center = GTK.args.grid.w / 2
 
@@ -53,7 +60,7 @@ class Map
     # x-coordinate of the first card
     start_x = center - (total_span / 2.0)
 
-    @encounter_manager.choices?.each_with_index do |c, idx|
+    @choices.each_with_index do |c, idx|
       c.f_pos.x = (start_x + spacing * idx) - (c.fw / 2)
       c.f_pos.y = GTK.args.grid.h / 2 - 112.5
 
@@ -135,5 +142,6 @@ class Map
   end
 
   def cleanup
+    $files.save_data["map_layer"] = ($encounter_manager.map_layer)
   end
 end

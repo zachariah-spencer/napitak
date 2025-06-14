@@ -1,5 +1,6 @@
 require_relative "game"
 require_relative "globals"
+require_relative "json"
 
 require_relative "models/enemy"
 require_relative "models/player"
@@ -52,8 +53,8 @@ def tick(args)
   $files ||= Files.new
 
   # GTK.on_tick_count(Kernel.tick_count + 60) do
-    $game ||= Game.new
-    $game.args ||= args
+  $game ||= Game.new
+  $game.args ||= args
   # end
 
   $game.tick if $game != nil

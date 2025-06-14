@@ -1,5 +1,5 @@
 class EncounterManager
-  attr :encounters
+  attr :encounters, :map_layer
 
   def initialize
     $encounter_manager = self
@@ -14,7 +14,14 @@ class EncounterManager
                               [rand_encounter?, rand_encounter?],
                                         ["alchemy_lab"]
                       ]
-    @map_layer = 1
+
+    if ($files.save_data&.[]("map_layer")).to_i > 0
+      ml_save = ($files.save_data&.[]("map_layer")).to_i
+    else
+      ml_save = 1
+    end
+    @map_layer = ml_save
+    puts "MAP LAYER VAR: #{@map_layer} | | ML_SAVE: #{ml_save}"
     @encounters_completed = 0
   end
 
@@ -42,10 +49,14 @@ class EncounterManager
     end
 
     enc_cards = []
+    enc_ids = []
     e_layer.each do |enc_id|
       enc_cards << card!(enc_id)
+      enc_ids << enc_id
+
     end
 
+    $files.save_data["map_choices"] = enc_ids
     @choices = enc_cards
   end
 
