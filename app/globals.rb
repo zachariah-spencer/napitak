@@ -119,6 +119,37 @@ $encounters = {
   }
 }
 
+# Example animation data used by AnimationManager.
+# Each animation entry defines a list of frame sprite paths and when particles
+# should be spawned.
+$animations = {
+  basic_attack: {
+    rect: {
+      x: GTK.args.grid.w / 2 - 100,
+      y: GTK.args.grid.h - 250,
+      w: 200,
+      h: 200,
+    },
+    frames: [
+      'sprites/misc/explosion-0.png',
+      'sprites/misc/explosion-1.png',
+      'sprites/misc/explosion-2.png',
+      'sprites/misc/explosion-3.png',
+      'sprites/misc/explosion-4.png',
+      'sprites/misc/explosion-5.png',
+      'sprites/misc/explosion-6.png',
+      'sprites/wolf.png'
+    ],
+    frame_length: 5,
+    particle_frames: {
+      # 1 => [
+      #   { text: '5', x: 100, y: 100, r: 255, g: 0, b: 0, scale: 80 }
+      # ]
+    }
+  }
+}
+
+
 def craftable_ingredients?
   @ingredient_defs.select { |id, ing| !ing.base }
 end

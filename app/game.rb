@@ -10,6 +10,7 @@ class Game
     @paused_scene_ref = nil
     @paused = false
     @pause_button_pos = 195
+    AnimationManager.new
 
     # keeps track of whether an entity with a specific entity_id has been created already
     @created_entity_ids = []
@@ -131,6 +132,7 @@ class Game
       @scene_ref.tick
     end
 
+    $animation_manager.tick if $animation_manager
     render
     calc_particles
 
@@ -155,6 +157,9 @@ class Game
       l3 << @scene_ref.render(3)
       l4 << @scene_ref.render(4)
     end
+
+    # render any active animations
+    l2 << $animation_manager.render if $animation_manager
 
     # for each particle, construct a prefab
     l4 << @status_labels.map { |particle| status_label_prefab particle }

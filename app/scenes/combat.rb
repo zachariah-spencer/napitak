@@ -30,7 +30,11 @@ class Combat
   def calc
     calc_card_positions
 
-    @player.my_turn? ? calc_mouse_inputs : calc_enemy
+    if @player.my_turn?
+      calc_mouse_inputs
+    else
+      calc_enemy
+    end
 
     @defeat_banner_alpha =
       @defeat_banner_alpha.lerp(255, 0.02) if @defeat_banner_visible
@@ -299,10 +303,14 @@ class Combat
   end
 
   def calc_enemy
-    $player.died = @enemy.attack if @enemy.turn_start_tick_count.elapsed_time ==
-      1.seconds
-
-    if @enemy.turn_start_tick_count.elapsed_time == 2.seconds
+    if not @enemy.attacking
+      $player.died = @enemy.attack if @enemy.turn_start_tick_count.elapsed_time ==
+        1.seconds
+    end
+    
+    if not $animation_manager&.input_locked? and @enemy.attacked
+      @enemy.attacked = false
+      @enemy.attacking = false
       if $player.died
         # signal defeat on screen
         @defeat_banner_visible = true
@@ -331,6 +339,8 @@ class Combat
   end
 
   def calc_mouse_inputs
+    return if $animation_manager&.input_locked?
+
     if state.currently_dragging_card_id
       c_ref = @hand[state.currently_dragging_card_id]
     else

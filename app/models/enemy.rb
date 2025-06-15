@@ -1,19 +1,20 @@
 class Enemy
   attr_gtk
-  attr :hp, :max_hp, :turn_start_tick_count, :attacked, :attacks
+  attr :hp, :max_hp, :turn_start_tick_count, :attacked, :attacks, :attacking
 
   def initialize(hp)
     $enemy = self
 
     @turn_start_tick_count = 0
     @attacked = false
+    @attacking = false
     @hp = hp
     @max_hp = hp
 
     @attacks = {
       70 => {
         name: "Basic Attack",
-        damage: 20
+        damage: 1
       },
       20 => {
         name: "Power Attack",
@@ -28,7 +29,9 @@ class Enemy
 
   def attack
     attack = select_attack
-    puts attack
+    puts "ANIMS #{$animations[:basic_attack]}"
+    $animation_manager.queue_animation(:basic_attack, lock_input: true)
+    @attacking = true
     status_label(
       80,
       (GTK.args.grid.h - 275),

@@ -18,6 +18,7 @@ require_relative "services/inventory"
 require_relative "services/recipe_book"
 require_relative "services/encounter_manager"
 require_relative "services/files"
+require_relative "services/animation_manager"
 
 require_relative "scenes/combat"
 require_relative "scenes/alchemy_table"
