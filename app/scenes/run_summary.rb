@@ -5,6 +5,7 @@ class RunSummary
   def initialize(choices: 4, picks: 2)
     puts "init Run Summary Screen"
     @sc_id = "run_summary"
+    $files.save_data["mid_run"] = false
   end
 
   def cleanup; end
@@ -14,9 +15,8 @@ class RunSummary
   end
 
   def calc
-    $game.change_scene(prev_sc: "run_summary", next_sc: "map") if GTK.args.inputs.keyboard.key_down.p
     GTK.request_quit if GTK.args.inputs.mouse.click and Geometry.intersect_rect?(GTK.args.inputs.mouse, quit_btn)
-    GTK.reset_next_tick if GTK.args.inputs.mouse.click and Geometry.intersect_rect?(GTK.args.inputs.mouse, new_run_btn)
+    $game.new_run if GTK.args.inputs.mouse.click and Geometry.intersect_rect?(GTK.args.inputs.mouse, new_run_btn)
   end
 
   def render(layer_num)

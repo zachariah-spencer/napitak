@@ -18,6 +18,24 @@ class Player
     @potions = Inventory.new()
   end
 
+  def reset
+    @ingredients = Inventory.new()
+    @potions = Inventory.new()
+    save_inventory_data
+    @died = false
+    @my_turn = true
+  end
+
+  def save_inventory_data
+    potions_save_data = []
+    ingredients_save_data = []
+    @potions.all_cards.each { |c| potions_save_data << c.save_data? }
+    @ingredients.all_cards.each { |c| ingredients_save_data << c.save_data? }
+
+    $files.save_data["player"]["potions"] = potions_save_data
+    $files.save_data["player"]["ingredients"] = ingredients_save_data
+  end
+
   def tick
   end
 

@@ -66,4 +66,4 @@ def reset(_args)
   # A new rng will be used GTK.reset is invoked
   GTK.set_rng (Time.now.to_f * 100).to_i
 end
-GTK.reset_next_tick()
+GTK.reset

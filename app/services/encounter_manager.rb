@@ -21,7 +21,6 @@ class EncounterManager
       ml_save = 1
     end
     @map_layer = ml_save
-    puts "MAP LAYER VAR: #{@map_layer} | | ML_SAVE: #{ml_save}"
     @encounters_completed = 0
   end
 
@@ -31,10 +30,18 @@ class EncounterManager
 
   def inc_encounters_completed
     @encounters_completed += 1
+    $files.save_data["encounters_completed"] = @encounters_completed
   end
 
   def card!(id)
     EncounterCard.new(id)
+  end
+
+  def reset
+    @encounters_completed = 0
+    @map_layer = 1
+    $files.save_data["encounters_completed"] = @encounters_completed
+    $files.save_data["map_layer"] = @map_layer
   end
 
   def next_choices?

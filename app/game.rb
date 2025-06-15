@@ -49,12 +49,23 @@ class Game
       end
     end
 
-    change_scene(prev_sc: "", next_sc: @scene) if @scene
-    change_scene(prev_sc: "", next_sc: "map") if not @scene
+    is_mid_run = $files.save_data&.[]("mid_run")
+    encounters_completed = $files.save_data&.[]("encounters_completed")
+
+    
+    if is_mid_run
+      change_scene(prev_sc: "", next_sc: @scene)
+    else
+      new_run
+    end
   end
 
+  # reset vars for new run
   def new_run
-    # reset vars for new run
+    $files.save_data["mid_run"] = true
+    $encounter_manager.reset
+    @player.reset
+    change_scene(prev_sc: "", next_sc: "map")
   end
 
   def change_scene(prev_sc:, next_sc:)
@@ -124,7 +135,10 @@ class Game
     calc_particles
 
     # puts $files.save_data to file
-    $files.write if GTK.quit_requested? and not @autosaved
+    if (GTK.quit_requested? and not @autosaved) or GTK.args.inputs.keyboard.key_down.l
+      $files.write
+      puts "WRITING SAVE DATA TO FILE"
+    end
   end
 
   def render

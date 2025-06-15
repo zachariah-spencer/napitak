@@ -13,7 +13,7 @@ class Enemy
     @attacks = {
       70 => {
         name: "Basic Attack",
-        damage: 1
+        damage: 20
       },
       20 => {
         name: "Power Attack",
