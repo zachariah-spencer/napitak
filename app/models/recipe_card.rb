@@ -358,7 +358,7 @@ class RecipeCard
         g: 0,
         b: 0,
       }
-    when $traits[:healing]
+    when $traits[:restoration]
       {
         r: 0,
         g: 255,

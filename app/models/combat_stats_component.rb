@@ -95,6 +95,8 @@ class CombatStatsComponent
   # Applies stacks of a certain status type.
   def apply_status(type:, stacks:)
     @statuses[$STATUS_TYPES[type]] += stacks
+    color = status_color?($STATUS_TYPES[type])
+    status_label(@x, @y, "+#{stacks}", color[0], color[1], color[2], 150)
   end
 
   def status_color?(type_enum)

@@ -329,7 +329,7 @@ class Card
     case trait
     when $traits[:damage]
       { r: 255, g: 0, b: 0 }
-    when $traits[:healing]
+    when $traits[:restoration]
       { r: 0, g: 255, b: 0 }
     end
   end

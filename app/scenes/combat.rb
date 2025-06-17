@@ -521,14 +521,37 @@ class Combat
           .traits
           .find { |h| h.key?($traits[:damage]) }
           &.[]($traits[:damage])
-      healing_trait =
+      restoration_trait =
         potion_info
           .traits
-          .find { |h| h.key?($traits[:healing]) }
-          &.[]($traits[:healing])
+          .find { |h| h.key?($traits[:restoration]) }
+          &.[]($traits[:restoration])
+      scorch_trait =
+        potion_info
+          .traits
+          .find { |h| h.key?($traits[:scorch]) }
+          &.[]($traits[:scorch])
+      blight_trait =
+      potion_info
+        .traits
+        .find { |h| h.key?($traits[:blight]) }
+        &.[]($traits[:blight])
+      
+      frost_trait =
+        potion_info
+          .traits
+          .find { |h| h.key?($traits[:frost]) }
+          &.[]($traits[:frost])
+      
+      ward_trait =
+        potion_info
+          .traits
+          .find { |h| h.key?($traits[:ward]) }
+          &.[]($traits[:ward])
 
       if damage_trait
         @enemy.combat_stats.hurt(damage_trait)
+        # @enemy.combat_stats.apply_status(type: "SCORCH", stacks: 3)
         status_label(
           (GTK.args.grid.w / 2),
           (GTK.args.grid.h - 250),
@@ -539,18 +562,39 @@ class Combat
           100
         )
         end_combat if @enemy.combat_stats.dead
-      elsif healing_trait
-        @player.combat_stats.heal(healing_trait)
+      end
+      
+      if restoration_trait
+        @player.combat_stats.heal(restoration_trait)
         status_label(
           80,
           (GTK.args.grid.h - 275),
-          "#{healing_trait}",
+          "#{restoration_trait}",
           0,
           255,
           0,
           100
         )
       end
+
+      if scorch_trait
+        @enemy.combat_stats.apply_status(type: "SCORCH", stacks: scorch_trait)
+      end
+
+      if blight_trait
+        @enemy.combat_stats.apply_status(type: "BLIGHT", stacks: blight_trait)
+      end
+
+      if frost_trait
+        @enemy.combat_stats.apply_status(type: "FROST", stacks: frost_trait)
+      end
+
+      if ward_trait
+        @player.combat_stats.apply_status(type: "WARD", stacks: ward_trait)
+      end
+
+
+
       begin_turn_stage @turn_stages[:cleanup] if not actions_available?
     end
   end

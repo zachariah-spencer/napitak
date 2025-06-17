@@ -1,4 +1,4 @@
-$traits = { damage: 0, healing: 1, blight: 2 }
+$traits = { damage: 0, restoration: 1, blight: 2, scorch: }
 $STATUS_TYPES = {
       "SCORCH" => 1,
       "BLIGHT" => 2,
@@ -44,7 +44,7 @@ $pids = {
       "i001" => 1,
       "i002" => 2
     },
-    traits: [$traits[:healing] => 2]
+    traits: [$traits[:restoration] => 2]
   },
   "p004" => {
     name: "Wind Potion",
