@@ -1,55 +1,41 @@
 class Enemy
   attr_gtk
-  attr :hp, :max_hp, :turn_start_tick_count, :attacked, :attacks, :attacking
+  attr :hp, :max_hp, :turn_start_timer, :attacked, :attacks, :attacked, :my_turn, :turn_ended_signal, :combat_stats
 
   def initialize(hp)
     $enemy = self
 
-    @turn_start_tick_count = 0
+    @turn_start_timer = 0
     @attacked = false
-    @attacking = false
-    @hp = hp
-    @max_hp = hp
+    @combat_stats = CombatStatsComponent.new(hp: hp, focus: 0)
+    @my_turn = false
+    @turn_ended_signal = false
 
     @attacks = {
       70 => {
         name: "Basic Attack",
-        damage: 1
+        damage: 1,
+        attack_id: "a001",
       },
       20 => {
         name: "Power Attack",
-        damage: 2
+        damage: 2,
+        attack_id: "a002",
       },
       10 => {
         name: "Ultimate Attack",
-        damage: 4
+        damage: 4,
+        attack_id: "a003",
       }
     }
   end
 
   def attack
     attack = select_attack
-    puts "ANIMS #{$animations[:basic_attack]}"
-    $animation_manager.queue_animation(:basic_attack, lock_input: true)
-    @attacking = true
-    status_label(
-      80,
-      (GTK.args.grid.h - 275),
-      "#{attack[:damage]}",
-      255,
-      165,
-      0,
-      100
-    )
-    $player.hp -= attack[:damage]
+    puts attack
+    $animation_manager.queue_animation(attack[:attack_id], lock_input: true)
+    $player.combat_stats.hurt(attack[:damage])
     @attacked = true
-
-    if $player.hp <= 0
-    $player.hp = 0
-      return true
-    else
-      return false
-    end
   end
 
   def select_attack
@@ -66,7 +52,58 @@ class Enemy
       attack = @attacks[att_probs[2]]
     end
 
+    puts attack
     attack
+  end
+
+
+  def begin_turn
+    @combat_stats.calc_status(type:"RESTORATION")
+    frost_stacks = @combat_stats.statuses[$STATUS_TYPES["FROST"]]
+    if frost_stacks > 0
+      @combat_stats.calc_status(type:"FROST")
+      end_turn
+    else
+      @my_turn = true
+      @turn_start_timer = Kernel.tick_count
+    end
+  end
+
+  def tick
+    if @my_turn and not @combat_stats.dead
+      calc
+    end
+  end
+
+  def calc
+    if not @attacked
+      attack if @turn_start_timer.elapsed_time == 1.seconds
+    end
+
+    calc_end_turn
+  end
+
+  def turn_over?
+    val = @turn_ended_signal
+    @turn_ended_signal = false
+    val
+  end
+
+  def calc_end_turn
+    # check end turn
+    if attack_completed?
+      end_turn
+    end
+  end
+
+  def end_turn
+    @attacked = false
+    @my_turn = false
+    @turn_ended_signal = true
+  end
+
+  def attack_completed?
+    attacked and not $animation_manager&.input_locked? and @my_turn
   end
 
   def render(layer_num)
@@ -97,11 +134,11 @@ class Enemy
         r: 150,
         g: 0,
         b: 0,
-        text: "#{@hp}/#{@max_hp}",
+        text: "#{@combat_stats.hp}/#{@combat_stats.max_hp}",
         primitive_marker: :label
       }
 
-      l1 << [enemy_sprite, enemy_hp_label]
+      l1 << [enemy_sprite, enemy_hp_label] if not @combat_stats.dead
       return l1
     when 2
       return l2

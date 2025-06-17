@@ -1,11 +1,12 @@
 class Player
   attr_gtk
-  attr :ingredients, :potions, :focus, :max_focus, :hp, :max_hp, :stunned_turns, :hovered_cards, :died
+  attr :ingredients, :potions, :focus, :max_focus, :hp, :max_hp, :stunned_turns, :hovered_cards, :died, :combat_stats
 
   def initialize
     $player = self
 
     @my_turn = true
+    @combat_stats = CombatStatsComponent.new(hp: 20, focus: 4)
     @hp = 20
     @max_hp = 20
     @focus = 0
@@ -18,9 +19,10 @@ class Player
     @potions = Inventory.new()
   end
 
-  def reset
+  def reset!
     @ingredients = Inventory.new()
     @potions = Inventory.new()
+    @combat_stats.reset!
     save_inventory_data
     @died = false
     @my_turn = true
@@ -34,6 +36,14 @@ class Player
 
     $files.save_data["player"]["potions"] = potions_save_data
     $files.save_data["player"]["ingredients"] = ingredients_save_data
+  end
+
+  def begin_turn
+    @my_turn = true
+    @combat_stats.mod_max_focus = @combat_stats.max_focus - @combat_stats.statuses[$STATUS_TYPES["FROST"]]
+    @combat_stats.focus = @combat_stats.mod_max_focus
+    @combat_stats.calc_status(type: "RESTORATION")
+    @combat_stats.calc_status(type: "FROST")
   end
 
   def tick

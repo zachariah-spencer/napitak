@@ -1,4 +1,11 @@
 $traits = { damage: 0, healing: 1, blight: 2 }
+$STATUS_TYPES = {
+      "SCORCH" => 1,
+      "BLIGHT" => 2,
+      "FROST" => 3,
+      "WARD" => 4,
+      "RESTORATION" => 5,
+}.freeze
 
 $entity_ids = []
 
@@ -123,10 +130,58 @@ $encounters = {
 # Each animation entry defines a list of frame sprite paths and when particles
 # should be spawned.
 $animations = {
-  basic_attack: {
+  "a001" => {
     rect: {
       x: GTK.args.grid.w / 2 - 100,
-      y: GTK.args.grid.h - 250,
+      y: GTK.args.grid.h / 2 - 100,
+      w: 200,
+      h: 200,
+    },
+    frames: [
+      'sprites/misc/explosion-0.png',
+      'sprites/misc/explosion-1.png',
+      'sprites/misc/explosion-2.png',
+      'sprites/misc/explosion-3.png',
+      'sprites/misc/explosion-4.png',
+      'sprites/misc/explosion-5.png',
+      'sprites/misc/explosion-6.png',
+    ],
+    frame_length: 5,
+    particle_frames: {
+      4 => [
+        { text: '1', x: GTK.args.grid.w / 2, y: GTK.args.grid.h / 2, r: 255, g: 0, b: 0, scale: 150 }
+      ]
+    }
+  },
+
+  "a002" => {
+    rect: {
+      x: GTK.args.grid.w / 2 - 100,
+      y: GTK.args.grid.h / 2 - 100,
+      w: 200,
+      h: 200,
+    },
+    frames: [
+      'sprites/misc/explosion-0.png',
+      'sprites/misc/explosion-1.png',
+      'sprites/misc/explosion-2.png',
+      'sprites/misc/explosion-3.png',
+      'sprites/misc/explosion-4.png',
+      'sprites/misc/explosion-5.png',
+      'sprites/misc/explosion-6.png',
+    ],
+    frame_length: 5,
+    particle_frames: {
+      4 => [
+        { text: '2', x: GTK.args.grid.w / 2, y: GTK.args.grid.h / 2, r: 255, g: 0, b: 0, scale: 150 }
+      ]
+    }
+  },
+
+  "a003" => {
+    rect: {
+      x: GTK.args.grid.w / 2 - 100,
+      y: GTK.args.grid.h / 2 - 100,
       w: 200,
       h: 200,
     },
@@ -142,9 +197,9 @@ $animations = {
     ],
     frame_length: 5,
     particle_frames: {
-      # 1 => [
-      #   { text: '5', x: 100, y: 100, r: 255, g: 0, b: 0, scale: 80 }
-      # ]
+      4 => [
+        { text: '4', x: GTK.args.grid.w / 2, y: GTK.args.grid.h / 2, r: 255, g: 0, b: 0, scale: 150 }
+      ]
     }
   }
 }

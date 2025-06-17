@@ -64,8 +64,8 @@ class Game
   # reset vars for new run
   def new_run
     $files.save_data["mid_run"] = true
-    $encounter_manager.reset
-    @player.reset
+    $encounter_manager.reset!
+    @player.reset!
     change_scene(prev_sc: "", next_sc: "map")
   end
 
@@ -180,7 +180,7 @@ class Game
     # make them spin, and set their y value
     @status_labels.each do |particle|
       particle.a -= 5
-      particle.angle += 10
+      particle.angle += 10 / (particle.scale * 0.2)
       particle.y += 3
     end
 
@@ -194,20 +194,23 @@ class Game
     # texture that's already been created for us
     return @created_prefabs[number] if @created_prefabs[number]
     path = number.to_s
-
+    
+    
     # if it hasn't been created, then create a RT with the name equal to
     # to the number. add it to the lookup of created_prefabs
     @created_prefabs[number] = path
+    padding = 4
+    text_w, text_h = GTK.calcstringbox(path, scale)
 
     # set RT properties
-    outputs[path].w = scale
-    outputs[path].h = scale
+    outputs[path].w = text_w + padding * 2
+    outputs[path].h = text_h + padding * 2
     outputs[path].background_color = [0, 0, 0, 0]
 
     # add the label to the render target
     outputs[path].labels << {
-      x: 15,
-      y: 15,
+      x: padding + text_w / 2,
+      y: padding + text_h / 2,
       text: number.to_s,
       anchor_x: 0.5,
       anchor_y: 0.5,
@@ -226,7 +229,7 @@ class Game
       text: t,
       a: 255,
       angle: 0,
-      scale: scale / 2,
+      scale: scale,
       r: r,
       g: g,
       b: b
@@ -249,7 +252,7 @@ class Game
         x: s_l.x,
         y: s_l.y,
         w: s_l.scale,
-        h: s_l.scale,
+        h: s_l.scale * 2,
         anchor_x: 0.5,
         anchor_y: 0.5,
         path: path,

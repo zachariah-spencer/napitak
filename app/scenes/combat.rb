@@ -17,29 +17,42 @@ class Combat
     @turn_num = -1
     @player = $player
     @enemy = Enemy.new(10)
-    @defeat_banner_visible = false
-    @defeat_banner_alpha = 0
+    @banner_alpha = 0
+    @defeat_banner_timer = nil
+    @victory_banner_timer = nil
 
     begin_combat
   end
 
   def tick
     calc
+    @enemy.tick
+    leave(true) if @victory_banner_timer&.elapsed_time == 3.seconds and @enemy.combat_stats.dead
+    leave(false) if @defeat_banner_timer&.elapsed_time == 3.seconds and @player.combat_stats.dead
+  end
+
+  def calc_enemy_turn_ended
+    if @player.combat_stats.dead
+      @defeat_banner_timer = Kernel.tick_count
+    else
+      begin_turn_stage @turn_stages[:drawing_cards]
+    end
+  end
+
+  def leave(is_victory = true)
+    if is_victory
+      $game.change_scene(prev_sc: @sc_id, next_sc: "rewards_screen")
+    else
+      $game.change_scene(prev_sc: "combat", next_sc: "run_summary")
+    end
   end
 
   def calc
     calc_card_positions
-
-    if @player.my_turn?
-      calc_mouse_inputs
-    else
-      calc_enemy
-    end
-
-    @defeat_banner_alpha =
-      @defeat_banner_alpha.lerp(255, 0.02) if @defeat_banner_visible
-
+    calc_mouse_inputs if @player.my_turn?
+    calc_enemy_turn_ended if @enemy.turn_over?
     calc_entity_removals
+    @banner_alpha = @banner_alpha.lerp(255, 0.02) if @defeat_banner_timer or @victory_banner_timer
   end
 
   def render(layer_num)
@@ -108,7 +121,7 @@ class Combat
         r: 0,
         g: 150,
         b: 0,
-        text: "#{@player.hp}/#{@player.max_hp}",
+        text: "#{@player.combat_stats.hp}/#{@player.combat_stats.max_hp}",
         primitive_marker: :label
       }
 
@@ -132,7 +145,7 @@ class Combat
         r: 0,
         g: 150,
         b: 150,
-        text: "#{@player.focus}",
+        text: "#{@player.combat_stats.focus}",
         primitive_marker: :label
       }
 
@@ -205,7 +218,7 @@ class Combat
         primitive_marker: :solid
       }
 
-      if $player.focus == $player.max_focus
+      if @player.combat_stats.focus == @player.combat_stats.mod_max_focus
         pass_btn_text = "PASS"
         pass_btn_size = 10
       else
@@ -255,7 +268,7 @@ class Combat
       l3 << [front_card]
       return l3
     when 4
-      if @defeat_banner_visible
+      if @defeat_banner_timer
         defeat_banner_label ||= {
           x: GTK.args.grid.w / 2,
           y: GTK.args.grid.h / 2,
@@ -266,7 +279,7 @@ class Combat
           r: 255,
           g: 255,
           b: 255,
-          a: @defeat_banner_alpha,
+          a: @banner_alpha,
           text: "DEFEAT",
           primitive_marker: :label
         }
@@ -279,11 +292,42 @@ class Combat
           r: 150,
           g: 0,
           b: 0,
-          a: @defeat_banner_alpha,
+          a: @banner_alpha,
           primitive_marker: :solid
         }
 
         l4 << [defeat_banner, defeat_banner_label]
+      end
+
+      if @victory_banner_timer
+        victory_banner_label ||= {
+          x: GTK.args.grid.w / 2,
+          y: GTK.args.grid.h / 2,
+          alignment_enum: 1,
+          anchor_x: 0.5,
+          anchor_y: 0.5,
+          size_enum: 20,
+          r: 255,
+          g: 255,
+          b: 255,
+          a: @banner_alpha,
+          text: "VICTORY",
+          primitive_marker: :label
+        }
+
+        victory_banner ||= {
+          x: 0,
+          y: GTK.args.grid.h / 2 - 100,
+          w: GTK.args.grid.w,
+          h: 200,
+          r: 0,
+          g: 150,
+          b: 0,
+          a: @banner_alpha,
+          primitive_marker: :solid
+        }
+
+        l4 << [victory_banner, victory_banner_label]
       end
 
       return l4
@@ -302,36 +346,16 @@ class Combat
     $files.save_data["player"]["potions"] = potions_save_data
   end
 
-  def calc_enemy
-    if not @enemy.attacking
-      $player.died = @enemy.attack if @enemy.turn_start_tick_count.elapsed_time ==
-        1.seconds
-    end
-    
-    if not $animation_manager&.input_locked? and @enemy.attacked
-      @enemy.attacked = false
-      @enemy.attacking = false
-      if $player.died
-        # signal defeat on screen
-        @defeat_banner_visible = true
-      else
-        # start next turn
-        begin_turn_stage @turn_stages[:drawing_cards]
-      end
-    end
-
-    # if player was defeated
-    if @enemy.turn_start_tick_count.elapsed_time == 5.seconds and $player.died
-      # wait 3 more seconds and leave combat scene to end run
-      $game.change_scene(prev_sc: "combat", next_sc: "run_summary")
-    end
-  end
-
   def calc_card_positions
     @hand.each_with_index do |(id, c), i|
       c.calc_position(@hand.length, i)
       c.tick()
     end
+  end
+
+  def calc_status_effects(type:)
+    @player.combat_stats.calc_status(type: type)
+    @enemy.combat_stats.calc_status(type: type)
   end
 
   def calc_entity_removals
@@ -429,28 +453,31 @@ class Combat
     @turn_stage = new_stage
 
     if new_stage == @turn_stages[:drawing_cards]
+      puts "start drawing_cards stage"
       @player.potions.check_for_reshuffle
       if @player.stunned_turns > 0
         skip_turn
         @player.stunned_turns -= 1
         return
       end
-
-      puts "start drawing_cards stage"
-      @player.my_turn = true
-      @player.focus = @player.max_focus
+      @player.begin_turn
       @turn_num += 1
+      calc_status_effects(type:"BLIGHT")
       draw_card
       begin_turn_stage @turn_stages[:playing_cards]
+
     elsif new_stage == @turn_stages[:playing_cards]
       puts "start playing_cards stage"
+
     elsif new_stage == @turn_stages[:cleanup]
       puts "start cleanup stage"
       @player.my_turn = false
+      calc_status_effects(type:"SCORCH")
       begin_turn_stage @turn_stages[:enemy_turn]
+
     elsif new_stage == @turn_stages[:enemy_turn]
-      @enemy.turn_start_tick_count = Kernel.tick_count
-      @enemy.attacked = false
+      @enemy.begin_turn
+
     end
   end
 
@@ -463,20 +490,16 @@ class Combat
   end
 
   def actions_available?
-    return true if (@player.focus > 0 and @hand.length >= 1)
+    return true if (@player.combat_stats.focus > 0 and @hand.length >= 1)
   end
 
   def use_card(card)
     potion_info = $pids[card.id]
-
     # handle deducting potion throwing focus cost
-    if @player.focus >= potion_info.fc and card.uses_left > 0
-      @player.focus -= potion_info.fc
-
+    if @player.combat_stats.focus >= potion_info.fc and card.uses_left > 0
+      @player.combat_stats.focus -= potion_info.fc
       card.uses_left -= 1
-
       card.update_sprite()
-
       @player.potions.discard card
       @hand.delete card.entity_id
 
@@ -493,7 +516,7 @@ class Combat
           &.[]($traits[:healing])
 
       if damage_trait
-        @enemy.hp -= damage_trait
+        @enemy.combat_stats.hurt(damage_trait)
         status_label(
           (GTK.args.grid.w / 2),
           (GTK.args.grid.h - 250),
@@ -503,14 +526,9 @@ class Combat
           0,
           100
         )
-
-        if @enemy.hp <= 0
-          # enemy dies
-          puts "enemy died"
-          end_combat
-        end
+        end_combat if @enemy.combat_stats.dead
       elsif healing_trait
-        @player.hp += healing_trait
+        @player.combat_stats.heal(healing_trait)
         status_label(
           80,
           (GTK.args.grid.h - 275),
@@ -520,16 +538,13 @@ class Combat
           0,
           100
         )
-
-        @player.hp = @player.max_hp if @player.hp >= @player.max_hp
       end
-
       begin_turn_stage @turn_stages[:cleanup] if not actions_available?
     end
   end
 
   def end_combat()
-    $game.change_scene(prev_sc: @sc_id, next_sc: "rewards_screen")
+    @victory_banner_timer = Kernel.tick_count
   end
 
   def get_card_rects

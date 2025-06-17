@@ -37,7 +37,7 @@ class EncounterManager
     EncounterCard.new(id)
   end
 
-  def reset
+  def reset!
     @encounters_completed = 0
     @map_layer = 1
     $files.save_data["encounters_completed"] = @encounters_completed
