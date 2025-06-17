@@ -35,17 +35,20 @@ class PotionCard < Card
 
   def calc_hover
     @hovered = Geometry.intersect_rect?(GTK.args.inputs.mouse, rect)
-    if @hovered and front_card?
+    if @hovered and front_card? and not @grabbed
       @tt_f_a = 255
     else
       @tt_f_a = 0
     end
+
+    @tt_f_a = 0 if @grabbed
+    puts @grabbed
   end
 
   def calc_position(num_cards, index)
     x_s = (GTK.args.grid.w / 2) - (num_cards * ((@w + @padding) / 2))
     if !@grabbed
-      @f_pos.x = x_s + (index * (@w + @padding)) - 20 # slight offset to x position if cards are "fanned" because the angling makes them look off-center otherwise
+      @f_pos.x = x_s + (index * (@w + @padding)) - 40 # slight offset to x position if cards are "fanned" because the angling makes them look off-center otherwise
       max_angle = -15.0 # Maximum rotation in degrees for the extreme cards
       max_y = 30
       center_index = (num_cards - 1) / 2.0
@@ -76,10 +79,11 @@ class PotionCard < Card
       @pos.y = @pos.y.lerp @f_pos.y, 0.2
       @w = @w.lerp @fw, 0.2
       @h = @h.lerp @fh, 0.2
-      @tt_a = @tt_a.lerp(@tt_f_a, 0.2)
     else
       @f_angle = 0
     end
     @angle = @angle.lerp @f_angle, 0.2
+
+    @tt_a = @tt_a.lerp(@tt_f_a, 0.2)
   end
 end

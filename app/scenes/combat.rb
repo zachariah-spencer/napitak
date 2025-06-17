@@ -20,13 +20,13 @@ class Combat
     @banner_alpha = 0
     @defeat_banner_timer = nil
     @victory_banner_timer = nil
-
     begin_combat
   end
 
   def tick
     calc
     @enemy.tick
+    @player.tick
     leave(true) if @victory_banner_timer&.elapsed_time == 3.seconds and @enemy.combat_stats.dead
     leave(false) if @defeat_banner_timer&.elapsed_time == 3.seconds and @player.combat_stats.dead
   end
@@ -63,10 +63,19 @@ class Combat
     l4 = []
 
     cards ||= []
+    tool_tips ||= []
     front_card = []
 
     @hand.each do |id, c|
-      c.grabbed ? front_card << c.prefab : cards << c.prefab
+      tool_tip = nil
+      card = nil
+      if c.grabbed
+        front_card << c.prefab
+      else
+        card, tool_tip = c.prefab
+        cards << card
+        tool_tips << tool_tip
+      end
     end
 
     range = 255 - 0
@@ -151,7 +160,7 @@ class Combat
 
       l1 << [
         left_panel,
-        @enemy.render(1),
+        @enemy.prefab,
         player_hp_label_header,
         player_hp_label,
         player_focus_label_header,
@@ -240,20 +249,6 @@ class Combat
         primitive_marker: :label
       }
 
-      players_turn_label ||= {
-        x: GTK.args.grid.w / 2,
-        y: GTK.args.grid.h / 2,
-        size_enum: 10,
-        r: 255,
-        g: 255,
-        b: 255,
-        a: osc_val,
-        alignment_enum: 1,
-        text: "YOUR TURN"
-      }
-
-      l2 << players_turn_label if @player.my_turn?
-
       l2 << [
         deck_sprite,
         deck_card_count_label,
@@ -326,10 +321,27 @@ class Combat
           a: @banner_alpha,
           primitive_marker: :solid
         }
-
         l4 << [victory_banner, victory_banner_label]
       end
 
+      players_turn_label ||= {
+        x: GTK.args.grid.w / 2,
+        y: GTK.args.grid.h / 2,
+        size_enum: 10,
+        r: 255,
+        g: 255,
+        b: 255,
+        a: osc_val,
+        alignment_enum: 1,
+        text: "YOUR TURN"
+      }
+
+      
+
+      l4 << @enemy.combat_stats.prefab
+      l4 << @player.combat_stats.prefab
+      l4 << players_turn_label if @player.my_turn?
+      l4 << tool_tips
       return l4
     else
       # puts "combat.rb: Invalid Render Argument"

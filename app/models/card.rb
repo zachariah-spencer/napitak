@@ -88,11 +88,14 @@ class Card
 
   def calc_hover
     @hovered = Geometry.intersect_rect?(GTK.args.inputs.mouse, rect)
-    if @hovered
+
+    if @hovered and not @grabbed
       @tt_f_a = 255
     else
       @tt_f_a = 0
     end
+
+    @tt_f_a = 0 if @grabbed
   end
 
   def prefab

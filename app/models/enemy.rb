@@ -7,7 +7,7 @@ class Enemy
 
     @turn_start_timer = 0
     @attacked = false
-    @combat_stats = CombatStatsComponent.new(hp: hp, focus: 0)
+    @combat_stats = CombatStatsComponent.new(hp: hp, focus: 0, x: GTK.args.grid.w / 2, y: GTK.args.grid.h - 60)
     @my_turn = false
     @turn_ended_signal = false
 
@@ -70,6 +70,7 @@ class Enemy
   end
 
   def tick
+    @combat_stats.tick
     if @my_turn and not @combat_stats.dead
       calc
     end
@@ -106,17 +107,8 @@ class Enemy
     attacked and not $animation_manager&.input_locked? and @my_turn
   end
 
-  def render(layer_num)
-    l0 = []
-    l1 = []
-    l2 = []
-    l3 = []
-    l4 = []
-
-    case layer_num
-    when 0
-      return l0
-    when 1
+  def prefab
+    if not @combat_stats.dead
       enemy_sprite ||= {
         x: GTK.args.grid.w / 2 - 100,
         y: GTK.args.grid.h - 250,
@@ -138,16 +130,7 @@ class Enemy
         primitive_marker: :label
       }
 
-      l1 << [enemy_sprite, enemy_hp_label] if not @combat_stats.dead
-      return l1
-    when 2
-      return l2
-    when 3
-      return l3
-    when 4
-      return l4
-    else
-      # puts "combat.rb: Invalid Render Argument"
+      [enemy_sprite, enemy_hp_label]
     end
   end
 end

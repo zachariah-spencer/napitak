@@ -6,7 +6,7 @@ class Player
     $player = self
 
     @my_turn = true
-    @combat_stats = CombatStatsComponent.new(hp: 20, focus: 4)
+    @combat_stats = CombatStatsComponent.new(hp: 20, focus: 4, x: GTK.args.grid.w / 2, y: GTK.args.grid.h / 2 - 50)
     @hp = 20
     @max_hp = 20
     @focus = 0
@@ -41,12 +41,14 @@ class Player
   def begin_turn
     @my_turn = true
     @combat_stats.mod_max_focus = @combat_stats.max_focus - @combat_stats.statuses[$STATUS_TYPES["FROST"]]
+    @combat_stats.mod_max_focus = 0 if @combat_stats.mod_max_focus < 0
     @combat_stats.focus = @combat_stats.mod_max_focus
     @combat_stats.calc_status(type: "RESTORATION")
     @combat_stats.calc_status(type: "FROST")
   end
 
   def tick
+    @combat_stats.tick
   end
 
   # setter
