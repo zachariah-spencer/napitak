@@ -72,15 +72,11 @@ class PotionCard < Card
         @f_pos.y = max_y
       end
 
-      @pos.x = @pos.x.lerp @f_pos.x, 0.2
-      @pos.y = @pos.y.lerp @f_pos.y, 0.2
-      @w = @w.lerp @fw, 0.2
-      @h = @h.lerp @fh, 0.2
     else
       @f_angle = 0
     end
     @angle = @angle.lerp @f_angle, 0.2
 
-    @tt_a = @tt_a.lerp(@tt_f_a, 0.2)
+    super
   end
 end

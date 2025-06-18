@@ -1,9 +1,6 @@
 # frozen_string_literal: true
 
 class IngredientCard < Card
-  def save_data?
-    @id
-  end
 
   def calc_position(num_cards, index)
     # x_s = ( GTK.args.grid.w / 2) - ( num_cards * ( ( @w + @padding ) / 2 ) )
@@ -23,14 +20,10 @@ class IngredientCard < Card
             (Math.sin(@floating_seed + Kernel.tick_count * 0.01) * 0.15)
         @f_angle = Math.sin(@floating_seed + Kernel.tick_count * 0.005) * 2
       end
-      @pos.x = @pos.x.lerp @f_pos.x, 0.2
-      @pos.y = @pos.y.lerp @f_pos.y, 0.2
     else
       @f_angle = 0
     end
 
-    @w = @w.lerp @fw, 0.2
-    @h = @h.lerp @fh, 0.2
-    @angle = @angle.lerp @f_angle, 0.2
+    super
   end
 end

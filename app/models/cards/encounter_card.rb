@@ -4,38 +4,14 @@ class EncounterCard < Card
   attr :f_pos, :selected, :fw
 
   def initialize(id)
-    @entity_id = GameUtils.new_id?
-
-    @id = id
-    @name = $encounters[id].name
-    @img = $encounters[id].path
-
-    @floating_seed = Numeric.rand(0.0..100.0)
-
-    @w = 160
-    @h = 160
-    @fw = 160
-    @fh = 160
-
-    @pos = { x: 0, y: 20 }
-    @f_pos = { x: 0, y: 20 }
-
-    @angle = 0
-    @f_angle = 0
-
-    @card_back_img = "sprites/card-back-purple.png"
-
-    @card_composite_sprite_ref = :"card_composite_#{@entity_id}"
-
-    @r = 150 # Numeric.rand(100..200)
-    @g = 150 # Numeric.rand(50..100)
-    @b = 150 # Numeric.rand(100..200)
-
-    @hovered = false
+    super(
+      id,
+      GameUtils.new_id?,
+      $encounters[id].name,
+      0,
+      $encounters[id].path
+    )
     @selected = nil
-    @needs_removed = false
-    @activation_time = 0.0
-    calc_render_target GTK.args
   end
 
   def tick
@@ -92,11 +68,7 @@ class EncounterCard < Card
       @f_angle = Math.sin(@floating_seed + Kernel.tick_count * 0.005) * 2
     end
 
-    @pos.x = @pos.x.lerp @f_pos.x, 0.2
-    @pos.y = @pos.y.lerp @f_pos.y, 0.2
-    @w = @w.lerp @fw, 0.2
-    @h = @h.lerp @fh, 0.2
-    @angle = @angle.lerp @f_angle, 0.2
+    super
   end
 
   def calc_render_target(args)

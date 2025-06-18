@@ -123,12 +123,7 @@ class RecipeCard < Card
       @f_angle = Math.sin(@floating_seed + Kernel.tick_count * 0.005) * 2
     end
 
-    @pos.x = @pos.x.lerp @f_pos.x, 0.2
-    @pos.y = @pos.y.lerp @f_pos.y, 0.2
-    @w = @w.lerp @fw, 0.2
-    @h = @h.lerp @fh, 0.2
-    @angle = @angle.lerp @f_angle, 0.2
-    @tt_a = @tt_a.lerp(@tt_f_a, 0.2)
+    interpolate_attributes
   end
 
   def calc_render_target(args)
@@ -346,22 +341,4 @@ class RecipeCard < Card
     }
   end
 
-  def trait_color?(trait)
-    case trait
-    when $traits[:damage]
-      { r: 255, g: 0, b: 0 }
-    when $traits[:restoration]
-      { r: 0, g: 255, b: 0 }
-    when $traits[:blight]
-      { r: 120, g: 150, b: 60 }
-    when $traits[:scorch]
-      { r: 255, g: 100, b: 0 }
-    when $traits[:frost]
-      { r: 0, g: 255, b: 255 }
-    when $traits[:ward]
-      { r: 255, g: 255, b: 0 }
-    when $traits[:mend]
-      { r: 0, g: 150, b: 0 }
-    end
-  end
 end
