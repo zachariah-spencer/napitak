@@ -1,6 +1,6 @@
 class CombatStatsComponent
   attr_gtk
-  attr :hp, :max_hp, :dead, :statuses, :status_types, :focus, :max_focus, :mod_max_focus
+  attr :hp, :max_hp, :dead, :statuses, :status_types, :focus, :max_focus, :mod_max_focus, :ward
 
   def initialize(hp: 1, focus: 0, x: , y:)
     @statuses = {
@@ -25,20 +25,38 @@ class CombatStatsComponent
   def heal(amt)
     @hp += amt
     @hp = @max_hp if @hp > @max_hp
+    status_label(
+      @x,
+      @y,
+      "#{amt}",
+      0,
+      255,
+      0,
+      100
+    )
   end
 
   def hurt(amt)
-    remaining_damage = amt - @ward
+    remaining_damage = amt - @statuses[$STATUS_TYPES["WARD"]]
 
     if remaining_damage <= 0
-      @ward -= amt
+      @statuses[$STATUS_TYPES["WARD"]] -= amt
       return
     else
-      @ward = 0
+      @statuses[$STATUS_TYPES["WARD"]] = 0
       @hp -= amt
       @hp = 0 if @hp < 0
     end
 
+    status_label(
+      @x,
+      @y,
+      "#{amt}",
+      255,
+      0,
+      0,
+      100
+    )
     @dead = true if dead?
   end
 
@@ -65,6 +83,7 @@ class CombatStatsComponent
   def calc_status(type:)
     type_enum = $STATUS_TYPES[type]
     stacks = @statuses[type_enum]
+    color = status_color?(type_enum)
 
     case type_enum
     when $STATUS_TYPES["SCORCH"]
@@ -72,6 +91,7 @@ class CombatStatsComponent
       if stacks > 0
         hurt(stacks)
         @statuses[$STATUS_TYPES["SCORCH"]] -= 1
+        status_label(@x, @y - 100, "-1", color[0], color[1], color[2], 80)
       end
     when $STATUS_TYPES["BLIGHT"]
       if stacks > 0
@@ -80,11 +100,13 @@ class CombatStatsComponent
     when $STATUS_TYPES["FROST"]
       if stacks > 0
         @statuses[$STATUS_TYPES["FROST"]] -= 1
+        status_label(@x, @y, "-1", color[0], color[1], color[2], 80)
       end
     when $STATUS_TYPES["RESTORATION"]
       if stacks > 0
         heal(stacks)
         @statuses[$STATUS_TYPES["RESTORATION"]] -= 1
+        status_label(@x, @y, "-1", color[0], color[1], color[2], 80)
       end
     end
 
@@ -96,7 +118,7 @@ class CombatStatsComponent
   def apply_status(type:, stacks:)
     @statuses[$STATUS_TYPES[type]] += stacks
     color = status_color?($STATUS_TYPES[type])
-    status_label(@x, @y, "+#{stacks}", color[0], color[1], color[2], 150)
+    status_label(@x, @y - 100, "+#{stacks}", color[0], color[1], color[2], 80)
   end
 
   def status_color?(type_enum)
@@ -159,10 +181,10 @@ class CombatStatsComponent
     start_x = @x - (rt_paths.size * 75 / 2)
     rt_paths.each_with_index do |path, i|
       stack_sprites << {
-        x: start_x + (i * 75),
+        x: start_x + (i * 30 + 25),
         y: @y,
-        w: 50,
-        h: 50,
+        w: 30,
+        h: 30,
         path: path,
         primitive_marker: :sprite
       }

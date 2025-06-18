@@ -26,7 +26,6 @@ class PotionCard < Card
 
     @desc = $pids[id].desc
     @potencies = $pids[id].traits
-    puts @potencies
   end
 
   def save_data?
@@ -42,7 +41,6 @@ class PotionCard < Card
     end
 
     @tt_f_a = 0 if @grabbed
-    puts @grabbed
   end
 
   def calc_position(num_cards, index)

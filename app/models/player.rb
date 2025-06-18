@@ -6,7 +6,7 @@ class Player
     $player = self
 
     @my_turn = true
-    @combat_stats = CombatStatsComponent.new(hp: 20, focus: 4, x: GTK.args.grid.w / 2, y: GTK.args.grid.h / 2 - 50)
+    @combat_stats = CombatStatsComponent.new(hp: 20, focus: 4, x: 300, y: 25)
     @hp = 20
     @max_hp = 20
     @focus = 0

@@ -3,6 +3,8 @@ require_relative "globals"
 require_relative "json"
 
 require_relative "models/enemy"
+require_relative "models/wolf"
+require_relative "models/ghost"
 require_relative "models/player"
 require_relative "models/card"
 require_relative "models/potion_card"

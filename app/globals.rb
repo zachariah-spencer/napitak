@@ -1,4 +1,4 @@
-$traits = { damage: 0, restoration: 1, blight: 2, scorch: }
+$traits = { damage: 0, restoration: 1, blight: 2, scorch: 3, frost: 4, ward: 5, mend: 6}
 $STATUS_TYPES = {
       "SCORCH" => 1,
       "BLIGHT" => 2,
@@ -20,7 +20,7 @@ $pids = {
       "i001" => 1,
       "i004" => 2
     },
-    traits: [{ $traits[:damage] => 2 }]
+    traits: [{ $traits[:damage] => 2 }, { $traits[:ward] => 6}]
   },
   "p002" => {
     name: "Fiery Potion",
@@ -32,7 +32,7 @@ $pids = {
       "i001" => 1,
       "i003" => 2
     },
-    traits: [$traits[:damage] => 3]
+    traits: [$traits[:scorch] => 3]
   },
   "p003" => {
     name: "Ocean Potion",
@@ -56,7 +56,7 @@ $pids = {
       "i001" => 1,
       "i005" => 2
     },
-    traits: [$traits[:damage] => 4]
+    traits: [{$traits[:damage] => 4}, {$traits[:mend] => 2}]
   }
 }
 
@@ -112,18 +112,27 @@ $encounters = {
   "alchemy_lab" => {
     name: "Laboratory",
     path: "sprites/triangle/equilateral/indigo.png",
+    is_combat: false,
     chance: 0
-  },
-  "combat" => {
-    name: "Combat",
-    path: "sprites/triangle/equilateral/red.png",
-    chance: 1
   },
   "alchemy_table" => {
     name: "Alchemy Workbench",
     path: "sprites/triangle/equilateral/yellow.png",
-    chance: 1
-  }
+    is_combat: false,
+    chance: 10
+  },
+  "wolf" => {
+    name: "Wolf",
+    path: "sprites/wolf.png",
+    is_combat: true,
+    chance: 5
+  },
+  "ghost" => {
+    name: "Ghost",
+    path: "sprites/ghost.png",
+    is_combat: true,
+    chance: 2
+  },
 }
 
 # Example animation data used by AnimationManager.
@@ -148,9 +157,9 @@ $animations = {
     ],
     frame_length: 5,
     particle_frames: {
-      4 => [
-        { text: '1', x: GTK.args.grid.w / 2, y: GTK.args.grid.h / 2, r: 255, g: 0, b: 0, scale: 150 }
-      ]
+      # 4 => [
+      #   { text: '1', x: GTK.args.grid.w / 2, y: GTK.args.grid.h / 2, r: 255, g: 0, b: 0, scale: 150 }
+      # ]
     }
   },
 
@@ -172,9 +181,9 @@ $animations = {
     ],
     frame_length: 5,
     particle_frames: {
-      4 => [
-        { text: '2', x: GTK.args.grid.w / 2, y: GTK.args.grid.h / 2, r: 255, g: 0, b: 0, scale: 150 }
-      ]
+      # 4 => [
+      #   { text: '2', x: GTK.args.grid.w / 2, y: GTK.args.grid.h / 2, r: 255, g: 0, b: 0, scale: 150 }
+      # ]
     }
   },
 
@@ -193,13 +202,12 @@ $animations = {
       'sprites/misc/explosion-4.png',
       'sprites/misc/explosion-5.png',
       'sprites/misc/explosion-6.png',
-      'sprites/wolf.png'
     ],
     frame_length: 5,
     particle_frames: {
-      4 => [
-        { text: '4', x: GTK.args.grid.w / 2, y: GTK.args.grid.h / 2, r: 255, g: 0, b: 0, scale: 150 }
-      ]
+      # 4 => [
+      #   { text: '4', x: GTK.args.grid.w / 2, y: GTK.args.grid.h / 2, r: 255, g: 0, b: 0, scale: 150 }
+      # ]
     }
   }
 }

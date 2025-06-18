@@ -1,3 +1,4 @@
+
 class EncounterManager
   attr :encounters, :map_layer
 
@@ -5,14 +6,17 @@ class EncounterManager
     $encounter_manager = self
     @encounters_pool = $encounters
     @choices = []
+    @unique_encounters  = Hash.new { |h,layer| h[layer] = [] }
+
+
     @encounter_map = [
-                                      [rand_encounter?],
-                      [rand_encounter?, rand_encounter?, rand_encounter?],
-                      [rand_encounter?, rand_encounter?, rand_encounter?],
-                              [rand_encounter?, rand_encounter?],
-                      [rand_encounter?, rand_encounter?, rand_encounter?],
-                              [rand_encounter?, rand_encounter?],
-                                        ["alchemy_lab"]
+                      [rand_encounter?(1)],
+                      [rand_encounter?(2), rand_encounter?(2), rand_encounter?(2)],
+                      [rand_encounter?(3), rand_encounter?(3), rand_encounter?(3)],
+                      [rand_encounter?(4), rand_encounter?(4)],
+                      [rand_encounter?(5), rand_encounter?(5), rand_encounter?(5)],
+                      [rand_encounter?(6), rand_encounter?(6)],
+                      ["alchemy_lab"]
                       ]
 
     if ($files.save_data&.[]("map_layer")).to_i > 0
@@ -57,10 +61,10 @@ class EncounterManager
 
     enc_cards = []
     enc_ids = []
+
     e_layer.each do |enc_id|
       enc_cards << card!(enc_id)
       enc_ids << enc_id
-
     end
 
     $files.save_data["map_choices"] = enc_ids
@@ -71,12 +75,32 @@ class EncounterManager
     @choices
   end
 
-  def rand_encounter?
-    e = @encounters_pool.keys.sample
-    while @encounters_pool[e].chance == 0
-      e = @encounters_pool.keys.sample
-    end
+  def rand_encounter?(layer = nil)
+    # only pick from those with chance > 0
+    available = @encounters_pool
+                  .select { |id, data| data.chance > 0 }
+                  .keys
 
-    e
+    if layer
+      # subtract out any we've already used this layer
+      candidates = available - @unique_encounters[layer]
+      raise "No more unique encounters for layer #{layer}" if candidates.empty?
+
+      pick = weighted_sample(candidates)
+      @unique_encounters[layer] << pick
+      pick
+    else
+      weighted_sample(available)
+    end
+  end
+
+  def weighted_sample(ids)
+    total = ids.sum { |id| @encounters_pool[id][:chance] }
+    target = rand * total
+    ids.each do |id|
+      w = @encounters_pool[id][:chance]
+      return id if target < w
+      target -= w
+    end
   end
 end

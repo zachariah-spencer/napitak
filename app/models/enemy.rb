@@ -1,16 +1,28 @@
 class Enemy
   attr_gtk
-  attr :hp, :max_hp, :turn_start_timer, :attacked, :attacks, :attacked, :my_turn, :turn_ended_signal, :combat_stats
+  attr :hp, :max_hp, :turn_start_timer, :attacked, :attacks, :attacked, :my_turn, :turn_ended_signal, :combat_stats, :sprite, :name
 
-  def initialize(hp)
+  def initialize()
     $enemy = self
-
     @turn_start_timer = 0
     @attacked = false
-    @combat_stats = CombatStatsComponent.new(hp: hp, focus: 0, x: GTK.args.grid.w / 2, y: GTK.args.grid.h - 60)
+    @combat_stats = nil
     @my_turn = false
     @turn_ended_signal = false
+    @sprite = nil
+    @name = nil
 
+    @floating_seed = Numeric.rand(0.0..100.0)
+
+    
+    @ang = 0
+    @fx = GTK.args.grid.w / 2 - 100
+    @fy = GTK.args.grid.h - 250
+    @x = @fx
+    @y = @fy
+    @fang = 0
+    
+    
     @attacks = {
       70 => {
         name: "Basic Attack",
@@ -32,7 +44,6 @@ class Enemy
 
   def attack
     attack = select_attack
-    puts attack
     $animation_manager.queue_animation(attack[:attack_id], lock_input: true)
     $player.combat_stats.hurt(attack[:damage])
     @attacked = true
@@ -52,7 +63,6 @@ class Enemy
       attack = @attacks[att_probs[2]]
     end
 
-    puts attack
     attack
   end
 
@@ -74,6 +84,8 @@ class Enemy
     if @my_turn and not @combat_stats.dead
       calc
     end
+
+    calc_float
   end
 
   def calc
@@ -82,6 +94,26 @@ class Enemy
     end
 
     calc_end_turn
+  end
+
+  def calc_float
+    if @my_turn and @turn_start_timer.elapsed_time < 0.85.seconds
+    # if @turn_start_timer.elapsed_time > 1.seconds or @turn_start_timer = 0
+      @fx = @fx + (Math.cos(@floating_seed + Kernel.tick_count * 0.85) * 5)
+    elsif @my_turn and @turn_start_timer.elapsed_time == 0.85.seconds
+      @fy = @fy - 500
+    elsif @my_turn and @turn_start_timer.elapsed_time == 1.0.seconds
+      @fx = GTK.args.grid.w / 2 - 100
+      @fy = GTK.args.grid.h - 250
+    else
+      @fx = @fx + (Math.cos(@floating_seed + Kernel.tick_count * 0.01) * 0.15)
+      @fy = @fy + (Math.sin(@floating_seed + Kernel.tick_count * 0.01) * 0.15)
+    end
+    @fang = Math.sin(@floating_seed + Kernel.tick_count * 0.005) * 2
+
+    @x = @x.lerp @fx, 0.2
+    @y = @y.lerp @fy, 0.2
+    @ang = @ang.lerp @fang, 0.2
   end
 
   def turn_over?
@@ -110,11 +142,12 @@ class Enemy
   def prefab
     if not @combat_stats.dead
       enemy_sprite ||= {
-        x: GTK.args.grid.w / 2 - 100,
-        y: GTK.args.grid.h - 250,
+        x: @x,
+        y: @y,
+        angle: @ang,
         w: 200,
         h: 200,
-        path: "sprites/wolf.png",
+        path: @sprite,
         primitive_marker: :sprite
       }
 

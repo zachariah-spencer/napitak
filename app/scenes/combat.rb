@@ -2,8 +2,11 @@ class Combat
   attr_gtk
   attr :sc_id
 
-  def initialize
+  def initialize(enemy = nil)
     @sc_id = "combat"
+
+    $files.save_data["current_enemy"] = enemy if enemy
+
     @turn_stages = {
       drawing_cards: 0,
       playing_hand: 1,
@@ -16,7 +19,7 @@ class Combat
     @turn_stage = nil
     @turn_num = -1
     @player = $player
-    @enemy = Enemy.new(10)
+    @enemy = Object.const_get($files.save_data["current_enemy"].capitalize).new
     @banner_alpha = 0
     @defeat_banner_timer = nil
     @victory_banner_timer = nil
@@ -134,6 +137,18 @@ class Combat
         primitive_marker: :label
       }
 
+      player_ward_label ||= {
+        x: 100,
+        y: GTK.args.grid.h - 315,
+        alignment_enum: 1,
+        size_enum: 8,
+        r: 255,
+        g: 255,
+        b: 0,
+        text: "#{@player.combat_stats.statuses[$STATUS_TYPES["WARD"]]}",
+        primitive_marker: :label
+      }
+
       player_focus_label_header ||= {
         x: 100,
         y: GTK.args.grid.h - 125,
@@ -166,6 +181,8 @@ class Combat
         player_focus_label_header,
         player_focus_label
       ]
+
+      l1 << player_ward_label if @player.combat_stats.statuses[$STATUS_TYPES["WARD"]] > 0
       return l1
     when 2
       deck_sprite ||= {
@@ -521,6 +538,11 @@ class Combat
           .traits
           .find { |h| h.key?($traits[:damage]) }
           &.[]($traits[:damage])
+      mend_trait =
+        potion_info
+          .traits
+          .find { |h| h.key?($traits[:mend]) }
+          &.[]($traits[:mend])
       restoration_trait =
         potion_info
           .traits
@@ -551,10 +573,9 @@ class Combat
 
       if damage_trait
         @enemy.combat_stats.hurt(damage_trait)
-        # @enemy.combat_stats.apply_status(type: "SCORCH", stacks: 3)
         status_label(
           (GTK.args.grid.w / 2),
-          (GTK.args.grid.h - 250),
+          (GTK.args.grid.h - 200),
           "#{damage_trait}",
           255,
           165,
@@ -564,17 +585,12 @@ class Combat
         end_combat if @enemy.combat_stats.dead
       end
       
+      if mend_trait
+        @player.combat_stats.heal(mend_trait)
+      end
+
       if restoration_trait
-        @player.combat_stats.heal(restoration_trait)
-        status_label(
-          80,
-          (GTK.args.grid.h - 275),
-          "#{restoration_trait}",
-          0,
-          255,
-          0,
-          100
-        )
+        @player.combat_stats.apply_status(type: "RESTORATION", stacks: restoration_trait)
       end
 
       if scorch_trait

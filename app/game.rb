@@ -69,7 +69,7 @@ class Game
     change_scene(prev_sc: "", next_sc: "map")
   end
 
-  def change_scene(prev_sc:, next_sc:)
+  def change_scene(prev_sc:, next_sc:, args: [])
     @scene_ref.cleanup if prev_sc != ""
     @scene = next_sc
 
@@ -81,7 +81,7 @@ class Game
 
     case @scene
     when "combat"
-      @scene_ref = Combat.new()
+      @scene_ref = Combat.new(args[0])
     when "alchemy_table"
       @scene_ref = AlchemyTable.new(max_uses: 3)
     when "alchemy_lab"

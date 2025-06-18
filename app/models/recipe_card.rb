@@ -291,15 +291,15 @@ class RecipeCard
       b: 255,
       size_enum: 1
       }
+      puts @potencies
 
-      @potencies.each do |trait|
-        trait.each_with_index do |(trait_id, potency_val), idx|
-          color = trait_color?(trait_id)
+      @potencies.each_with_index do |trait, i|
+      trait.each do |trait_id, potency_val|
+        color = trait_color?(trait_id)
 
-          args.outputs[@card_composite_tooltip_ref].primitives << 
-          # will need to be fixed later to work with list of potencies using index
-          {
-          x: @w * 2 - 60,
+        start_x = @w * 2 - 50 - ((@potencies.size * 17.5) / 2)
+        args.outputs[@card_composite_tooltip_ref].primitives << {
+          x: start_x + (i * 25),
           y: 35,
           text: "#{potency_val.to_s}",
           anchor_x: 0.5,
@@ -308,9 +308,9 @@ class RecipeCard
           g: color.g,
           b: color.b,
           size_enum: 1
-          }
-        end
+        }
       end
+    end
       
 
       args.outputs[@card_composite_tooltip_ref].primitives << 
@@ -353,17 +353,19 @@ class RecipeCard
   def trait_color?(trait)
     case trait
     when $traits[:damage]
-      {
-        r: 255,
-        g: 0,
-        b: 0,
-      }
+      { r: 255, g: 0, b: 0 }
     when $traits[:restoration]
-      {
-        r: 0,
-        g: 255,
-        b: 0,
-      }
+      { r: 0, g: 255, b: 0 }
+    when $traits[:blight]
+      {r: 120, g: 150, b: 60}
+    when $traits[:scorch]
+      {r: 255, g: 100, b: 0}
+    when $traits[:frost]
+      {r: 0, g: 255, b: 255}
+    when $traits[:ward]
+      {r: 255, g: 255, b: 0}
+    when $traits[:mend]
+      {r: 0, g: 150, b: 0}
     end
   end
 end
