@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class EncounterCard
+class EncounterCard < Card
   attr :f_pos, :selected, :fw
 
   def initialize(id)

@@ -1,5 +1,5 @@
 # frozen_string_literal: true
-class RecipeCard
+class RecipeCard < Card
   attr_gtk
   attr :hovered, :pos, :page
 
