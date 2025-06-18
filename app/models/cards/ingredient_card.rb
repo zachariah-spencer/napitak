@@ -1,12 +1,9 @@
 # frozen_string_literal: true
 
 class IngredientCard < Card
-
   def calc_position(num_cards, index)
-    # x_s = ( GTK.args.grid.w / 2) - ( num_cards * ( ( @w + @padding ) / 2 ) )
     if !@grabbed
       if @selected
-        # FIXME: Perform selected card lineup for crafting
         @fw = 200
         @fh = 200
       else

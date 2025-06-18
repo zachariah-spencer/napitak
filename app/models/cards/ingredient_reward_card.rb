@@ -24,4 +24,17 @@ class IngredientRewardCard < Card
     $player.ingredients.add(GameUtils.gen_new_card(@id))
     @needs_removed = true
   end
+
+  def prefab
+    card_sprite = {
+      x: @pos.x,
+      y: @pos.y,
+      w: @w,
+      h: @h,
+      angle: @angle,
+      path: @card_composite_sprite_ref,
+      primitive_marker: :sprite
+    }
+    return card_sprite
+  end
 end

@@ -324,12 +324,14 @@ class Card
   end
 
   def interpolate_attributes
+    return if @grabbed
+
     @pos.x = @pos.x.lerp @f_pos.x, 0.2
     @pos.y = @pos.y.lerp @f_pos.y, 0.2
     @w = @w.lerp @fw, 0.2
     @h = @h.lerp @fh, 0.2
     @angle = @angle.lerp @f_angle, 0.2
-    @tt_a = @tt_a.lerp(@tt_f_a, 0.2) if defined?(@tt_a) && defined?(@tt_f_a)
+    @tt_a = @tt_a.lerp(@tt_f_a, 0.2) if @tt_a && @tt_f_a
   end
 
   def trait_color?(trait)
