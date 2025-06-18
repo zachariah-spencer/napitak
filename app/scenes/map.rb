@@ -1,5 +1,3 @@
-require "app/services/encounter_manager"
-
 class Map
   attr_gtk
   attr :sc_id
@@ -18,15 +16,30 @@ class Map
     end
 
     if @encounter_manager.encounters_completed? == 0 and $tutorials
-      @tutorials = InfoBoxChain.new(
-        [
-        { x:  GTK.args.grid.w / 2 - 150, y: 500, width:300, height:80, text:"Welcome, alchemist!", duration:90 },
-        { x: GTK.args.grid.w / 2 - 400, y: 500, width:800, height:80, text:"Click the card to enter your Laboratory!",   duration:90 },
-        ]
-      )
+      @tutorials =
+        InfoBoxChain.new(
+          [
+            {
+              x: GTK.args.grid.w / 2 - 150,
+              y: 500,
+              width: 300,
+              height: 80,
+              text: "Welcome, alchemist!",
+              duration: 90
+            },
+            {
+              x: GTK.args.grid.w / 2 - 400,
+              y: 500,
+              width: 800,
+              height: 80,
+              text: "Click the card to enter your Laboratory!",
+              duration: 90
+            }
+          ]
+        )
     end
   end
-  
+
   def tick
     @choices.each do |c|
       c.tick
@@ -35,15 +48,12 @@ class Map
         @tutorials&.cancel if @tutorials
         if $encounters[clicked[:id]].is_combat
           $game.change_scene(
-          prev_sc: "map",
-          next_sc: "combat",
-          args: [clicked[:id]]
+            prev_sc: "map",
+            next_sc: "combat",
+            args: [clicked[:id]]
           )
         else
-          $game.change_scene(
-          prev_sc: "map",
-          next_sc: clicked[:id],
-          )
+          $game.change_scene(prev_sc: "map", next_sc: clicked[:id])
         end
       end
     end
@@ -133,8 +143,6 @@ class Map
       l2 << [encounter_label, choice_cards]
       l2
     when 3
-
-
       l3 << []
       l3
     when 4

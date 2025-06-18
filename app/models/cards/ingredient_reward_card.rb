@@ -1,6 +1,4 @@
 # frozen_string_literal: true
-require_relative "card.rb"
-
 class IngredientRewardCard < Card
   def calc_position(num_cards, index)
     x_s = (GTK.args.grid.w / 2) - (num_cards * ((@w + @padding + 100) / 2))

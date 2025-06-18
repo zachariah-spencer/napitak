@@ -1,5 +1,4 @@
 # frozen_string_literal: true
-require "app/models/scroll_list_widget"
 
 class AlchemyTable
   attr_gtk

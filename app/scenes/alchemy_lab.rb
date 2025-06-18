@@ -1,8 +1,5 @@
 # frozen_string_literal: true
 
-require "app/models/scroll_list_widget_h"
-require "app/models/scroll_list_widget"
-
 class AlchemyLab
   attr_gtk
   attr :sc_id
