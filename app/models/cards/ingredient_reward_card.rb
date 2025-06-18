@@ -16,11 +16,7 @@ class IngredientRewardCard < Card
       @f_angle = Math.sin(@floating_seed + Kernel.tick_count * 0.01) * 2
     end
 
-    @pos.x = @pos.x.lerp @f_pos.x, 0.2
-    @pos.y = @pos.y.lerp @f_pos.y, 0.2
-    @w = @w.lerp @fw, 0.2
-    @h = @h.lerp @fh, 0.2
-    @angle = @angle.lerp @f_angle, 0.2
+    super
   end
 
   def use()
