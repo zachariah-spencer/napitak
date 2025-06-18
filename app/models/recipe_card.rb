@@ -1,9 +1,10 @@
+# frozen_string_literal: true
 class RecipeCard
   attr_gtk
   attr :hovered, :pos, :page
 
   def initialize(x:, y:, w:, h:, id:, page: -1)
-    @entity_id = new_id?
+    @entity_id = GameUtils.new_id?
     @floating_seed = Numeric.rand(0.0..100.0)
 
     @id = id
@@ -24,9 +25,9 @@ class RecipeCard
     @hovered_h = h * 1.25
     @normal_w = w
     @normal_h = h
-    
+
     # Setup for potion data
-    if is_potion(@id)
+    if GameUtils.is_potion(@id)
       @name = $pids[id].name
       @desc = $pids[id].desc
       @fc = $pids[id].fc
@@ -39,8 +40,8 @@ class RecipeCard
       $pids[id].ingredients.keys.each do |iid|
         @ingredient_images << $iids[iid].path
       end
-    
-    # Setup for ingredient data
+
+      # Setup for ingredient data
     else
       @name = $iids[id].name
       @desc = nil
@@ -112,16 +113,15 @@ class RecipeCard
       path: @card_composite_tooltip_ref,
       primitive_marker: :sprite
     }
-    return [ card_sprite, tt_sprite ]
+    return card_sprite, tt_sprite
   end
 
   def calc_sprite_updates
     if not @hovered
-        @f_pos.y =
-          @f_pos.y +
-            (Math.sin(@floating_seed + Kernel.tick_count * 0.03) * 0.05)
-        @f_angle = Math.sin(@floating_seed + Kernel.tick_count * 0.005) * 2
-      end
+      @f_pos.y =
+        @f_pos.y + (Math.sin(@floating_seed + Kernel.tick_count * 0.03) * 0.05)
+      @f_angle = Math.sin(@floating_seed + Kernel.tick_count * 0.005) * 2
+    end
 
     @pos.x = @pos.x.lerp @f_pos.x, 0.2
     @pos.y = @pos.y.lerp @f_pos.y, 0.2
@@ -178,9 +178,7 @@ class RecipeCard
       primitive_marker: :sprite
     }
 
-    if @hovered
-      render_tooltip(args)
-    end
+    render_tooltip(args) if @hovered
   end
 
   def render_tooltip(args)
@@ -196,20 +194,22 @@ class RecipeCard
       g: 20,
       b: 40,
       a: 180,
-      primitive_marker: :solid,
+      primitive_marker: :solid
     }
     parsed_name = String.wrapped_lines @name, 15
-    args.outputs[@card_composite_tooltip_ref].primitives << parsed_name.map_with_index do |s, i| 
+    args.outputs[
+      @card_composite_tooltip_ref
+    ].primitives << parsed_name.map_with_index do |s, i|
       {
-      x: @w,
-      y: @h * 2 - 80,
-      text: "#{s}",
-      anchor_x: 0.5,
-      anchor_y: i,
-      r: 255,
-      g: 255,
-      b: 255,
-      size_enum: 10
+        x: @w,
+        y: @h * 2 - 80,
+        text: "#{s}",
+        anchor_x: 0.5,
+        anchor_y: i,
+        r: 255,
+        g: 255,
+        b: 255,
+        size_enum: 10
       }
     end
 
@@ -236,25 +236,26 @@ class RecipeCard
       end
     end
 
-    if is_potion(@id)
+    if GameUtils.is_potion(@id)
       parsed_description = String.wrapped_lines @desc, 25
       # add a label in the center of the render target
-      args.outputs[@card_composite_tooltip_ref].primitives << parsed_description.map_with_index do |s, i| 
+      args.outputs[
+        @card_composite_tooltip_ref
+      ].primitives << parsed_description.map_with_index do |s, i|
         {
-        x: @w,
-        y: @h,
-        text: "#{s}",
-        anchor_x: 0.5,
-        anchor_y: i,
-        r: 255,
-        g: 255,
-        b: 255,
-        size_enum: 5
+          x: @w,
+          y: @h,
+          text: "#{s}",
+          anchor_x: 0.5,
+          anchor_y: i,
+          r: 255,
+          g: 255,
+          b: 255,
+          size_enum: 5
         }
       end
 
-      args.outputs[@card_composite_tooltip_ref].primitives << 
-        {
+      args.outputs[@card_composite_tooltip_ref].primitives << {
         x: 55,
         y: 65,
         text: "Focus",
@@ -264,10 +265,9 @@ class RecipeCard
         g: 255,
         b: 255,
         size_enum: 1
-        }
+      }
 
-      args.outputs[@card_composite_tooltip_ref].primitives << 
-        {
+      args.outputs[@card_composite_tooltip_ref].primitives << {
         x: 55,
         y: 35,
         text: "#{@fc}",
@@ -277,66 +277,62 @@ class RecipeCard
         g: 255,
         b: 255,
         size_enum: 1
-        }
+      }
 
-      args.outputs[@card_composite_tooltip_ref].primitives << 
-      {
-      x: @w * 2 - 60,
-      y: 65,
-      text: "Potencies",
-      anchor_x: 0.5,
-      anchor_y: 0.5,
-      r: 255,
-      g: 255,
-      b: 255,
-      size_enum: 1
+      args.outputs[@card_composite_tooltip_ref].primitives << {
+        x: @w * 2 - 60,
+        y: 65,
+        text: "Potencies",
+        anchor_x: 0.5,
+        anchor_y: 0.5,
+        r: 255,
+        g: 255,
+        b: 255,
+        size_enum: 1
       }
       puts @potencies
 
       @potencies.each_with_index do |trait, i|
-      trait.each do |trait_id, potency_val|
-        color = trait_color?(trait_id)
+        trait.each do |trait_id, potency_val|
+          color = trait_color?(trait_id)
 
-        start_x = @w * 2 - 50 - ((@potencies.size * 17.5) / 2)
-        args.outputs[@card_composite_tooltip_ref].primitives << {
-          x: start_x + (i * 25),
-          y: 35,
-          text: "#{potency_val.to_s}",
-          anchor_x: 0.5,
-          anchor_y: 0.5,
-          r: color.r,
-          g: color.g,
-          b: color.b,
-          size_enum: 1
-        }
+          start_x = @w * 2 - 50 - ((@potencies.size * 17.5) / 2)
+          args.outputs[@card_composite_tooltip_ref].primitives << {
+            x: start_x + (i * 25),
+            y: 35,
+            text: "#{potency_val.to_s}",
+            anchor_x: 0.5,
+            anchor_y: 0.5,
+            r: color.r,
+            g: color.g,
+            b: color.b,
+            size_enum: 1
+          }
+        end
       end
-    end
-      
 
-      args.outputs[@card_composite_tooltip_ref].primitives << 
-      {
-      x: @w,
-      y: 65,
-      text: "Charges",
-      anchor_x: 0.5,
-      anchor_y: 0.5,
-      r: 255,
-      g: 255,
-      b: 255,
-      size_enum: 1
+      args.outputs[@card_composite_tooltip_ref].primitives << {
+        x: @w,
+        y: 65,
+        text: "Charges",
+        anchor_x: 0.5,
+        anchor_y: 0.5,
+        r: 255,
+        g: 255,
+        b: 255,
+        size_enum: 1
       }
 
-      args.outputs[@card_composite_tooltip_ref].primitives << 
-      {
-      x: @w,
-      y: 35,
-      text: "#{@max_uses}",
-      anchor_x: 0.5,
-      anchor_y: 0.5,
-      r: 255,
-      g: 255,
-      b: 255,
-      size_enum: 1
+      args.outputs[@card_composite_tooltip_ref].primitives << {
+        x: @w,
+        y: 35,
+        text: "#{@max_uses}",
+        anchor_x: 0.5,
+        anchor_y: 0.5,
+        r: 255,
+        g: 255,
+        b: 255,
+        size_enum: 1
       }
     end
 
@@ -357,15 +353,15 @@ class RecipeCard
     when $traits[:restoration]
       { r: 0, g: 255, b: 0 }
     when $traits[:blight]
-      {r: 120, g: 150, b: 60}
+      { r: 120, g: 150, b: 60 }
     when $traits[:scorch]
-      {r: 255, g: 100, b: 0}
+      { r: 255, g: 100, b: 0 }
     when $traits[:frost]
-      {r: 0, g: 255, b: 255}
+      { r: 0, g: 255, b: 255 }
     when $traits[:ward]
-      {r: 255, g: 255, b: 0}
+      { r: 255, g: 255, b: 0 }
     when $traits[:mend]
-      {r: 0, g: 150, b: 0}
+      { r: 0, g: 150, b: 0 }
     end
   end
 end

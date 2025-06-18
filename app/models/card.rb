@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class Card
   attr_accessor :grabbed,
                 :needs_removed,
@@ -174,7 +176,7 @@ class Card
       primitive_marker: :sprite
     }
 
-    render_tooltip(args) if is_potion(self.id) and @hovered
+    render_tooltip(args) if GameUtils.is_potion(self.id) && @hovered
   end
 
   def render_tooltip(args)
@@ -323,15 +325,15 @@ class Card
     when $traits[:restoration]
       { r: 0, g: 255, b: 0 }
     when $traits[:blight]
-      {r: 120, g: 150, b: 60}
+      { r: 120, g: 150, b: 60 }
     when $traits[:scorch]
-      {r: 255, g: 100, b: 0}
+      { r: 255, g: 100, b: 0 }
     when $traits[:frost]
-      {r: 0, g: 255, b: 255}
+      { r: 0, g: 255, b: 255 }
     when $traits[:ward]
-      {r: 255, g: 255, b: 0}
+      { r: 255, g: 255, b: 0 }
     when $traits[:mend]
-      {r: 0, g: 150, b: 0}
+      { r: 0, g: 150, b: 0 }
     end
   end
 

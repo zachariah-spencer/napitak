@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 require_relative "card.rb"
 
 class IngredientRewardCard < Card
@@ -13,8 +14,7 @@ class IngredientRewardCard < Card
       @fw = 225
       @fh = 225
       @f_pos.y =
-        @f_pos.y +
-          (Math.sin(@floating_seed + Kernel.tick_count * 0.01) * 0.15)
+        @f_pos.y + (Math.sin(@floating_seed + Kernel.tick_count * 0.01) * 0.15)
       @f_angle = Math.sin(@floating_seed + Kernel.tick_count * 0.01) * 2
     end
 
@@ -27,7 +27,7 @@ class IngredientRewardCard < Card
 
   def use()
     puts "ADDED #{@id} TO PLAYER INVENTORY"
-    $player.ingredients.add(gen_new_card(@id))
+    $player.ingredients.add(GameUtils.gen_new_card(@id))
     @needs_removed = true
   end
 end

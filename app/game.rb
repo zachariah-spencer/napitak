@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class Game
   attr_gtk
   attr :tutorials
@@ -31,7 +33,7 @@ class Game
         @player.potions.add(
           PotionCard.new(
             id,
-            new_id?,
+            GameUtils.new_id?,
             $pids[id].name,
             $pids[id].fc,
             $pids[id].path,
@@ -45,7 +47,13 @@ class Game
     if $files.save_data["player"]["ingredients"]
       $files.save_data["player"]["ingredients"].each do |id|
         @player.ingredients.add(
-          IngredientCard.new(id, new_id?, $iids[id].name, -1, $iids[id].path)
+          IngredientCard.new(
+            id,
+            GameUtils.new_id?,
+            $iids[id].name,
+            -1,
+            $iids[id].path
+          )
         )
       end
     end
@@ -53,12 +61,7 @@ class Game
     is_mid_run = $files.save_data&.[]("mid_run")
     encounters_completed = $files.save_data&.[]("encounters_completed")
 
-    
-    if is_mid_run
-      change_scene(prev_sc: "", next_sc: @scene)
-    else
-      new_run
-    end
+    is_mid_run ? change_scene(prev_sc: "", next_sc: @scene) : new_run
   end
 
   # reset vars for new run
@@ -137,7 +140,8 @@ class Game
     calc_particles
 
     # puts $files.save_data to file
-    if (GTK.quit_requested? and not @autosaved) or GTK.args.inputs.keyboard.key_down.l
+    if (GTK.quit_requested? and not @autosaved) or
+         GTK.args.inputs.keyboard.key_down.l
       $files.write
       puts "WRITING SAVE DATA TO FILE"
     end
@@ -194,8 +198,7 @@ class Game
     # texture that's already been created for us
     return @created_prefabs[number] if @created_prefabs[number]
     path = number.to_s
-    
-    
+
     # if it hasn't been created, then create a RT with the name equal to
     # to the number. add it to the lookup of created_prefabs
     @created_prefabs[number] = path

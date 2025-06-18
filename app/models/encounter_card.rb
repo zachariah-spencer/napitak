@@ -1,14 +1,15 @@
+# frozen_string_literal: true
+
 class EncounterCard
   attr :f_pos, :selected, :fw
 
   def initialize(id)
-    ent_id = get_rand_id
-    @entity_id = ent_id
+    @entity_id = GameUtils.new_id?
 
     @id = id
     @name = $encounters[id].name
     @img = $encounters[id].path
-    
+
     @floating_seed = Numeric.rand(0.0..100.0)
 
     @w = 160
@@ -23,8 +24,8 @@ class EncounterCard
     @f_angle = 0
 
     @card_back_img = "sprites/card-back-purple.png"
-    
-    @card_composite_sprite_ref = :"card_composite_#{ent_id}"
+
+    @card_composite_sprite_ref = :"card_composite_#{@entity_id}"
 
     @r = 150 # Numeric.rand(100..200)
     @g = 150 # Numeric.rand(50..100)
@@ -40,7 +41,7 @@ class EncounterCard
   def tick
     calc_hover
     calc_click
-    calc_position(-1,-1)
+    calc_position(-1, -1)
   end
 
   def calc_hover
@@ -48,9 +49,12 @@ class EncounterCard
   end
 
   def calc_click
-    if (Geometry.intersect_rect?(GTK.args.inputs.mouse, rect) and GTK.args.inputs.mouse.click)
+    if (
+         Geometry.intersect_rect?(GTK.args.inputs.mouse, rect) and
+           GTK.args.inputs.mouse.click
+       )
       puts "#{@entity_id} || #{@name} : was clicked"
-      @selected = {id: @id, data: $encounters[@id]}
+      @selected = { id: @id, data: $encounters[@id] }
     end
   end
 
@@ -77,17 +81,16 @@ class EncounterCard
   end
 
   def calc_position(num_cards, index)
-      if @hovered
-        @fw = 250
-        @fh = 250
-      else
-        @fw = 225
-        @fh = 225
-        @f_pos.y =
-          @f_pos.y +
-            (Math.sin(@floating_seed + Kernel.tick_count * 0.01) * 0.15)
-        @f_angle = Math.sin(@floating_seed + Kernel.tick_count * 0.005) * 2
-      end
+    if @hovered
+      @fw = 250
+      @fh = 250
+    else
+      @fw = 225
+      @fh = 225
+      @f_pos.y =
+        @f_pos.y + (Math.sin(@floating_seed + Kernel.tick_count * 0.01) * 0.15)
+      @f_angle = Math.sin(@floating_seed + Kernel.tick_count * 0.005) * 2
+    end
 
     @pos.x = @pos.x.lerp @f_pos.x, 0.2
     @pos.y = @pos.y.lerp @f_pos.y, 0.2

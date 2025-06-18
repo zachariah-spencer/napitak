@@ -1,18 +1,28 @@
+# frozen_string_literal: true
+
 class CombatStatsComponent
   attr_gtk
-  attr :hp, :max_hp, :dead, :statuses, :status_types, :focus, :max_focus, :mod_max_focus, :ward
+  attr :hp,
+       :max_hp,
+       :dead,
+       :statuses,
+       :status_types,
+       :focus,
+       :max_focus,
+       :mod_max_focus,
+       :ward
 
-  def initialize(hp: 1, focus: 0, x: , y:)
+  def initialize(hp: 1, focus: 0, x:, y:)
     @statuses = {
       $STATUS_TYPES["SCORCH"] => 0,
       $STATUS_TYPES["BLIGHT"] => 0,
       $STATUS_TYPES["FROST"] => 0,
       $STATUS_TYPES["WARD"] => 0,
-      $STATUS_TYPES["RESTORATION"] => 0,
+      $STATUS_TYPES["RESTORATION"] => 0
     }
     @x = x
     @y = y
-    @entity_id = new_id?
+    @entity_id = GameUtils.new_id?
     @hp = hp
     @max_hp = hp
     @focus = focus
@@ -25,15 +35,7 @@ class CombatStatsComponent
   def heal(amt)
     @hp += amt
     @hp = @max_hp if @hp > @max_hp
-    status_label(
-      @x,
-      @y,
-      "#{amt}",
-      0,
-      255,
-      0,
-      100
-    )
+    GameUtils.status_label(@x, @y, "#{amt}", 0, 255, 0, 100)
   end
 
   def hurt(amt)
@@ -48,15 +50,7 @@ class CombatStatsComponent
       @hp = 0 if @hp < 0
     end
 
-    status_label(
-      @x,
-      @y,
-      "#{amt}",
-      255,
-      0,
-      0,
-      100
-    )
+    GameUtils.status_label(@x, @y, "#{amt}", 255, 0, 0, 100)
     @dead = true if dead?
   end
 
@@ -68,7 +62,7 @@ class CombatStatsComponent
       $STATUS_TYPES["BLIGHT"] => 0,
       $STATUS_TYPES["FROST"] => 0,
       $STATUS_TYPES["WARD"] => 0,
-      $STATUS_TYPES["RESTORATION"] => 0,
+      $STATUS_TYPES["RESTORATION"] => 0
     }
   end
 
@@ -76,7 +70,8 @@ class CombatStatsComponent
     @hp <= 0
   end
 
-  def tick; end
+  def tick
+  end
 
   # If is_turn is false then it is the end of round calc
   # TAKES A STRING
@@ -87,26 +82,31 @@ class CombatStatsComponent
 
     case type_enum
     when $STATUS_TYPES["SCORCH"]
-      
       if stacks > 0
         hurt(stacks)
         @statuses[$STATUS_TYPES["SCORCH"]] -= 1
-        status_label(@x, @y - 100, "-1", color[0], color[1], color[2], 80)
+        GameUtils.status_label(
+          @x,
+          @y - 100,
+          "-1",
+          color[0],
+          color[1],
+          color[2],
+          80
+        )
       end
     when $STATUS_TYPES["BLIGHT"]
-      if stacks > 0
-        hurt(stacks)
-      end
+      hurt(stacks) if stacks > 0
     when $STATUS_TYPES["FROST"]
       if stacks > 0
         @statuses[$STATUS_TYPES["FROST"]] -= 1
-        status_label(@x, @y, "-1", color[0], color[1], color[2], 80)
+        GameUtils.status_label(@x, @y, "-1", color[0], color[1], color[2], 80)
       end
     when $STATUS_TYPES["RESTORATION"]
       if stacks > 0
         heal(stacks)
         @statuses[$STATUS_TYPES["RESTORATION"]] -= 1
-        status_label(@x, @y, "-1", color[0], color[1], color[2], 80)
+        GameUtils.status_label(@x, @y, "-1", color[0], color[1], color[2], 80)
       end
     end
 
@@ -118,21 +118,29 @@ class CombatStatsComponent
   def apply_status(type:, stacks:)
     @statuses[$STATUS_TYPES[type]] += stacks
     color = status_color?($STATUS_TYPES[type])
-    status_label(@x, @y - 100, "+#{stacks}", color[0], color[1], color[2], 80)
+    GameUtils.status_label(
+      @x,
+      @y - 100,
+      "+#{stacks}",
+      color[0],
+      color[1],
+      color[2],
+      80
+    )
   end
 
   def status_color?(type_enum)
     case type_enum
     when $STATUS_TYPES["SCORCH"]
-      return [255, 100, 0]
+      return 255, 100, 0
     when $STATUS_TYPES["BLIGHT"]
-      return [120, 150, 60]
+      return 120, 150, 60
     when $STATUS_TYPES["FROST"]
-      return [0, 255, 255]
+      return 0, 255, 255
     when $STATUS_TYPES["WARD"]
-      return [255, 255, 0]
+      return 255, 255, 0
     when $STATUS_TYPES["RESTORATION"]
-      return [0, 255, 0]
+      return 0, 255, 0
     end
   end
 
@@ -154,11 +162,10 @@ class CombatStatsComponent
           g: color[1],
           b: color[2],
           path: "sprites/circle/white.png",
-          primitive_marker: :sprite,
+          primitive_marker: :sprite
         }
 
-        GTK.args.outputs[path] <<
-        {
+        GTK.args.outputs[path] << {
           x: 25,
           y: 25,
           anchor_x: 0.5,
@@ -170,7 +177,7 @@ class CombatStatsComponent
           g: 0,
           b: 0,
           a: 255,
-          primitive_marker: :label,
+          primitive_marker: :label
         }
 
         rt_paths << path

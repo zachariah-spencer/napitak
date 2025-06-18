@@ -1,7 +1,7 @@
+# frozen_string_literal: true
 require_relative "card.rb"
 
 class IngredientCard < Card
-
   def save_data?
     @id
   end

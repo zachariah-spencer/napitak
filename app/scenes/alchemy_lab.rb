@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "app/models/scroll_list_widget_h"
 require "app/models/scroll_list_widget"
 
@@ -16,11 +18,11 @@ class AlchemyLab
     @stored_ingredients = Inventory.new()
     @craftable_potion = nil
 
-    10.times.each { @stored_ingredients.add(gen_new_card("i001")) }
+    10.times.each { @stored_ingredients.add(GameUtils.gen_new_card("i001")) }
 
     50.times.each do
       random_ingredient_id = $iids.keys().sample()
-      random_ingredient_card = gen_new_card(random_ingredient_id)
+      random_ingredient_card = GameUtils.gen_new_card(random_ingredient_id)
       @stored_ingredients.add(random_ingredient_card)
     end
 
@@ -141,7 +143,9 @@ class AlchemyLab
     puts potions_save_data
 
     ingredients_save_data = []
-    @player.ingredients.all_cards.each { |c| ingredients_save_data << c.save_data? }
+    @player.ingredients.all_cards.each do |c|
+      ingredients_save_data << c.save_data?
+    end
 
     $files.save_data["player"]["potions"] = potions_save_data
     $files.save_data["player"]["ingredients"] = ingredients_save_data
@@ -159,7 +163,7 @@ class AlchemyLab
         )
       @selected_ingredients.clear
 
-      if is_potion(potion.id)
+      if GameUtils.is_potion(potion.id)
         @pot_menu_widget.add_item(potion)
       else
         @ing_menu_widget.add_item(potion)
@@ -761,10 +765,10 @@ class AlchemyLab
 
   def reorder_cards(latest_card)
     if @visible_ingredients.key?(latest_card.entity_id)
-      @visible_ingredients.back(latest_card.entity_id)
+      HashOrderUtils.back(@visible_ingredients, latest_card.entity_id)
     end
     if @selected_ingredients.key?(latest_card.entity_id)
-      @selected_ingredients.back(latest_card.entity_id)
+      HashOrderUtils.back(@selected_ingredients, latest_card.entity_id)
     end
   end
 end

@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 require "app/models/scroll_list_widget"
 
 class AlchemyTable
@@ -40,7 +41,9 @@ class AlchemyTable
     @player.potions.all_cards.each { |c| potions_save_data << c.save_data? }
 
     ingredients_save_data = []
-    @player.ingredients.all_cards.each { |c| ingredients_save_data << c.save_data? }
+    @player.ingredients.all_cards.each do |c|
+      ingredients_save_data << c.save_data?
+    end
 
     $files.save_data["player"]["potions"] = potions_save_data
     $files.save_data["player"]["ingredients"] = ingredients_save_data
@@ -51,7 +54,7 @@ class AlchemyTable
       potion = @recipe_book.craft(recipe_id)
       @selected_ingredients.clear
 
-      if is_potion(potion.id)
+      if GameUtils.is_potion(potion.id)
         @pot_menu_widget.add_item(potion)
       else
         @ing_menu_widget.add_item(potion)

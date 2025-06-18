@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class AnimationManager
   attr_gtk
   attr_accessor :player_ready_at
@@ -35,9 +37,19 @@ class AnimationManager
       @frame_started_at = Kernel.tick_count
       particles = @current[:data][:particle_frames][@current_frame_index]
       particles&.each do |p|
-        status_label(p[:x], p[:y], p[:text], p[:r], p[:g], p[:b], p[:scale])
+        GameUtils.status_label(
+          p[:x],
+          p[:y],
+          p[:text],
+          p[:r],
+          p[:g],
+          p[:b],
+          p[:scale]
+        )
       end
-      finish_current_animation if @current_frame_index >= @current[:data][:frames].length
+      if @current_frame_index >= @current[:data][:frames].length
+        finish_current_animation
+      end
     end
   end
 
@@ -45,7 +57,16 @@ class AnimationManager
     return [] unless @current
     frame_path = @current[:data][:frames][@current_frame_index]
     rect = @current[:data][:rect]
-    [{ x: rect.x, y: rect.y, w: rect.w, h: rect.h, path: frame_path, primitive_marker: :sprite }]
+    [
+      {
+        x: rect.x,
+        y: rect.y,
+        w: rect.w,
+        h: rect.h,
+        path: frame_path,
+        primitive_marker: :sprite
+      }
+    ]
   end
 
   private
@@ -57,9 +78,7 @@ class AnimationManager
   end
 
   def finish_current_animation
-    if @current[:lock_input]
-      @player_ready_at = Kernel.tick_count
-    end
+    @player_ready_at = Kernel.tick_count if @current[:lock_input]
     @current = nil
   end
 end

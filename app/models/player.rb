@@ -1,6 +1,17 @@
+# frozen_string_literal: true
+
 class Player
   attr_gtk
-  attr :ingredients, :potions, :focus, :max_focus, :hp, :max_hp, :stunned_turns, :hovered_cards, :died, :combat_stats
+  attr :ingredients,
+       :potions,
+       :focus,
+       :max_focus,
+       :hp,
+       :max_hp,
+       :stunned_turns,
+       :hovered_cards,
+       :died,
+       :combat_stats
 
   def initialize
     $player = self
@@ -40,7 +51,8 @@ class Player
 
   def begin_turn
     @my_turn = true
-    @combat_stats.mod_max_focus = @combat_stats.max_focus - @combat_stats.statuses[$STATUS_TYPES["FROST"]]
+    @combat_stats.mod_max_focus =
+      @combat_stats.max_focus - @combat_stats.statuses[$STATUS_TYPES["FROST"]]
     @combat_stats.mod_max_focus = 0 if @combat_stats.mod_max_focus < 0
     @combat_stats.focus = @combat_stats.mod_max_focus
     @combat_stats.calc_status(type: "RESTORATION")

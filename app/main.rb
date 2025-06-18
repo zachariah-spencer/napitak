@@ -1,6 +1,11 @@
+# frozen_string_literal: true
+
 require_relative "game"
 require_relative "globals"
 require_relative "json"
+
+require_relative "utils/game_utils"
+require_relative "utils/hash_order_utils"
 
 require_relative "models/enemy"
 require_relative "models/wolf"
@@ -31,27 +36,6 @@ require_relative "scenes/map"
 require_relative "scenes/pause_menu"
 require_relative "scenes/journal"
 require_relative "scenes/run_summary"
-
-class Hash
-  def front(key)
-    if !key?(key)
-      raise "Hash.front(key): key passed in as argument is not found in the hash"
-    end
-    value = delete(key)
-    # Build a new hash with the one pair first, then the rest:
-    replace({ key => value }.merge(self))
-    self
-  end
-
-  def back(key)
-    if !key?(key)
-      raise "Hash.back(key): key passed in as argument is not found in the hash"
-    end
-    value = delete(key)
-    self[key] = value
-    self
-  end
-end
 
 def tick(args)
   $files ||= Files.new

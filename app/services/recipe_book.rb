@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # RecipeBook manages available recipes and crafting logic.
 class RecipeBook
   attr_gtk
@@ -20,11 +22,11 @@ class RecipeBook
 
   # List all known recipe IDs
   def all_recipe_ids
-    @potion_defs.keys + craftable_ingredients?.keys
+    @potion_defs.keys + GameUtils.craftable_ingredients?.keys
   end
 
   def all_craftables
-    craftable_ingredients?.merge(@potion_defs)
+    GameUtils.craftable_ingredients?.merge(@potion_defs)
   end
 
   # Check if a player has unlocked a given recipe
@@ -35,7 +37,10 @@ class RecipeBook
 
   # Check if player has sufficient ingredients in their inventory to craft recipe
   # Player should have an ingredient inventory with `deck` responding to `count`
-  def can_craft?(recipe_id, ingredients_inventory: $player.ingredients.all_cards)
+  def can_craft?(
+    recipe_id,
+    ingredients_inventory: $player.ingredients.all_cards
+  )
     return false unless unlocked?(recipe_id)
     required = all_craftables[recipe_id][:ingredients]
 
@@ -63,10 +68,10 @@ class RecipeBook
     end
 
     # Instantiate the potion card (assumes gen_new_card utility exists)
-    card = gen_new_card(recipe_id)
+    card = GameUtils.gen_new_card(recipe_id)
     # Add to player's potion inventory
 
-    if is_potion(card.id)
+    if GameUtils.is_potion(card.id)
       $player.potions.add(card)
     else
       $player.ingredients.add(card)
