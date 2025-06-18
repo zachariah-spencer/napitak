@@ -573,16 +573,6 @@ class Combat
 
       if damage_trait
         @enemy.combat_stats.hurt(damage_trait)
-        status_label(
-          (GTK.args.grid.w / 2),
-          (GTK.args.grid.h - 200),
-          "#{damage_trait}",
-          255,
-          165,
-          0,
-          100
-        )
-        end_combat if @enemy.combat_stats.dead
       end
       
       if mend_trait
@@ -610,7 +600,7 @@ class Combat
       end
 
 
-
+      end_combat if @enemy.combat_stats.dead
       begin_turn_stage @turn_stages[:cleanup] if not actions_available?
     end
   end

@@ -11,18 +11,18 @@ class Wolf < Enemy
     @attacks = {
       70 => {
         name: "Basic Attack",
-        damage: 1,
         attack_id: "a001",
+        traits: [{$traits[:damage] => 1}]
       },
       20 => {
         name: "Power Attack",
-        damage: 2,
         attack_id: "a002",
+        traits: [{$traits[:damage] => 2}]
       },
       10 => {
         name: "Ultimate Attack",
-        damage: 4,
         attack_id: "a003",
+        traits: [{$traits[:damage] => 4}]
       }
     }
   end

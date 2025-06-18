@@ -23,30 +23,84 @@ class Enemy
     @fang = 0
     
     
-    @attacks = {
-      70 => {
-        name: "Basic Attack",
-        damage: 1,
-        attack_id: "a001",
-      },
-      20 => {
-        name: "Power Attack",
-        damage: 2,
-        attack_id: "a002",
-      },
-      10 => {
-        name: "Ultimate Attack",
-        damage: 4,
-        attack_id: "a003",
-      }
-    }
+    @attacks = {}
   end
 
   def attack
     attack = select_attack
     $animation_manager.queue_animation(attack[:attack_id], lock_input: true)
-    $player.combat_stats.hurt(attack[:damage])
+    handle_attack_effects(attack)
+    # $player.combat_stats.hurt(attack[:damage])
     @attacked = true
+  end
+
+  def handle_attack_effects(attack)
+    # handle potion card behavior
+    damage_trait =
+      attack
+        .traits
+        .find { |h| h.key?($traits[:damage]) }
+        &.[]($traits[:damage])
+    mend_trait =
+      attack
+        .traits
+        .find { |h| h.key?($traits[:mend]) }
+        &.[]($traits[:mend])
+    restoration_trait =
+      attack
+        .traits
+        .find { |h| h.key?($traits[:restoration]) }
+        &.[]($traits[:restoration])
+    scorch_trait =
+      attack
+        .traits
+        .find { |h| h.key?($traits[:scorch]) }
+        &.[]($traits[:scorch])
+    blight_trait =
+      attack
+        .traits
+        .find { |h| h.key?($traits[:blight]) }
+        &.[]($traits[:blight])
+    
+    frost_trait =
+      attack
+        .traits
+        .find { |h| h.key?($traits[:frost]) }
+        &.[]($traits[:frost])
+    
+    ward_trait =
+      attack
+        .traits
+        .find { |h| h.key?($traits[:ward]) }
+        &.[]($traits[:ward])
+
+    if damage_trait
+      $player.combat_stats.hurt(damage_trait)
+    end
+    
+    if mend_trait
+      @combat_stats.heal(mend_trait)
+    end
+
+    if restoration_trait
+      @combat_stats.apply_status(type: "RESTORATION", stacks: restoration_trait)
+    end
+
+    if scorch_trait
+      $player.combat_stats.apply_status(type: "SCORCH", stacks: scorch_trait)
+    end
+
+    if blight_trait
+      $player.combat_stats.apply_status(type: "BLIGHT", stacks: blight_trait)
+    end
+
+    if frost_trait
+      $player.combat_stats.apply_status(type: "FROST", stacks: frost_trait)
+    end
+
+    if ward_trait
+      @combat_stats.apply_status(type: "WARD", stacks: ward_trait)
+    end
   end
 
   def select_attack
@@ -133,6 +187,8 @@ class Enemy
     @attacked = false
     @my_turn = false
     @turn_ended_signal = true
+    @combat_stats.calc_status(type:"SCORCH")
+    $player.combat_stats.calc_status(type:"SCORCH")
   end
 
   def attack_completed?
