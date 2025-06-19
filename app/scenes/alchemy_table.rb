@@ -56,7 +56,10 @@ class AlchemyTable
       if GameUtils.is_potion(potion.id)
         @pot_menu_widget.add_item(potion)
       else
-        @ing_menu_widget.add_item(potion)
+        potion.f_pos.x = GTK.args.grid.w / 2 - (potion.w / 2)
+        potion.f_pos.y = GTK.args.grid.h / 2 - (potion.h / 2)
+        @visible_ingredients[potion.entity_id] = potion
+        @ingredients_on_screen.add(potion)
       end
 
       puts "CRAFTED #{potion.name}"
@@ -188,7 +191,7 @@ class AlchemyTable
         primitive_marker: :solid
       }
 
-      l1 << [left_panel, right_panel]
+      l1 << [left_panel, right_panel, @ing_menu_widget.render, @pot_menu_widget.render, ]
       l1
     when 2
       encounter_label ||= {
@@ -244,7 +247,7 @@ class AlchemyTable
         primitive_marker: :label
       }
 
-      l4 << [@ing_menu_widget.render, @pot_menu_widget.render, uses_left_label]
+      l4 << [uses_left_label]
       l4
     else
       # puts "combat.rb: Invalid Render Argument"
