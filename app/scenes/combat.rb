@@ -584,7 +584,7 @@ class Combat
           &.[]($traits[:ward])
 
       if damage_trait
-        @enemy.combat_stats.hurt(damage_trait)
+        @enemy.combat_stats.hurt(damage_trait[:amount], damage_trait[:type])
       end
       
       if mend_trait

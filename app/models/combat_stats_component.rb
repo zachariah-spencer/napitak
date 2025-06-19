@@ -12,7 +12,7 @@ class CombatStatsComponent
        :mod_max_focus,
        :ward
 
-  def initialize(hp: 1, focus: 0, x:, y:)
+  def initialize(x:, y:, hp: 1, focus: 0, resistances: [], vulnerabilities: [])
     @statuses = {
       $STATUS_TYPES["SCORCH"] => 0,
       $STATUS_TYPES["BLIGHT"] => 0,
@@ -20,6 +20,9 @@ class CombatStatsComponent
       $STATUS_TYPES["WARD"] => 0,
       $STATUS_TYPES["RESTORATION"] => 0
     }
+
+    @resistances = resistances
+    @vulnerabilities = vulnerabilities
     @x = x
     @y = y
     @entity_id = GameUtils.new_id?
@@ -38,19 +41,28 @@ class CombatStatsComponent
     GameUtils.status_label(@x, @y, "#{amt}", 0, 255, 0, 100)
   end
 
-  def hurt(amt)
-    remaining_damage = amt - @statuses[$STATUS_TYPES["WARD"]]
+  def hurt(amt, type)
+    vulnerable = @vulnerabilities.include?(type)
+    resistant = @resistances.include?(type)
+
+    mod_amt = amt
+    mod_amt = (amt * 1.5).ceil if vulnerable
+    mod_amt = (amt * 0.5).ceil if resistant
+
+    remaining_damage = mod_amt - (@statuses[$STATUS_TYPES["WARD"]] * 2)
 
     if remaining_damage <= 0
-      @statuses[$STATUS_TYPES["WARD"]] -= amt
+      @statuses[$STATUS_TYPES["WARD"]] -= mod_amt / 2
       return
     else
       @statuses[$STATUS_TYPES["WARD"]] = 0
-      @hp -= amt
+      @hp -= remaining_damage
       @hp = 0 if @hp < 0
     end
 
-    GameUtils.status_label(@x, @y, "#{amt}", 255, 0, 0, 100)
+    GameUtils.status_label(@x, @y, "#{mod_amt}", 255, 0, 0, 100)
+    GameUtils.status_label(@x, @y, "VULNERABLE", 255, 255, 255, 200) if vulnerable
+    GameUtils.status_label(@x, @y, "RESISTANT", 255, 255, 255, 200) if resistant
     @dead = true if dead?
   end
 
@@ -83,7 +95,7 @@ class CombatStatsComponent
     case type_enum
     when $STATUS_TYPES["SCORCH"]
       if stacks > 0
-        hurt(stacks)
+        hurt(stacks, $DAMAGE_TYPES[:heat])
         @statuses[$STATUS_TYPES["SCORCH"]] -= 1
         GameUtils.status_label(
           @x,
@@ -96,7 +108,7 @@ class CombatStatsComponent
         )
       end
     when $STATUS_TYPES["BLIGHT"]
-      hurt(stacks) if stacks > 0
+      hurt(stacks, $DAMAGE_TYPES[:disease]) if stacks > 0
     when $STATUS_TYPES["FROST"]
       if stacks > 0
         @statuses[$STATUS_TYPES["FROST"]] -= 1

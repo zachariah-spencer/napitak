@@ -271,23 +271,52 @@ class Card
       size_enum: 1
     }
 
+    damage_potency_val_x = 0
+    damage_trait = nil
     @potencies.each_with_index do |trait, i|
       trait.each do |trait_id, potency_val|
         color = trait_color?(trait_id)
-
         start_x = @w * 2 - 50 - ((@potencies.size * 17.5) / 2)
-        args.outputs[@card_composite_tooltip_ref].primitives << {
-          x: start_x + (i * 25),
-          y: 35,
-          text: "#{potency_val.to_s}",
-          anchor_x: 0.5,
-          anchor_y: 0.5,
-          r: color.r,
-          g: color.g,
-          b: color.b,
-          size_enum: 1
-        }
+
+        if trait_id == $traits[:damage]
+          damage_trait = potency_val
+          damage_potency_val_x = start_x + (i * 25)
+          args.outputs[@card_composite_tooltip_ref].primitives << {
+            x: damage_potency_val_x,
+            y: 35,
+            text: "#{potency_val.amount.to_s}",
+            anchor_x: 0.5,
+            anchor_y: 0.5,
+            r: color.r,
+            g: color.g,
+            b: color.b,
+            size_enum: 1
+          }
+        else
+          args.outputs[@card_composite_tooltip_ref].primitives << {
+            x: start_x + (i * 25),
+            y: 35,
+            text: "#{potency_val.to_s}",
+            anchor_x: 0.5,
+            anchor_y: 0.5,
+            r: color.r,
+            g: color.g,
+            b: color.b,
+            size_enum: 1
+          }
+        end
       end
+    end
+
+    if @potencies.each { |trait| trait.keys.include?($traits[:damage]) }
+      args.outputs[@card_composite_tooltip_ref].primitives << {
+        x: damage_potency_val_x - 5 - 15,
+        y: 35 - 5,
+        w: 10,
+        h: 10,
+        path: $DAMAGE_TYPE_SPRITES[damage_trait[:type]],
+        primitive_marker: :sprite,
+      }
     end
 
     args.outputs[@card_composite_tooltip_ref].primitives << {

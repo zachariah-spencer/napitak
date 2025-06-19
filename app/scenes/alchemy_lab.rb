@@ -51,94 +51,84 @@ class AlchemyLab
         uid: 2
       )
 
-    #@stored_ing_menu_widget =
-    #  ScrollListWidgetH.new(
-    #    items: @stored_ingredients.all_cards,
-    #    x: GTK.args.grid.w / 2 - 250,
-    #    y: 10,
-    #    w: 500,
-    #    h: 120,
-    #    uid: 3
-    #  )
-
-    if $encounter_manager.encounters_completed? == 0 and $tutorials
-      puts "RUN TUTORIAL"
-      @tutorials =
-        InfoBoxChain.new(
-          [
-            [
-              {
-                x: GTK.args.grid.w / 2 - 300,
-                y: 500,
-                width: 600,
-                height: 80,
-                text: "Within the laboratory you can",
-                duration: 180
-              },
-              {
-                x: GTK.args.grid.w / 2 - 300,
-                y: 420,
-                width: 600,
-                height: 80,
-                text: "combine ingredients with a",
-                duration: 180
-              },
-              {
-                x: GTK.args.grid.w / 2 - 300,
-                y: 340,
-                width: 600,
-                height: 80,
-                text: "bottle to craft powerful potions.",
-                duration: 180
-              }
-            ],
-            [
-              {
-                x: GTK.args.grid.w / 2 - 300,
-                y: 500,
-                width: 600,
-                height: 80,
-                text: "You can also pick up to 5",
-                duration: 180
-              },
-              {
-                x: GTK.args.grid.w / 2 - 300,
-                y: 420,
-                width: 600,
-                height: 80,
-                text: "ingredients to take with you.",
-                duration: 180
-              }
-            ],
-            [
-              {
-                x: GTK.args.grid.w / 2 - 300,
-                y: 500,
-                width: 600,
-                height: 80,
-                text: "Craft up to 10 potions for your",
-                duration: 180
-              },
-              {
-                x: GTK.args.grid.w / 2 - 300,
-                y: 420,
-                width: 600,
-                height: 80,
-                text: "deck before you start your",
-                duration: 180
-              },
-              {
-                x: GTK.args.grid.w / 2 - 300,
-                y: 340,
-                width: 600,
-                height: 80,
-                text: "journey into the wilderness.",
-                duration: 180
-              }
-            ]
-          ]
-        )
-    end
+    # if $encounter_manager.encounters_completed? == 0 and $tutorials
+    #   puts "RUN TUTORIAL"
+    #   @tutorials =
+    #     InfoBoxChain.new(
+    #       [
+    #         [
+    #           {
+    #             x: GTK.args.grid.w / 2 - 300,
+    #             y: 500,
+    #             width: 600,
+    #             height: 80,
+    #             text: "Within the laboratory you can",
+    #             duration: 180
+    #           },
+    #           {
+    #             x: GTK.args.grid.w / 2 - 300,
+    #             y: 420,
+    #             width: 600,
+    #             height: 80,
+    #             text: "combine ingredients with a",
+    #             duration: 180
+    #           },
+    #           {
+    #             x: GTK.args.grid.w / 2 - 300,
+    #             y: 340,
+    #             width: 600,
+    #             height: 80,
+    #             text: "bottle to craft powerful potions.",
+    #             duration: 180
+    #           }
+    #         ],
+    #         [
+    #           {
+    #             x: GTK.args.grid.w / 2 - 300,
+    #             y: 500,
+    #             width: 600,
+    #             height: 80,
+    #             text: "You can also pick up to 5",
+    #             duration: 180
+    #           },
+    #           {
+    #             x: GTK.args.grid.w / 2 - 300,
+    #             y: 420,
+    #             width: 600,
+    #             height: 80,
+    #             text: "ingredients to take with you.",
+    #             duration: 180
+    #           }
+    #         ],
+    #         [
+    #           {
+    #             x: GTK.args.grid.w / 2 - 300,
+    #             y: 500,
+    #             width: 600,
+    #             height: 80,
+    #             text: "Craft up to 10 potions for your",
+    #             duration: 180
+    #           },
+    #           {
+    #             x: GTK.args.grid.w / 2 - 300,
+    #             y: 420,
+    #             width: 600,
+    #             height: 80,
+    #             text: "deck before you start your",
+    #             duration: 180
+    #           },
+    #           {
+    #             x: GTK.args.grid.w / 2 - 300,
+    #             y: 340,
+    #             width: 600,
+    #             height: 80,
+    #             text: "journey into the wilderness.",
+    #             duration: 180
+    #           }
+    #         ]
+    #       ]
+    #     )
+    # end
   end
 
   def cleanup

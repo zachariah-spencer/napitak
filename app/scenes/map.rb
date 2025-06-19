@@ -15,29 +15,29 @@ class Map
       @choices = @encounter_manager.next_choices?
     end
 
-    if @encounter_manager.encounters_completed? == 0 and $tutorials
-      @tutorials =
-        InfoBoxChain.new(
-          [
-            {
-              x: GTK.args.grid.w / 2 - 150,
-              y: 500,
-              width: 300,
-              height: 80,
-              text: "Welcome, alchemist!",
-              duration: 90
-            },
-            {
-              x: GTK.args.grid.w / 2 - 400,
-              y: 500,
-              width: 800,
-              height: 80,
-              text: "Click the card to enter your Laboratory!",
-              duration: 90
-            }
-          ]
-        )
-    end
+    # if @encounter_manager.encounters_completed? == 0 and $tutorials
+    #   @tutorials =
+    #     InfoBoxChain.new(
+    #       [
+    #         {
+    #           x: GTK.args.grid.w / 2 - 150,
+    #           y: 500,
+    #           width: 300,
+    #           height: 80,
+    #           text: "Welcome, alchemist!",
+    #           duration: 90
+    #         },
+    #         {
+    #           x: GTK.args.grid.w / 2 - 400,
+    #           y: 500,
+    #           width: 800,
+    #           height: 80,
+    #           text: "Click the card to enter your Laboratory!",
+    #           duration: 90
+    #         }
+    #       ]
+    #     )
+    # end
   end
 
   def tick

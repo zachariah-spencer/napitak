@@ -75,7 +75,7 @@ class Enemy
         &.[]($traits[:ward])
 
     if damage_trait
-      $player.combat_stats.hurt(damage_trait)
+      $player.combat_stats.hurt(damage_trait[:amount], damage_trait[:type])
     end
     
     if mend_trait

@@ -11,13 +11,47 @@ module GameData
     mend: 6,
   }.freeze
   STATUS_TYPES = {
+    #FIXME: Refactor to symbols over strings eventually, idk why I did this like this?????
     "SCORCH" => 1,
     "BLIGHT" => 2,
     "FROST" => 3,
     "WARD" => 4,
-    "RESTORATION" => 5
+    "RESTORATION" => 5,
   }.freeze
-
+  DAMAGE_TYPES = {
+    force: 0,
+    heat: 1,
+    cold: 2,
+    light: 3,
+    dark: 4,
+    spark: 5,
+    disease: 6,
+  }.freeze
+  STATUS_EFFECT_COLORS = {
+    STATUS_TYPES["SCORCH"] => { r: 0, g: 0, b: 0, },
+    STATUS_TYPES["BLIGHT"] => { r: 0, g: 0, b: 0, },
+    STATUS_TYPES["FROST"] => { r: 0, g: 0, b: 0, },
+    STATUS_TYPES["WARD"] => { r: 0, g: 0, b: 0, },
+    STATUS_TYPES["RESTORATION"] => { r: 0, g: 0, b: 0, },
+  }.freeze
+  DAMAGE_TYPE_COLORS = {
+    DAMAGE_TYPES[:force] => { r: 0, g: 0, b: 0, },
+    DAMAGE_TYPES[:heat] => { r: 0, g: 0, b: 0, },
+    DAMAGE_TYPES[:cold] => { r: 0, g: 0, b: 0, },
+    DAMAGE_TYPES[:light] => { r: 0, g: 0, b: 0, },
+    DAMAGE_TYPES[:dark] => { r: 0, g: 0, b: 0, },
+    DAMAGE_TYPES[:spark] => { r: 0, g: 0, b: 0, },
+    DAMAGE_TYPES[:disease] => { r: 0, g: 0, b: 0, },
+  }.freeze
+  DAMAGE_TYPE_SPRITES = {
+    DAMAGE_TYPES[:force] => "sprites/square/indigo.png",
+    DAMAGE_TYPES[:heat] => "sprites/square/orange.png",
+    DAMAGE_TYPES[:cold] => "sprites/square/blue.png",
+    DAMAGE_TYPES[:light] => "sprites/square/white.png",
+    DAMAGE_TYPES[:dark] => "sprites/square/black.png",
+    DAMAGE_TYPES[:spark] => "sprites/square/yellow.png",
+    DAMAGE_TYPES[:disease] => "sprites/square/green.png",
+  }.freeze
   PIDS = {
     "p001" => {
       name: "Rock Potion",
@@ -29,7 +63,7 @@ module GameData
         "i001" => 1,
         "i004" => 2
       },
-      traits: [{ TRAITS[:damage] => 2 }, { TRAITS[:ward] => 6 }]
+      traits: [ {TRAITS[:damage] => { amount: 2, type: DAMAGE_TYPES[:force]}}, { TRAITS[:ward] => 6 } ]
     },
     "p002" => {
       name: "Fiery Potion",
@@ -41,7 +75,7 @@ module GameData
         "i001" => 1,
         "i003" => 2
       },
-      traits: [TRAITS[:scorch] => 3]
+      traits: [{TRAITS[:damage] => { amount: 2, type: DAMAGE_TYPES[:heat]}}]
     },
     "p003" => {
       name: "Ocean Potion",
@@ -65,10 +99,9 @@ module GameData
         "i001" => 1,
         "i005" => 2
       },
-      traits: [{ TRAITS[:damage] => 4 }, { TRAITS[:mend] => 2 }]
+      traits: [{TRAITS[:damage] => { amount: 4, type: DAMAGE_TYPES[:force]}}, { TRAITS[:mend] => 2 }]
     }
   }.freeze
-
   IIDS = {
     # BASEs
     "i001" => {
@@ -107,7 +140,6 @@ module GameData
       }
     },
   }.freeze
-
   ENCOUNTERS = {
     "alchemy_lab" => {
       name: "Laboratory",
@@ -134,7 +166,6 @@ module GameData
       chance: 2
     }
   }.freeze
-
   ANIMATIONS = {
     "a001" => {
       rect: {
@@ -201,6 +232,10 @@ end
 
 $traits = GameData::TRAITS
 $STATUS_TYPES = GameData::STATUS_TYPES
+$DAMAGE_TYPES = GameData::DAMAGE_TYPES
+$STATUS_EFFECT_COLORS = GameData::STATUS_EFFECT_COLORS
+$DAMAGE_TYPE_COLORS = GameData::DAMAGE_TYPE_COLORS
+$DAMAGE_TYPE_SPRITES = GameData::DAMAGE_TYPE_SPRITES
 $pids = GameData::PIDS
 $iids = GameData::IIDS
 $encounters = GameData::ENCOUNTERS
