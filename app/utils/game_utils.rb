@@ -9,6 +9,10 @@ module GameUtils
     $iids.select { |_id, ing| !ing.base }
   end
 
+  def self.base_ingredients?
+    $iids.select { |_id, ing| ing.base }
+  end
+
   def self.is_potion(item_id)
     item_id.start_with?("p")
   end

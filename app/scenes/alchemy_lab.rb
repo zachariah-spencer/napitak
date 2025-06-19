@@ -17,9 +17,9 @@ class AlchemyLab
 
     10.times.each { @stored_ingredients.add(GameUtils.gen_new_card("i001")) }
 
-    50.times.each do
-      random_ingredient_id = $iids.keys().sample()
-      random_ingredient_card = GameUtils.gen_new_card(random_ingredient_id)
+    150.times.each do
+      random_ingredient = @recipe_book.unlocked_bases.sample
+      random_ingredient_card = GameUtils.gen_new_card(random_ingredient)
       @stored_ingredients.add(random_ingredient_card)
     end
 
@@ -163,7 +163,10 @@ class AlchemyLab
       if GameUtils.is_potion(potion.id)
         @pot_menu_widget.add_item(potion)
       else
-        @ing_menu_widget.add_item(potion)
+        potion.f_pos.x = GTK.args.grid.w / 2 - (potion.w / 2)
+        potion.f_pos.y = GTK.args.grid.h / 2 - (potion.h / 2)
+        @visible_ingredients[potion.entity_id] = potion
+        @stored_ingredients.add(potion)
       end
 
       puts "CRAFTED #{potion.name}"

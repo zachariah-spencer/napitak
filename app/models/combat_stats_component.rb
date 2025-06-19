@@ -110,6 +110,8 @@ class CombatStatsComponent
       end
     end
 
+    @dead = true if dead?
+
     # puts @statuses
   end
 

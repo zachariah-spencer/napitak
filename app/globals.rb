@@ -8,7 +8,7 @@ module GameData
     scorch: 3,
     frost: 4,
     ward: 5,
-    mend: 6
+    mend: 6,
   }.freeze
   STATUS_TYPES = {
     "SCORCH" => 1,
@@ -70,6 +70,7 @@ module GameData
   }.freeze
 
   IIDS = {
+    # BASEs
     "i001" => {
       name: "Bottle",
       path: "sprites/hexagon/white.png",
@@ -95,6 +96,7 @@ module GameData
       path: "sprites/hexagon/indigo.png",
       base: true
     },
+    # T1s
     "i006" => {
       name: "Steam",
       path: "sprites/hexagon/indigo.png",
@@ -104,15 +106,6 @@ module GameData
         "i003" => 1
       }
     },
-    "i007" => {
-      name: "Lightning",
-      path: "sprites/hexagon/yellow.png",
-      base: false,
-      ingredients: {
-        "i003" => 1,
-        "i005" => 1
-      }
-    }
   }.freeze
 
   ENCOUNTERS = {

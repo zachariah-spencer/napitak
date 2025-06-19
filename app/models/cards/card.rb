@@ -7,6 +7,7 @@ class Card
                 :f_pos,
                 :entity_id,
                 :w,
+                :h,
                 :id,
                 :fw,
                 :fh,

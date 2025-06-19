@@ -137,6 +137,9 @@ class Enemy
     @combat_stats.tick
     if @my_turn and not @combat_stats.dead
       calc
+    elsif @combat_stats.dead
+      @combat_stats.calc_status(type:"FROST")
+      end_turn
     end
 
     calc_float

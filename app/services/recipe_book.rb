@@ -3,7 +3,7 @@
 # RecipeBook manages available recipes and crafting logic.
 class RecipeBook
   attr_gtk
-  attr :unlocked_recipes
+  attr :unlocked_recipes, :unlocked_bases
 
   # Initialize with global recipe definitions and ingredient definitions.
   # potion_defs: hash mapping recipe_id to data, e.g.:
@@ -15,14 +15,22 @@ class RecipeBook
     # @player = $player
     @potion_defs = potion_defs
     @ingredient_defs = ingredient_defs
-    @unlocked_recipes = %w[p001 p002 p003 p004 i006 i007]
+    @unlocked_recipes = %w[]
+    @unlocked_recipes = $files.save_data["unlocked_recipes"] if $files.save_data["unlocked_recipes"]
 
+    @unlocked_bases = %w[i003 i002]
+    @unlocked_bases = $files.save_data["unlocked_bases"] if $files.save_data["unlocked_bases"]
     all_recipe_ids
   end
 
   # List all known recipe IDs
   def all_recipe_ids
     @potion_defs.keys + GameUtils.craftable_ingredients?.keys
+  end
+
+  def unlock_base(base_id)
+    @unlocked_bases << base_id
+    $files.save_data["unlocked_bases"] = @unlocked_bases
   end
 
   def all_craftables
@@ -32,7 +40,8 @@ class RecipeBook
   # Check if a player has unlocked a given recipe
   # Assumes player has a Set or Array @unlocked_recipes of recipe IDs
   def unlocked?(recipe_id)
-    @unlocked_recipes.include?(recipe_id)
+    # @unlocked_recipes.include?(recipe_id)
+    true
   end
 
   # Check if player has sufficient ingredients in their inventory to craft recipe
@@ -66,6 +75,9 @@ class RecipeBook
         $player.ingredients.remove(card)
       end
     end
+
+    @unlocked_recipes << recipe_id if not @unlocked_recipes.include?(recipe_id)
+    $files.save_data["unlocked_recipes"] = @unlocked_recipes
 
     # Instantiate the potion card (assumes gen_new_card utility exists)
     card = GameUtils.gen_new_card(recipe_id)

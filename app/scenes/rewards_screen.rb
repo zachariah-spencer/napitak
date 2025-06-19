@@ -10,7 +10,7 @@ class RewardsScreen
     @picks = picks
     @choices = {}
     choices.times.each do
-      random_ingredient_id = $iids.keys().sample()
+      random_ingredient_id = $recipe_book.unlocked_bases.sample
       random_ingredient_card =
         GameUtils.gen_new_card(random_ingredient_id, is_reward: true)
       @choices[random_ingredient_card.entity_id] = random_ingredient_card

@@ -53,7 +53,19 @@ class Combat
   def calc
     calc_card_positions
     calc_mouse_inputs if @player.my_turn?
-    calc_enemy_turn_ended if @enemy.turn_over?
+
+    if !@enemy.combat_stats.dead 
+      if @enemy.turn_over?
+        puts "ENEMY_TURN_ENDED\n\n"
+        calc_enemy_turn_ended 
+      end
+    else
+      if @enemy.turn_over? and not @victory_banner_timer
+        puts "ENEMY_DIED_COMBAT_ENDED\n\n"
+        end_combat
+      end
+    end
+
     calc_entity_removals
     @banner_alpha = @banner_alpha.lerp(255, 0.02) if @defeat_banner_timer or @victory_banner_timer
   end

@@ -9,6 +9,7 @@ class Journal
     @recipe_cards = []
     @page = 1
     @total_pages = ($recipe_book.unlocked_recipes.size / 8).ceil
+    @total_pages = 1 if @total_pages <= 0 
 
     max_col = 4
     max_row = 4
@@ -128,7 +129,8 @@ class Journal
         primitive_marker: :label
       }
 
-      l3 << [ back_btn, prev_pg_btn, next_pg_btn, page_count_label]
+      l3 << [ back_btn ]
+      l3 << [ prev_pg_btn, next_pg_btn, page_count_label] if @total_pages != 1
       l3
     when 4
       l4 << []

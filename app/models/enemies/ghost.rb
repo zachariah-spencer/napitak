@@ -12,17 +12,17 @@ class Ghost < Enemy
       70 => {
         name: "Basic Attack",
         attack_id: "a001",
-        traits: [{$traits[:damage] => 1}, {$traits[:frost] => 1}]
+        traits: [{$traits[:damage] => 1}]
       },
       20 => {
         name: "Power Attack",
         attack_id: "a002",
-        traits: [{$traits[:damage] => 2}, {$traits[:mend] => 1}]
+        traits: [{$traits[:damage] => 2}]
       },
       10 => {
         name: "Ultimate Attack",
         attack_id: "a003",
-        traits: [{$traits[:damage] => 4}, {$traits[:frost] => 1}, {$traits[:mend] => 3}]
+        traits: [{$traits[:damage] => 4}, {$traits[:frost] => 1},]
       }
     }
   end
