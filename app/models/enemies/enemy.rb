@@ -21,6 +21,9 @@ class Enemy
     @x = @fx
     @y = @fy
     @fang = 0
+
+    @attack_y = GTK.args.grid.h - 250 - 500
+    @home_y = GTK.args.grid.h - 250
     
     
     @attacks = {}
@@ -157,11 +160,11 @@ class Enemy
     if @my_turn and @turn_start_timer.elapsed_time < 0.85.seconds
     # if @turn_start_timer.elapsed_time > 1.seconds or @turn_start_timer = 0
       @fx = @fx + (Math.cos(@floating_seed + Kernel.tick_count * 0.85) * 5)
-    elsif @my_turn and @turn_start_timer.elapsed_time == 0.85.seconds
-      @fy = @fy - 500
-    elsif @my_turn and @turn_start_timer.elapsed_time == 1.0.seconds
+    elsif @my_turn and @turn_start_timer.elapsed_time >= 0.85.seconds and @turn_start_timer.elapsed_time < 1.0.seconds
+      @fy = @attack_y
+    elsif @my_turn and @turn_start_timer.elapsed_time >= 1.0.seconds
       @fx = GTK.args.grid.w / 2 - 100
-      @fy = GTK.args.grid.h - 250
+      @fy = @home_y
     else
       @fx = @fx + (Math.cos(@floating_seed + Kernel.tick_count * 0.01) * 0.15)
       @fy = @fy + (Math.sin(@floating_seed + Kernel.tick_count * 0.01) * 0.15)

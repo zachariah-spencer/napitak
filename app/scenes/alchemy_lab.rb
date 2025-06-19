@@ -727,7 +727,8 @@ class AlchemyLab
       end
 
       if inputs.mouse.intersect_rect?(@ing_menu_widget.rect) and
-           @ing_menu_widget.items?.count < @max_ingredients
+           @ing_menu_widget.items?.count < @max_ingredients and
+           !@selected_ingredients.values.include?(c_ref)
         @ing_menu_widget.add_item(c_ref)
         @visible_ingredients.reject! { |id, c| c == c_ref }
       end

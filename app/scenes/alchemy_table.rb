@@ -550,7 +550,8 @@ class AlchemyTable
         use_card(c_ref)
       end
 
-      if inputs.mouse.intersect_rect?(@ing_menu_widget.rect)
+      if inputs.mouse.intersect_rect?(@ing_menu_widget.rect) and
+        !@selected_ingredients.values.include?(c_ref)
         @ing_menu_widget.add_item(c_ref)
         @visible_ingredients.reject! { |id, c| c == c_ref }
       end

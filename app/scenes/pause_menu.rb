@@ -6,6 +6,7 @@ class PauseMenu
     puts "PAUSED GAME"
     @pause_screen = "main"
     @journal_instance = nil
+    @combat_instance = nil
 
     @l0 = []
     @l1 = []
