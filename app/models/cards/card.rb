@@ -333,6 +333,13 @@ class Card
     @h = @h.lerp @fh, 0.2
     @angle = @angle.lerp @f_angle, 0.2
     @tt_a = @tt_a.lerp(@tt_f_a, 0.2) if @tt_a && @tt_f_a
+
+    
+    @f_pos.y = 0 if @pos.y < 0
+    @f_pos.y = GTK.args.grid.h - @h if @pos.y > GTK.args.grid.h - @h
+
+    @f_pos.x = 0 if @pos.x < 0
+    @f_pos.x = GTK.args.grid.w - @w if @pos.x > GTK.args.grid.w - @w
   end
 
   def trait_color?(trait)

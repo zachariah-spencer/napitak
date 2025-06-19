@@ -12,15 +12,24 @@ class AlchemyLab
     @max_ingredients = max_ingredients
     @visible_ingredients = {}
     @selected_ingredients = {}
-    @stored_ingredients = Inventory.new()
+    @ingredient_generators = {}
+    @ingredients_on_screen = Inventory.new()
     @craftable_potion = nil
 
-    10.times.each { @stored_ingredients.add(GameUtils.gen_new_card("i001")) }
+    padding = 40
+    card_size = 80
+    start_x = GTK.args.grid.w / 2 - ( ( (padding + card_size) / 2 ) * @recipe_book.unlocked_bases.size )
+    @recipe_book.unlocked_bases.each_with_index do |base_id, i|
+      c = IngredientGeneratorCard.new(base_id)
+      c.f_pos.x = start_x + (i * (padding + card_size))
+      c.f_pos.y = 75
+      @ingredient_generators[c.id] = c
 
-    150.times.each do
-      random_ingredient = @recipe_book.unlocked_bases.sample
-      random_ingredient_card = GameUtils.gen_new_card(random_ingredient)
-      @stored_ingredients.add(random_ingredient_card)
+    @trash_can = TrashCanCard.new()
+    @trash_can.f_pos.x = GTK.args.grid.w - 320
+    @trash_can.f_pos.y = GTK.args.grid.h - 120
+
+      
     end
 
     @ing_menu_widget =
@@ -42,15 +51,15 @@ class AlchemyLab
         uid: 2
       )
 
-    @stored_ing_menu_widget =
-      ScrollListWidgetH.new(
-        items: @stored_ingredients.all_cards,
-        x: GTK.args.grid.w / 2 - 250,
-        y: 10,
-        w: 500,
-        h: 120,
-        uid: 3
-      )
+    #@stored_ing_menu_widget =
+    #  ScrollListWidgetH.new(
+    #    items: @stored_ingredients.all_cards,
+    #    x: GTK.args.grid.w / 2 - 250,
+    #    y: 10,
+    #    w: 500,
+    #    h: 120,
+    #    uid: 3
+    #  )
 
     if $encounter_manager.encounters_completed? == 0 and $tutorials
       puts "RUN TUTORIAL"
@@ -151,12 +160,12 @@ class AlchemyLab
   def craft(recipe_id)
     if @recipe_book.can_craft?(
          recipe_id,
-         ingredients_inventory: @stored_ingredients.all_cards
+         ingredients_inventory: @ingredients_on_screen.all_cards
        )
       potion =
         @recipe_book.craft(
           recipe_id,
-          ingredients_inventory: @stored_ingredients.all_cards
+          ingredients_inventory: @ingredients_on_screen.all_cards
         )
       @selected_ingredients.clear
 
@@ -166,7 +175,7 @@ class AlchemyLab
         potion.f_pos.x = GTK.args.grid.w / 2 - (potion.w / 2)
         potion.f_pos.y = GTK.args.grid.h / 2 - (potion.h / 2)
         @visible_ingredients[potion.entity_id] = potion
-        @stored_ingredients.add(potion)
+        @ingredients_on_screen.add(potion)
       end
 
       puts "CRAFTED #{potion.name}"
@@ -221,7 +230,9 @@ class AlchemyLab
   def tick
     @ing_menu_widget.tick(GTK.args.inputs)
     @pot_menu_widget.tick(GTK.args.inputs)
-    @stored_ing_menu_widget.tick(GTK.args.inputs)
+    @ingredient_generators.each { |id, c| c.tick }
+    @trash_can.tick
+    # @stored_ing_menu_widget.tick(GTK.args.inputs)
     calc
   end
 
@@ -248,19 +259,19 @@ class AlchemyLab
 
     cards ||= []
     sel_cards ||= []
+    generator_cards ||= []
     front_card = nil
 
     @visible_ingredients.each do |id, c|
       prefab = c.prefab
-
       if c.grabbed
         front_card = prefab
       else
         cards.append prefab
       end
     end
-
     @selected_ingredients.each { |id, c| sel_cards.append(c.prefab) }
+    @ingredient_generators.each { |id, c| generator_cards.append(c.prefab) }
 
     case layer_num
     when 0
@@ -303,7 +314,8 @@ class AlchemyLab
         primitive_marker: :solid
       }
 
-      l1 << [left_panel, right_panel]
+      l1 << [left_panel, right_panel, @ing_menu_widget.render,
+        @pot_menu_widget.render, generator_cards, @trash_can.prefab]
       l1
     when 2
       encounter_label ||= {
@@ -349,7 +361,7 @@ class AlchemyLab
 
       uses_left_label ||= {
         x: GTK.args.grid.w / 2,
-        y: 200,
+        y: 50,
         alignment_enum: 1,
         size_enum: 8,
         r: 255,
@@ -372,9 +384,6 @@ class AlchemyLab
       }
 
       l4 << [
-        @ing_menu_widget.render,
-        @pot_menu_widget.render,
-        @stored_ing_menu_widget.render,
         uses_left_label,
         ingredients_stored_label
       ]
@@ -610,6 +619,7 @@ class AlchemyLab
     return nil unless card
 
     @visible_ingredients[card.entity_id] = card
+    @ingredients_on_screen.add(card)
     card
   end
 
@@ -662,11 +672,25 @@ class AlchemyLab
     end
 
     # try to pop a clicked ingredient from the stored_ing_menu
-    if clicked = @stored_ing_menu_widget.pop_clicked
-      puts "Clicked: #{clicked.name}"
-      new_card = @stored_ing_menu_widget.remove_item(clicked)
-      if new_card
-        c_ref = draw_card(new_card)
+    # if clicked = @stored_ing_menu_widget.pop_clicked
+    #   puts "Clicked: #{clicked.name}"
+    #   new_card = @stored_ing_menu_widget.remove_item(clicked)
+    #   if new_card
+    #     c_ref = draw_card(new_card)
+    #     if c_ref
+    #       c_ref.activation_time = Kernel.tick_count
+    #       c_u_m = c_ref.rect
+    #       c_u_m.x = GTK.args.inputs.mouse.x - 80
+    #       c_u_m.y = GTK.args.inputs.mouse.y - 80
+    #       c_ref.grabbed = true
+    #     end
+    #   end
+    # end
+    @ingredient_generators.each do |id, c| 
+      if clicked = c.pop_clicked
+        puts "YOU CLICKED: #{clicked}"
+        c_ref = draw_card(GameUtils.gen_new_card(clicked[:id]))
+        puts c_ref
         if c_ref
           c_ref.activation_time = Kernel.tick_count
           c_u_m = c_ref.rect
@@ -676,6 +700,18 @@ class AlchemyLab
         end
       end
     end
+
+    
+      #if new_card
+      #  c_ref = draw_card(new_card)
+      #  if c_ref
+      #    c_ref.activation_time = Kernel.tick_count
+      #    c_u_m = c_ref.rect
+      #    c_u_m.x = GTK.args.inputs.mouse.x - 80
+      #    c_u_m.y = GTK.args.inputs.mouse.y - 80
+      #    c_ref.grabbed = true
+      #  end
+      # end
 
     if inputs.mouse.click and c_u_m
       card_id = c_u_m[:id]
@@ -706,10 +742,12 @@ class AlchemyLab
         @visible_ingredients.reject! { |id, c| c == c_ref }
       end
 
-      if inputs.mouse.intersect_rect?(@stored_ing_menu_widget.rect)
-        @stored_ing_menu_widget.add_item(c_ref)
-        @visible_ingredients.reject! { |id, c| c == c_ref }
+      @ingredient_generators.each do |id, c|
+        if inputs.mouse.intersect_rect?(@trash_can.rect)
+          @visible_ingredients.reject! { |id, c| c == c_ref }
+        end
       end
+      
 
       # Re-fetch the card from either group.
       c_ref.f_pos.x = c_ref.pos.x

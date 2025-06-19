@@ -21,6 +21,8 @@ require_relative "models/cards/ingredient_card"
 require_relative "models/cards/ingredient_reward_card"
 require_relative "models/cards/encounter_card"
 require_relative "models/cards/recipe_card"
+require_relative "models/cards/ingredient_generator_card"
+require_relative "models/cards/trash_can_card"
 
 require_relative "models/player"
 require_relative "models/combat_stats_component"

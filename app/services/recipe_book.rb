@@ -18,7 +18,7 @@ class RecipeBook
     @unlocked_recipes = %w[]
     @unlocked_recipes = $files.save_data["unlocked_recipes"] if $files.save_data["unlocked_recipes"]
 
-    @unlocked_bases = %w[i003 i002]
+    @unlocked_bases = %w[i001 i002 i003]
     @unlocked_bases = $files.save_data["unlocked_bases"] if $files.save_data["unlocked_bases"]
     all_recipe_ids
   end
