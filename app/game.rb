@@ -40,7 +40,7 @@ class Game
     $files.save_data["mid_run"] = true
     $encounter_manager.reset!
     @player.reset!
-    change_scene(prev_sc: "", next_sc: "map")
+    change_scene(prev_sc: "", next_sc: "meta_shop")
   end
 
   def change_scene(prev_sc:, next_sc:, args: [])

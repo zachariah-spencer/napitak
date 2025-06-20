@@ -8,74 +8,153 @@ class MetaShop
 
     @upgrades_price_sheet = {
       siz: {
-        0 => { val: 5, amount: -1 },
-        1 => { val: 6, amount: 100},
-        2 => { val: 7, amount: 150},
-        3 => { val: 8, amount: 300},
-        4 => { val: 9, amount: 500},
-        5 => { val: 10, amount: 1000},
+        0 => {
+          val: 5,
+          amount: -1
+        },
+        1 => {
+          val: 6,
+          amount: 100
+        },
+        2 => {
+          val: 7,
+          amount: 150
+        },
+        3 => {
+          val: 8,
+          amount: 300
+        },
+        4 => {
+          val: 9,
+          amount: 500
+        },
+        5 => {
+          val: 10,
+          amount: 1000
+        }
       },
-
       max_foc: {
-        0 => { val: 2, amount: -1 },
-        1 => { val: 3, amount: 200},
-        2 => { val: 4, amount: 400},
-        3 => { val: 5, amount: 800},
+        0 => {
+          val: 2,
+          amount: -1
+        },
+        1 => {
+          val: 3,
+          amount: 200
+        },
+        2 => {
+          val: 4,
+          amount: 400
+        },
+        3 => {
+          val: 5,
+          amount: 800
+        }
       },
-
       max_hp: {
-        0 => { val: 10, amount: -1 },
-        1 => { val: 15, amount: 250},
-        2 => { val: 20, amount: 500},
-        3 => { val: 30, amount: 1000},
+        0 => {
+          val: 10,
+          amount: -1
+        },
+        1 => {
+          val: 15,
+          amount: 250
+        },
+        2 => {
+          val: 20,
+          amount: 500
+        },
+        3 => {
+          val: 30,
+          amount: 1000
+        }
       },
-
       alc_tab_use: {
-        0 => { val: 1, amount: -1 },
-        1 => { val: 2, amount: 250},
-        2 => { val: 3, amount: 500},
-        3 => { val: 4, amount: 1000},
-        4 => { val: 5, amount: 1500},
+        0 => {
+          val: 1,
+          amount: -1
+        },
+        1 => {
+          val: 2,
+          amount: 250
+        },
+        2 => {
+          val: 3,
+          amount: 500
+        },
+        3 => {
+          val: 4,
+          amount: 1000
+        },
+        4 => {
+          val: 5,
+          amount: 1500
+        }
       },
-
       shop_disc: {
-        0 => { val: 0, amount: -1 },
-        1 => { val: 5, amount: 500},
-        2 => { val: 10, amount: 1000},
-        3 => { val: 20, amount: 1500},
-        4 => { val: 30, amount: 2500},
-        5 => { val: 50, amount: 5000},
+        0 => {
+          val: 0,
+          amount: -1
+        },
+        1 => {
+          val: 5,
+          amount: 500
+        },
+        2 => {
+          val: 10,
+          amount: 1000
+        },
+        3 => {
+          val: 20,
+          amount: 1500
+        },
+        4 => {
+          val: 30,
+          amount: 2500
+        },
+        5 => {
+          val: 50,
+          amount: 5000
+        }
       },
-
       picks: {
-        0 => { val: 2, amount: -1 },
-        1 => { val: 3, amount: 5000},
-        2 => { val: 4, amount: 10000},
-      },
+        0 => {
+          val: 2,
+          amount: -1
+        },
+        1 => {
+          val: 3,
+          amount: 5000
+        },
+        2 => {
+          val: 4,
+          amount: 10_000
+        }
+      }
     }
 
-      @leave_btn = Button.new(
-      x: GTK.args.grid.w - 25 - 150,
-      y: 20,
-      w: 150,
-      h: 75,
-      text: "Leave")
-
-      @siz_btn = Button.new(
-        x: 50,
-        y: GTK.args.grid.h / 2,
+    @leave_btn =
+      Button.new(
+        x: GTK.args.grid.w - 25 - 150,
+        y: 20,
         w: 150,
         h: 75,
-        text: "Upgrade")
+        text: "Leave"
+      )
 
+    @siz_btn =
+      Button.new(x: 50, y: GTK.args.grid.h / 2, w: 150, h: 75, text: "Upgrade")
 
-      @siz_levels = {
-        val: $player.starting_inventory_size,
-        level: @upgrades_price_sheet[:siz].find { |lvl, data| data[:val] == $player.starting_inventory_size }&.first,
-        max_level: @upgrades_price_sheet[:siz].keys.size,
-      }
+    @siz_info = {
+      sym: :siz,
+      level:
+        @upgrades_price_sheet[:siz]
+          .find { |lvl, data| data[:val] == $player.starting_inventory_size }
+          &.first,
+      max_level: @upgrades_price_sheet[:siz].keys.size - 1,
+      val: $player.starting_inventory_size
+    }
   end
-
 
   def cleanup
     # $player.save_upgrades_data
@@ -89,15 +168,48 @@ class MetaShop
     # GTK.request_quit if GTK.args.inputs.mouse.click and Geometry.intersect_rect?(GTK.args.inputs.mouse, quit_btn)
     # $game.new_run if GTK.args.inputs.mouse.click and Geometry.intersect_rect?(GTK.args.inputs.mouse, new_run_btn)
     $game.new_run if @leave_btn.clicked?
-    
 
-    @siz_btn.text = calc_price(@upgrades_price_sheet[:siz], @siz_levels)
+    @siz_btn.text = calc_price(@upgrades_price_sheet[:siz], @siz_info)
+    buy_upgrade(@siz_info) if @siz_btn.clicked?
   end
 
-  def calc_price(price_sheet_entry, upgrade_levels)
-    next_level_data = price_sheet_entry[upgrade_levels[:level] + 1]
-    next_level_price = next_level_data[:amount]
-    next_level_price
+  def calc_price(price_sheet_entry, upgrade_info)
+    if can_buy?(upgrade_info)
+      next_level_data = price_sheet_entry[upgrade_info[:level] + 1]
+      next_level_data[:amount]
+    else
+      "MAX"
+    end
+  end
+
+  def buy_upgrade(upgrade_info)
+    price_sheet_entry = @upgrades_price_sheet[upgrade_info[:sym]]
+
+    # check that upgrade level isn't at max level
+    if can_buy?(upgrade_info) && player_has_enough_money?(upgrade_info)
+      # deduct price from player currency
+      $player.anodyne -= calc_price(@upgrades_price_sheet[:siz], @siz_info)
+
+      # increment upgrade level
+      upgrade_info[:level] += 1
+
+      # set upgrade value
+      case upgrade_info[:sym]
+      when :siz
+        $player.starting_inventory_size = price_sheet_entry[upgrade_info[:level]][:val]
+      when :max_foc
+        $player.maximum_focus = price_sheet_entry[upgrade_info[:level]][:val]
+      end
+    end
+
+  end
+
+  def player_has_enough_money?(upgrade_info)
+    $player.anodyne >= calc_price(@upgrades_price_sheet[upgrade_info[:sym]], upgrade_info)
+  end
+
+  def can_buy?(upgrade_info)
+    upgrade_info[:level] < upgrade_info[:max_level]
   end
 
   def render(layer_num)
@@ -106,8 +218,6 @@ class MetaShop
     l2 = []
     l3 = []
     l4 = []
-
-
 
     case layer_num
     when 0
@@ -174,13 +284,13 @@ class MetaShop
         primitive_marker: :label
       }
 
-      l2 << [ encounter_label, @leave_btn.prefab, @siz_btn.prefab]
+      l2 << [encounter_label, @leave_btn.prefab, @siz_btn.prefab]
       return l2
     when 3
-      l3 << [ ]
+      l3 << []
       return l3
     when 4
-      l4 << [ ]
+      l4 << []
       return l4
     else
       # puts "combat.rb: Invalid Render Argument"

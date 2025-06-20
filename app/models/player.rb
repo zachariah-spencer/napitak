@@ -25,7 +25,7 @@ class Player
     $player = self
 
     # meta-progression upgrades and currency vars
-    @anodyne = 1000
+    @anodyne = 5000
     @starting_inventory_size = 5
     @maximum_focus = 2
     @maximum_hp = 10
