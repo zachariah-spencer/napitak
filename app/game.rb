@@ -26,38 +26,9 @@ class Game
     @recipe_book = RecipeBook.new()
     @encounter_manager = EncounterManager.new()
 
-    if $files.save_data["player"]["potions"]
-      $files.save_data["player"]["potions"].each do |data|
-        id = data["id"]
-        uses = data["uses_left"].to_i
-        @player.potions.add(
-          PotionCard.new(
-            id,
-            GameUtils.new_id?,
-            $pids[id].name,
-            $pids[id].fc,
-            $pids[id].path,
-            $pids[id].max_uses,
-            uses_left: uses
-          )
-        )
-      end
-    end
-
-    if $files.save_data["player"]["ingredients"]
-      $files.save_data["player"]["ingredients"].each do |id|
-        @player.ingredients.add(
-          IngredientCard.new(
-            id,
-            GameUtils.new_id?,
-            $iids[id].name,
-            -1,
-            $iids[id].path
-          )
-        )
-      end
-    end
-
+    @player.load_inventory_data
+    @player.load_upgrades_data
+    
     is_mid_run = $files.save_data&.[]("mid_run")
     encounters_completed = $files.save_data&.[]("encounters_completed")
 
@@ -76,8 +47,8 @@ class Game
     @scene_ref.cleanup if prev_sc != ""
     @scene = next_sc
 
-    if next_sc == "run_summary"
-      @pause_button_pos = -5
+    if next_sc == "run_summary" || next_sc == "meta_shop"
+      @pause_button_pos = 5
     else
       @pause_button_pos = 195
     end
@@ -95,6 +66,8 @@ class Game
       @scene_ref = Map.new()
     when "run_summary"
       @scene_ref = RunSummary.new()
+    when "meta_shop"
+      @scene_ref = MetaShop.new()
     end
 
     $files.save_data["scene"] = next_sc
@@ -175,8 +148,8 @@ class Game
     InfoBox.render(GTK.args) if not @paused
   end
 
-  def pause_btn(x: 195, y: GTK.args.grid.h - 45, w: 50, h: 50)
-    { x: x, y: y, w: w, h: h, angle: 135, path: "sprites/isometric/red.png" }
+  def pause_btn(x: 195, y: GTK.args.grid.h - 45, w: 35, h: 35)
+    { x: x, y: y, w: w, h: h, angle: 0, path: "sprites/circle/red.png" }
   end
 
   def calc_particles

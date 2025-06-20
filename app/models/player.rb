@@ -12,20 +12,33 @@ class Player
        :hovered_cards,
        :died,
        :combat_stats,
-       :my_turn
+       :my_turn,
+       :anodyne,
+       :starting_inventory_size,
+       :maximum_focus,
+       :maximum_hp,
+       :alchemy_table_uses,
+       :shop_discount,
+       :reward_picks
 
   def initialize
     $player = self
 
+    # meta-progression upgrades and currency vars
+    @anodyne = 1000
+    @starting_inventory_size = 5
+    @maximum_focus = 2
+    @maximum_hp = 10
+    @alchemy_table_uses = 1
+    @shop_discount = 0 # out of 100 (integer percentile)
+    @reward_picks = 2
+
     @my_turn = true
     @combat_stats = CombatStatsComponent.new(hp: 20, focus: 4, x: 300, y: 25)
-    @hp = 20
-    @max_hp = 20
-    @focus = 0
-    @max_focus = 3
     @stunned_turns = 0
     @hovered_cards = []
     @died = false
+
 
     @ingredients = Inventory.new()
     @potions = Inventory.new()
@@ -34,10 +47,13 @@ class Player
   def reset!
     @ingredients = Inventory.new()
     @potions = Inventory.new()
+    @combat_stats.validate_upgrades(@maximum_hp, @maximum_focus)
     @combat_stats.reset!
-    save_inventory_data
     @died = false
     @my_turn = true
+
+    save_upgrades_data
+    save_inventory_data
   end
 
   def save_inventory_data
@@ -48,6 +64,63 @@ class Player
 
     $files.save_data["player"]["potions"] = potions_save_data
     $files.save_data["player"]["ingredients"] = ingredients_save_data
+  end
+
+  def save_upgrades_data
+    $files.save_data["player"]["upgrades"]["anodyne"] = @anodyne
+    $files.save_data["player"]["upgrades"]["starting_inventory_size"] = @starting_inventory_size
+    $files.save_data["player"]["upgrades"]["maximum_focus"] = @maximum_focus
+    $files.save_data["player"]["upgrades"]["maximum_hp"] = @maximum_hp
+    $files.save_data["player"]["upgrades"]["alchemy_table_uses"] = @alchemy_table_uses
+    $files.save_data["player"]["upgrades"]["shop_discount"] = @shop_discount
+    $files.save_data["player"]["upgrades"]["reward_picks"] = @reward_picks
+  end
+
+  def load_inventory_data
+    if $files.save_data["player"]["potions"]
+      $files.save_data["player"]["potions"].each do |data|
+        id = data["id"]
+        uses = data["uses_left"].to_i
+        @player.potions.add(
+          PotionCard.new(
+            id,
+            GameUtils.new_id?,
+            $pids[id].name,
+            $pids[id].fc,
+            $pids[id].path,
+            $pids[id].max_uses,
+            uses_left: uses
+          )
+        )
+      end
+    end
+
+    if $files.save_data["player"]["ingredients"]
+      $files.save_data["player"]["ingredients"].each do |id|
+        @player.ingredients.add(
+          IngredientCard.new(
+            id,
+            GameUtils.new_id?,
+            $iids[id].name,
+            -1,
+            $iids[id].path
+          )
+        )
+      end
+    end
+  end
+
+  def load_upgrades_data
+    # Always saved and loaded as a group so if "starting_inventory_size" exists then a save file exists as well.
+    if $files.save_data["player"]["upgrades"]["anodyne"]
+      @anodyne = $files.save_data["player"]["upgrades"]["anodyne"]
+      @starting_inventory_size = $files.save_data["player"]["upgrades"]["starting_inventory_size"]
+      @maximum_focus = $files.save_data["player"]["upgrades"]["maximum_focus"]
+      @maximum_hp = $files.save_data["player"]["upgrades"]["maximum_hp"]
+      @alchemy_table_uses = $files.save_data["player"]["upgrades"]["alchemy_table_uses"]
+      @shop_discount = $files.save_data["player"]["upgrades"]["shop_discount"]
+      @reward_picks = $files.save_data["player"]["upgrades"]["reward_picks"]
+    end
   end
 
   def begin_turn

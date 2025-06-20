@@ -246,10 +246,10 @@ class Journal
 
   def back_btn
     {
-        x: 20,
-        y: GTK.args.grid.h - 20 - 40 ,
-        w: 40,
-        h: 40,
+        x: 5,
+        y: GTK.args.grid.h - 10 - 35 ,
+        w: 35,
+        h: 35,
         path: "sprites/circle/red.png",
         angle: 0
     }

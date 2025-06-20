@@ -5,6 +5,9 @@ class RunSummary
   def initialize(choices: 4, picks: 2)
     puts "init Run Summary Screen"
     @sc_id = "run_summary"
+
+    @shop_btn = Button.new(x: GTK.args.grid.w / 2 - 75, y: 50, w: 150, h: 75, text: "Shop")
+
     $files.save_data["mid_run"] = false
   end
 
@@ -15,6 +18,14 @@ class RunSummary
   end
 
   def calc
+    calc_buttons
+    
+
+    
+  end
+
+  def calc_buttons
+    $game.change_scene(prev_sc: @sc_id, next_sc: "meta_shop") if @shop_btn.clicked?
     GTK.request_quit if GTK.args.inputs.mouse.click and Geometry.intersect_rect?(GTK.args.inputs.mouse, quit_btn)
     $game.new_run if GTK.args.inputs.mouse.click and Geometry.intersect_rect?(GTK.args.inputs.mouse, new_run_btn)
   end
@@ -72,7 +83,7 @@ class RunSummary
       l2 << [ encounter_label ]
       return l2
     when 3
-      l3 << [ new_run_btn, quit_btn ]
+      l3 << [ new_run_btn, quit_btn, @shop_btn.prefab ]
       return l3
     when 4
       l4 << [ ]

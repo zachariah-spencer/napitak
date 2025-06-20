@@ -130,8 +130,8 @@ class PauseMenu
     {
         x: GTK.args.grid.w / 2 - 150,
         y: GTK.args.grid.h - 150 ,
-        w: 40,
-        h: 40,
+        w: 35,
+        h: 35,
         path: "sprites/circle/red.png",
         angle: 0
     }

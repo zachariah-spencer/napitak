@@ -10,6 +10,7 @@ require_relative "utils/info_box"
 require_relative "utils/info_box_chain"
 require_relative "utils/scroll_list_widget"
 require_relative "utils/scroll_list_widget_h"
+require_relative "utils/button"
 
 require_relative "models/enemies/enemy"
 require_relative "models/enemies/wolf"
@@ -42,6 +43,7 @@ require_relative "scenes/map"
 require_relative "scenes/pause_menu"
 require_relative "scenes/journal"
 require_relative "scenes/run_summary"
+require_relative "scenes/meta_shop"
 
 def tick(args)
   $files ||= Files.new

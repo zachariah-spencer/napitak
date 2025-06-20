@@ -25,6 +25,7 @@ class Combat
     @victory_banner_timer = nil
     @flee_banner_timer = nil
     @fled = false
+    @flee_attempts = 0
     begin_combat
   end
 
@@ -136,6 +137,18 @@ class Combat
         primitive_marker: :solid
       }
 
+      right_panel ||= {
+        x: GTK.args.grid.w - 200,
+        y: 0,
+        w: 200,
+        h: GTK.args.grid.h,
+        r: 50,
+        g: 50,
+        b: 50,
+        a: 50,
+        primitive_marker: :solid
+      }
+
       player_hp_label_header ||= {
         x: 100,
         y: GTK.args.grid.h - 225,
@@ -198,6 +211,7 @@ class Combat
 
       l1 << [
         left_panel,
+        right_panel,
         @enemy.prefab,
         player_hp_label_header,
         player_hp_label,
@@ -517,10 +531,11 @@ class Combat
 
   def flee_success_rate?
     enemy_hp_percentage = @enemy.combat_stats.hp / @enemy.combat_stats.max_hp
-    ((1.0 - enemy_hp_percentage) * 100).round
+    (((1.0 - enemy_hp_percentage) * 100) + (5 * @flee_attempts)).round
   end
 
   def attempt_flee
+    @flee_attempts += 1
     roll = Numeric.rand(0..100)
     flee if roll <= flee_success_rate?
 

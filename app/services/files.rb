@@ -9,6 +9,7 @@ class Files
     puts read_hash
     @save_data = read_hash if read_hash != nil and read_hash != ""
     @save_data["player"] = {} unless save_data["player"]
+    @save_data["player"]["upgrades"] = {} unless save_data["player"]["upgrades"]
 
     puts @save_data
   end

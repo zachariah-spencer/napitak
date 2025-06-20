@@ -66,6 +66,11 @@ class CombatStatsComponent
     @dead = true if dead?
   end
 
+  def validate_upgrades(max_hp, max_focus)
+    @max_hp = max_hp
+    @max_focus = max_focus
+  end
+
   def reset!
     @hp = @max_hp
     @dead = false
