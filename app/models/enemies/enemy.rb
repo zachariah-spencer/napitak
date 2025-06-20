@@ -150,7 +150,7 @@ class Enemy
 
   def calc
     if not @attacked
-      attack if @turn_start_timer.elapsed_time == 1.seconds
+      attack if @turn_start_timer.elapsed_time >= 1.seconds
     end
 
     calc_end_turn

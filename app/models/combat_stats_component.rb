@@ -61,8 +61,8 @@ class CombatStatsComponent
     end
 
     GameUtils.status_label(@x, @y, "#{mod_amt}", 255, 0, 0, 100)
-    GameUtils.status_label(@x, @y, "VULNERABLE", 255, 255, 255, 200) if vulnerable
-    GameUtils.status_label(@x, @y, "RESISTANT", 255, 255, 255, 200) if resistant
+    GameUtils.status_label(@x, @y, "VULNERABLE", 255, 255, 255, 100) if vulnerable
+    GameUtils.status_label(@x, @y, "RESISTANT", 255, 255, 255, 100) if resistant
     @dead = true if dead?
   end
 

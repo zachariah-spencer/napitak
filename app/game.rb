@@ -192,47 +192,53 @@ class Game
     @status_labels.reject! { |particle| particle.a <= 0 }
   end
 
-  def create_particle_rt!(number, r, g, b, scale)
-    # if the render target for the number has already been created
-    # (and cached). return/exit early since we don't want to bust the
-    # texture that's already been created for us
-    return @created_prefabs[number] if @created_prefabs[number]
-    path = number.to_s
-
-    # if it hasn't been created, then create a RT with the name equal to
-    # to the number. add it to the lookup of created_prefabs
-    @created_prefabs[number] = path
-    padding = 4
-    text_w, text_h = GTK.calcstringbox(path, scale)
-
-    # set RT properties
-    outputs[path].w = text_w + padding * 2
-    outputs[path].h = text_h + padding * 2
-    outputs[path].background_color = [0, 0, 0, 0]
-
-    # add the label to the render target
-    outputs[path].labels << {
-      x: padding + text_w / 2,
-      y: padding + text_h / 2,
-      text: number.to_s,
-      anchor_x: 0.5,
-      anchor_y: 0.5,
-      size_px: scale,
-      r: r,
-      g: g,
-      b: b
-    }
-  end
-
   def status_label(x, y, t, r, g, b, scale)
+    text_w, text_h = GTK.calcstringbox(t, scale)
+    padding = 4
+    w = text_w + padding * 2
+    h = text_h + padding * 2
+
     @status_labels << {
       x: x,
       y: y,
+      w: w,
+      h: h,
       created_at: Kernel.tick_count,
       text: t,
       a: 255,
       angle: 0,
       scale: scale,
+      r: r,
+      g: g,
+      b: b,
+    }
+  end
+
+  def create_particle_rt!(text, r, g, b, scale, w, h)
+    # if the render target for the number has already been created
+    # (and cached). return/exit early since we don't want to bust the
+    # texture that's already been created for us
+    return @created_prefabs[text] if @created_prefabs[text]
+    path = text.to_s
+
+    # if it hasn't been created, then create a RT with the name equal to
+    # to the number. add it to the lookup of created_prefabs
+    @created_prefabs[text] = path
+    padding = 4
+
+    # set RT properties
+    outputs[path].w = w
+    outputs[path].h = h
+    outputs[path].background_color = [0, 0, 0, 0]
+
+    # add the label to the render target
+    outputs[path].labels << {
+      x: w / 2,
+      y: h / 2,
+      text: text.to_s,
+      anchor_x: 0.5,
+      anchor_y: 0.5,
+      size_px: scale,
       r: r,
       g: g,
       b: b
@@ -243,7 +249,7 @@ class Game
   def status_label_prefab(s_l)
     # create the rt for the particle (this will return/no-op if the RT
     # has already been created)
-    path = create_particle_rt! s_l.text, s_l.r, s_l.g, s_l.b, s_l.scale
+    path = create_particle_rt!(s_l.text, s_l.r, s_l.g, s_l.b, s_l.scale, s_l.w, s_l.h)
 
     # if the particle was created this frame, skip its render
     # since the RT won't be processed until the next tick
@@ -254,8 +260,8 @@ class Game
       {
         x: s_l.x,
         y: s_l.y,
-        w: s_l.scale,
-        h: s_l.scale * 2,
+        w: s_l.w,
+        h: s_l.h,
         anchor_x: 0.5,
         anchor_y: 0.5,
         path: path,
@@ -267,4 +273,5 @@ class Game
       }
     end
   end
+
 end

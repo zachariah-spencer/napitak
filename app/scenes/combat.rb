@@ -23,6 +23,8 @@ class Combat
     @banner_alpha = 0
     @defeat_banner_timer = nil
     @victory_banner_timer = nil
+    @flee_banner_timer = nil
+    @fled = false
     begin_combat
   end
 
@@ -30,8 +32,9 @@ class Combat
     calc
     @enemy.tick
     @player.tick
-    leave(true) if @victory_banner_timer&.elapsed_time == 3.seconds and @enemy.combat_stats.dead
-    leave(false) if @defeat_banner_timer&.elapsed_time == 3.seconds and @player.combat_stats.dead
+    leave(0) if @enemy.combat_stats.dead && @victory_banner_timer&.elapsed_time >= 3.seconds
+    leave(1) if @player.combat_stats.dead && @defeat_banner_timer&.elapsed_time >= 3.seconds 
+    leave(2) if @fled && @flee_banner_timer&.elapsed_time >= 3.seconds
   end
 
   def calc_enemy_turn_ended
@@ -42,17 +45,25 @@ class Combat
     end
   end
 
-  def leave(is_victory = true)
-    if is_victory
+  def leave(state = 0)
+    state_enum = {
+      victory: 0,
+      defeat: 1,
+      flee: 2,
+    }
+    case state
+    when state_enum[:victory]
       $game.change_scene(prev_sc: @sc_id, next_sc: "rewards_screen")
-    else
-      $game.change_scene(prev_sc: "combat", next_sc: "run_summary")
+    when state_enum[:defeat]
+      $game.change_scene(prev_sc: @sc_id, next_sc: "run_summary")
+    when state_enum[:flee]
+      $game.change_scene(prev_sc: @sc_id, next_sc: "map")
     end
   end
 
   def calc
     calc_card_positions
-    calc_mouse_inputs if @player.my_turn?
+    calc_mouse_inputs if @player.my_turn? && !@fled
 
     if !@enemy.combat_stats.dead 
       if @enemy.turn_over?
@@ -67,7 +78,7 @@ class Combat
     end
 
     calc_entity_removals
-    @banner_alpha = @banner_alpha.lerp(255, 0.02) if @defeat_banner_timer or @victory_banner_timer
+    @banner_alpha = @banner_alpha.lerp(255, 0.04) if @defeat_banner_timer or @victory_banner_timer or @flee_banner_timer
   end
 
   def render(layer_num)
@@ -194,6 +205,23 @@ class Combat
         player_focus_label
       ]
 
+      flee_percentage_label ||= {
+          x: GTK.args.grid.w - 100,
+          y: 125,
+          alignment_enum: 1,
+          anchor_x: 0.5,
+          anchor_y: 0.5,
+          size_enum: 1,
+          r: 255,
+          g: 255,
+          b: 255,
+          a: 255,
+          text: "#{flee_success_rate?.to_i}% Chance",
+          primitive_marker: :label
+      }
+
+      l1 << flee_percentage_label
+
       l1 << player_ward_label if @player.combat_stats.statuses[$STATUS_TYPES["WARD"]] > 0
       return l1
     when 2
@@ -245,6 +273,8 @@ class Combat
         primitive_marker: :label
       }
 
+      
+
       pass_button ||= {
         x: 20,
         y: GTK.args.grid.h - 50 - (60 / 2),
@@ -285,7 +315,8 @@ class Combat
         discards_card_count_label,
         pass_button,
         pass_button_label,
-        cards
+        cards,
+        flee_btn
       ]
       return l2
     when 3
@@ -353,6 +384,37 @@ class Combat
         l4 << [victory_banner, victory_banner_label]
       end
 
+      if @flee_banner_timer
+        flee_banner_label ||= {
+          x: GTK.args.grid.w / 2,
+          y: GTK.args.grid.h / 2,
+          alignment_enum: 1,
+          anchor_x: 0.5,
+          anchor_y: 0.5,
+          size_enum: 20,
+          r: 255,
+          g: 255,
+          b: 255,
+          a: @banner_alpha,
+          text: "FLED",
+          primitive_marker: :label
+        }
+
+        flee_banner ||= {
+          x: 0,
+          y: GTK.args.grid.h / 2 - 100,
+          w: GTK.args.grid.w,
+          h: 200,
+          r: 0,
+          g: 0,
+          b: 150,
+          a: @banner_alpha,
+          primitive_marker: :solid
+        }
+
+        l4 << [flee_banner, flee_banner_label]
+      end
+
       players_turn_label ||= {
         x: GTK.args.grid.w / 2,
         y: GTK.args.grid.h / 2,
@@ -377,6 +439,60 @@ class Combat
     end
   end
 
+  def flee_btn
+    GTK.args.outputs[:flee_btn].w = 150
+    GTK.args.outputs[:flee_btn].h = 75
+
+    GTK.args.outputs[:flee_btn].primitives << {
+      x: 0,
+      y: 0,
+      w: 150,
+      h: 75,
+      angle: 0,
+      r: 0,
+      g: 0,
+      b: 0,
+      primitive_marker: :solid
+    }
+
+    btn_color = { r: 150, g: 150, b: 150, }
+    btn_color = { r: 80, g: 80, b: 200, } if @player.my_turn?
+
+    GTK.args.outputs[:flee_btn].primitives << {
+      x: 5,
+      y: 5,
+      w: 140,
+      h: 65,
+      angle: 0,
+      r: btn_color[:r],
+      g: btn_color[:g],
+      b: btn_color[:b],
+      primitive_marker: :solid
+    }
+
+    GTK.args.outputs[:flee_btn].primitives << {
+      x: 150 / 2,
+      y: 75 / 2,
+      text: "FLEE",
+      anchor_x: 0.5,
+      anchor_y: 0.5,
+      r: 0,
+      g: 0,
+      b: 0,
+      size_enum: 3
+    }
+
+    {
+      x: GTK.args.grid.w - 25 - 150,
+      y: 20,
+      w: 150,
+      h: 75,
+      angle: 0,
+      path: :flee_btn,
+      primitive_marker: :sprite
+    }
+  end
+
   def cleanup
     puts "cleanup combat.rb"
     @hand.each { |id, c| @player.potions.add(c) }
@@ -399,12 +515,38 @@ class Combat
     @enemy.combat_stats.calc_status(type: type)
   end
 
+  def flee_success_rate?
+    enemy_hp_percentage = @enemy.combat_stats.hp / @enemy.combat_stats.max_hp
+    ((1.0 - enemy_hp_percentage) * 100).round
+  end
+
+  def attempt_flee
+    roll = Numeric.rand(0..100)
+    flee if roll <= flee_success_rate?
+
+    begin_turn_stage @turn_stages[:cleanup] if !@fled
+  end
+
+  def flee
+    puts "FLED"
+    @player.my_turn = false
+    @flee_banner_timer = Kernel.tick_count
+    @fled = true
+  end
+
   def calc_entity_removals
     @hand.reject! { |id, c| c.needs_removed }
   end
 
   def calc_mouse_inputs
     return if $animation_manager&.input_locked?
+
+    if GTK.args.inputs.mouse.click &&
+         Geometry.intersect_rect?(inputs.mouse, flee_btn) &&
+         @player.my_turn
+      puts "clicked on flee_btn"
+      attempt_flee
+    end
 
     if state.currently_dragging_card_id
       c_ref = @hand[state.currently_dragging_card_id]

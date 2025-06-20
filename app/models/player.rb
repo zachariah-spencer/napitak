@@ -11,7 +11,8 @@ class Player
        :stunned_turns,
        :hovered_cards,
        :died,
-       :combat_stats
+       :combat_stats,
+       :my_turn
 
   def initialize
     $player = self
