@@ -8,7 +8,7 @@ module GameData
     scorch: 3,
     frost: 4,
     ward: 5,
-    mend: 6,
+    mend: 6
   }.freeze
   STATUS_TYPES = {
     #FIXME: Refactor to symbols over strings eventually, idk why I did this like this?????
@@ -16,7 +16,7 @@ module GameData
     "BLIGHT" => 2,
     "FROST" => 3,
     "WARD" => 4,
-    "RESTORATION" => 5,
+    "RESTORATION" => 5
   }.freeze
   DAMAGE_TYPES = {
     force: 0,
@@ -25,23 +25,71 @@ module GameData
     light: 3,
     dark: 4,
     spark: 5,
-    disease: 6,
+    disease: 6
   }.freeze
   STATUS_EFFECT_COLORS = {
-    STATUS_TYPES["SCORCH"] => { r: 0, g: 0, b: 0, },
-    STATUS_TYPES["BLIGHT"] => { r: 0, g: 0, b: 0, },
-    STATUS_TYPES["FROST"] => { r: 0, g: 0, b: 0, },
-    STATUS_TYPES["WARD"] => { r: 0, g: 0, b: 0, },
-    STATUS_TYPES["RESTORATION"] => { r: 0, g: 0, b: 0, },
+    STATUS_TYPES["SCORCH"] => {
+      r: 0,
+      g: 0,
+      b: 0
+    },
+    STATUS_TYPES["BLIGHT"] => {
+      r: 0,
+      g: 0,
+      b: 0
+    },
+    STATUS_TYPES["FROST"] => {
+      r: 0,
+      g: 0,
+      b: 0
+    },
+    STATUS_TYPES["WARD"] => {
+      r: 0,
+      g: 0,
+      b: 0
+    },
+    STATUS_TYPES["RESTORATION"] => {
+      r: 0,
+      g: 0,
+      b: 0
+    }
   }.freeze
   DAMAGE_TYPE_COLORS = {
-    DAMAGE_TYPES[:force] => { r: 0, g: 0, b: 0, },
-    DAMAGE_TYPES[:heat] => { r: 0, g: 0, b: 0, },
-    DAMAGE_TYPES[:cold] => { r: 0, g: 0, b: 0, },
-    DAMAGE_TYPES[:light] => { r: 0, g: 0, b: 0, },
-    DAMAGE_TYPES[:dark] => { r: 0, g: 0, b: 0, },
-    DAMAGE_TYPES[:spark] => { r: 0, g: 0, b: 0, },
-    DAMAGE_TYPES[:disease] => { r: 0, g: 0, b: 0, },
+    DAMAGE_TYPES[:force] => {
+      r: 0,
+      g: 0,
+      b: 0
+    },
+    DAMAGE_TYPES[:heat] => {
+      r: 0,
+      g: 0,
+      b: 0
+    },
+    DAMAGE_TYPES[:cold] => {
+      r: 0,
+      g: 0,
+      b: 0
+    },
+    DAMAGE_TYPES[:light] => {
+      r: 0,
+      g: 0,
+      b: 0
+    },
+    DAMAGE_TYPES[:dark] => {
+      r: 0,
+      g: 0,
+      b: 0
+    },
+    DAMAGE_TYPES[:spark] => {
+      r: 0,
+      g: 0,
+      b: 0
+    },
+    DAMAGE_TYPES[:disease] => {
+      r: 0,
+      g: 0,
+      b: 0
+    }
   }.freeze
   DAMAGE_TYPE_SPRITES = {
     DAMAGE_TYPES[:force] => "sprites/square/indigo.png",
@@ -50,56 +98,70 @@ module GameData
     DAMAGE_TYPES[:light] => "sprites/square/white.png",
     DAMAGE_TYPES[:dark] => "sprites/square/black.png",
     DAMAGE_TYPES[:spark] => "sprites/square/yellow.png",
-    DAMAGE_TYPES[:disease] => "sprites/square/green.png",
+    DAMAGE_TYPES[:disease] => "sprites/square/green.png"
   }.freeze
   PIDS = {
     "p001" => {
-      name: "Rock Potion",
-      desc: "A basic potion that damages an enemy.",
+      name: "Flamelick Potion",
+      desc: "Flames leap from the bottle at foes.",
       fc: 1,
-      max_uses: 10,
-      path: "sprites/circle/green.png",
-      ingredients: {
-        "i001" => 1,
-        "i004" => 2
-      },
-      traits: [ {TRAITS[:damage] => { amount: 2, type: DAMAGE_TYPES[:force]}}, { TRAITS[:ward] => 6 } ]
-    },
-    "p002" => {
-      name: "Fiery Potion",
-      desc: "A potion that catches an enemy on fire.",
-      fc: 2,
-      max_uses: 3,
+      max_uses: 5,
       path: "sprites/circle/orange.png",
       ingredients: {
         "i001" => 1,
         "i003" => 2
       },
-      traits: [{TRAITS[:damage] => { amount: 2, type: DAMAGE_TYPES[:heat]}}]
+      traits: [{ TRAITS[:damage] => { amount: 1, type: DAMAGE_TYPES[:heat] } }]
+    },
+    "p002" => {
+      name: "Combustible Potion",
+      desc: "Explodes upon throwing causing destruction to nearby creatures.",
+      fc: 2,
+      max_uses: 1,
+      path: "sprites/circle/orange.png",
+      ingredients: {
+        "i001" => 1,
+        "i003" => 1,
+        "i006" => 1
+      },
+      traits: [{ TRAITS[:damage] => { amount: 6, type: DAMAGE_TYPES[:force] } }]
     },
     "p003" => {
-      name: "Ocean Potion",
-      desc: "A potion that sprays water at an enemy damaging them.",
-      fc: 1,
-      max_uses: 2,
+      name: "Waterbeam Potion",
+      desc: "Sprays water at high pressure at foes.",
+      fc: 2,
+      max_uses: 5,
       path: "sprites/circle/blue.png",
       ingredients: {
         "i001" => 1,
         "i002" => 2
       },
-      traits: [TRAITS[:restoration] => 2]
+      traits: [{ TRAITS[:damage] => { amount: 2, type: DAMAGE_TYPES[:force] } }]
     },
     "p004" => {
-      name: "Wind Potion",
-      desc: "A potion that shoots air at an enemy damaging them.",
+      name: "Cloudy Potion",
+      desc: "A sip of the clouds lifts ones' spirits and heals them.",
       fc: 2,
-      max_uses: 4,
-      path: "sprites/circle/indigo.png",
+      max_uses: 3,
+      path: "sprites/circle/blue.png",
       ingredients: {
         "i001" => 1,
-        "i005" => 2
+        "i002" => 1,
+        "i006" => 1
       },
-      traits: [{TRAITS[:damage] => { amount: 4, type: DAMAGE_TYPES[:force]}}, { TRAITS[:mend] => 2 }]
+      traits: [{ TRAITS[:mend] => 3 }]
+    },
+    "p005" => {
+      name: "Steamblast Potion",
+      desc: "A hot blast of steam projects towards foes.",
+      fc: 2,
+      max_uses: 2,
+      path: "sprites/circle/blue.png",
+      ingredients: {
+        "i001" => 1,
+        "i006" => 2
+      },
+      traits: [{ TRAITS[:scorch] => 3 }]
     }
   }.freeze
   IIDS = {
@@ -138,7 +200,7 @@ module GameData
         "i002" => 1,
         "i003" => 1
       }
-    },
+    }
   }.freeze
   ENCOUNTERS = {
     "alchemy_lab" => {

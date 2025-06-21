@@ -18,18 +18,18 @@ class AlchemyLab
 
     padding = 40
     card_size = 80
-    start_x = GTK.args.grid.w / 2 - ( ( (padding + card_size) / 2 ) * @recipe_book.unlocked_bases.size )
+    start_x =
+      GTK.args.grid.w / 2 -
+        (((padding + card_size) / 2) * @recipe_book.unlocked_bases.size)
     @recipe_book.unlocked_bases.each_with_index do |base_id, i|
       c = IngredientGeneratorCard.new(base_id)
       c.f_pos.x = start_x + (i * (padding + card_size))
       c.f_pos.y = 75
       @ingredient_generators[c.id] = c
 
-    @trash_can = TrashCanCard.new()
-    @trash_can.f_pos.x = GTK.args.grid.w - 320
-    @trash_can.f_pos.y = GTK.args.grid.h - 120
-
-      
+      @trash_can = TrashCanCard.new()
+      @trash_can.f_pos.x = GTK.args.grid.w - 320
+      @trash_can.f_pos.y = GTK.args.grid.h - 120
     end
 
     @ing_menu_widget =
@@ -50,85 +50,6 @@ class AlchemyLab
         h: 500,
         uid: 2
       )
-
-    # if $encounter_manager.encounters_completed? == 0 and $tutorials
-    #   puts "RUN TUTORIAL"
-    #   @tutorials =
-    #     InfoBoxChain.new(
-    #       [
-    #         [
-    #           {
-    #             x: GTK.args.grid.w / 2 - 300,
-    #             y: 500,
-    #             width: 600,
-    #             height: 80,
-    #             text: "Within the laboratory you can",
-    #             duration: 180
-    #           },
-    #           {
-    #             x: GTK.args.grid.w / 2 - 300,
-    #             y: 420,
-    #             width: 600,
-    #             height: 80,
-    #             text: "combine ingredients with a",
-    #             duration: 180
-    #           },
-    #           {
-    #             x: GTK.args.grid.w / 2 - 300,
-    #             y: 340,
-    #             width: 600,
-    #             height: 80,
-    #             text: "bottle to craft powerful potions.",
-    #             duration: 180
-    #           }
-    #         ],
-    #         [
-    #           {
-    #             x: GTK.args.grid.w / 2 - 300,
-    #             y: 500,
-    #             width: 600,
-    #             height: 80,
-    #             text: "You can also pick up to 5",
-    #             duration: 180
-    #           },
-    #           {
-    #             x: GTK.args.grid.w / 2 - 300,
-    #             y: 420,
-    #             width: 600,
-    #             height: 80,
-    #             text: "ingredients to take with you.",
-    #             duration: 180
-    #           }
-    #         ],
-    #         [
-    #           {
-    #             x: GTK.args.grid.w / 2 - 300,
-    #             y: 500,
-    #             width: 600,
-    #             height: 80,
-    #             text: "Craft up to 10 potions for your",
-    #             duration: 180
-    #           },
-    #           {
-    #             x: GTK.args.grid.w / 2 - 300,
-    #             y: 420,
-    #             width: 600,
-    #             height: 80,
-    #             text: "deck before you start your",
-    #             duration: 180
-    #           },
-    #           {
-    #             x: GTK.args.grid.w / 2 - 300,
-    #             y: 340,
-    #             width: 600,
-    #             height: 80,
-    #             text: "journey into the wilderness.",
-    #             duration: 180
-    #           }
-    #         ]
-    #       ]
-    #     )
-    # end
   end
 
   def cleanup
@@ -307,8 +228,14 @@ class AlchemyLab
         primitive_marker: :solid
       }
 
-      l1 << [left_panel, right_panel, @ing_menu_widget.render,
-        @pot_menu_widget.render, generator_cards, @trash_can.prefab]
+      l1 << [
+        left_panel,
+        right_panel,
+        @ing_menu_widget.render,
+        @pot_menu_widget.render,
+        generator_cards,
+        @trash_can.prefab
+      ]
       l1
     when 2
       encounter_label ||= {
@@ -376,10 +303,7 @@ class AlchemyLab
         primitive_marker: :label
       }
 
-      l4 << [
-        uses_left_label,
-        ingredients_stored_label
-      ]
+      l4 << [uses_left_label, ingredients_stored_label]
 
       l4
     else
@@ -664,7 +588,7 @@ class AlchemyLab
       end
     end
 
-    @ingredient_generators.each do |id, c| 
+    @ingredient_generators.each do |id, c|
       if clicked = c.pop_clicked
         puts "YOU CLICKED: #{clicked}"
         c_ref = draw_card(GameUtils.gen_new_card(clicked[:id]))
@@ -714,7 +638,6 @@ class AlchemyLab
           @visible_ingredients.reject! { |id, c| c == c_ref }
         end
       end
-      
 
       # Re-fetch the card from either group.
       if c_ref
