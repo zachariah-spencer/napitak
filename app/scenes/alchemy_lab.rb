@@ -133,10 +133,13 @@ class AlchemyLab
 
   def cleanup
     puts "cleanup alchemy_lab.rb"
+    state.currently_dragging_card_id = nil
+    state.mouse_point_inside_square = nil
+    c_ref = nil
+    c_u_m = nil
+
     potions_save_data = []
     @player.potions.all_cards.each { |c| potions_save_data << c.save_data? }
-
-    puts potions_save_data
 
     ingredients_save_data = []
     @player.ingredients.all_cards.each do |c|
@@ -661,21 +664,6 @@ class AlchemyLab
       end
     end
 
-    # try to pop a clicked ingredient from the stored_ing_menu
-    # if clicked = @stored_ing_menu_widget.pop_clicked
-    #   puts "Clicked: #{clicked.name}"
-    #   new_card = @stored_ing_menu_widget.remove_item(clicked)
-    #   if new_card
-    #     c_ref = draw_card(new_card)
-    #     if c_ref
-    #       c_ref.activation_time = Kernel.tick_count
-    #       c_u_m = c_ref.rect
-    #       c_u_m.x = GTK.args.inputs.mouse.x - 80
-    #       c_u_m.y = GTK.args.inputs.mouse.y - 80
-    #       c_ref.grabbed = true
-    #     end
-    #   end
-    # end
     @ingredient_generators.each do |id, c| 
       if clicked = c.pop_clicked
         puts "YOU CLICKED: #{clicked}"
@@ -691,19 +679,7 @@ class AlchemyLab
       end
     end
 
-    
-      #if new_card
-      #  c_ref = draw_card(new_card)
-      #  if c_ref
-      #    c_ref.activation_time = Kernel.tick_count
-      #    c_u_m = c_ref.rect
-      #    c_u_m.x = GTK.args.inputs.mouse.x - 80
-      #    c_u_m.y = GTK.args.inputs.mouse.y - 80
-      #    c_ref.grabbed = true
-      #  end
-      # end
-
-    if inputs.mouse.click and c_u_m
+    if inputs.mouse.click && c_u_m
       card_id = c_u_m[:id]
       state.currently_dragging_card_id = card_id
       c_ref = @visible_ingredients[card_id] || @selected_ingredients[card_id]
@@ -716,10 +692,10 @@ class AlchemyLab
         y: inputs.mouse.y - c_u_m.y
       }
       state.click_hold_time = Kernel.tick_count
-    elsif inputs.mouse.held and state.currently_dragging_card_id and c_ref
+    elsif inputs.mouse.held && state.currently_dragging_card_id && c_ref
       c_ref.pos.x = inputs.mouse.x - state.mouse_point_inside_square.x
       c_ref.pos.y = inputs.mouse.y - state.mouse_point_inside_square.y
-    elsif inputs.mouse.up and state.currently_dragging_card_id
+    elsif inputs.mouse.up && state.currently_dragging_card_id
       if state.click_hold_time.elapsed_time < 20 and
            (Geometry.distance c_ref.pos, c_ref.f_pos) < 20 and
            (c_ref.activation_time.elapsed_time > 0.25.seconds)
@@ -741,9 +717,11 @@ class AlchemyLab
       
 
       # Re-fetch the card from either group.
-      c_ref.f_pos.x = c_ref.pos.x
-      c_ref.f_pos.y = c_ref.pos.y
-      c_ref.grabbed = false
+      if c_ref
+        c_ref.f_pos.x = c_ref.pos.x
+        c_ref.f_pos.y = c_ref.pos.y
+        c_ref.grabbed = false
+      end
       state.currently_dragging_card_id = nil
     end
   end

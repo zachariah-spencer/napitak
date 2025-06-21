@@ -10,6 +10,7 @@ require_relative "utils/info_box"
 require_relative "utils/info_box_chain"
 require_relative "utils/scroll_list_widget"
 require_relative "utils/scroll_list_widget_h"
+require_relative "utils/upgrade_level_bar_widget"
 require_relative "utils/button"
 
 require_relative "models/enemies/enemy"

@@ -80,7 +80,43 @@ class RunSummary
         primitive_marker: :label
       }
 
-      l2 << [ encounter_label ]
+      encounters_completed_label ||= {
+        x: GTK.args.grid.w / 2,
+        y: GTK.args.grid.h / 2 + 150,
+        alignment_enum: 1,
+        size_enum: 10,
+        r: 255,
+        g: 255,
+        b: 255,
+        text: "Encounters Completed: #{$encounter_manager.encounters_completed}",
+        primitive_marker: :label
+      }
+
+      enemies_slain_label ||= {
+        x: GTK.args.grid.w / 2,
+        y: GTK.args.grid.h / 2 + 100,
+        alignment_enum: 1,
+        size_enum: 10,
+        r: 255,
+        g: 255,
+        b: 255,
+        text: "Enemies Slain: #{$encounter_manager.combats_won}",
+        primitive_marker: :label
+      }
+
+      anodyne_earned_label ||= {
+        x: GTK.args.grid.w / 2,
+        y: GTK.args.grid.h / 2 + 50,
+        alignment_enum: 1,
+        size_enum: 10,
+        r: 255,
+        g: 255,
+        b: 255,
+        text: "Anodyne Earned: #{$encounter_manager.calc_anodyne_earnings}",
+        primitive_marker: :label
+      }
+
+      l2 << [ encounter_label, encounters_completed_label, enemies_slain_label, anodyne_earned_label]
       return l2
     when 3
       l3 << [ new_run_btn, quit_btn, @shop_btn.prefab ]

@@ -33,9 +33,9 @@ class Combat
     calc
     @enemy.tick
     @player.tick
-    leave(0) if @enemy.combat_stats.dead && @victory_banner_timer&.elapsed_time >= 3.seconds
-    leave(1) if @player.combat_stats.dead && @defeat_banner_timer&.elapsed_time >= 3.seconds 
-    leave(2) if @fled && @flee_banner_timer&.elapsed_time >= 3.seconds
+    leave(0) if @enemy.combat_stats.dead && @victory_banner_timer && @victory_banner_timer.elapsed_time >= 3.seconds
+    leave(1) if @player.combat_stats.dead && @defeat_banner_timer && @defeat_banner_timer.elapsed_time >= 3.seconds 
+    leave(2) if @fled && @flee_banner_timer && @flee_banner_timer.elapsed_time >= 3.seconds
   end
 
   def calc_enemy_turn_ended
@@ -54,8 +54,11 @@ class Combat
     }
     case state
     when state_enum[:victory]
+      $encounter_manager.inc_combats_won
       $game.change_scene(prev_sc: @sc_id, next_sc: "rewards_screen")
     when state_enum[:defeat]
+      $player.anodyne += $encounter_manager.calc_anodyne_earnings
+      $player.save_upgrades_data
       $game.change_scene(prev_sc: @sc_id, next_sc: "run_summary")
     when state_enum[:flee]
       $game.change_scene(prev_sc: @sc_id, next_sc: "map")

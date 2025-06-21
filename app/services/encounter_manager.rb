@@ -1,6 +1,6 @@
 
 class EncounterManager
-  attr :encounters, :map_layer
+  attr :encounters, :map_layer, :encounters_completed, :combats_won
 
   def initialize
     $encounter_manager = self
@@ -26,6 +26,10 @@ class EncounterManager
     end
     @map_layer = ml_save
     @encounters_completed = 0
+    @combats_won = 0
+
+    @encounters_completed = $files.save_data["encounters_completed"] if $files.save_data["encounters_completed"]
+    @combats_won = $files.save_data["combats_won"] if $files.save_data["combats_won"]
   end
 
   def encounters_completed?
@@ -37,14 +41,25 @@ class EncounterManager
     $files.save_data["encounters_completed"] = @encounters_completed
   end
 
+  def inc_combats_won
+    @combats_won += 1
+    $files.save_data["combats_won"] = @combats_won
+  end
+
+  def calc_anodyne_earnings
+    @combats_won * 100
+  end
+
   def card!(id)
     EncounterCard.new(id)
   end
 
   def reset!
     @encounters_completed = 0
+    @combats_won = 0
     @map_layer = 1
     $files.save_data["encounters_completed"] = @encounters_completed
+    $files.save_data["combats_won"] = @combats_won
     $files.save_data["map_layer"] = @map_layer
   end
 

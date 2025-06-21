@@ -111,12 +111,12 @@ class Enemy
     att_probs = @attacks.keys
     attack = 0
 
-    if rand_n >= 0 and rand_n < att_probs[0]
+    if rand_n >= 0 && rand_n < att_probs[0]
       attack = @attacks[att_probs[0]]
-    elsif rand_n >= att_probs[0] and rand_n < (att_probs[0] + att_probs[1])
+    elsif rand_n >= att_probs[0] && rand_n < (att_probs[0] + att_probs[1])
       attack = @attacks[att_probs[1]]
-    elsif rand_n >= (att_probs[0] + att_probs[1]) and
-          rand_n < (att_probs[0] + att_probs[1] + att_probs[2])
+    elsif rand_n >= (att_probs[0] + att_probs[1]) &&
+          rand_n <= (att_probs[0] + att_probs[1] + att_probs[2])
       attack = @attacks[att_probs[2]]
     end
 

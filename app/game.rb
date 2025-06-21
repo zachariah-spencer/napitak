@@ -31,6 +31,7 @@ class Game
     
     is_mid_run = $files.save_data&.[]("mid_run")
     encounters_completed = $files.save_data&.[]("encounters_completed")
+    
 
     is_mid_run ? change_scene(prev_sc: "", next_sc: @scene) : new_run
   end
@@ -40,7 +41,7 @@ class Game
     $files.save_data["mid_run"] = true
     $encounter_manager.reset!
     @player.reset!
-    change_scene(prev_sc: "", next_sc: "meta_shop")
+    change_scene(prev_sc: "", next_sc: "map")
   end
 
   def change_scene(prev_sc:, next_sc:, args: [])
@@ -57,11 +58,11 @@ class Game
     when "combat"
       @scene_ref = Combat.new(args[0])
     when "alchemy_table"
-      @scene_ref = AlchemyTable.new(max_uses: 3)
+      @scene_ref = AlchemyTable.new(max_uses: $player.alchemy_table_uses)
     when "alchemy_lab"
-      @scene_ref = AlchemyLab.new(max_uses: 10, max_ingredients: 5)
+      @scene_ref = AlchemyLab.new(max_uses: 10, max_ingredients: $player.starting_inventory_size)
     when "rewards_screen"
-      @scene_ref = RewardsScreen.new()
+      @scene_ref = RewardsScreen.new(picks: $player.reward_picks)
     when "map"
       @scene_ref = Map.new()
     when "run_summary"

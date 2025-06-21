@@ -25,12 +25,12 @@ class Player
     $player = self
 
     # meta-progression upgrades and currency vars
-    @anodyne = 5000
+    @anodyne = 0
     @starting_inventory_size = 5
     @maximum_focus = 2
     @maximum_hp = 10
     @alchemy_table_uses = 1
-    @shop_discount = 0 # out of 100 (integer percentile)
+    @shop_discount = 0 # out of 100 (integer percentile) (CURRENTLY UNUSED)
     @reward_picks = 2
 
     @my_turn = true
@@ -81,7 +81,7 @@ class Player
       $files.save_data["player"]["potions"].each do |data|
         id = data["id"]
         uses = data["uses_left"].to_i
-        @player.potions.add(
+        @potions.add(
           PotionCard.new(
             id,
             GameUtils.new_id?,
@@ -97,7 +97,7 @@ class Player
 
     if $files.save_data["player"]["ingredients"]
       $files.save_data["player"]["ingredients"].each do |id|
-        @player.ingredients.add(
+        @ingredients.add(
           IngredientCard.new(
             id,
             GameUtils.new_id?,

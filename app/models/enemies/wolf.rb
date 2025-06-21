@@ -5,7 +5,7 @@ class Wolf < Enemy
   def initialize()
     super
     $enemy = self
-    @combat_stats = CombatStatsComponent.new(hp: 10, focus: 0, x: GTK.args.grid.w / 2, y: GTK.args.grid.h - 270, resistances: [$DAMAGE_TYPES[:heat]])
+    @combat_stats = CombatStatsComponent.new(hp: 10, focus: 0, x: GTK.args.grid.w / 2, y: GTK.args.grid.h - 270, resistances: [])
     @sprite = "sprites/wolf.png"
     @name = "Wolf"
     @attacks = {
