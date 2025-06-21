@@ -308,14 +308,14 @@ class Card
       end
     end
 
-    if @potencies.each { |trait| trait.keys.include?($traits[:damage]) }
+    if damage_trait
       args.outputs[@card_composite_tooltip_ref].primitives << {
         x: damage_potency_val_x - 5 - 15,
         y: 35 - 5,
         w: 10,
         h: 10,
         path: $DAMAGE_TYPE_SPRITES[damage_trait[:type]],
-        primitive_marker: :sprite,
+        primitive_marker: :sprite
       }
     end
 
@@ -363,7 +363,6 @@ class Card
     @angle = @angle.lerp @f_angle, 0.2
     @tt_a = @tt_a.lerp(@tt_f_a, 0.2) if @tt_a && @tt_f_a
 
-    
     @f_pos.y = 0 if @pos.y < 0
     @f_pos.y = GTK.args.grid.h - @h if @pos.y > GTK.args.grid.h - @h
 
