@@ -1,0 +1,37 @@
+{
+    "player": {
+        "upgrades": {
+            "anodyne": 0,
+            "starting_inventory_size": 5,
+            "maximum_focus": 2,
+            "maximum_hp": 10,
+            "alchemy_table_uses": 1,
+            "shop_discount": 0,
+            "reward_picks": 2
+        },
+        "potions": [ ],
+        "ingredients": [ ],
+        "previous_starting_potions_config": [
+            {
+                "id": "p001",
+                "uses_left": "5"
+            }
+        ],
+        "previous_starting_ingredients_config": [
+            "i002",
+            "i003"
+        ]
+    },
+    "mid_run": true,
+    "encounters_completed": 0,
+    "combats_won": 0,
+    "map_layer": 2,
+    "map_choices": [
+        "alchemy_lab"
+    ],
+    "scene": "alchemy_lab",
+    "unlocked_recipes": [
+        "p001"
+    ],
+    "current_enemy": "ghost"
+}

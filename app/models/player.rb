@@ -70,6 +70,44 @@ class Player
     return potions_save_data, ingredients_save_data
   end
 
+  def load_prev_loadout_save_data
+    pots = Inventory.new()
+    ings = Inventory.new()
+    if $files.save_data["player"]["previous_starting_potions_config"]
+      $files.save_data["player"]["previous_starting_potions_config"].each do |data|
+        id = data["id"]
+        uses = data["uses_left"].to_i
+        pots.add(
+          PotionCard.new(
+            id,
+            GameUtils.new_id?,
+            $pids[id].name,
+            $pids[id].fc,
+            $pids[id].path,
+            $pids[id].max_uses,
+            uses_left: uses
+          )
+        )
+      end
+    end
+
+    if $files.save_data["player"]["previous_starting_ingredients_config"]
+      $files.save_data["player"]["previous_starting_ingredients_config"].each do |id|
+        ings.add(
+          IngredientCard.new(
+            id,
+            GameUtils.new_id?,
+            $iids[id].name,
+            -1,
+            $iids[id].path
+          )
+        )
+      end
+    end
+
+    return pots, ings
+  end
+
   def save_upgrades_data
     $files.save_data["player"]["upgrades"]["anodyne"] = @anodyne
     $files.save_data["player"]["upgrades"]["starting_inventory_size"] = @starting_inventory_size

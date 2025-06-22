@@ -14,7 +14,7 @@ module GameUtils
   end
 
   def self.is_potion(item_id)
-    item_id.start_with?("p")
+    item_id.to_s.start_with?("p")
   end
 
   def self.gen_new_card(id = nil, is_reward: false)

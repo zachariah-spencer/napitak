@@ -114,8 +114,7 @@ class Game
     calc_particles
 
     # puts $files.save_data to file
-    if (GTK.quit_requested? and not @autosaved) or
-         GTK.args.inputs.keyboard.key_down.l
+    if (GTK.quit_requested? && !@autosaved)
       $files.write
       puts "WRITING SAVE DATA TO FILE"
     end

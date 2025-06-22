@@ -23,6 +23,10 @@ class ScrollListWidget
     item
   end
 
+  def clear_items
+    @items.clear
+  end
+
   def remove_item(item)
     @items.delete(item)
     item
@@ -86,7 +90,7 @@ class ScrollListWidget
         alignment_enum: 1
       }
 
-      if item.id[0] == "p"
+      if GameUtils.is_potion(item.id)
         # uses left label for potions
         GTK.args.outputs[path].labels << {
           x: local_x + 140,
@@ -104,7 +108,7 @@ class ScrollListWidget
           h: 32,
           path: item.img
         }
-      elsif item.id[0] == "i"
+      else
         # icon
         GTK.args.outputs[path].sprites << {
           x: local_x + 75 - 16,

@@ -69,8 +69,12 @@ class AlchemyLab
       ingredients_save_data << c.save_data?
     end
 
+    previous_starting_potions_config, previous_starting_ingredients_config = @player.get_inventory_save_data
+    $files.save_data["player"]["previous_starting_potions_config"] = previous_starting_potions_config
+    $files.save_data["player"]["previous_starting_ingredients_config"] = previous_starting_ingredients_config
     $files.save_data["player"]["potions"] = potions_save_data
     $files.save_data["player"]["ingredients"] = ingredients_save_data
+    $files.write
   end
 
   def craft(recipe_id)
@@ -120,30 +124,30 @@ class AlchemyLab
   def leave
     @tutorials&.cancel if @tutorials
 
-    # consolidate all ingredient cards into the player's inventory
-    new_cards = []
+    # consolidate all new cards into the player's inventory
+    new_ings = []
+    new_pots = []
+
+    if @pot_menu_widget.respond_to?(:items?)
+      new_pots.concat(@pot_menu_widget.items?)
+    else
+      new_pots.concat(@pot_menu_widget.instance_variable_get(:@items))
+    end
 
     # items still inside the vertical ingredient menu
     if @ing_menu_widget.respond_to?(:items?)
-      new_cards.concat(@ing_menu_widget.items?)
+      new_ings.concat(@ing_menu_widget.items?)
     else
-      new_cards.concat(@ing_menu_widget.instance_variable_get(:@items))
+      new_new_ings.concat(@ing_menu_widget.instance_variable_get(:@items))
     end
 
-    # cards currently on the table but not selected
-    new_cards.concat(@visible_ingredients.values)
-
-    # cards that are currently selected for crafting
-    new_cards.concat(@selected_ingredients.values)
-
+    
+    # overwrite the player's potions with this collection
+    @player.potions = Inventory.new(new_pots)
     # overwrite the player's ingredients with this collection
-    @player.ingredients = Inventory.new(new_cards)
+    @player.ingredients = Inventory.new(new_ings)
 
     $encounter_manager.inc_encounters_completed
-
-    previous_starting_potions_config, previous_starting_ingredients_config = @player.get_inventory_save_data
-    $files.save_data["player"]["previous_starting_potions_config"] = previous_starting_potions_config
-    $files.save_data["player"]["previous_starting_ingredients_config"] = previous_starting_ingredients_config
 
     $game.change_scene(prev_sc: @sc_id, next_sc: "map")
   end
@@ -161,6 +165,26 @@ class AlchemyLab
     calc_card_positions
     calc_mouse_inputs
     calc_keyboard_inputs
+
+    if @prev_loadout_btn.clicked? && $files.save_data["player"]["previous_starting_potions_config"]
+      clear_loadout
+      config_prev_loadout
+    end
+  end
+
+  def clear_loadout
+    @selected_ingredients.clear
+    @visible_ingredients.clear
+    @ing_menu_widget.clear_items
+    @pot_menu_widget.clear_items
+  end
+
+  def config_prev_loadout
+    pots, ings = $player.load_prev_loadout_save_data
+
+    pots.all_cards.each { |card| @pot_menu_widget.add_item(card) }
+    ings.all_cards.each { |card| @ing_menu_widget.add_item(card) }
+    
   end
 
   def calc_card_positions
