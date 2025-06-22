@@ -50,6 +50,8 @@ class AlchemyLab
         h: 500,
         uid: 2
       )
+
+    @prev_loadout_btn = Button.new(x: 200, y: 20, w: 150, h: 75, text: "Prev. Loadout")
   end
 
   def cleanup
@@ -138,6 +140,11 @@ class AlchemyLab
     @player.ingredients = Inventory.new(new_cards)
 
     $encounter_manager.inc_encounters_completed
+
+    previous_starting_potions_config, previous_starting_ingredients_config = @player.get_inventory_save_data
+    $files.save_data["player"]["previous_starting_potions_config"] = previous_starting_potions_config
+    $files.save_data["player"]["previous_starting_ingredients_config"] = previous_starting_ingredients_config
+
     $game.change_scene(prev_sc: @sc_id, next_sc: "map")
   end
 
@@ -249,6 +256,8 @@ class AlchemyLab
         text: "Alchemy Lab",
         primitive_marker: :label
       }
+
+      l2 << @prev_loadout_btn.prefab if $files.save_data["player"]["previous_starting_potions_config"]
 
       l2 << [
         encounter_label,

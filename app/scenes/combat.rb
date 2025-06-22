@@ -19,6 +19,7 @@ class Combat
     @turn_stage = nil
     @turn_num = -1
     @player = $player
+    @player.combat_stats.reset!(@player.maximum_hp, @player.maximum_focus)
     @enemy = Object.const_get($files.save_data["current_enemy"].capitalize).new
     @banner_alpha = 0
     @defeat_banner_timer = nil

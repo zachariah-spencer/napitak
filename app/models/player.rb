@@ -47,8 +47,7 @@ class Player
   def reset!
     @ingredients = Inventory.new()
     @potions = Inventory.new()
-    @combat_stats.validate_upgrades(@maximum_hp, @maximum_focus)
-    @combat_stats.reset!
+    @combat_stats.reset!(@maximum_hp, @maximum_focus)
     @died = false
     @my_turn = true
 
@@ -57,13 +56,18 @@ class Player
   end
 
   def save_inventory_data
+    potions_save_data, ingredients_save_data = get_inventory_save_data
+    $files.save_data["player"]["potions"] = potions_save_data
+    $files.save_data["player"]["ingredients"] = ingredients_save_data
+  end
+
+  def get_inventory_save_data
     potions_save_data = []
     ingredients_save_data = []
     @potions.all_cards.each { |c| potions_save_data << c.save_data? }
     @ingredients.all_cards.each { |c| ingredients_save_data << c.save_data? }
 
-    $files.save_data["player"]["potions"] = potions_save_data
-    $files.save_data["player"]["ingredients"] = ingredients_save_data
+    return potions_save_data, ingredients_save_data
   end
 
   def save_upgrades_data
@@ -117,6 +121,7 @@ class Player
       @starting_inventory_size = $files.save_data["player"]["upgrades"]["starting_inventory_size"]
       @maximum_focus = $files.save_data["player"]["upgrades"]["maximum_focus"]
       @maximum_hp = $files.save_data["player"]["upgrades"]["maximum_hp"]
+      puts "MAX HP: #{@maximum_hp} || HP SAVED: #{$files.save_data["player"]["upgrades"]["maximum_hp"]}"
       @alchemy_table_uses = $files.save_data["player"]["upgrades"]["alchemy_table_uses"]
       @shop_discount = $files.save_data["player"]["upgrades"]["shop_discount"]
       @reward_picks = $files.save_data["player"]["upgrades"]["reward_picks"]
