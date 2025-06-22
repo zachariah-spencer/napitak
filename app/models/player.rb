@@ -85,7 +85,7 @@ class Player
             $pids[id].fc,
             $pids[id].path,
             $pids[id].max_uses,
-            uses_left: uses
+            uses_left: uses,
           )
         )
       end
