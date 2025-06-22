@@ -19,9 +19,6 @@ class RunSummary
 
   def calc
     calc_buttons
-    
-
-    
   end
 
   def calc_buttons
