@@ -35,6 +35,10 @@ class AlchemyTable
 
   def cleanup
     puts "cleanup alchemy_table.rb"
+    state.currently_dragging_card_id = nil
+    state.mouse_point_inside_square = nil
+    c_ref = nil
+    c_u_m = nil
 
     potions_save_data = []
     @player.potions.all_cards.each { |c| potions_save_data << c.save_data? }

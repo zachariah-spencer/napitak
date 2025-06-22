@@ -2,24 +2,26 @@
 
 class Player
   attr_gtk
-  attr :ingredients,
-       :potions,
-       :focus,
-       :max_focus,
-       :hp,
-       :max_hp,
-       :stunned_turns,
-       :hovered_cards,
-       :died,
-       :combat_stats,
-       :my_turn,
-       :anodyne,
-       :starting_inventory_size,
-       :maximum_focus,
-       :maximum_hp,
-       :alchemy_table_uses,
-       :shop_discount,
-       :reward_picks
+  attr  :ingredients,
+        :potions,
+        :focus,
+        :max_focus,
+        :hp,
+        :max_hp,
+        :stunned_turns,
+        :hovered_cards,
+        :died,
+        :combat_stats,
+        :my_turn,
+        :anodyne,
+        :starting_inventory_size,
+        :maximum_focus,
+        :maximum_hp,
+        :alchemy_table_uses,
+        :shop_discount,
+        :reward_picks,
+        :prev_loadout_ingredients,
+        :prev_loadout_potions
 
   def initialize
     $player = self
@@ -42,6 +44,8 @@ class Player
 
     @ingredients = Inventory.new()
     @potions = Inventory.new()
+    @prev_loadout_ingredients = Inventory.new()
+    @prev_loadout_potions = Inventory.new()
   end
 
   def reset!
@@ -76,6 +80,7 @@ class Player
     if $files.save_data["player"]["previous_starting_potions_config"]
       $files.save_data["player"]["previous_starting_potions_config"].each do |data|
         id = data["id"]
+        puts "ID FROM SAVE: #{id}"
         uses = data["uses_left"].to_i
         pots.add(
           PotionCard.new(
@@ -104,6 +109,9 @@ class Player
         )
       end
     end
+
+    @prev_loadout_potions = pots
+    @prev_loadout_ingredients = ings
 
     return pots, ings
   end

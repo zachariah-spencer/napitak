@@ -181,12 +181,8 @@ class AlchemyLab
   end
 
   def config_prev_loadout
-    pots, ings = $player.load_prev_loadout_save_data
-
-    pots.all_cards.each { |card| @pot_menu_widget.add_item(card) }
-    ings.all_cards.each { |card| @ing_menu_widget.add_item(card) }
-    pots.all_cards.each { |c| puts "CARD: #{c.id}"}
-    
+    $player.prev_loadout_potions.all_cards.each { |card| @pot_menu_widget.add_item(card) }
+    $player.prev_loadout_ingredients.all_cards.each { |card| @ing_menu_widget.add_item(card) }
   end
 
   def calc_card_positions
