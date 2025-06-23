@@ -221,11 +221,11 @@ class Player
   def begin_turn
     @my_turn = true
     @combat_stats.mod_max_focus =
-      @combat_stats.max_focus - @combat_stats.statuses[$STATUS_TYPES["FROST"]]
+      @combat_stats.max_focus - @combat_stats.statuses[$STATUS_TYPES[:FROST]]
     @combat_stats.mod_max_focus = 0 if @combat_stats.mod_max_focus < 0
     @combat_stats.focus = @combat_stats.mod_max_focus
-    @combat_stats.calc_status(type: "RESTORATION")
-    @combat_stats.calc_status(type: "FROST")
+    @combat_stats.calc_status(type: :RESTORATION)
+    @combat_stats.calc_status(type: :FROST)
   end
 
   def tick

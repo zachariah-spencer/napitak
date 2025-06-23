@@ -191,7 +191,7 @@ class Combat
         r: 255,
         g: 255,
         b: 0,
-        text: "#{@player.combat_stats.statuses[$STATUS_TYPES["WARD"]]}",
+        text: "#{@player.combat_stats.statuses[$STATUS_TYPES[:WARD]]}",
         primitive_marker: :label
       }
 
@@ -246,7 +246,7 @@ class Combat
 
       l1 << flee_percentage_label
 
-      if @player.combat_stats.statuses[$STATUS_TYPES["WARD"]] > 0
+      if @player.combat_stats.statuses[$STATUS_TYPES[:WARD]] > 0
         l1 << player_ward_label
       end
       return l1
@@ -671,7 +671,7 @@ class Combat
       end
       @player.begin_turn
       @turn_num += 1
-      calc_status_effects(type: "BLIGHT")
+      calc_status_effects(type: :BLIGHT)
       draw_card
       begin_turn_stage @turn_stages[:playing_cards]
     elsif new_stage == @turn_stages[:playing_cards]
@@ -679,7 +679,7 @@ class Combat
     elsif new_stage == @turn_stages[:cleanup]
       puts "start cleanup stage"
       @player.my_turn = false
-      calc_status_effects(type: "SCORCH")
+      calc_status_effects(type: :SCORCH)
       begin_turn_stage @turn_stages[:enemy_turn]
     elsif new_stage == @turn_stages[:enemy_turn]
       @enemy.begin_turn
@@ -712,40 +712,40 @@ class Combat
       damage_trait =
         potion_info
           .traits
-          .find { |h| h.key?($TRAITS[:damage]) }
-          &.[]($TRAITS[:damage])
+          .find { |h| h.key?($CARD_TRAITS[:damage]) }
+          &.[]($CARD_TRAITS[:damage])
       mend_trait =
         potion_info
           .traits
-          .find { |h| h.key?($TRAITS[:mend]) }
-          &.[]($TRAITS[:mend])
+          .find { |h| h.key?($CARD_TRAITS[:mend]) }
+          &.[]($CARD_TRAITS[:mend])
       restoration_trait =
         potion_info
           .traits
-          .find { |h| h.key?($TRAITS[:restoration]) }
-          &.[]($TRAITS[:restoration])
+          .find { |h| h.key?($CARD_TRAITS[:restoration]) }
+          &.[]($CARD_TRAITS[:restoration])
       scorch_trait =
         potion_info
           .traits
-          .find { |h| h.key?($TRAITS[:scorch]) }
-          &.[]($TRAITS[:scorch])
+          .find { |h| h.key?($CARD_TRAITS[:scorch]) }
+          &.[]($CARD_TRAITS[:scorch])
       blight_trait =
         potion_info
           .traits
-          .find { |h| h.key?($TRAITS[:blight]) }
-          &.[]($TRAITS[:blight])
+          .find { |h| h.key?($CARD_TRAITS[:blight]) }
+          &.[]($CARD_TRAITS[:blight])
 
       frost_trait =
         potion_info
           .traits
-          .find { |h| h.key?($TRAITS[:frost]) }
-          &.[]($TRAITS[:frost])
+          .find { |h| h.key?($CARD_TRAITS[:frost]) }
+          &.[]($CARD_TRAITS[:frost])
 
       ward_trait =
         potion_info
           .traits
-          .find { |h| h.key?($TRAITS[:ward]) }
-          &.[]($TRAITS[:ward])
+          .find { |h| h.key?($CARD_TRAITS[:ward]) }
+          &.[]($CARD_TRAITS[:ward])
 
       if damage_trait
         @enemy.combat_stats.hurt(damage_trait[:amount], damage_trait[:type])
@@ -755,25 +755,25 @@ class Combat
 
       if restoration_trait
         @player.combat_stats.apply_status(
-          type: "RESTORATION",
+          type: :RESTORATION,
           stacks: restoration_trait
         )
       end
 
       if scorch_trait
-        @enemy.combat_stats.apply_status(type: "SCORCH", stacks: scorch_trait)
+        @enemy.combat_stats.apply_status(type: :SCORCH, stacks: scorch_trait)
       end
 
       if blight_trait
-        @enemy.combat_stats.apply_status(type: "BLIGHT", stacks: blight_trait)
+        @enemy.combat_stats.apply_status(type: :BLIGHT, stacks: blight_trait)
       end
 
       if frost_trait
-        @enemy.combat_stats.apply_status(type: "FROST", stacks: frost_trait)
+        @enemy.combat_stats.apply_status(type: :FROST, stacks: frost_trait)
       end
 
       if ward_trait
-        @player.combat_stats.apply_status(type: "WARD", stacks: ward_trait)
+        @player.combat_stats.apply_status(type: :WARD, stacks: ward_trait)
       end
 
       end_combat if @enemy.combat_stats.dead

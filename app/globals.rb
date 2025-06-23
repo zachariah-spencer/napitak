@@ -27,30 +27,35 @@ module GameData
     disease: 6
   }.freeze
   STATUS_EFFECT_COLORS = {
-    STATUS_TYPES["SCORCH"] => {
+    STATUS_TYPES[:SCORCH] => {
       r: 255,
       g: 100,
-      b: 0
+      b: 0,
+      message: "SCORCHED"
     },
-    STATUS_TYPES["BLIGHT"] => {
+    STATUS_TYPES[:BLIGHT] => {
       r: 120,
       g: 150,
-      b: 60
+      b: 60,
+      message: "BLIGHTED"
     },
-    STATUS_TYPES["FROST"] => {
+    STATUS_TYPES[:FROST] => {
       r: 0,
       g: 255,
-      b: 255
+      b: 255,
+      message: "FROSTED"
     },
-    STATUS_TYPES["WARD"] => {
+    STATUS_TYPES[:WARD] => {
       r: 255,
       g: 255,
-      b: 50
+      b: 50,
+      message: "WARDED"
     },
-    STATUS_TYPES["RESTORATION"] => {
+    STATUS_TYPES[:RESTORATION] => {
       r: 0,
       g: 255,
-      b: 0
+      b: 0,
+      message: "RESTORED"
     }
   }.freeze
   DAMAGE_TYPE_COLORS = {
@@ -161,7 +166,7 @@ module GameData
       desc: "A hot blast of steam projects towards foes.",
       fc: 2,
       max_uses: 2,
-      path: "sprites/circle/purple.png",
+      path: "sprites/circle/indigo.png",
       ingredients: {
         "i001" => 1,
         "i006" => 2

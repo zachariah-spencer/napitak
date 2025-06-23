@@ -92,22 +92,22 @@ class Enemy
     @combat_stats.heal(mend_trait) if mend_trait
 
     if restoration_trait
-      @combat_stats.apply_status(type: "RESTORATION", stacks: restoration_trait)
+      @combat_stats.apply_status(type: :RESTORATION, stacks: restoration_trait)
     end
 
     if scorch_trait
-      $player.combat_stats.apply_status(type: "SCORCH", stacks: scorch_trait)
+      $player.combat_stats.apply_status(type: :SCORCH, stacks: scorch_trait)
     end
 
     if blight_trait
-      $player.combat_stats.apply_status(type: "BLIGHT", stacks: blight_trait)
+      $player.combat_stats.apply_status(type: :BLIGHT, stacks: blight_trait)
     end
 
     if frost_trait
-      $player.combat_stats.apply_status(type: "FROST", stacks: frost_trait)
+      $player.combat_stats.apply_status(type: :FROST, stacks: frost_trait)
     end
 
-    @combat_stats.apply_status(type: "WARD", stacks: ward_trait) if ward_trait
+    @combat_stats.apply_status(type: :WARD, stacks: ward_trait) if ward_trait
   end
 
   def select_attack
@@ -128,10 +128,10 @@ class Enemy
   end
 
   def begin_turn
-    @combat_stats.calc_status(type: "RESTORATION")
-    frost_stacks = @combat_stats.statuses[$STATUS_TYPES["FROST"]]
+    @combat_stats.calc_status(type: :RESTORATION)
+    frost_stacks = @combat_stats.statuses[$STATUS_TYPES[:FROST]]
     if frost_stacks > 0
-      @combat_stats.calc_status(type: "FROST")
+      @combat_stats.calc_status(type: :FROST)
       end_turn
     else
       @my_turn = true
@@ -144,7 +144,7 @@ class Enemy
     if @my_turn and not @combat_stats.dead
       calc
     elsif @combat_stats.dead
-      @combat_stats.calc_status(type: "FROST")
+      @combat_stats.calc_status(type: :FROST)
       end_turn
     end
 
@@ -195,8 +195,8 @@ class Enemy
     @attacked = false
     @my_turn = false
     @turn_ended_signal = true
-    @combat_stats.calc_status(type: "SCORCH")
-    $player.combat_stats.calc_status(type: "SCORCH")
+    @combat_stats.calc_status(type: :SCORCH)
+    $player.combat_stats.calc_status(type: :SCORCH)
   end
 
   def attack_completed?

@@ -14,11 +14,11 @@ class CombatStatsComponent
 
   def initialize(x:, y:, hp: 1, focus: 0, resistances: [], vulnerabilities: [])
     @statuses = {
-      $STATUS_TYPES["SCORCH"] => 0,
-      $STATUS_TYPES["BLIGHT"] => 0,
-      $STATUS_TYPES["FROST"] => 0,
-      $STATUS_TYPES["WARD"] => 0,
-      $STATUS_TYPES["RESTORATION"] => 0
+      $STATUS_TYPES[:SCORCH] => 0,
+      $STATUS_TYPES[:BLIGHT] => 0,
+      $STATUS_TYPES[:FROST] => 0,
+      $STATUS_TYPES[:WARD] => 0,
+      $STATUS_TYPES[:RESTORATION] => 0
     }
 
     @resistances = resistances
@@ -49,13 +49,13 @@ class CombatStatsComponent
     mod_amt = (amt * 1.5).ceil if vulnerable
     mod_amt = (amt * 0.5).ceil if resistant
 
-    remaining_damage = mod_amt - (@statuses[$STATUS_TYPES["WARD"]] * 2)
+    remaining_damage = mod_amt - (@statuses[$STATUS_TYPES[:WARD]] * 2)
 
     if remaining_damage <= 0
-      @statuses[$STATUS_TYPES["WARD"]] -= mod_amt / 2
+      @statuses[$STATUS_TYPES[:WARD]] -= mod_amt / 2
       return
     else
-      @statuses[$STATUS_TYPES["WARD"]] = 0
+      @statuses[$STATUS_TYPES[:WARD]] = 0
       @hp -= remaining_damage
       @hp = 0 if @hp < 0
     end
@@ -76,11 +76,11 @@ class CombatStatsComponent
     @hp = @max_hp
     @dead = false
     @statuses = {
-      $STATUS_TYPES["SCORCH"] => 0,
-      $STATUS_TYPES["BLIGHT"] => 0,
-      $STATUS_TYPES["FROST"] => 0,
-      $STATUS_TYPES["WARD"] => 0,
-      $STATUS_TYPES["RESTORATION"] => 0
+      $STATUS_TYPES[:SCORCH] => 0,
+      $STATUS_TYPES[:BLIGHT] => 0,
+      $STATUS_TYPES[:FROST] => 0,
+      $STATUS_TYPES[:WARD] => 0,
+      $STATUS_TYPES[:RESTORATION] => 0
     }
   end
 
@@ -99,10 +99,10 @@ class CombatStatsComponent
     color = status_color?(type_enum)
 
     case type_enum
-    when $STATUS_TYPES["SCORCH"]
+    when $STATUS_TYPES[:SCORCH]
       if stacks > 0
         hurt(stacks, $DAMAGE_TYPES[:heat])
-        @statuses[$STATUS_TYPES["SCORCH"]] -= 1
+        @statuses[$STATUS_TYPES[:SCORCH]] -= 1
         GameUtils.status_label(
           @x,
           @y - 100,
@@ -113,17 +113,17 @@ class CombatStatsComponent
           80
         )
       end
-    when $STATUS_TYPES["BLIGHT"]
+    when $STATUS_TYPES[:BLIGHT]
       hurt(stacks, $DAMAGE_TYPES[:disease]) if stacks > 0
-    when $STATUS_TYPES["FROST"]
+    when $STATUS_TYPES[:FROST]
       if stacks > 0
-        @statuses[$STATUS_TYPES["FROST"]] -= 1
+        @statuses[$STATUS_TYPES[:FROST]] -= 1
         GameUtils.status_label(@x, @y, "-1", color[0], color[1], color[2], 80)
       end
-    when $STATUS_TYPES["RESTORATION"]
+    when $STATUS_TYPES[:RESTORATION]
       if stacks > 0
         heal(stacks)
-        @statuses[$STATUS_TYPES["RESTORATION"]] -= 1
+        @statuses[$STATUS_TYPES[:RESTORATION]] -= 1
         GameUtils.status_label(@x, @y, "-1", color[0], color[1], color[2], 80)
       end
     end
@@ -141,7 +141,7 @@ class CombatStatsComponent
     GameUtils.status_label(
       @x,
       @y - 100,
-      "+#{stacks}",
+      "#{$STATUS_EFFECT_COLORS[$STATUS_TYPES[type]][:message]} +#{stacks}",
       color[0],
       color[1],
       color[2],
@@ -151,15 +151,15 @@ class CombatStatsComponent
 
   def status_color?(type_enum)
     case type_enum
-    when $STATUS_TYPES["SCORCH"]
+    when $STATUS_TYPES[:SCORCH]
       return 255, 100, 0
-    when $STATUS_TYPES["BLIGHT"]
+    when $STATUS_TYPES[:BLIGHT]
       return 120, 150, 60
-    when $STATUS_TYPES["FROST"]
+    when $STATUS_TYPES[:FROST]
       return 0, 255, 255
-    when $STATUS_TYPES["WARD"]
+    when $STATUS_TYPES[:WARD]
       return 255, 255, 0
-    when $STATUS_TYPES["RESTORATION"]
+    when $STATUS_TYPES[:RESTORATION]
       return 0, 255, 0
     end
   end
@@ -167,7 +167,7 @@ class CombatStatsComponent
   def prefab()
     rt_paths = []
     @statuses.each do |type, stacks|
-      if stacks > 0 and type != $STATUS_TYPES["WARD"]
+      if stacks > 0 and type != $STATUS_TYPES[:WARD]
         path = "c_stat_#{@entity_id}_#{type}".to_s
         GTK.args.outputs[path].w = 50
         GTK.args.outputs[path].h = 50
