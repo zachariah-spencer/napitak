@@ -74,6 +74,10 @@ class Player
     return potions_save_data, ingredients_save_data
   end
 
+  def save_prev_loadout_save_data
+    
+  end
+
   def load_prev_loadout_save_data
     pots = Inventory.new()
     ings = Inventory.new()

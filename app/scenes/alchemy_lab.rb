@@ -70,9 +70,11 @@ class AlchemyLab
       ingredients_save_data << c.save_data?
     end
 
-    previous_starting_potions_config, previous_starting_ingredients_config = @player.get_inventory_save_data
-    $files.save_data["player"]["previous_starting_potions_config"] = previous_starting_potions_config
-    $files.save_data["player"]["previous_starting_ingredients_config"] = previous_starting_ingredients_config
+    # previous_starting_potions_config, previous_starting_ingredients_config = @player.get_inventory_save_data
+    $player.prev_loadout_potions = Inventory.new(@pot_menu_widget.items?)
+    $player.prev_loadout_ingredients = Inventory.new(@ing_menu_widget.items?)
+
+    puts $player.prev_loadout_potions.all_cards
     $files.save_data["player"]["potions"] = potions_save_data
     $files.save_data["player"]["ingredients"] = ingredients_save_data
     $files.write
@@ -280,7 +282,7 @@ class AlchemyLab
         primitive_marker: :label
       }
 
-      l2 << @prev_loadout_btn.prefab if $files.save_data["player"]["previous_starting_potions_config"]
+      l2 << @prev_loadout_btn.prefab if $player.prev_loadout_potions.all_cards.size > 0 || $player.prev_loadout_ingredients.all_cards.size > 0
 
       l2 << [
         encounter_label,

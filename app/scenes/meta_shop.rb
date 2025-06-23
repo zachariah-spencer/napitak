@@ -124,7 +124,7 @@ class MetaShop
   def calc
     # GTK.request_quit if GTK.args.inputs.mouse.click and Geometry.intersect_rect?(GTK.args.inputs.mouse, quit_btn)
     # $game.new_run if GTK.args.inputs.mouse.click and Geometry.intersect_rect?(GTK.args.inputs.mouse, new_run_btn)
-    $game.new_run if @leave_btn.clicked?
+    $game.change_scene(prev_sc: "meta_shop", next_sc: "run_summary") if @leave_btn.clicked?
 
     @siz_btn.text = calc_price(@upgrades_price_sheet[:siz], @siz_info)
     @max_hp_btn.text = calc_price(@upgrades_price_sheet[:max_hp], @max_hp_info)
