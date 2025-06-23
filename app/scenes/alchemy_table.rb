@@ -19,8 +19,7 @@ class AlchemyTable
         x: 20,
         y: GTK.args.grid.h / 2 - 250,
         w: 160,
-        h: 500,
-        uid: 1
+        h: 500
       )
     @pot_menu_widget =
       ScrollListWidget.new(
@@ -28,8 +27,7 @@ class AlchemyTable
         x: GTK.args.grid.w - 20 - 160,
         y: GTK.args.grid.h / 2 - 250,
         w: 160,
-        h: 500,
-        uid: 2
+        h: 500
       )
   end
 
@@ -195,7 +193,12 @@ class AlchemyTable
         primitive_marker: :solid
       }
 
-      l1 << [left_panel, right_panel, @ing_menu_widget.render, @pot_menu_widget.render, ]
+      l1 << [
+        left_panel,
+        right_panel,
+        @ing_menu_widget.render,
+        @pot_menu_widget.render
+      ]
       l1
     when 2
       encounter_label ||= {
@@ -555,7 +558,7 @@ class AlchemyTable
       end
 
       if inputs.mouse.intersect_rect?(@ing_menu_widget.rect) and
-        !@selected_ingredients.values.include?(c_ref)
+           !@selected_ingredients.values.include?(c_ref)
         @ing_menu_widget.add_item(c_ref)
         @visible_ingredients.reject! { |id, c| c == c_ref }
       end

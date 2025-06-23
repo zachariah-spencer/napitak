@@ -39,20 +39,19 @@ class AlchemyLab
         x: 20,
         y: GTK.args.grid.h / 2 - 250,
         w: 160,
-        h: 500,
-        uid: 1
+        h: 500
       )
     @pot_menu_widget =
       ScrollListWidget.new(
-        items: @player.potions.all_cards,
+        items: [],
         x: GTK.args.grid.w - 20 - 160,
         y: GTK.args.grid.h / 2 - 250,
         w: 160,
-        h: 500,
-        uid: 2
+        h: 500
       )
 
-    @prev_loadout_btn = Button.new(x: 200, y: 20, w: 150, h: 75, text: "Prev. Loadout")
+    @prev_loadout_btn =
+      Button.new(x: 200, y: 20, w: 150, h: 75, text: "Prev. Loadout")
   end
 
   def cleanup
@@ -74,7 +73,6 @@ class AlchemyLab
     $player.prev_loadout_potions = Inventory.new(@pot_menu_widget.items?)
     $player.prev_loadout_ingredients = Inventory.new(@ing_menu_widget.items?)
 
-    puts $player.prev_loadout_potions.all_cards
     $files.save_data["player"]["potions"] = potions_save_data
     $files.save_data["player"]["ingredients"] = ingredients_save_data
     $files.write
@@ -144,7 +142,6 @@ class AlchemyLab
       new_new_ings.concat(@ing_menu_widget.instance_variable_get(:@items))
     end
 
-    
     # overwrite the player's potions with this collection
     @player.potions = Inventory.new(new_pots)
     # overwrite the player's ingredients with this collection
@@ -168,7 +165,9 @@ class AlchemyLab
     calc_mouse_inputs
     calc_keyboard_inputs
 
-    if @prev_loadout_btn.clicked? && $files.save_data["player"]["previous_starting_potions_config"]
+    if @prev_loadout_btn.clicked? &&
+         $player.prev_loadout_potions.all_cards.size > 0 ||
+         $player.prev_loadout_ingredients.all_cards.size > 0
       clear_loadout
       config_prev_loadout
     end
@@ -183,17 +182,19 @@ class AlchemyLab
   end
 
   def config_prev_loadout
-    $player.prev_loadout_potions.all_cards.each { |card| @pot_menu_widget.add_item(card) }
-    $player.prev_loadout_ingredients.all_cards.each { |card| @ing_menu_widget.add_item(card) }
+    $player.prev_loadout_potions.all_cards.each do |card|
+      @pot_menu_widget.add_item(card)
+    end
+    $player.prev_loadout_ingredients.all_cards.each do |card|
+      @ing_menu_widget.add_item(card)
+    end
   end
 
   def calc_card_positions
     @visible_ingredients
       .merge(@selected_ingredients)
       .merge(@visible_potions)
-      .each do |id, c|
-        c.calc_position(0, 0)
-      end
+      .each { |id, c| c.calc_position(0, 0) }
   end
 
   def render(layer_num)
@@ -208,14 +209,16 @@ class AlchemyLab
     generator_cards ||= []
     front_card = nil
 
-    @visible_ingredients.merge(@visible_potions).each do |id, c|
-      prefab = c.prefab
-      if c.grabbed
-        front_card = prefab
-      else
-        cards.append prefab
+    @visible_ingredients
+      .merge(@visible_potions)
+      .each do |id, c|
+        prefab = c.prefab
+        if c.grabbed
+          front_card = prefab
+        else
+          cards.append prefab
+        end
       end
-    end
     @selected_ingredients.each { |id, c| sel_cards.append(c.prefab) }
     @ingredient_generators.each { |id, c| generator_cards.append(c.prefab) }
 
@@ -282,7 +285,10 @@ class AlchemyLab
         primitive_marker: :label
       }
 
-      l2 << @prev_loadout_btn.prefab if $player.prev_loadout_potions.all_cards.size > 0 || $player.prev_loadout_ingredients.all_cards.size > 0
+      if $player.prev_loadout_potions.all_cards.size > 0 ||
+           $player.prev_loadout_ingredients.all_cards.size > 0
+        l2 << @prev_loadout_btn.prefab
+      end
 
       l2 << [
         encounter_label,
@@ -602,7 +608,9 @@ class AlchemyLab
   def calc_card_drag_inputs
     if state.currently_dragging_card_id
       id = state.currently_dragging_card_id
-      c_ref = @visible_ingredients[id] || @selected_ingredients[id] || @visible_potions[id]
+      c_ref =
+        @visible_ingredients[id] || @selected_ingredients[id] ||
+          @visible_potions[id]
     else
       c_u_m = Geometry.find_intersect_rect inputs.mouse, get_card_rects
       c_ref = nil
@@ -660,7 +668,9 @@ class AlchemyLab
     if inputs.mouse.click && c_u_m
       card_id = c_u_m[:id]
       state.currently_dragging_card_id = card_id
-      c_ref = @visible_ingredients[card_id] || @selected_ingredients[card_id] || @visible_potions[card_id]
+      c_ref =
+        @visible_ingredients[card_id] || @selected_ingredients[card_id] ||
+          @visible_potions[card_id]
       c_ref.grabbed = true
 
       reorder_cards(c_ref)
@@ -683,7 +693,7 @@ class AlchemyLab
       if inputs.mouse.intersect_rect?(@ing_menu_widget.rect) and
            @ing_menu_widget.items?.count < @max_ingredients and
            !@selected_ingredients.values.include?(c_ref) &&
-           !GameUtils.is_potion(c_ref.id)
+             !GameUtils.is_potion(c_ref.id)
         @ing_menu_widget.add_item(c_ref)
         @visible_ingredients.reject! { |id, c| c == c_ref }
       end
@@ -693,7 +703,8 @@ class AlchemyLab
         @visible_potions.reject! { |id, c| c == c_ref }
       end
 
-      if inputs.mouse.intersect_rect?(@pot_menu_widget.rect) && GameUtils.is_potion(c_ref.id)
+      if inputs.mouse.intersect_rect?(@pot_menu_widget.rect) &&
+           GameUtils.is_potion(c_ref.id)
         @pot_menu_widget.add_item(c_ref)
         c_ref.free_floating = false
         @visible_potions.reject! { |id, c| c == c_ref }

@@ -1,7 +1,7 @@
 class ScrollListWidget
   attr_reader :selected_item
 
-  def initialize(items:, x:, y:, w:, h:, uid:, item_height: 85)
+  def initialize(items:, x:, y:, w:, h:, item_height: 85)
     @items = items
     @x, @y = x, y
     @width = w
@@ -11,7 +11,7 @@ class ScrollListWidget
     @scroll_vel = 0
     @hovered_idx = nil
     @selected_item = nil
-    @uid = uid
+    @uid = GameUtils.new_id?
   end
 
   def rect

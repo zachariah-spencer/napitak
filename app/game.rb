@@ -29,10 +29,9 @@ class Game
     @player.load_inventory_data
     @player.load_upgrades_data
     @player.load_prev_loadout_save_data
-    
+
     is_mid_run = $files.save_data&.[]("mid_run")
     encounters_completed = $files.save_data&.[]("encounters_completed")
-    
 
     is_mid_run ? change_scene(prev_sc: "", next_sc: @scene) : new_run
   end
@@ -61,7 +60,11 @@ class Game
     when "alchemy_table"
       @scene_ref = AlchemyTable.new(max_uses: $player.alchemy_table_uses)
     when "alchemy_lab"
-      @scene_ref = AlchemyLab.new(max_uses: 10, max_ingredients: $player.starting_inventory_size)
+      @scene_ref =
+        AlchemyLab.new(
+          max_uses: 10,
+          max_ingredients: $player.starting_inventory_size
+        )
     when "rewards_screen"
       @scene_ref = RewardsScreen.new(picks: $player.reward_picks)
     when "map"
@@ -113,6 +116,14 @@ class Game
     $animation_manager.tick if $animation_manager
     render
     calc_particles
+
+    if GTK.args.inputs.keyboard.key_down.p
+      puts "\n\nPREV POT LOADOUT\n-------------------------------------------\n"
+      $player.prev_loadout_potions.all_cards.each { |c| puts c.id }
+
+      puts "\n\nCURRENT POTS\n-------------------------------------------\n"
+      $player.potions.all_cards.each { |c| puts c.id }
+    end
 
     # puts $files.save_data to file
     if (GTK.quit_requested? && !@autosaved)
@@ -184,7 +195,7 @@ class Game
       scale: scale,
       r: r,
       g: g,
-      b: b,
+      b: b
     }
   end
 
@@ -223,7 +234,16 @@ class Game
   def status_label_prefab(s_l)
     # create the rt for the particle (this will return/no-op if the RT
     # has already been created)
-    path = create_particle_rt!(s_l.text, s_l.r, s_l.g, s_l.b, s_l.scale, s_l.w, s_l.h)
+    path =
+      create_particle_rt!(
+        s_l.text,
+        s_l.r,
+        s_l.g,
+        s_l.b,
+        s_l.scale,
+        s_l.w,
+        s_l.h
+      )
 
     # if the particle was created this frame, skip its render
     # since the RT won't be processed until the next tick
@@ -247,5 +267,4 @@ class Game
       }
     end
   end
-
 end
