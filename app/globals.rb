@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module GameData
-  TRAITS = {
+  CARD_TRAITS = {
     damage: 0,
     restoration: 1,
     blight: 2,
@@ -11,12 +11,11 @@ module GameData
     mend: 6
   }.freeze
   STATUS_TYPES = {
-    #FIXME: Refactor to symbols over strings eventually, idk why I did this like this?????
-    "SCORCH" => 1,
-    "BLIGHT" => 2,
-    "FROST" => 3,
-    "WARD" => 4,
-    "RESTORATION" => 5
+    SCORCH: 1,
+    BLIGHT: 2,
+    FROST: 3,
+    WARD: 4,
+    RESTORATION: 5
   }.freeze
   DAMAGE_TYPES = {
     force: 0,
@@ -292,7 +291,7 @@ module GameData
   }.freeze
 end
 
-$TRAITS = GameData::TRAITS
+$CARD_TRAITS = GameData::CARD_TRAITS
 $STATUS_TYPES = GameData::STATUS_TYPES
 $DAMAGE_TYPES = GameData::DAMAGE_TYPES
 $STATUS_EFFECT_COLORS = GameData::STATUS_EFFECT_COLORS

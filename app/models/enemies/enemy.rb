@@ -48,24 +48,42 @@ class Enemy
   def handle_attack_effects(attack)
     # handle potion card behavior
     damage_trait =
-      attack.traits.find { |h| h.key?($TRAITS[:damage]) }&.[]($TRAITS[:damage])
+      attack
+        .traits
+        .find { |h| h.key?($CARD_TRAITS[:damage]) }
+        &.[]($CARD_TRAITS[:damage])
     mend_trait =
-      attack.traits.find { |h| h.key?($TRAITS[:mend]) }&.[]($TRAITS[:mend])
+      attack
+        .traits
+        .find { |h| h.key?($CARD_TRAITS[:mend]) }
+        &.[]($CARD_TRAITS[:mend])
     restoration_trait =
       attack
         .traits
-        .find { |h| h.key?($TRAITS[:restoration]) }
-        &.[]($TRAITS[:restoration])
+        .find { |h| h.key?($CARD_TRAITS[:restoration]) }
+        &.[]($CARD_TRAITS[:restoration])
     scorch_trait =
-      attack.traits.find { |h| h.key?($TRAITS[:scorch]) }&.[]($TRAITS[:scorch])
+      attack
+        .traits
+        .find { |h| h.key?($CARD_TRAITS[:scorch]) }
+        &.[]($CARD_TRAITS[:scorch])
     blight_trait =
-      attack.traits.find { |h| h.key?($TRAITS[:blight]) }&.[]($TRAITS[:blight])
+      attack
+        .traits
+        .find { |h| h.key?($CARD_TRAITS[:blight]) }
+        &.[]($CARD_TRAITS[:blight])
 
     frost_trait =
-      attack.traits.find { |h| h.key?($TRAITS[:frost]) }&.[]($TRAITS[:frost])
+      attack
+        .traits
+        .find { |h| h.key?($CARD_TRAITS[:frost]) }
+        &.[]($CARD_TRAITS[:frost])
 
     ward_trait =
-      attack.traits.find { |h| h.key?($TRAITS[:ward]) }&.[]($TRAITS[:ward])
+      attack
+        .traits
+        .find { |h| h.key?($CARD_TRAITS[:ward]) }
+        &.[]($CARD_TRAITS[:ward])
 
     if damage_trait
       $player.combat_stats.hurt(damage_trait[:amount], damage_trait[:type])
