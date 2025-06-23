@@ -28,51 +28,51 @@ module GameData
   }.freeze
   STATUS_EFFECT_COLORS = {
     STATUS_TYPES["SCORCH"] => {
-      r: 0,
-      g: 0,
+      r: 255,
+      g: 100,
       b: 0
     },
     STATUS_TYPES["BLIGHT"] => {
-      r: 0,
-      g: 0,
-      b: 0
+      r: 120,
+      g: 150,
+      b: 60
     },
     STATUS_TYPES["FROST"] => {
       r: 0,
-      g: 0,
-      b: 0
+      g: 255,
+      b: 255
     },
     STATUS_TYPES["WARD"] => {
-      r: 0,
-      g: 0,
-      b: 0
+      r: 255,
+      g: 255,
+      b: 50
     },
     STATUS_TYPES["RESTORATION"] => {
       r: 0,
-      g: 0,
+      g: 255,
       b: 0
     }
   }.freeze
   DAMAGE_TYPE_COLORS = {
     DAMAGE_TYPES[:force] => {
-      r: 0,
+      r: 255,
       g: 0,
       b: 0
     },
     DAMAGE_TYPES[:heat] => {
-      r: 0,
-      g: 0,
+      r: 255,
+      g: 100,
       b: 0
     },
     DAMAGE_TYPES[:cold] => {
       r: 0,
-      g: 0,
-      b: 0
+      g: 255,
+      b: 255
     },
     DAMAGE_TYPES[:light] => {
-      r: 0,
-      g: 0,
-      b: 0
+      r: 255,
+      g: 255,
+      b: 255
     },
     DAMAGE_TYPES[:dark] => {
       r: 0,
@@ -80,14 +80,14 @@ module GameData
       b: 0
     },
     DAMAGE_TYPES[:spark] => {
-      r: 0,
-      g: 0,
+      r: 255,
+      g: 255,
       b: 0
     },
     DAMAGE_TYPES[:disease] => {
-      r: 0,
-      g: 0,
-      b: 0
+      r: 120,
+      g: 150,
+      b: 60
     }
   }.freeze
   DAMAGE_TYPE_SPRITES = {
