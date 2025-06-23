@@ -6,11 +6,11 @@ module GameUtils
   end
 
   def self.craftable_ingredients?
-    $iids.select { |_id, ing| !ing.base }
+    $IIDS.select { |_id, ing| !ing.base }
   end
 
   def self.base_ingredients?
-    $iids.select { |_id, ing| ing.base }
+    $IIDS.select { |_id, ing| ing.base }
   end
 
   def self.is_potion(item_id)
@@ -18,30 +18,30 @@ module GameUtils
   end
 
   def self.gen_new_card(id = nil, is_reward: false)
-    all_ids = $pids.keys + $iids.keys
+    all_ids = $PIDS.keys + $IIDS.keys
     if id.nil?
-      id = $iids.keys.sample
-      id = $iids.keys.sample while id == "i001"
+      id = $IIDS.keys.sample
+      id = $IIDS.keys.sample while id == "i001"
     end
 
     new_ent_id = get_rand_id
     $entity_ids << new_ent_id
     if is_reward
-      name = $iids[id].name
-      img = $iids[id].path
+      name = $IIDS[id].name
+      img = $IIDS[id].path
       IngredientRewardCard.new(id, new_ent_id, name, 0, img)
     elsif is_potion(id)
       PotionCard.new(
         id,
         new_ent_id,
-        $pids[id].name,
-        $pids[id].fc,
-        $pids[id].path,
-        $pids[id].max_uses,
-        uses_left: $pids[id].max_uses
+        $PIDS[id].name,
+        $PIDS[id].fc,
+        $PIDS[id].path,
+        $PIDS[id].max_uses,
+        uses_left: $PIDS[id].max_uses
       )
     else
-      IngredientCard.new(id, new_ent_id, $iids[id].name, 0, $iids[id].path)
+      IngredientCard.new(id, new_ent_id, $IIDS[id].name, 0, $IIDS[id].path)
     end
   end
 

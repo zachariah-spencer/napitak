@@ -2,26 +2,26 @@
 
 class Player
   attr_gtk
-  attr  :ingredients,
-        :potions,
-        :focus,
-        :max_focus,
-        :hp,
-        :max_hp,
-        :stunned_turns,
-        :hovered_cards,
-        :died,
-        :combat_stats,
-        :my_turn,
-        :anodyne,
-        :starting_inventory_size,
-        :maximum_focus,
-        :maximum_hp,
-        :alchemy_table_uses,
-        :shop_discount,
-        :reward_picks,
-        :prev_loadout_ingredients,
-        :prev_loadout_potions
+  attr :ingredients,
+       :potions,
+       :focus,
+       :max_focus,
+       :hp,
+       :max_hp,
+       :stunned_turns,
+       :hovered_cards,
+       :died,
+       :combat_stats,
+       :my_turn,
+       :anodyne,
+       :starting_inventory_size,
+       :maximum_focus,
+       :maximum_hp,
+       :alchemy_table_uses,
+       :shop_discount,
+       :reward_picks,
+       :prev_loadout_ingredients,
+       :prev_loadout_potions
 
   def initialize
     $player = self
@@ -40,7 +40,6 @@ class Player
     @stunned_turns = 0
     @hovered_cards = []
     @died = false
-
 
     @ingredients = Inventory.new()
     @potions = Inventory.new()
@@ -75,14 +74,15 @@ class Player
   end
 
   def save_prev_loadout_save_data
-    
   end
 
   def load_prev_loadout_save_data
     pots = Inventory.new()
     ings = Inventory.new()
     if $files.save_data["player"]["previous_starting_potions_config"]
-      $files.save_data["player"]["previous_starting_potions_config"].each do |data|
+      $files.save_data["player"][
+        "previous_starting_potions_config"
+      ].each do |data|
         id = data["id"]
         puts "ID FROM SAVE: #{id}"
         uses = data["uses_left"].to_i
@@ -90,25 +90,27 @@ class Player
           PotionCard.new(
             id,
             GameUtils.new_id?,
-            $pids[id].name,
-            $pids[id].fc,
-            $pids[id].path,
-            $pids[id].max_uses,
-            uses_left: uses,
+            $PIDS[id].name,
+            $PIDS[id].fc,
+            $PIDS[id].path,
+            $PIDS[id].max_uses,
+            uses_left: uses
           )
         )
       end
     end
 
     if $files.save_data["player"]["previous_starting_ingredients_config"]
-      $files.save_data["player"]["previous_starting_ingredients_config"].each do |id|
+      $files.save_data["player"][
+        "previous_starting_ingredients_config"
+      ].each do |id|
         ings.add(
           IngredientCard.new(
             id,
             GameUtils.new_id?,
-            $iids[id].name,
+            $IIDS[id].name,
             -1,
-            $iids[id].path
+            $IIDS[id].path
           )
         )
       end
@@ -122,10 +124,14 @@ class Player
 
   def save_upgrades_data
     $files.save_data["player"]["upgrades"]["anodyne"] = @anodyne
-    $files.save_data["player"]["upgrades"]["starting_inventory_size"] = @starting_inventory_size
+    $files.save_data["player"]["upgrades"][
+      "starting_inventory_size"
+    ] = @starting_inventory_size
     $files.save_data["player"]["upgrades"]["maximum_focus"] = @maximum_focus
     $files.save_data["player"]["upgrades"]["maximum_hp"] = @maximum_hp
-    $files.save_data["player"]["upgrades"]["alchemy_table_uses"] = @alchemy_table_uses
+    $files.save_data["player"]["upgrades"][
+      "alchemy_table_uses"
+    ] = @alchemy_table_uses
     $files.save_data["player"]["upgrades"]["shop_discount"] = @shop_discount
     $files.save_data["player"]["upgrades"]["reward_picks"] = @reward_picks
   end
@@ -139,10 +145,10 @@ class Player
           PotionCard.new(
             id,
             GameUtils.new_id?,
-            $pids[id].name,
-            $pids[id].fc,
-            $pids[id].path,
-            $pids[id].max_uses,
+            $PIDS[id].name,
+            $PIDS[id].fc,
+            $PIDS[id].path,
+            $PIDS[id].max_uses,
             uses_left: uses
           )
         )
@@ -155,9 +161,41 @@ class Player
           IngredientCard.new(
             id,
             GameUtils.new_id?,
-            $iids[id].name,
+            $IIDS[id].name,
             -1,
-            $iids[id].path
+            $IIDS[id].path
+          )
+        )
+      end
+    end
+
+    if $files.save_data["player"]["previous_run_ingredients"]
+      $files.save_data["player"]["previous_run_ingredients"].each do |id|
+        @prev_loadout_ingredients.add(
+          IngredientCard.new(
+            id,
+            GameUtils.new_id?,
+            $IIDS[id].name,
+            -1,
+            $IIDS[id].path
+          )
+        )
+      end
+    end
+
+    if $files.save_data["player"]["previous_run_potions"]
+      $files.save_data["player"]["previous_run_potions"].each do |data|
+        id = data["id"]
+        uses = data["uses_left"].to_i
+        @prev_loadout_potions.add(
+          PotionCard.new(
+            id,
+            GameUtils.new_id?,
+            $PIDS[id].name,
+            $PIDS[id].fc,
+            $PIDS[id].path,
+            $PIDS[id].max_uses,
+            uses_left: uses
           )
         )
       end
@@ -168,11 +206,13 @@ class Player
     # Always saved and loaded as a group so if "starting_inventory_size" exists then a save file exists as well.
     if $files.save_data["player"]["upgrades"]["anodyne"]
       @anodyne = $files.save_data["player"]["upgrades"]["anodyne"]
-      @starting_inventory_size = $files.save_data["player"]["upgrades"]["starting_inventory_size"]
+      @starting_inventory_size =
+        $files.save_data["player"]["upgrades"]["starting_inventory_size"]
       @maximum_focus = $files.save_data["player"]["upgrades"]["maximum_focus"]
       @maximum_hp = $files.save_data["player"]["upgrades"]["maximum_hp"]
       puts "MAX HP: #{@maximum_hp} || HP SAVED: #{$files.save_data["player"]["upgrades"]["maximum_hp"]}"
-      @alchemy_table_uses = $files.save_data["player"]["upgrades"]["alchemy_table_uses"]
+      @alchemy_table_uses =
+        $files.save_data["player"]["upgrades"]["alchemy_table_uses"]
       @shop_discount = $files.save_data["player"]["upgrades"]["shop_discount"]
       @reward_picks = $files.save_data["player"]["upgrades"]["reward_picks"]
     end

@@ -27,8 +27,8 @@ class PotionCard < Card
     )
 
     @free_floating = free_floating
-    @desc = $pids[id].desc
-    @potencies = $pids[id].traits
+    @desc = $PIDS[id].desc
+    @potencies = $PIDS[id].traits
   end
 
   def save_data?
@@ -48,7 +48,6 @@ class PotionCard < Card
 
   def calc_position(num_cards, index)
     if @free_floating
-
       if !@grabbed
         if @selected
           @fw = 200
@@ -67,9 +66,7 @@ class PotionCard < Card
       else
         @f_angle = 0
       end
-
     else
-
       x_s = (GTK.args.grid.w / 2) - (num_cards * ((@w + @padding) / 2))
       if !@grabbed
         @f_pos.x = x_s + (index * (@w + @padding)) - 40 # slight offset to x position if cards are "fanned" because the angling makes them look off-center otherwise
@@ -97,11 +94,9 @@ class PotionCard < Card
           @f_angle = 0.0
           @f_pos.y = max_y
         end
-
       else
         @f_angle = 0
       end
-
     end
 
     super

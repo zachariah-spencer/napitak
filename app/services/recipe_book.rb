@@ -16,10 +16,15 @@ class RecipeBook
     @potion_defs = potion_defs
     @ingredient_defs = ingredient_defs
     @unlocked_recipes = %w[]
-    @unlocked_recipes = $files.save_data["unlocked_recipes"] if $files.save_data["unlocked_recipes"]
+    @unlocked_recipes =
+      $files.save_data["unlocked_recipes"] if $files.save_data[
+      "unlocked_recipes"
+    ]
 
     @unlocked_bases = %w[i001 i002 i003]
-    @unlocked_bases = $files.save_data["unlocked_bases"] if $files.save_data["unlocked_bases"]
+    @unlocked_bases = $files.save_data["unlocked_bases"] if $files.save_data[
+      "unlocked_bases"
+    ]
     all_recipe_ids
   end
 

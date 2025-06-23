@@ -28,16 +28,16 @@ class RecipeCard < Card
 
     # Setup for potion data
     if GameUtils.is_potion(@id)
-      @name = $pids[id].name
-      @desc = $pids[id].desc
-      @fc = $pids[id].fc
-      @max_uses = $pids[id].max_uses
-      @potencies = $pids[id].traits
+      @name = $PIDS[id].name
+      @desc = $PIDS[id].desc
+      @fc = $PIDS[id].fc
+      @max_uses = $PIDS[id].max_uses
+      @potencies = $PIDS[id].traits
 
       @card_back_image = "sprites/card-back-purple.png"
-      @potion_image = $pids[id].path
+      @potion_image = $PIDS[id].path
       @ingredient_images = []
-      $pids[id].ingredients.keys.each do |iid|
+      $PIDS[id].ingredients.keys.each do |iid|
         @ingredient_images << $iids[iid].path
       end
 
@@ -340,5 +340,4 @@ class RecipeCard < Card
       primitive_marker: :sprite
     }
   end
-
 end

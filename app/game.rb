@@ -28,7 +28,6 @@ class Game
 
     @player.load_inventory_data
     @player.load_upgrades_data
-    @player.load_prev_loadout_save_data
 
     is_mid_run = $files.save_data&.[]("mid_run")
     encounters_completed = $files.save_data&.[]("encounters_completed")

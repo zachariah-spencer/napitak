@@ -278,7 +278,7 @@ class Card
         color = trait_color?(trait_id)
         start_x = @w * 2 - 50 - ((@potencies.size * 17.5) / 2)
 
-        if trait_id == $traits[:damage]
+        if trait_id == $TRAITS[:damage]
           damage_trait = potency_val
           damage_potency_val_x = start_x + (i * 25)
           args.outputs[@card_composite_tooltip_ref].primitives << {
@@ -372,19 +372,19 @@ class Card
 
   def trait_color?(trait)
     case trait
-    when $traits[:damage]
+    when $TRAITS[:damage]
       { r: 255, g: 0, b: 0 }
-    when $traits[:restoration]
+    when $TRAITS[:restoration]
       { r: 0, g: 255, b: 0 }
-    when $traits[:blight]
+    when $TRAITS[:blight]
       { r: 120, g: 150, b: 60 }
-    when $traits[:scorch]
+    when $TRAITS[:scorch]
       { r: 255, g: 100, b: 0 }
-    when $traits[:frost]
+    when $TRAITS[:frost]
       { r: 0, g: 255, b: 255 }
-    when $traits[:ward]
+    when $TRAITS[:ward]
       { r: 255, g: 255, b: 0 }
-    when $traits[:mend]
+    when $TRAITS[:mend]
       { r: 0, g: 150, b: 0 }
     end
   end

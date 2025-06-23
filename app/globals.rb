@@ -292,16 +292,16 @@ module GameData
   }.freeze
 end
 
-$traits = GameData::TRAITS
+$TRAITS = GameData::TRAITS
 $STATUS_TYPES = GameData::STATUS_TYPES
 $DAMAGE_TYPES = GameData::DAMAGE_TYPES
 $STATUS_EFFECT_COLORS = GameData::STATUS_EFFECT_COLORS
 $DAMAGE_TYPE_COLORS = GameData::DAMAGE_TYPE_COLORS
 $DAMAGE_TYPE_SPRITES = GameData::DAMAGE_TYPE_SPRITES
-$pids = GameData::PIDS
-$iids = GameData::IIDS
-$encounters = GameData::ENCOUNTERS
-$animations = GameData::ANIMATIONS
+$PIDS = GameData::PIDS
+$IIDS = GameData::IIDS
+$ENCOUNTERS = GameData::ENCOUNTERS
+$ANIMATIONS = GameData::ANIMATIONS
 
 $entity_ids = []
 $player = nil

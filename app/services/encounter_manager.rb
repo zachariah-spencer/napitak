@@ -1,23 +1,21 @@
-
 class EncounterManager
   attr :encounters, :map_layer, :encounters_completed, :combats_won
 
   def initialize
     $encounter_manager = self
-    @encounters_pool = $encounters
+    @encounters_pool = $ENCOUNTERS
     @choices = []
-    @unique_encounters  = Hash.new { |h,layer| h[layer] = [] }
-
+    @unique_encounters = Hash.new { |h, layer| h[layer] = [] }
 
     @encounter_map = [
-                      [rand_encounter?(1)],
-                      [rand_encounter?(2), rand_encounter?(2), rand_encounter?(2)],
-                      [rand_encounter?(3), rand_encounter?(3), rand_encounter?(3)],
-                      [rand_encounter?(4), rand_encounter?(4)],
-                      [rand_encounter?(5), rand_encounter?(5), rand_encounter?(5)],
-                      [rand_encounter?(6), rand_encounter?(6)],
-                      ["alchemy_lab"]
-                      ]
+      [rand_encounter?(1)],
+      [rand_encounter?(2), rand_encounter?(2), rand_encounter?(2)],
+      [rand_encounter?(3), rand_encounter?(3), rand_encounter?(3)],
+      [rand_encounter?(4), rand_encounter?(4)],
+      [rand_encounter?(5), rand_encounter?(5), rand_encounter?(5)],
+      [rand_encounter?(6), rand_encounter?(6)],
+      ["alchemy_lab"]
+    ]
 
     if ($files.save_data&.[]("map_layer")).to_i > 0
       ml_save = ($files.save_data&.[]("map_layer")).to_i
@@ -28,8 +26,13 @@ class EncounterManager
     @encounters_completed = 0
     @combats_won = 0
 
-    @encounters_completed = $files.save_data["encounters_completed"] if $files.save_data["encounters_completed"]
-    @combats_won = $files.save_data["combats_won"] if $files.save_data["combats_won"]
+    @encounters_completed =
+      $files.save_data["encounters_completed"] if $files.save_data[
+      "encounters_completed"
+    ]
+    @combats_won = $files.save_data["combats_won"] if $files.save_data[
+      "combats_won"
+    ]
   end
 
   def encounters_completed?
@@ -92,9 +95,7 @@ class EncounterManager
 
   def rand_encounter?(layer = nil)
     # only pick from those with chance > 0
-    available = @encounters_pool
-                  .select { |id, data| data.chance > 0 }
-                  .keys
+    available = @encounters_pool.select { |id, data| data.chance > 0 }.keys
 
     if layer
       # subtract out any we've already used this layer

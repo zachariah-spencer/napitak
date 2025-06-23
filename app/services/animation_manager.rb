@@ -4,7 +4,7 @@ class AnimationManager
   attr_gtk
   attr_accessor :player_ready_at
 
-  def initialize(animations = $animations)
+  def initialize(animations = $ANIMATIONS)
     $animation_manager = self
     @animations = animations
     @queue = []

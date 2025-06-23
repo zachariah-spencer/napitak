@@ -46,7 +46,7 @@ class Map
 
       if (clicked = c.pop_clicked)
         @tutorials&.cancel if @tutorials
-        if $encounters[clicked[:id]].is_combat
+        if $ENCOUNTERS[clicked[:id]].is_combat
           $game.change_scene(
             prev_sc: "map",
             next_sc: "combat",

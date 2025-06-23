@@ -34,9 +34,18 @@ class Combat
     calc
     @enemy.tick
     @player.tick
-    leave(0) if @enemy.combat_stats.dead && @victory_banner_timer && @victory_banner_timer.elapsed_time >= 3.seconds
-    leave(1) if @player.combat_stats.dead && @defeat_banner_timer && @defeat_banner_timer.elapsed_time >= 3.seconds 
-    leave(2) if @fled && @flee_banner_timer && @flee_banner_timer.elapsed_time >= 3.seconds
+    if @enemy.combat_stats.dead && @victory_banner_timer &&
+         @victory_banner_timer.elapsed_time >= 3.seconds
+      leave(0)
+    end
+    if @player.combat_stats.dead && @defeat_banner_timer &&
+         @defeat_banner_timer.elapsed_time >= 3.seconds
+      leave(1)
+    end
+    if @fled && @flee_banner_timer &&
+         @flee_banner_timer.elapsed_time >= 3.seconds
+      leave(2)
+    end
   end
 
   def calc_enemy_turn_ended
@@ -48,11 +57,7 @@ class Combat
   end
 
   def leave(state = 0)
-    state_enum = {
-      victory: 0,
-      defeat: 1,
-      flee: 2,
-    }
+    state_enum = { victory: 0, defeat: 1, flee: 2 }
     case state
     when state_enum[:victory]
       $encounter_manager.inc_combats_won
@@ -70,10 +75,10 @@ class Combat
     calc_card_positions
     calc_mouse_inputs if @player.my_turn? && !@fled
 
-    if !@enemy.combat_stats.dead 
+    if !@enemy.combat_stats.dead
       if @enemy.turn_over?
         puts "ENEMY_TURN_ENDED\n\n"
-        calc_enemy_turn_ended 
+        calc_enemy_turn_ended
       end
     else
       if @enemy.turn_over? and not @victory_banner_timer
@@ -83,7 +88,8 @@ class Combat
     end
 
     calc_entity_removals
-    @banner_alpha = @banner_alpha.lerp(255, 0.04) if @defeat_banner_timer or @victory_banner_timer or @flee_banner_timer
+    @banner_alpha = @banner_alpha.lerp(255, 0.04) if @defeat_banner_timer or
+      @victory_banner_timer or @flee_banner_timer
   end
 
   def render(layer_num)
@@ -224,23 +230,25 @@ class Combat
       ]
 
       flee_percentage_label ||= {
-          x: GTK.args.grid.w - 100,
-          y: 125,
-          alignment_enum: 1,
-          anchor_x: 0.5,
-          anchor_y: 0.5,
-          size_enum: 1,
-          r: 255,
-          g: 255,
-          b: 255,
-          a: 255,
-          text: "#{flee_success_rate?.to_i}% Chance",
-          primitive_marker: :label
+        x: GTK.args.grid.w - 100,
+        y: 125,
+        alignment_enum: 1,
+        anchor_x: 0.5,
+        anchor_y: 0.5,
+        size_enum: 1,
+        r: 255,
+        g: 255,
+        b: 255,
+        a: 255,
+        text: "#{flee_success_rate?.to_i}% Chance",
+        primitive_marker: :label
       }
 
       l1 << flee_percentage_label
 
-      l1 << player_ward_label if @player.combat_stats.statuses[$STATUS_TYPES["WARD"]] > 0
+      if @player.combat_stats.statuses[$STATUS_TYPES["WARD"]] > 0
+        l1 << player_ward_label
+      end
       return l1
     when 2
       deck_sprite ||= {
@@ -290,8 +298,6 @@ class Combat
         b: 255,
         primitive_marker: :label
       }
-
-      
 
       pass_button ||= {
         x: 20,
@@ -445,8 +451,6 @@ class Combat
         text: "YOUR TURN"
       }
 
-      
-
       l4 << @enemy.combat_stats.prefab
       l4 << @player.combat_stats.prefab
       l4 << players_turn_label if @player.my_turn?
@@ -473,8 +477,8 @@ class Combat
       primitive_marker: :solid
     }
 
-    btn_color = { r: 150, g: 150, b: 150, }
-    btn_color = { r: 80, g: 80, b: 200, } if @player.my_turn?
+    btn_color = { r: 150, g: 150, b: 150 }
+    btn_color = { r: 80, g: 80, b: 200 } if @player.my_turn?
 
     GTK.args.outputs[:flee_btn].primitives << {
       x: 5,
@@ -565,8 +569,7 @@ class Combat
     return if $animation_manager&.input_locked?
 
     if GTK.args.inputs.mouse.click &&
-         Geometry.intersect_rect?(inputs.mouse, flee_btn) &&
-         @player.my_turn
+         Geometry.intersect_rect?(inputs.mouse, flee_btn) && @player.my_turn
       puts "clicked on flee_btn"
       attempt_flee
     end
@@ -668,22 +671,18 @@ class Combat
       end
       @player.begin_turn
       @turn_num += 1
-      calc_status_effects(type:"BLIGHT")
+      calc_status_effects(type: "BLIGHT")
       draw_card
       begin_turn_stage @turn_stages[:playing_cards]
-
     elsif new_stage == @turn_stages[:playing_cards]
       puts "start playing_cards stage"
-
     elsif new_stage == @turn_stages[:cleanup]
       puts "start cleanup stage"
       @player.my_turn = false
-      calc_status_effects(type:"SCORCH")
+      calc_status_effects(type: "SCORCH")
       begin_turn_stage @turn_stages[:enemy_turn]
-
     elsif new_stage == @turn_stages[:enemy_turn]
       @enemy.begin_turn
-
     end
   end
 
@@ -713,51 +712,52 @@ class Combat
       damage_trait =
         potion_info
           .traits
-          .find { |h| h.key?($traits[:damage]) }
-          &.[]($traits[:damage])
+          .find { |h| h.key?($TRAITS[:damage]) }
+          &.[]($TRAITS[:damage])
       mend_trait =
         potion_info
           .traits
-          .find { |h| h.key?($traits[:mend]) }
-          &.[]($traits[:mend])
+          .find { |h| h.key?($TRAITS[:mend]) }
+          &.[]($TRAITS[:mend])
       restoration_trait =
         potion_info
           .traits
-          .find { |h| h.key?($traits[:restoration]) }
-          &.[]($traits[:restoration])
+          .find { |h| h.key?($TRAITS[:restoration]) }
+          &.[]($TRAITS[:restoration])
       scorch_trait =
         potion_info
           .traits
-          .find { |h| h.key?($traits[:scorch]) }
-          &.[]($traits[:scorch])
+          .find { |h| h.key?($TRAITS[:scorch]) }
+          &.[]($TRAITS[:scorch])
       blight_trait =
-      potion_info
-        .traits
-        .find { |h| h.key?($traits[:blight]) }
-        &.[]($traits[:blight])
-      
+        potion_info
+          .traits
+          .find { |h| h.key?($TRAITS[:blight]) }
+          &.[]($TRAITS[:blight])
+
       frost_trait =
         potion_info
           .traits
-          .find { |h| h.key?($traits[:frost]) }
-          &.[]($traits[:frost])
-      
+          .find { |h| h.key?($TRAITS[:frost]) }
+          &.[]($TRAITS[:frost])
+
       ward_trait =
         potion_info
           .traits
-          .find { |h| h.key?($traits[:ward]) }
-          &.[]($traits[:ward])
+          .find { |h| h.key?($TRAITS[:ward]) }
+          &.[]($TRAITS[:ward])
 
       if damage_trait
         @enemy.combat_stats.hurt(damage_trait[:amount], damage_trait[:type])
       end
-      
-      if mend_trait
-        @player.combat_stats.heal(mend_trait)
-      end
+
+      @player.combat_stats.heal(mend_trait) if mend_trait
 
       if restoration_trait
-        @player.combat_stats.apply_status(type: "RESTORATION", stacks: restoration_trait)
+        @player.combat_stats.apply_status(
+          type: "RESTORATION",
+          stacks: restoration_trait
+        )
       end
 
       if scorch_trait
@@ -775,7 +775,6 @@ class Combat
       if ward_trait
         @player.combat_stats.apply_status(type: "WARD", stacks: ward_trait)
       end
-
 
       end_combat if @enemy.combat_stats.dead
       begin_turn_stage @turn_stages[:cleanup] if not actions_available?

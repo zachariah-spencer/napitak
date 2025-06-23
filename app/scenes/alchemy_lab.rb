@@ -75,6 +75,10 @@ class AlchemyLab
 
     $files.save_data["player"]["potions"] = potions_save_data
     $files.save_data["player"]["ingredients"] = ingredients_save_data
+    $files.save_data["player"]["previous_run_potions"] = potions_save_data
+    $files.save_data["player"][
+      "previous_run_ingredients"
+    ] = ingredients_save_data
     $files.write
   end
 
@@ -166,8 +170,10 @@ class AlchemyLab
     calc_keyboard_inputs
 
     if @prev_loadout_btn.clicked? &&
-         $player.prev_loadout_potions.all_cards.size > 0 ||
-         $player.prev_loadout_ingredients.all_cards.size > 0
+        (
+          $player.prev_loadout_potions.all_cards.size > 0 ||
+          $player.prev_loadout_ingredients.all_cards.size > 0
+        )
       clear_loadout
       config_prev_loadout
     end

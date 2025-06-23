@@ -1,6 +1,16 @@
 class Enemy
   attr_gtk
-  attr :hp, :max_hp, :turn_start_timer, :attacked, :attacks, :attacked, :my_turn, :turn_ended_signal, :combat_stats, :sprite, :name
+  attr :hp,
+       :max_hp,
+       :turn_start_timer,
+       :attacked,
+       :attacks,
+       :attacked,
+       :my_turn,
+       :turn_ended_signal,
+       :combat_stats,
+       :sprite,
+       :name
 
   def initialize()
     $enemy = self
@@ -14,7 +24,6 @@ class Enemy
 
     @floating_seed = Numeric.rand(0.0..100.0)
 
-    
     @ang = 0
     @fx = GTK.args.grid.w / 2 - 100
     @fy = GTK.args.grid.h - 250
@@ -24,8 +33,7 @@ class Enemy
 
     @attack_y = GTK.args.grid.h - 250 - 500
     @home_y = GTK.args.grid.h - 250
-    
-    
+
     @attacks = {}
   end
 
@@ -40,50 +48,30 @@ class Enemy
   def handle_attack_effects(attack)
     # handle potion card behavior
     damage_trait =
-      attack
-        .traits
-        .find { |h| h.key?($traits[:damage]) }
-        &.[]($traits[:damage])
+      attack.traits.find { |h| h.key?($TRAITS[:damage]) }&.[]($TRAITS[:damage])
     mend_trait =
-      attack
-        .traits
-        .find { |h| h.key?($traits[:mend]) }
-        &.[]($traits[:mend])
+      attack.traits.find { |h| h.key?($TRAITS[:mend]) }&.[]($TRAITS[:mend])
     restoration_trait =
       attack
         .traits
-        .find { |h| h.key?($traits[:restoration]) }
-        &.[]($traits[:restoration])
+        .find { |h| h.key?($TRAITS[:restoration]) }
+        &.[]($TRAITS[:restoration])
     scorch_trait =
-      attack
-        .traits
-        .find { |h| h.key?($traits[:scorch]) }
-        &.[]($traits[:scorch])
+      attack.traits.find { |h| h.key?($TRAITS[:scorch]) }&.[]($TRAITS[:scorch])
     blight_trait =
-      attack
-        .traits
-        .find { |h| h.key?($traits[:blight]) }
-        &.[]($traits[:blight])
-    
+      attack.traits.find { |h| h.key?($TRAITS[:blight]) }&.[]($TRAITS[:blight])
+
     frost_trait =
-      attack
-        .traits
-        .find { |h| h.key?($traits[:frost]) }
-        &.[]($traits[:frost])
-    
+      attack.traits.find { |h| h.key?($TRAITS[:frost]) }&.[]($TRAITS[:frost])
+
     ward_trait =
-      attack
-        .traits
-        .find { |h| h.key?($traits[:ward]) }
-        &.[]($traits[:ward])
+      attack.traits.find { |h| h.key?($TRAITS[:ward]) }&.[]($TRAITS[:ward])
 
     if damage_trait
       $player.combat_stats.hurt(damage_trait[:amount], damage_trait[:type])
     end
-    
-    if mend_trait
-      @combat_stats.heal(mend_trait)
-    end
+
+    @combat_stats.heal(mend_trait) if mend_trait
 
     if restoration_trait
       @combat_stats.apply_status(type: "RESTORATION", stacks: restoration_trait)
@@ -101,9 +89,7 @@ class Enemy
       $player.combat_stats.apply_status(type: "FROST", stacks: frost_trait)
     end
 
-    if ward_trait
-      @combat_stats.apply_status(type: "WARD", stacks: ward_trait)
-    end
+    @combat_stats.apply_status(type: "WARD", stacks: ward_trait) if ward_trait
   end
 
   def select_attack
@@ -123,12 +109,11 @@ class Enemy
     attack
   end
 
-
   def begin_turn
-    @combat_stats.calc_status(type:"RESTORATION")
+    @combat_stats.calc_status(type: "RESTORATION")
     frost_stacks = @combat_stats.statuses[$STATUS_TYPES["FROST"]]
     if frost_stacks > 0
-      @combat_stats.calc_status(type:"FROST")
+      @combat_stats.calc_status(type: "FROST")
       end_turn
     else
       @my_turn = true
@@ -141,7 +126,7 @@ class Enemy
     if @my_turn and not @combat_stats.dead
       calc
     elsif @combat_stats.dead
-      @combat_stats.calc_status(type:"FROST")
+      @combat_stats.calc_status(type: "FROST")
       end_turn
     end
 
@@ -158,9 +143,10 @@ class Enemy
 
   def calc_float
     if @my_turn and @turn_start_timer.elapsed_time < 0.85.seconds
-    # if @turn_start_timer.elapsed_time > 1.seconds or @turn_start_timer = 0
+      # if @turn_start_timer.elapsed_time > 1.seconds or @turn_start_timer = 0
       @fx = @fx + (Math.cos(@floating_seed + Kernel.tick_count * 0.85) * 5)
-    elsif @my_turn and @turn_start_timer.elapsed_time >= 0.85.seconds and @turn_start_timer.elapsed_time < 1.0.seconds
+    elsif @my_turn and @turn_start_timer.elapsed_time >= 0.85.seconds and
+          @turn_start_timer.elapsed_time < 1.0.seconds
       @fy = @attack_y
     elsif @my_turn and @turn_start_timer.elapsed_time >= 1.0.seconds
       @fx = GTK.args.grid.w / 2 - 100
@@ -184,17 +170,15 @@ class Enemy
 
   def calc_end_turn
     # check end turn
-    if attack_completed?
-      end_turn
-    end
+    end_turn if attack_completed?
   end
 
   def end_turn
     @attacked = false
     @my_turn = false
     @turn_ended_signal = true
-    @combat_stats.calc_status(type:"SCORCH")
-    $player.combat_stats.calc_status(type:"SCORCH")
+    @combat_stats.calc_status(type: "SCORCH")
+    $player.combat_stats.calc_status(type: "SCORCH")
   end
 
   def attack_completed?

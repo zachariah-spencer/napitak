@@ -4,13 +4,7 @@ class EncounterCard < Card
   attr :f_pos, :selected, :fw
 
   def initialize(id)
-    super(
-      id,
-      GameUtils.new_id?,
-      $encounters[id].name,
-      0,
-      $encounters[id].path
-    )
+    super(id, GameUtils.new_id?, $encounters[id].name, 0, $encounters[id].path)
     @selected = nil
   end
 
