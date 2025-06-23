@@ -77,6 +77,11 @@ class Card
     calc_render_target GTK.args
   end
 
+  def instant_set_position(x: GTK.args.grid.w / 2, y: GTK.args.grid.h / 2)
+    @pos = { x: x, y: y }
+    @f_pos = { x: x, y: y }
+  end
+
   def tick()
     calc_hover
     calc_render_target(GTK.args)

@@ -110,7 +110,9 @@ module GameData
         "i001" => 1,
         "i003" => 2
       },
-      traits: [{ TRAITS[:damage] => { amount: 1, type: DAMAGE_TYPES[:heat] } }]
+      traits: [
+        { CARD_TRAITS[:damage] => { amount: 1, type: DAMAGE_TYPES[:heat] } }
+      ]
     },
     "p002" => {
       name: "Combustible Potion",
@@ -123,7 +125,9 @@ module GameData
         "i003" => 1,
         "i006" => 1
       },
-      traits: [{ TRAITS[:damage] => { amount: 6, type: DAMAGE_TYPES[:force] } }]
+      traits: [
+        { CARD_TRAITS[:damage] => { amount: 6, type: DAMAGE_TYPES[:force] } }
+      ]
     },
     "p003" => {
       name: "Waterbeam Potion",
@@ -135,7 +139,9 @@ module GameData
         "i001" => 1,
         "i002" => 2
       },
-      traits: [{ TRAITS[:damage] => { amount: 2, type: DAMAGE_TYPES[:force] } }]
+      traits: [
+        { CARD_TRAITS[:damage] => { amount: 2, type: DAMAGE_TYPES[:force] } }
+      ]
     },
     "p004" => {
       name: "Cloudy Potion",
@@ -148,19 +154,19 @@ module GameData
         "i002" => 1,
         "i006" => 1
       },
-      traits: [{ TRAITS[:mend] => 3 }]
+      traits: [{ CARD_TRAITS[:mend] => 3 }]
     },
     "p005" => {
       name: "Steamblast Potion",
       desc: "A hot blast of steam projects towards foes.",
       fc: 2,
       max_uses: 2,
-      path: "sprites/circle/blue.png",
+      path: "sprites/circle/purple.png",
       ingredients: {
         "i001" => 1,
         "i006" => 2
       },
-      traits: [{ TRAITS[:scorch] => 3 }]
+      traits: [{ CARD_TRAITS[:scorch] => 3 }]
     }
   }.freeze
   IIDS = {

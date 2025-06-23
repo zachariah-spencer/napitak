@@ -38,23 +38,23 @@ class RecipeCard < Card
       @potion_image = $PIDS[id].path
       @ingredient_images = []
       $PIDS[id].ingredients.keys.each do |iid|
-        @ingredient_images << $iids[iid].path
+        @ingredient_images << $IIDS[iid].path
       end
 
       # Setup for ingredient data
     else
-      @name = $iids[id].name
+      @name = $IIDS[id].name
       @desc = nil
       @fc = nil
       @max_uses = nil
       @potencies = nil
 
       @card_back_image = "sprites/card-back-purple.png"
-      @potion_image = $iids[id].path
+      @potion_image = $IIDS[id].path
       @ingredient_images = []
-      if not $iids[id].base
-        $iids[id].ingredients.keys.each do |iid|
-          @ingredient_images << $iids[iid].path
+      if not $IIDS[id].base
+        $IIDS[id].ingredients.keys.each do |iid|
+          @ingredient_images << $IIDS[iid].path
         end
       end
       puts @ingredient_images

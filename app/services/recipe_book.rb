@@ -9,7 +9,7 @@ class RecipeBook
   # potion_defs: hash mapping recipe_id to data, e.g.:
   #     "p001" => { name: "Rock Potion", ingredients: [["i001", 2], ["i002", 1]] }
   # ingredient_defs: hash mapping ingredient_id to ingredient metadata.
-  def initialize(potion_defs = $pids, ingredient_defs = $iids)
+  def initialize(potion_defs = $PIDS, ingredient_defs = $IIDS)
     $recipe_book = self
 
     # @player = $player
@@ -106,7 +106,7 @@ class RecipeBook
 
     matching_potion = nil
 
-    # Iterate through each potion definition in $pids.
+    # Iterate through each potion definition in $PIDS.
     all_craftables.each do |potion_id, potion|
       # Build a frequency hash for the potion's ingredient list.
       required_counts = ingredient_counts(potion[:ingredients])

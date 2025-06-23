@@ -24,13 +24,11 @@ class AlchemyLab
         (((padding + card_size) / 2) * @recipe_book.unlocked_bases.size)
     @recipe_book.unlocked_bases.each_with_index do |base_id, i|
       c = IngredientGeneratorCard.new(base_id)
-      c.f_pos.x = start_x + (i * (padding + card_size))
-      c.f_pos.y = 75
+      c.instant_set_position(x: start_x + (i * (padding + card_size)), y: 75)
       @ingredient_generators[c.id] = c
 
       @trash_can = TrashCanCard.new()
-      @trash_can.f_pos.x = GTK.args.grid.w - 320
-      @trash_can.f_pos.y = GTK.args.grid.h - 120
+      @trash_can.instant_set_position(x: GTK.args.grid.w - 320, y: GTK.args.grid.h - 120)
     end
 
     @ing_menu_widget =
@@ -170,10 +168,10 @@ class AlchemyLab
     calc_keyboard_inputs
 
     if @prev_loadout_btn.clicked? &&
-        (
-          $player.prev_loadout_potions.all_cards.size > 0 ||
-          $player.prev_loadout_ingredients.all_cards.size > 0
-        )
+         (
+           $player.prev_loadout_potions.all_cards.size > 0 ||
+             $player.prev_loadout_ingredients.all_cards.size > 0
+         )
       clear_loadout
       config_prev_loadout
     end
@@ -659,14 +657,16 @@ class AlchemyLab
     @ingredient_generators.each do |id, c|
       if clicked = c.pop_clicked
         puts "YOU CLICKED: #{clicked}"
-        c_ref = draw_card(GameUtils.gen_new_card(clicked[:id]))
+        c_ref = GameUtils.gen_new_card(clicked[:id])
         puts c_ref
         if c_ref
           c_ref.activation_time = Kernel.tick_count
           c_u_m = c_ref.rect
+          c_ref.instant_set_position(x: GTK.args.inputs.mouse.x - 80, y: GTK.args.inputs.mouse.y - 80)
           c_u_m.x = GTK.args.inputs.mouse.x - 80
           c_u_m.y = GTK.args.inputs.mouse.y - 80
           c_ref.grabbed = true
+          draw_card(c_ref)
         end
       end
     end

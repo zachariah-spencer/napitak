@@ -4,7 +4,7 @@ class EncounterCard < Card
   attr :f_pos, :selected, :fw
 
   def initialize(id)
-    super(id, GameUtils.new_id?, $encounters[id].name, 0, $encounters[id].path)
+    super(id, GameUtils.new_id?, $ENCOUNTERS[id].name, 0, $ENCOUNTERS[id].path)
     @selected = nil
   end
 
@@ -24,7 +24,7 @@ class EncounterCard < Card
            GTK.args.inputs.mouse.click
        )
       puts "#{@entity_id} || #{@name} : was clicked"
-      @selected = { id: @id, data: $encounters[@id] }
+      @selected = { id: @id, data: $ENCOUNTERS[@id] }
     end
   end
 

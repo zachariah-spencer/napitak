@@ -699,7 +699,7 @@ class Combat
   end
 
   def use_card(card)
-    potion_info = $pids[card.id]
+    potion_info = $PIDS[card.id]
     # handle deducting potion throwing focus cost
     if @player.combat_stats.focus >= potion_info.fc and card.uses_left > 0
       @player.combat_stats.focus -= potion_info.fc

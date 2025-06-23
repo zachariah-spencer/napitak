@@ -28,21 +28,36 @@ class Wolf < Enemy
         name: "Basic Attack",
         attack_id: "a001",
         traits: [
-          { $traits[:damage] => { amount: 1, type: $DAMAGE_TYPES[:force] } }
+          {
+            $CARD_TRAITS[:damage] => {
+              amount: 1,
+              type: $DAMAGE_TYPES[:force]
+            }
+          }
         ]
       },
       20 => {
         name: "Power Attack",
         attack_id: "a002",
         traits: [
-          { $traits[:damage] => { amount: 2, type: $DAMAGE_TYPES[:force] } }
+          {
+            $CARD_TRAITS[:damage] => {
+              amount: 2,
+              type: $DAMAGE_TYPES[:force]
+            }
+          }
         ]
       },
       10 => {
         name: "Ultimate Attack",
         attack_id: "a003",
         traits: [
-          { $traits[:damage] => { amount: 2, type: $DAMAGE_TYPES[:force] } }
+          {
+            $CARD_TRAITS[:damage] => {
+              amount: 2,
+              type: $DAMAGE_TYPES[:force]
+            }
+          }
         ]
       }
     }
