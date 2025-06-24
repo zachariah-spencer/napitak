@@ -243,16 +243,25 @@ class AlchemyLab
 
       l0
     when 1
+      # left_panel ||= {
+      #   x: 0,
+      #   y: 0,
+      #   w: 200,
+      #   h: GTK.args.grid.h,
+      #   r: 50,
+      #   g: 50,
+      #   b: 50,
+      #   a: 50,
+      #   primitive_marker: :solid
+      # }
+
       left_panel ||= {
         x: 0,
         y: 0,
         w: 200,
         h: GTK.args.grid.h,
-        r: 50,
-        g: 50,
-        b: 50,
-        a: 50,
-        primitive_marker: :solid
+        path: "sprites/panel.png",
+        primitive_marker: :sprite
       }
 
       right_panel ||= {
