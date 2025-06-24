@@ -25,6 +25,11 @@ class RecipeCard < Card
     @hovered_h = h * 1.25
     @normal_w = w
     @normal_h = h
+    @card_back_img = %w[
+      sprites/card_back_1.png
+      sprites/card_back_2.png
+      sprites/card_back_3.png
+    ].sample
 
     # Setup for potion data
     if GameUtils.is_potion(@id)
@@ -33,8 +38,6 @@ class RecipeCard < Card
       @fc = $PIDS[id].fc
       @max_uses = $PIDS[id].max_uses
       @potencies = $PIDS[id].traits
-
-      @card_back_image = "sprites/card-back-purple.png"
       @potion_image = $PIDS[id].path
       @ingredient_images = []
       $PIDS[id].ingredients.keys.each do |iid|
@@ -48,8 +51,6 @@ class RecipeCard < Card
       @fc = nil
       @max_uses = nil
       @potencies = nil
-
-      @card_back_image = "sprites/card-back-purple.png"
       @potion_image = $IIDS[id].path
       @ingredient_images = []
       if not $IIDS[id].base
@@ -63,9 +64,9 @@ class RecipeCard < Card
     @card_composite_sprite_ref = :"card_composite_#{@entity_id}"
     @card_composite_tooltip_ref = :"card_composite_tooltip_#{@entity_id}"
 
-    @r = 150 # Numeric.rand(100..200)
-    @g = 150 # Numeric.rand(50..100)
-    @b = 150 # Numeric.rand(100..200)
+    @r = 255 # Numeric.rand(100..200)
+    @g = 255 # Numeric.rand(50..100)
+    @b = 255 # Numeric.rand(100..200)
     @hovered = false
     @page = page
   end
@@ -139,7 +140,7 @@ class RecipeCard < Card
       r: @r,
       g: @g,
       b: @b,
-      path: @card_back_image
+      path: @card_back_img
     }
 
     args.outputs[@card_composite_sprite_ref].primitives << {
@@ -191,7 +192,7 @@ class RecipeCard < Card
       a: 180,
       primitive_marker: :solid
     }
-    parsed_name = String.wrapped_lines @name, 15
+    parsed_name = String.wrapped_lines @name, 25
     args.outputs[
       @card_composite_tooltip_ref
     ].primitives << parsed_name.map_with_index do |s, i|
@@ -285,26 +286,73 @@ class RecipeCard < Card
         b: 255,
         size_enum: 1
       }
-      puts @potencies
 
+      damage_potency_val_x = 0
+      damage_trait = nil
       @potencies.each_with_index do |trait, i|
         trait.each do |trait_id, potency_val|
           color = trait_color?(trait_id)
-
           start_x = @w * 2 - 50 - ((@potencies.size * 17.5) / 2)
-          args.outputs[@card_composite_tooltip_ref].primitives << {
-            x: start_x + (i * 25),
-            y: 35,
-            text: "#{potency_val.to_s}",
-            anchor_x: 0.5,
-            anchor_y: 0.5,
-            r: color.r,
-            g: color.g,
-            b: color.b,
-            size_enum: 1
-          }
+
+          if trait_id == $CARD_TRAITS[:damage]
+            damage_trait = potency_val
+            damage_potency_val_x = start_x + (i * 25)
+            args.outputs[@card_composite_tooltip_ref].primitives << {
+              x: damage_potency_val_x,
+              y: 35,
+              text: "#{potency_val.amount.to_s}",
+              anchor_x: 0.5,
+              anchor_y: 0.5,
+              r: color.r,
+              g: color.g,
+              b: color.b,
+              size_enum: 1
+            }
+          else
+            args.outputs[@card_composite_tooltip_ref].primitives << {
+              x: start_x + (i * 25),
+              y: 35,
+              text: "#{potency_val.to_s}",
+              anchor_x: 0.5,
+              anchor_y: 0.5,
+              r: color.r,
+              g: color.g,
+              b: color.b,
+              size_enum: 1
+            }
+          end
         end
       end
+
+      if damage_trait
+        args.outputs[@card_composite_tooltip_ref].primitives << {
+          x: damage_potency_val_x - 5 - 15,
+          y: 35 - 5,
+          w: 10,
+          h: 10,
+          path: $DAMAGE_TYPE_SPRITES[damage_trait[:type]],
+          primitive_marker: :sprite
+        }
+      end
+
+      # @potencies.each_with_index do |trait, i|
+      #   trait.each do |trait_id, potency_val|
+      #     color = trait_color?(trait_id)
+      #
+      #     start_x = @w * 2 - 50 - ((@potencies.size * 17.5) / 2)
+      #     args.outputs[@card_composite_tooltip_ref].primitives << {
+      #       x: start_x + (i * 25),
+      #       y: 35,
+      #       text: "#{potency_val.to_s}",
+      #       anchor_x: 0.5,
+      #       anchor_y: 0.5,
+      #       r: color.r,
+      #       g: color.g,
+      #       b: color.b,
+      #       size_enum: 1
+      #     }
+      #   end
+      # end
 
       args.outputs[@card_composite_tooltip_ref].primitives << {
         x: @w,

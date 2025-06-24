@@ -28,14 +28,17 @@ class AlchemyLab
       @ingredient_generators[c.id] = c
 
       @trash_can = TrashCanCard.new()
-      @trash_can.instant_set_position(x: GTK.args.grid.w - 320, y: GTK.args.grid.h - 120)
+      @trash_can.instant_set_position(
+        x: GTK.args.grid.w - 320,
+        y: GTK.args.grid.h - 120
+      )
     end
 
     @ing_menu_widget =
       ScrollListWidget.new(
         items: [],
         x: 20,
-        y: GTK.args.grid.h / 2 - 250,
+        y: GTK.args.grid.h / 2 - 270,
         w: 160,
         h: 500
       )
@@ -43,7 +46,7 @@ class AlchemyLab
       ScrollListWidget.new(
         items: [],
         x: GTK.args.grid.w - 20 - 160,
-        y: GTK.args.grid.h / 2 - 250,
+        y: GTK.args.grid.h / 2 - 270,
         w: 160,
         h: 500
       )
@@ -233,10 +236,8 @@ class AlchemyLab
         y: 0,
         w: GTK.args.grid.w,
         h: GTK.args.grid.h,
-        r: 10,
-        g: 10,
-        b: 20,
-        primitive_marker: :solid
+        path: "sprites/background.png",
+        primitive_marker: :sprite
       }
 
       l0 << [background]
@@ -260,7 +261,7 @@ class AlchemyLab
         y: 0,
         w: 200,
         h: GTK.args.grid.h,
-        path: "sprites/panel.png",
+        path: "sprites/panel_blue.png",
         primitive_marker: :sprite
       }
 
@@ -269,11 +270,8 @@ class AlchemyLab
         y: 0,
         w: 200,
         h: GTK.args.grid.h,
-        r: 50,
-        g: 50,
-        b: 50,
-        a: 50,
-        primitive_marker: :solid
+        path: "sprites/panel_blue.png",
+        primitive_marker: :sprite
       }
 
       l1 << [
@@ -295,6 +293,7 @@ class AlchemyLab
         g: 255,
         b: 255,
         text: "Alchemy Lab",
+        font: "fonts/eaglelake.ttf",
         primitive_marker: :label
       }
 
@@ -326,6 +325,7 @@ class AlchemyLab
           g: 0,
           b: 0,
           size_enum: 15,
+          font: "fonts/eaglelake.ttf",
           primitive_marker: :label
         }
 
@@ -341,6 +341,7 @@ class AlchemyLab
         g: 255,
         b: 255,
         text: "Brewing Capacity: #{@uses_left}",
+        font: "fonts/eaglelake.ttf",
         primitive_marker: :label
       }
 
@@ -353,6 +354,7 @@ class AlchemyLab
         g: 255,
         b: 255,
         text: "#{@ing_menu_widget.items?.size} / #{@max_ingredients}",
+        font: "fonts/eaglelake.ttf",
         primitive_marker: :label
       }
 
@@ -365,50 +367,36 @@ class AlchemyLab
   end
 
   def potions_label
-    GTK.args.outputs[:potions_label].w = 150
-    GTK.args.outputs[:potions_label].h = 75
+    GTK.args.outputs[:potions_label].w = 136
+    GTK.args.outputs[:potions_label].h = 72
 
     GTK.args.outputs[:potions_label].primitives << {
       x: 0,
       y: 0,
-      w: 150,
-      h: 75,
-      angle: 0,
-      r: 0,
-      g: 0,
-      b: 0,
-      primitive_marker: :solid
+      w: 136,
+      h: 72,
+      path: "sprites/modal_blue.png",
+      primitive_marker: :sprite
     }
 
     GTK.args.outputs[:potions_label].primitives << {
-      x: 5,
-      y: 5,
-      w: 140,
-      h: 65,
-      angle: 0,
-      r: 180,
-      g: 50,
-      b: 50,
-      primitive_marker: :solid
-    }
-
-    GTK.args.outputs[:potions_label].primitives << {
-      x: 150 / 2,
-      y: 75 / 2,
+      x: 136 / 2,
+      y: 72 / 2,
       text: "POTIONS",
       anchor_x: 0.5,
       anchor_y: 0.5,
-      r: 0,
-      g: 0,
-      b: 0,
-      size_enum: 3
+      r: 255,
+      g: 255,
+      b: 255,
+      font: "fonts/eaglelake.ttf",
+      size_px: 20
     }
 
     {
-      x: GTK.args.grid.w - 25 - 150,
-      y: GTK.args.grid.h - 20 - 75,
-      w: 150,
-      h: 75,
+      x: GTK.args.grid.w - 32 - 136,
+      y: GTK.args.grid.h - (72) - (16 * 3),
+      w: 136,
+      h: 72,
       angle: 0,
       path: :potions_label,
       primitive_marker: :sprite
@@ -416,50 +404,36 @@ class AlchemyLab
   end
 
   def ingredients_label
-    GTK.args.outputs[:ingredients_label].w = 150
-    GTK.args.outputs[:ingredients_label].h = 75
+    GTK.args.outputs[:ingredients_label].w = 136
+    GTK.args.outputs[:ingredients_label].h = 72
 
     GTK.args.outputs[:ingredients_label].primitives << {
       x: 0,
       y: 0,
-      w: 150,
-      h: 75,
-      angle: 0,
-      r: 0,
-      g: 0,
-      b: 0,
-      primitive_marker: :solid
+      w: 136,
+      h: 72,
+      path: "sprites/modal_blue.png",
+      primitive_marker: :sprite
     }
 
     GTK.args.outputs[:ingredients_label].primitives << {
-      x: 5,
-      y: 5,
-      w: 140,
-      h: 65,
-      angle: 0,
-      r: 180,
-      g: 50,
-      b: 50,
-      primitive_marker: :solid
-    }
-
-    GTK.args.outputs[:ingredients_label].primitives << {
-      x: 150 / 2,
-      y: 75 / 2,
+      x: 136 / 2,
+      y: 72 / 2,
       text: "INGREDIENTS",
       anchor_x: 0.5,
       anchor_y: 0.5,
-      r: 0,
-      g: 0,
-      b: 0,
-      size_enum: 3
+      r: 255,
+      g: 255,
+      b: 255,
+      size_px: 20,
+      font: "fonts/eaglelake.ttf"
     }
 
     {
-      x: 25,
-      y: GTK.args.grid.h - 20 - 75,
-      w: 150,
-      h: 75,
+      x: 32,
+      y: GTK.args.grid.h - (72) - (16 * 3),
+      w: 136,
+      h: 72,
       angle: 0,
       path: :ingredients_label,
       primitive_marker: :sprite
@@ -504,7 +478,8 @@ class AlchemyLab
       r: 255,
       g: 255,
       b: 255,
-      size_enum: 3
+      size_enum: 3,
+      font: "fonts/eaglelake.ttf"
     }
 
     {
@@ -671,7 +646,10 @@ class AlchemyLab
         if c_ref
           c_ref.activation_time = Kernel.tick_count
           c_u_m = c_ref.rect
-          c_ref.instant_set_position(x: GTK.args.inputs.mouse.x - 80, y: GTK.args.inputs.mouse.y - 80)
+          c_ref.instant_set_position(
+            x: GTK.args.inputs.mouse.x - 80,
+            y: GTK.args.inputs.mouse.y - 80
+          )
           c_u_m.x = GTK.args.inputs.mouse.x - 80
           c_u_m.y = GTK.args.inputs.mouse.y - 80
           c_ref.grabbed = true

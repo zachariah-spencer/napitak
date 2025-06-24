@@ -91,10 +91,8 @@ class Map
         y: 0,
         w: GTK.args.grid.w,
         h: GTK.args.grid.h,
-        r: 10,
-        g: 10,
-        b: 20,
-        primitive_marker: :solid
+        path: "sprites/background.png",
+        primitive_marker: :sprite
       }
 
       l0 << [background]
@@ -106,11 +104,8 @@ class Map
         y: 0,
         w: 200,
         h: GTK.args.grid.h,
-        r: 50,
-        g: 50,
-        b: 50,
-        a: 50,
-        primitive_marker: :solid
+        path: "sprites/panel_blue.png",
+        primitive_marker: :sprite
       }
 
       right_panel ||= {
@@ -118,11 +113,8 @@ class Map
         y: 0,
         w: 200,
         h: GTK.args.grid.h,
-        r: 50,
-        g: 50,
-        b: 50,
-        a: 50,
-        primitive_marker: :solid
+        path: "sprites/panel_blue.png",
+        primitive_marker: :sprite
       }
 
       l1 << [left_panel, right_panel]

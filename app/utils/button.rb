@@ -2,7 +2,15 @@ class Button
   attr_gtk
   attr :text
 
-  def initialize(x: GTK.args.grid / 2, y: GTK.args.grid.h / 2, w: 128, h: 128, text: "BUTTON", font_color: { r: 255, g: 255, b: 255 }, background_color: { r: 200, g: 0, b: 0 })
+  def initialize(
+    x: GTK.args.grid / 2,
+    y: GTK.args.grid.h / 2,
+    w: 128,
+    h: 128,
+    text: "BUTTON",
+    font_color: { r: 255, g: 255, b: 255 },
+    background_color: { r: 200, g: 0, b: 0 }
+  )
     @id = GameUtils.new_id?
     @x = x
     @y = y
@@ -51,7 +59,8 @@ class Button
       r: 255,
       g: 255,
       b: 255,
-      size_enum: 3
+      size_enum: 3,
+      font: "fonts/eaglelake.ttf"
     }
 
     {
@@ -66,7 +75,8 @@ class Button
   end
 
   def clicked?
-    Geometry.intersect_rect?(GTK.args.inputs.mouse, rect) && GTK.args.inputs.mouse.click
+    Geometry.intersect_rect?(GTK.args.inputs.mouse, rect) &&
+      GTK.args.inputs.mouse.click
   end
 
   def rect

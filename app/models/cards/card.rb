@@ -56,16 +56,20 @@ class Card
     @angle = 0
     @f_angle = 0
 
-    @card_back_img = "sprites/card-back-purple.png"
+    @card_back_img = %w[
+      sprites/card_back_1.png
+      sprites/card_back_2.png
+      sprites/card_back_3.png
+    ].sample
     @img = img
     @max_uses = max_uses
     @uses_left = uses_left || max_uses
     @card_composite_sprite_ref = :"card_composite_#{entity_id}"
     @card_composite_tooltip_ref = :"card_composite_tooltip_#{entity_id}"
 
-    @r = 150 # Numeric.rand(100..200)
-    @g = 150 # Numeric.rand(50..100)
-    @b = 150 # Numeric.rand(100..200)
+    @r = 255 # Numeric.rand(100..200)
+    @g = 255 # Numeric.rand(50..100)
+    @b = 255 # Numeric.rand(100..200)
 
     @grabbed = false
     @selected = false
@@ -175,7 +179,8 @@ class Card
       r: 255,
       g: 255,
       b: 255,
-      size_enum: 3
+      size_enum: 3,
+      font: "fonts/eaglelake.ttf"
     }
 
     args.outputs.primitives << {

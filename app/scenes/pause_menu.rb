@@ -25,7 +25,6 @@ class PauseMenu
     screen_tick = "tick_#{@pause_screen}"
     send(screen_tick)
   end
-  
 
   def tick_main
     pre_render("main")
@@ -33,14 +32,22 @@ class PauseMenu
   end
 
   def calc_main
-    $game.toggle_pause if GTK.args.inputs.mouse.click and Geometry.intersect_rect?(GTK.args.inputs.mouse, resume_btn)
-    if GTK.args.inputs.mouse.click and Geometry.intersect_rect?(GTK.args.inputs.mouse, journal_btn)
-        @journal_instance = Journal.new(pause_menu_instance: self)
-        @pause_screen = "journal" 
+    if GTK.args.inputs.mouse.click and
+         Geometry.intersect_rect?(GTK.args.inputs.mouse, resume_btn)
+      $game.toggle_pause
     end
-    
-    @pause_screen = "settings" if GTK.args.inputs.mouse.click and Geometry.intersect_rect?(GTK.args.inputs.mouse, settings_btn)
-    GTK.request_quit if GTK.args.inputs.mouse.click and Geometry.intersect_rect?(GTK.args.inputs.mouse, exit_btn)
+    if GTK.args.inputs.mouse.click and
+         Geometry.intersect_rect?(GTK.args.inputs.mouse, journal_btn)
+      @journal_instance = Journal.new(pause_menu_instance: self)
+      @pause_screen = "journal"
+    end
+
+    @pause_screen = "settings" if GTK.args.inputs.mouse.click and
+      Geometry.intersect_rect?(GTK.args.inputs.mouse, settings_btn)
+    if GTK.args.inputs.mouse.click and
+         Geometry.intersect_rect?(GTK.args.inputs.mouse, exit_btn)
+      GTK.request_quit
+    end
   end
 
   def tick_settings
@@ -49,13 +56,16 @@ class PauseMenu
   end
 
   def calc_settings
-    go_back if GTK.args.inputs.mouse.click and Geometry.intersect_rect?(GTK.args.inputs.mouse, back_btn)
+    if GTK.args.inputs.mouse.click and
+         Geometry.intersect_rect?(GTK.args.inputs.mouse, back_btn)
+      go_back
+    end
   end
 
   def tick_journal
     if @journal_instance
-        pre_render("journal")
-        @journal_instance.tick
+      pre_render("journal")
+      @journal_instance.tick
     end
   end
 
@@ -69,27 +79,27 @@ class PauseMenu
 
     # Universal pause menu sprites
     background ||= {
-    x: 0,
-    y: 0,
-    w: GTK.args.grid.w,
-    h: GTK.args.grid.h,
-    r: 80,
-    g: 80,
-    b: 120,
-    primitive_marker: :solid
+      x: 0,
+      y: 0,
+      w: GTK.args.grid.w,
+      h: GTK.args.grid.h,
+      r: 80,
+      g: 80,
+      b: 120,
+      primitive_marker: :solid
     }
 
     encounter_label ||= {
-        x: GTK.args.grid.w / 2,
-        y: GTK.args.grid.h - 50,
-        alignment_enum: 1,
-        size_enum: 8,
-        r: 255,
-        g: 255,
-        b: 255,
-        text: "Paused",
-        primitive_marker: :label
-      }
+      x: GTK.args.grid.w / 2,
+      y: GTK.args.grid.h - 50,
+      alignment_enum: 1,
+      size_enum: 8,
+      r: 255,
+      g: 255,
+      b: 255,
+      text: "Paused",
+      primitive_marker: :label
+    }
 
     coming_soon_label ||= {
       x: GTK.args.grid.w / 2,
@@ -104,36 +114,39 @@ class PauseMenu
       size_enum: -1
     }
 
-    
-
     case screen
     when "main"
-        @l0 << [background]
-        @l4 << [encounter_label]
-        @l3 << [resume_btn, journal_btn, coming_soon_label, settings_btn, exit_btn]
+      @l0 << [background]
+      @l4 << [encounter_label]
+      @l3 << [
+        resume_btn,
+        journal_btn,
+        coming_soon_label,
+        settings_btn,
+        exit_btn
+      ]
     when "settings"
-        @l0 << [background]
-        @l4 << [encounter_label]
-        @l3 << [back_btn]
+      @l0 << [background]
+      @l4 << [encounter_label]
+      @l3 << [back_btn]
     when "journal"
-          @l0 << @journal_instance.render(0)
-          @l1 << @journal_instance.render(1)
-          @l2 << @journal_instance.render(2)
-          @l3 << @journal_instance.render(3)
-          @l3 << @journal_instance.render(4)
+      @l0 << @journal_instance.render(0)
+      @l1 << @journal_instance.render(1)
+      @l2 << @journal_instance.render(2)
+      @l3 << @journal_instance.render(3)
+      @l3 << @journal_instance.render(4)
     else
     end
-      
   end
 
   def back_btn
     {
-        x: GTK.args.grid.w / 2 - 150,
-        y: GTK.args.grid.h - 150 ,
-        w: 35,
-        h: 35,
-        path: "sprites/circle/red.png",
-        angle: 0
+      x: GTK.args.grid.w / 2 - 150,
+      y: GTK.args.grid.h - 150,
+      w: 32,
+      h: 32,
+      path: "sprites/back_button.png",
+      angle: 0
     }
   end
 
@@ -184,7 +197,7 @@ class PauseMenu
 
     {
       x: GTK.args.grid.w / 2 - 75,
-      y: (GTK.args.grid.h - 100) / 1.25 ,
+      y: (GTK.args.grid.h - 100) / 1.25,
       w: 150,
       h: 75,
       angle: 0,
@@ -348,11 +361,8 @@ class PauseMenu
       primitive_marker: :sprite
     }
   end
-    
 
   def render(layer_num)
-    
-
     case layer_num
     when 0
       return @l0

@@ -11,7 +11,7 @@ class Game
     @scene_ref = nil
     @paused_scene_ref = nil
     @paused = false
-    @pause_button_pos = 195
+    @pause_button_pos = 200 + 20
     AnimationManager.new
 
     # keeps track of whether an entity with a specific entity_id has been created already
@@ -48,9 +48,9 @@ class Game
     @scene = next_sc
 
     if next_sc == "run_summary" || next_sc == "meta_shop"
-      @pause_button_pos = 5
+      @pause_button_pos = 15
     else
-      @pause_button_pos = 195
+      @pause_button_pos = 200 + 15
     end
 
     case @scene
@@ -159,8 +159,8 @@ class Game
     InfoBox.render(GTK.args) if not @paused
   end
 
-  def pause_btn(x: 195, y: GTK.args.grid.h - 45, w: 35, h: 35)
-    { x: x, y: y, w: w, h: h, angle: 0, path: "sprites/circle/red.png" }
+  def pause_btn(x: 195, y: GTK.args.grid.h - 45, w: 32, h: 32)
+    { x: x, y: y, w: w, h: h, angle: 0, path: "sprites/pause_button.png" }
   end
 
   def calc_particles
