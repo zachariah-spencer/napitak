@@ -29,8 +29,8 @@ class AlchemyLab
 
       @trash_can = TrashCanCard.new()
       @trash_can.instant_set_position(
-        x: GTK.args.grid.w - 320,
-        y: GTK.args.grid.h - 120
+        x: GTK.args.grid.w - 380,
+        y: GTK.args.grid.h - 170
       )
     end
 

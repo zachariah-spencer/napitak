@@ -82,15 +82,17 @@ class ScrollListWidget
       ]
 
       # label
-      GTK.args.outputs[path].labels << {
-        x: local_x + 75,
-        y: local_y + (@item_height / 2) - 4,
-        text: item.name,
-        size_enum: 1,
-        alignment_enum: 1
-      }
+      
 
       if GameUtils.is_potion(item.id)
+
+        GTK.args.outputs[path].labels << {
+        x: local_x + 80,
+        y: local_y + (@item_height / 2) - 10,
+        text: item.name,
+        size_px: 16,
+        alignment_enum: 1
+      }
         # uses left label for potions
         GTK.args.outputs[path].labels << {
           x: local_x + 140,
@@ -109,6 +111,14 @@ class ScrollListWidget
           path: item.img
         }
       else
+
+        GTK.args.outputs[path].labels << {
+        x: local_x + 75,
+        y: local_y + (@item_height / 2) - 15,
+        text: item.name,
+        size_px: 16,
+        alignment_enum: 1
+      }
         # icon
         GTK.args.outputs[path].sprites << {
           x: local_x + 75 - 16,

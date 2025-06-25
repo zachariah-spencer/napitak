@@ -179,7 +179,7 @@ class Card
       r: 255,
       g: 255,
       b: 255,
-      size_enum: 3,
+      size_px: 20,
       font: "fonts/eaglelake.ttf"
     }
 
@@ -206,8 +206,8 @@ class Card
       h: @h * 2,
       r: 20,
       g: 20,
-      b: 40,
-      a: 180,
+      b: 20,
+      a: 220,
       primitive_marker: :solid
     }
     parsed_name = String.wrapped_lines @name, 15
@@ -216,7 +216,7 @@ class Card
     ].primitives << parsed_name.map_with_index do |s, i|
       {
         x: 165,
-        y: 280,
+        y: 275,
         text: "#{s}",
         anchor_x: 0.5,
         anchor_y: i,
@@ -234,7 +234,7 @@ class Card
     ].primitives << parsed_description.map_with_index do |s, i|
       {
         x: 165,
-        y: 250,
+        y: 200,
         text: "#{s}",
         anchor_x: 0.5,
         anchor_y: i,
