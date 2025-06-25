@@ -229,15 +229,20 @@ class AlchemyLab
     @selected_ingredients.each { |id, c| sel_cards.append(c.prefab) }
     @ingredient_generators.each { |id, c| generator_cards.append(c.prefab) }
 
+    tile_index = 0.frame_index(6, 0.25.seconds, true)
+    bg_tile_index = 0.frame_index(24, 1.0.seconds, true)
+
     case layer_num
     when 0
-      background ||= {
+      background = {
         x: 0,
         y: 0,
-        w: GTK.args.grid.w,
-        h: GTK.args.grid.h,
-        path: "sprites/background.png",
-        primitive_marker: :sprite
+        w: 1280,
+        h: 720,
+        r:50,
+        g:50,
+        b:50,
+        path: "sprites/background_frames/sketchybackground#{bg_tile_index + 1}.png",
       }
 
       l0 << [background]
@@ -256,27 +261,63 @@ class AlchemyLab
       #   primitive_marker: :solid
       # }
 
-      left_panel ||= {
+      #left_panel ||= {
+      #  x: 0,
+      #  y: 0,
+      #  w: 200,
+      #  h: GTK.args.grid.h,
+      #  path: "sprites/panel_blue.png",
+      #  primitive_marker: :sprite
+      #}
+      
+
+      left_panel_a ||= {
         x: 0,
         y: 0,
         w: 200,
         h: GTK.args.grid.h,
-        path: "sprites/panel_blue.png",
+        path: "sprites/sketchypanel02.png",
+        tile_x: 0 + (tile_index * 200),
+        tile_y: 0,
+        tile_w: 200,
+        tile_h: GTK.args.grid.h,
         primitive_marker: :sprite
       }
 
-      right_panel ||= {
+      right_panel_a ||= {
         x: GTK.args.grid.w - 200,
         y: 0,
         w: 200,
         h: GTK.args.grid.h,
-        path: "sprites/panel_blue.png",
+        path: "sprites/sketchypanel02.png",
+        tile_x: 0 + (tile_index * 200),
+        tile_y: 0,
+        tile_w: 200,
+        tile_h: GTK.args.grid.h,
         primitive_marker: :sprite
       }
 
+      left_panel_b ||= {
+         x: 0,
+         y: 0,
+         w: 200,
+         h: GTK.args.grid.h,
+         path: "sprites/panel_blue.png",
+         primitive_marker: :sprite
+      }
+
+       right_panel_b ||= {
+         x: GTK.args.grid.w - 200,
+         y: 0,
+         w: 200,
+         h: GTK.args.grid.h,
+         path: "sprites/panel_blue.png",
+         primitive_marker: :sprite
+      }
+
+      l1 << [ left_panel_a, right_panel_a,]
+      # l1 << [ left_panel_b, right_panel_b,]
       l1 << [
-        left_panel,
-        right_panel,
         @ing_menu_widget.render,
         @pot_menu_widget.render,
         generator_cards,
@@ -305,7 +346,7 @@ class AlchemyLab
       l2 << [
         encounter_label,
         leave_btn,
-        potions_label,
+        potions_label(),
         ingredients_label,
         cards
       ]
@@ -366,22 +407,30 @@ class AlchemyLab
     end
   end
 
-  def potions_label
-    GTK.args.outputs[:potions_label].w = 136
-    GTK.args.outputs[:potions_label].h = 72
+  def potions_label()
+    sprite_frames = 6
+    time_per_frame = 0.5.seconds
+    repeat_index = true
+    tile_index = 0.frame_index(sprite_frames, time_per_frame, repeat_index)
 
-    GTK.args.outputs[:potions_label].primitives << {
-      x: 0,
-      y: 0,
-      w: 136,
-      h: 72,
-      path: "sprites/modal_blue.png",
+    prefabs = []
+
+    prefabs << {
+      x: GTK.args.grid.w - 162 - 16,
+      y: GTK.args.grid.h - (114) - (16 * 1.5),
+      w: 162,
+      h: 114,
+      path: "sprites/sketchymodal_162x114.png",
+      tile_x: 0 + (tile_index * 162),
+      tile_y: 0,
+      tile_w: 162,
+      tile_h: 114,
       primitive_marker: :sprite
     }
 
-    GTK.args.outputs[:potions_label].primitives << {
-      x: 136 / 2,
-      y: 72 / 2,
+    prefabs << {
+      x: GTK.args.grid.w - 162 - 12 + (162 / 2),
+      y: GTK.args.grid.h - (114) - (16 * 1.5) + (114 / 2) + 5,
       text: "POTIONS",
       anchor_x: 0.5,
       anchor_y: 0.5,
@@ -392,52 +441,44 @@ class AlchemyLab
       size_px: 20
     }
 
-    {
-      x: GTK.args.grid.w - 32 - 136,
-      y: GTK.args.grid.h - (72) - (16 * 3),
-      w: 136,
-      h: 72,
-      angle: 0,
-      path: :potions_label,
-      primitive_marker: :sprite
-    }
+    prefabs
   end
 
-  def ingredients_label
-    GTK.args.outputs[:ingredients_label].w = 136
-    GTK.args.outputs[:ingredients_label].h = 72
+  def ingredients_label()
+    sprite_frames = 6
+    time_per_frame = 0.5.seconds
+    repeat_index = true
+    tile_index = 0.frame_index(sprite_frames, time_per_frame, repeat_index)
 
-    GTK.args.outputs[:ingredients_label].primitives << {
-      x: 0,
-      y: 0,
-      w: 136,
-      h: 72,
-      path: "sprites/modal_blue.png",
+    prefabs = []
+
+    prefabs << {
+      x: 16,
+      y: GTK.args.grid.h - (114) - (16 * 1.5),
+      w: 162,
+      h: 114,
+      path: "sprites/sketchymodal_162x114.png",
+      tile_x: 0 + (tile_index * 162),
+      tile_y: 0,
+      tile_w: 162,
+      tile_h: 114,
       primitive_marker: :sprite
     }
 
-    GTK.args.outputs[:ingredients_label].primitives << {
-      x: 136 / 2,
-      y: 72 / 2,
+    prefabs << {
+      x: 100,
+      y: GTK.args.grid.h - (114) - (16 * 1.5) + (114 / 2) + 5,
       text: "INGREDIENTS",
       anchor_x: 0.5,
       anchor_y: 0.5,
       r: 255,
       g: 255,
       b: 255,
-      size_px: 20,
-      font: "fonts/eaglelake.ttf"
+      font: "fonts/eaglelake.ttf",
+      size_px: 20
     }
 
-    {
-      x: 32,
-      y: GTK.args.grid.h - (72) - (16 * 3),
-      w: 136,
-      h: 72,
-      angle: 0,
-      path: :ingredients_label,
-      primitive_marker: :sprite
-    }
+    prefabs
   end
 
   def craft_btn

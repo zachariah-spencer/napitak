@@ -9,23 +9,13 @@
             "shop_discount": 0,
             "reward_picks": 2
         },
-        "potions": [
-            {
-                "id": "p001",
-                "uses_left": "5"
-            }
-        ],
+        "potions": [ ],
         "ingredients": [ ],
-        "previous_run_potions": [
-            {
-                "id": "p001",
-                "uses_left": "5"
-            }
-        ],
+        "previous_run_potions": [ ],
         "previous_run_ingredients": [ ]
     },
     "mid_run": true,
-    "encounters_completed": 1,
+    "encounters_completed": 2,
     "combats_won": 0,
     "map_layer": 2,
     "map_choices": [
