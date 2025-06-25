@@ -3,7 +3,7 @@ devid=zachariah-spencer
 devtitle=Zachariah Spencer
 gameid=napitak
 gametitle=Napitak
-version=0.2
+version=0.3
 icon=metadata/icon.png
 
 # === Flags available at all licensing tiers ===
