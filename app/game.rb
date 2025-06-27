@@ -18,6 +18,10 @@ class Game
     @created_entity_ids = []
     # currently list of status_labels to render to the screen at any given frame
     @status_labels = []
+    # queue of labels to render to the screen
+    @status_labels_queue = []
+    @new_status_label_queued = false
+    @status_label_queue_count = Kernel.tick_count
     # keeps track of whether a render target for the specific number has been created already
     @created_prefabs = {}
     # the game's official instantiation of a Player for an individual game.
@@ -107,6 +111,11 @@ class Game
   def tick
     handle_pause
 
+    if @new_status_label_queued && @status_label_queue_count.elapsed_time >= 0.75.seconds
+      @status_labels << @status_labels_queue.shift
+      @new_status_label_queued = false
+    end
+
     if @scene_ref
       @scene_ref.args = args
       @scene_ref.tick
@@ -168,7 +177,7 @@ class Game
     # make them spin, and set their y value
     @status_labels.each do |particle|
       particle.a -= 5
-      particle.angle += 10 / (particle.scale * 0.2)
+      particle.angle += 0.5# / (particle.scale * 0.2)
       particle.y += 3
     end
 
@@ -182,7 +191,8 @@ class Game
     w = text_w + padding * 2
     h = text_h + padding * 2
 
-    @status_labels << {
+    @new_status_label_queued = true
+    @status_labels_queue << {
       x: x,
       y: y,
       w: w,
@@ -194,7 +204,9 @@ class Game
       scale: scale,
       r: r,
       g: g,
-      b: b
+      b: b,
+      angle_anchor_x: 0.5,
+      angle_anchor_y: 0.5,
     }
   end
 
@@ -257,6 +269,8 @@ class Game
         h: s_l.h,
         anchor_x: 0.5,
         anchor_y: 0.5,
+        angle_anchor_x: 0.5,
+        angle_anchor_y: 0.5,
         path: path,
         r: s_l.r,
         g: s_l.g,
