@@ -24,13 +24,13 @@ class AlchemyLab
         (((padding + card_size) / 2) * @recipe_book.unlocked_bases.size)
     @recipe_book.unlocked_bases.each_with_index do |base_id, i|
       c = IngredientGeneratorCard.new(base_id)
-      c.instant_set_position(x: start_x + (i * (padding + card_size)), y: 75)
+      c.instant_set_position(x: start_x + (i * (padding + card_size)), y: 20)
       @ingredient_generators[c.id] = c
 
       @trash_can = TrashCanCard.new()
       @trash_can.instant_set_position(
-        x: GTK.args.grid.w - 380,
-        y: GTK.args.grid.h - 170
+        x: GTK.args.grid.w - 300,
+        y: GTK.args.grid.h - 100
       )
     end
 
@@ -52,7 +52,7 @@ class AlchemyLab
       )
 
     @prev_loadout_btn =
-      Button.new(x: 200, y: 20, w: 150, h: 75, text: "Prev. Loadout")
+      Button.new(x: 300, y: GTK.args.grid.h - 100, w: 150, h: 75, text: "Prev. Loadout")
   end
 
   def cleanup
@@ -198,10 +198,30 @@ class AlchemyLab
   end
 
   def calc_card_positions
-    @visible_ingredients
+    all_cards = @visible_ingredients
       .merge(@selected_ingredients)
       .merge(@visible_potions)
-      .each { |id, c| c.calc_position(0, 0) }
+      .merge(@ingredient_generators)
+
+    all_moveable_cards = @visible_ingredients
+      .merge(@selected_ingredients)
+      .merge(@visible_potions)
+    
+    all_cards[@trash_can.id] = @trash_can
+    
+    all_moveable_cards.each do |id, c| 
+      c.calc_position(0, 0)
+      other_card_rects = get_all_card_rects.reject { |other_c| other_c[:id] == c.entity_id}
+      collision_rect = Geometry.find_intersect_rect(c.rect, other_card_rects)
+
+      if collision_rect
+        vec = { x: (collision_rect.x - c.rect.x), y: (collision_rect.y - c.rect.y) }
+        nvec = Geometry.vec2_normalize(vec)
+        c.vx = nvec.x * -20
+        c.vy = nvec.y * -20
+      end
+    end
+
   end
 
   def render(layer_num)
@@ -297,25 +317,19 @@ class AlchemyLab
         primitive_marker: :sprite
       }
 
-      left_panel_b ||= {
-         x: 0,
-         y: 0,
-         w: 200,
-         h: GTK.args.grid.h,
-         path: "sprites/panel_blue.png",
-         primitive_marker: :sprite
+      low_panel_debug ||= {
+        x: 0,
+        y: 0,
+        w: GTK.args.grid.w,
+        h: 110,
+        r: 50,
+        g: 50,
+        b: 50,
+        a: 200,
+        primitive_marker: :solid,
       }
 
-       right_panel_b ||= {
-         x: GTK.args.grid.w - 200,
-         y: 0,
-         w: 200,
-         h: GTK.args.grid.h,
-         path: "sprites/panel_blue.png",
-         primitive_marker: :sprite
-      }
-
-      l1 << [ left_panel_a, right_panel_a,]
+      l1 << [ low_panel_debug, left_panel_a, right_panel_a,]
       # l1 << [ left_panel_b, right_panel_b,]
       l1 << [
         @ing_menu_widget.render,
@@ -375,7 +389,7 @@ class AlchemyLab
 
       uses_left_label ||= {
         x: GTK.args.grid.w / 2,
-        y: 50,
+        y: 150,
         alignment_enum: 1,
         size_enum: 8,
         r: 255,
@@ -583,6 +597,27 @@ class AlchemyLab
       path: :leave_btn,
       primitive_marker: :sprite
     }
+  end
+
+  def get_all_card_rects
+    rects = []
+    cards = @visible_ingredients
+      .merge(@selected_ingredients)
+      .merge(@visible_potions)
+      .merge(@ingredient_generators)
+    
+    cards[@trash_can.id] = @trash_can
+
+    cards.each do |id, card|
+      rects << {
+        x: card.pos.x,
+        y: card.pos.y,
+        w: card.fw,
+        h: card.fh,
+        id: id
+      }
+    end
+    rects
   end
 
   def get_card_rects

@@ -14,11 +14,11 @@ class TrashCanCard < Card
 
   def calc_position(num_cards, index)
       if @hovered
-        @fw = 170
-        @fh = 170
+        @fw = 100
+        @fh = 100
       else
-        @fw = 160
-        @fh = 160
+        @fw = 90
+        @fh = 90
         @f_pos.x =
           @f_pos.x +
             (Math.cos(@floating_seed + Kernel.tick_count * 0.01) * 0.01)

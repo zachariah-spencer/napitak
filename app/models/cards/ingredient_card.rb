@@ -1,14 +1,23 @@
 # frozen_string_literal: true
 
 class IngredientCard < Card
+
+  def initialize(id, new_ent_id, name, fc, path)
+    super
+    @w = 120
+    @h = 120
+  end
+
   def calc_position(num_cards, index)
+    @f_pos.y = 110 if @pos.y < 110
+
     if !@grabbed
       if @selected
-        @fw = 200
-        @fh = 200
+        @fw = 150
+        @fh = 150
       else
-        @fw = 160
-        @fh = 160
+        @fw = 120
+        @fh = 120
         @f_pos.x =
           @f_pos.x +
             (Math.cos(@floating_seed + Kernel.tick_count * 0.01) * 0.15)

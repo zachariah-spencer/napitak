@@ -48,6 +48,7 @@ class PotionCard < Card
 
   def calc_position(num_cards, index)
     if @free_floating
+      @f_pos.y = 110 if @pos.y < 110
       if !@grabbed
         if @selected
           @fw = 200

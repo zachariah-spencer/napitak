@@ -19,7 +19,9 @@ class Card
                 :max_uses,
                 :activation_time,
                 :uses_left,
-                :hovered
+                :hovered,
+                :vx,
+                :vy
 
   def initialize(
     id,
@@ -30,7 +32,8 @@ class Card
     max_uses = 0,
     desc = "",
     potencies = {},
-    uses_left: nil
+    uses_left: nil,
+    anchored: false
   )
     @id = id
     @name = name
@@ -40,18 +43,23 @@ class Card
 
     @entity_id = entity_id
     @floating_seed = Numeric.rand(0.0..100.0)
+    @anchored = anchored
 
     @w = 160
     @h = 160
     @fw = 160
     @fh = 160
+    @vx = 0.0
+    @vy = 0.0
     @ttw = 1000
     @tth = 1000
 
-    @padding = -60.0
+    @padding = -30
 
     @pos = { x: 0, y: 20 }
     @f_pos = { x: 0, y: 20 }
+    @dx = 0.0
+    @dy = 0.0
 
     @angle = 0
     @f_angle = 0
@@ -364,10 +372,30 @@ class Card
   end
 
   def interpolate_attributes
-    return if @grabbed
+    if @grabbed
+      @vx = 0.0
+      @vy = 0.0
+      return
+    end
 
-    @pos.x = @pos.x.lerp @f_pos.x, 0.2
-    @pos.y = @pos.y.lerp @f_pos.y, 0.2
+    if @anchored
+      dx = @f_pos.x
+      dy = @f_pos.y
+    else
+      dx = (@f_pos.x + @vx)
+      dy = (@f_pos.y + @vy)
+    end
+
+    @f_pos.x = dx
+    @f_pos.y = dy
+
+    if velocities_applied?
+      @pos.x = @pos.x.lerp @f_pos.x, 0.75
+      @pos.y = @pos.y.lerp @f_pos.y, 0.75
+    else
+      @pos.x = @pos.x.lerp @f_pos.x, 0.2
+      @pos.y = @pos.y.lerp @f_pos.y, 0.2
+    end
     @w = @w.lerp @fw, 0.2
     @h = @h.lerp @fh, 0.2
     @angle = @angle.lerp @f_angle, 0.2
@@ -376,8 +404,15 @@ class Card
     @f_pos.y = 0 if @pos.y < 0
     @f_pos.y = GTK.args.grid.h - @h if @pos.y > GTK.args.grid.h - @h
 
-    @f_pos.x = 0 if @pos.x < 0
-    @f_pos.x = GTK.args.grid.w - @w if @pos.x > GTK.args.grid.w - @w
+    @f_pos.x = 200 if @pos.x < 200
+    @f_pos.x = GTK.args.grid.w - @w - 200 if @pos.x > GTK.args.grid.w - @w - 200
+    
+    @vx = @vx.lerp(0, 0.4)
+    @vy = @vy.lerp(0, 0.4)
+  end
+
+  def velocities_applied?
+    @vx != 0 || @vx != 0
   end
 
   def trait_color?(trait)

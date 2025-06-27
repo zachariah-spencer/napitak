@@ -1,6 +1,6 @@
 class IngredientGeneratorCard < Card
   def initialize(id)
-    super(id, GameUtils.new_id?, $IIDS[id].name, 0, $IIDS[id].path)
+    super(id, GameUtils.new_id?, $IIDS[id].name, 0, $IIDS[id].path, anchored: true)
     @selected = nil
   end
 

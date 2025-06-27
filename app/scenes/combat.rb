@@ -570,7 +570,7 @@ class Combat
       c_ref = @hand[state.currently_dragging_card_id]
     else
       #card_under_mouse lol
-      c_u_m = Geometry.find_intersect_rect inputs.mouse, get_card_rects
+      c_u_m = Geometry.find_intersect_rect inputs.mouse, get_card_rects().reverse
       c_ref = nil
     end
 
