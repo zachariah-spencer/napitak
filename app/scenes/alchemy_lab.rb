@@ -232,9 +232,8 @@ class AlchemyLab
             Geometry.rect_center_point(c.rect)
           )
 
-        reverse_dist_formula = ((160 - (dist * 1.3)) / 4).clamp(0, 20)
+        reverse_dist_formula = ((160 - (dist * 1.3)) / 4).clamp(0, 30)
 
-        puts reverse_dist_formula
         nvec = Geometry.vec2_normalize(vec)
         c.vx = nvec.x * -1 * reverse_dist_formula
         c.vy = nvec.y * -1 * reverse_dist_formula

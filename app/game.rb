@@ -2,7 +2,7 @@
 
 class Game
   attr_gtk
-  attr :tutorials
+  attr :tutorials, :scene
 
   def initialize
     @autosaved = false
@@ -111,7 +111,8 @@ class Game
   def tick
     handle_pause
 
-    if @new_status_label_queued && @status_label_queue_count.elapsed_time >= 0.75.seconds
+    if @new_status_label_queued &&
+         @status_label_queue_count.elapsed_time >= 0.75.seconds
       new_label = @status_labels_queue.shift
       new_label.created_at = Kernel.tick_count
       @status_labels << new_label
@@ -179,7 +180,7 @@ class Game
     # make them spin, and set their y value
     @status_labels.each do |particle|
       particle.a -= 5
-      particle.angle += 0.5# / (particle.scale * 0.2)
+      particle.angle += 0.5 # / (particle.scale * 0.2)
       particle.y += 3
     end
 
@@ -208,7 +209,7 @@ class Game
       g: g,
       b: b,
       angle_anchor_x: 0.5,
-      angle_anchor_y: 0.5,
+      angle_anchor_y: 0.5
     }
   end
 

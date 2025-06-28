@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 class IngredientCard < Card
-
   def initialize(id, new_ent_id, name, fc, path)
     super
     @w = 120
@@ -9,7 +8,7 @@ class IngredientCard < Card
   end
 
   def calc_position(num_cards, index)
-    @f_pos.y = 110 if @pos.y < 110
+    @f_pos.y = 110 if @pos.y < 110 && $game.scene == "alchemy_lab"
 
     if !@grabbed
       if @selected

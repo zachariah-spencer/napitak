@@ -10,6 +10,7 @@ class AlchemyTable
     @recipe_book = $recipe_book
     @uses_left = max_uses
     @visible_ingredients = {}
+    @visible_potions = {}
     @selected_ingredients = {}
     @craftable_potion = nil
 
@@ -122,11 +123,38 @@ class AlchemyTable
   end
 
   def calc_card_positions
-    @visible_ingredients
-      .merge(@selected_ingredients)
-      .each_with_index do |(id, c), i|
-        c.calc_position(@visible_ingredients.length, i)
+    # @visible_ingredients
+    #   .merge(@selected_ingredients)
+    #   .each_with_index do |(id, c), i|
+    #     c.calc_position(@visible_ingredients.length, i)
+    #   end
+    all_cards =
+      @visible_ingredients.merge(@selected_ingredients).merge(@visible_potions)
+
+    all_cards.each do |id, c|
+      c.calc_position(0, 0)
+      other_card_rects =
+        get_all_card_rects.reject { |other_c| other_c[:id] == c.entity_id }
+      collision_rect = Geometry.find_intersect_rect(c.rect, other_card_rects)
+
+      if collision_rect
+        vec = {
+          x: (collision_rect.x - c.rect.x),
+          y: (collision_rect.y - c.rect.y)
+        }
+        dist =
+          Geometry.distance(
+            Geometry.rect_center_point(collision_rect),
+            Geometry.rect_center_point(c.rect)
+          )
+
+        reverse_dist_formula = ((160 - (dist * 1.3)) / 4).clamp(0, 30)
+
+        nvec = Geometry.vec2_normalize(vec)
+        c.vx = nvec.x * -1 * reverse_dist_formula
+        c.vy = nvec.y * -1 * reverse_dist_formula
       end
+    end
   end
 
   def render(layer_num)
@@ -449,6 +477,17 @@ class AlchemyTable
           id: id
         }
       end
+    rects
+  end
+
+  def get_all_card_rects
+    rects = []
+    cards =
+      @visible_ingredients.merge(@selected_ingredients).merge(@visible_potions)
+
+    cards.each do |id, card|
+      rects << { x: card.pos.x, y: card.pos.y, w: card.w, h: card.h, id: id }
+    end
     rects
   end
 
