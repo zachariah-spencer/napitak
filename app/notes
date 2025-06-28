@@ -9,3 +9,10 @@ Option 3:
 
 Option 4:
     All crafting is fair game but most base-ingredients are locked from the start and are unlocked as a progression milestone.
+
+
+Conversion Rate for RTpx and LABELpx = 1/7.5
+1 RT pixel for width and height / 7.5 label px
+
+This means that if you have a RT sprite that has w: x and h: x
+then you can take x/7.5 and that tells you how many px your size_px: should be for your label in order to equate to 20 real pixels on-screen
