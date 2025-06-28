@@ -52,7 +52,13 @@ class AlchemyLab
       )
 
     @prev_loadout_btn =
-      Button.new(x: 300, y: GTK.args.grid.h - 100, w: 150, h: 75, text: "Prev. Loadout")
+      Button.new(
+        x: 300,
+        y: GTK.args.grid.h - 100,
+        w: 150,
+        h: 75,
+        text: "Prev. Loadout"
+      )
   end
 
   def cleanup
@@ -198,30 +204,42 @@ class AlchemyLab
   end
 
   def calc_card_positions
-    all_cards = @visible_ingredients
-      .merge(@selected_ingredients)
-      .merge(@visible_potions)
-      .merge(@ingredient_generators)
+    all_cards =
+      @visible_ingredients
+        .merge(@selected_ingredients)
+        .merge(@visible_potions)
+        .merge(@ingredient_generators)
 
-    all_moveable_cards = @visible_ingredients
-      .merge(@selected_ingredients)
-      .merge(@visible_potions)
-    
+    all_moveable_cards =
+      @visible_ingredients.merge(@selected_ingredients).merge(@visible_potions)
+
     all_cards[@trash_can.id] = @trash_can
-    
-    all_moveable_cards.each do |id, c| 
+
+    all_moveable_cards.each do |id, c|
       c.calc_position(0, 0)
-      other_card_rects = get_all_card_rects.reject { |other_c| other_c[:id] == c.entity_id}
+      other_card_rects =
+        get_all_card_rects.reject { |other_c| other_c[:id] == c.entity_id }
       collision_rect = Geometry.find_intersect_rect(c.rect, other_card_rects)
 
       if collision_rect
-        vec = { x: (collision_rect.x - c.rect.x), y: (collision_rect.y - c.rect.y) }
+        vec = {
+          x: (collision_rect.x - c.rect.x),
+          y: (collision_rect.y - c.rect.y)
+        }
+        dist =
+          Geometry.distance(
+            Geometry.rect_center_point(collision_rect),
+            Geometry.rect_center_point(c.rect)
+          )
+
+        reverse_dist_formula = ((160 - (dist * 1.3)) / 4).clamp(0, 20)
+
+        puts reverse_dist_formula
         nvec = Geometry.vec2_normalize(vec)
-        c.vx = nvec.x * -20
-        c.vy = nvec.y * -20
+        c.vx = nvec.x * -1 * reverse_dist_formula
+        c.vy = nvec.y * -1 * reverse_dist_formula
       end
     end
-
   end
 
   def render(layer_num)
@@ -259,10 +277,11 @@ class AlchemyLab
         y: 0,
         w: 1280,
         h: 720,
-        r:50,
-        g:50,
-        b:50,
-        path: "sprites/background_frames/sketchybackground#{bg_tile_index + 1}.png",
+        r: 50,
+        g: 50,
+        b: 50,
+        path:
+          "sprites/background_frames/sketchybackground#{bg_tile_index + 1}.png"
       }
 
       l0 << [background]
@@ -289,7 +308,6 @@ class AlchemyLab
       #  path: "sprites/panel_blue.png",
       #  primitive_marker: :sprite
       #}
-      
 
       left_panel_a ||= {
         x: 0,
@@ -326,10 +344,10 @@ class AlchemyLab
         g: 50,
         b: 50,
         a: 200,
-        primitive_marker: :solid,
+        primitive_marker: :solid
       }
 
-      l1 << [ low_panel_debug, left_panel_a, right_panel_a,]
+      l1 << [low_panel_debug, left_panel_a, right_panel_a]
       # l1 << [ left_panel_b, right_panel_b,]
       l1 << [
         @ing_menu_widget.render,
@@ -601,21 +619,16 @@ class AlchemyLab
 
   def get_all_card_rects
     rects = []
-    cards = @visible_ingredients
-      .merge(@selected_ingredients)
-      .merge(@visible_potions)
-      .merge(@ingredient_generators)
-    
+    cards =
+      @visible_ingredients
+        .merge(@selected_ingredients)
+        .merge(@visible_potions)
+        .merge(@ingredient_generators)
+
     cards[@trash_can.id] = @trash_can
 
     cards.each do |id, card|
-      rects << {
-        x: card.pos.x,
-        y: card.pos.y,
-        w: card.fw,
-        h: card.fh,
-        id: id
-      }
+      rects << { x: card.pos.x, y: card.pos.y, w: card.w, h: card.h, id: id }
     end
     rects
   end
@@ -626,13 +639,7 @@ class AlchemyLab
       .merge(@selected_ingredients)
       .merge(@visible_potions)
       .each do |id, card|
-        rects << {
-          x: card.pos.x,
-          y: card.pos.y,
-          w: card.fw,
-          h: card.fh,
-          id: id
-        }
+        rects << { x: card.pos.x, y: card.pos.y, w: card.w, h: card.h, id: id }
       end
     rects
   end

@@ -388,14 +388,8 @@ class Card
 
     @f_pos.x = dx
     @f_pos.y = dy
-
-    if velocities_applied?
-      @pos.x = @pos.x.lerp @f_pos.x, 0.75
-      @pos.y = @pos.y.lerp @f_pos.y, 0.75
-    else
-      @pos.x = @pos.x.lerp @f_pos.x, 0.2
-      @pos.y = @pos.y.lerp @f_pos.y, 0.2
-    end
+    @pos.x = @pos.x.lerp @f_pos.x, 0.2
+    @pos.y = @pos.y.lerp @f_pos.y, 0.2
     @w = @w.lerp @fw, 0.2
     @h = @h.lerp @fh, 0.2
     @angle = @angle.lerp @f_angle, 0.2
@@ -406,7 +400,7 @@ class Card
 
     @f_pos.x = 200 if @pos.x < 200
     @f_pos.x = GTK.args.grid.w - @w - 200 if @pos.x > GTK.args.grid.w - @w - 200
-    
+
     @vx = @vx.lerp(0, 0.4)
     @vy = @vy.lerp(0, 0.4)
   end
