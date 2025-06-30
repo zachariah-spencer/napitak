@@ -164,16 +164,6 @@ class Game
     # for each particle, construct a prefab
     l4 << @status_labels.map { |particle| status_label_prefab particle }
 
-    l4 << {
-      x: 550,
-      y: 350,
-      text: "Test",
-      size_px: 20,
-      r: 255,
-      g: 255,
-      b: 255,
-      primitive_marker: :label
-    }
     outputs.primitives << [l0, l1, l2, l3, l4]
 
     outputs.primitives << pause_btn(x: @pause_button_pos) if not @paused
