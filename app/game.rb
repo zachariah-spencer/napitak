@@ -167,8 +167,6 @@ class Game
     outputs.primitives << [l0, l1, l2, l3, l4]
 
     outputs.primitives << pause_btn(x: @pause_button_pos) if not @paused
-
-    InfoBox.render(GTK.args) if not @paused
   end
 
   def pause_btn(x: 195, y: GTK.args.grid.h - 45, w: 32, h: 32)

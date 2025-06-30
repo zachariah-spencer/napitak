@@ -129,13 +129,10 @@ class AlchemyLab
     return unless @uses_left <= 0
 
     puts "USES EXHAUSTED, EXITING ALCHEMY LAB ENCOUNTER"
-    @tutorials
     leave
   end
 
   def leave
-    @tutorials&.cancel if @tutorials
-
     # consolidate all new cards into the player's inventory
     new_ings = []
     new_pots = []
