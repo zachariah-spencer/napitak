@@ -9,13 +9,17 @@ class AnnouncementManager
   end
 
   def add_announcement(announcement)
-    announcements_was_empty = @announcements.empty?
+    no_announcements = @announcements.empty? && @current_announcement == nil
     @announcements << announcement
-    display_next_announcement if announcements_was_empty
+    display_next_announcement if no_announcements
+  end
+
+  def current_announcement_invalid?
+    @current_announcement == nil || @current_announcement.message_completed?
   end
 
   def tick
-    @announcements.each { |a| puts "#{a.text}"}
+    puts "ANNOUNCEMENTS LIST:\n#{@announcements}\n\n CURRENT ANNOUNCEMENT: #{@current_announcement}"
     @current_announcement&.tick
     if @current_announcement
       display_next_announcement if @current_announcement.message_completed?
@@ -23,11 +27,16 @@ class AnnouncementManager
   end
 
   def display_next_announcement
-    @current_announcement = @announcements.shift if !@announcements.empty?
-    @current_announcement&.start_message
+    puts "HERE"
+    if @announcements.empty?
+      @current_announcement = nil
+    else
+      @current_announcement = @announcements.shift
+      @current_announcement.start_message
+    end
   end
 
   def prefab
-    @current_announcement.prefab
+    @current_announcement&.prefab
   end
 end

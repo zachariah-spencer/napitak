@@ -5,7 +5,7 @@ module GameUtils
     $game.status_label(x, y, text, r, g, b, scale)
   end
 
-  def self.announce(text: "debug", duration: 2.seconds)
+  def self.announce(text: "debug", duration: 1.0.seconds)
     $announcement_manager.add_announcement(Announcement.new(text: text, duration: duration))
   end
 

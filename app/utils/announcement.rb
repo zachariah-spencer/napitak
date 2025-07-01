@@ -10,8 +10,7 @@ class Announcement
     @h = 250
     @text = text
     @duration = duration
-    @created_tick = Kernel.tick_count
-    @fade_duration = 5.seconds
+    @created_tick = nil
     @a = 0
     @completed = false
   end
@@ -29,7 +28,7 @@ class Announcement
 
   def message_over?
     if @created_tick
-      @created_tick.elapsed_time >= (@duration + @created_tick)
+      @created_tick.elapsed_time >= @duration
     else
       false
     end
@@ -37,7 +36,7 @@ class Announcement
 
   def message_completed?
     if @created_tick
-      @created_tick.elapsed_time >= (@duration + @created_tick + @fade_duration)
+      message_over? && @a <= 0
     else
       false
     end

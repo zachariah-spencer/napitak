@@ -167,7 +167,7 @@ class Game
 
     # for each particle, construct a prefab
     l4 << @status_labels.map { |particle| status_label_prefab particle }
-    l4 << @announcement_manager&.prefab
+    l4 << $announcement_manager&.prefab
 
     outputs.primitives << [l0, l1, l2, l3, l4]
 
