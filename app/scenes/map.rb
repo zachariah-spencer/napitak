@@ -17,9 +17,17 @@ class Map
   end
 
   def tick
+    if !$game.input_locked
+      calc_input
+    end
+
     @choices.each do |c|
       c.tick
+    end
+  end
 
+  def calc_input
+    @choices.each do |c|
       if (clicked = c.pop_clicked)
         if $ENCOUNTERS[clicked[:id]].is_combat
           $game.change_scene(

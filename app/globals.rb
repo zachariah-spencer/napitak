@@ -317,6 +317,4 @@ $entity_ids = []
 $player = nil
 $recipe_book = nil
 $enemy = nil
-$files = nil
-$encounter_manager = nil
-$tutorials = true
+$tutorial_index = 0

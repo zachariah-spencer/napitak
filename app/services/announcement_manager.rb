@@ -19,7 +19,6 @@ class AnnouncementManager
   end
 
   def tick
-    puts "ANNOUNCEMENTS LIST:\n#{@announcements}\n\n CURRENT ANNOUNCEMENT: #{@current_announcement}"
     @current_announcement&.tick
     if @current_announcement
       display_next_announcement if @current_announcement.message_completed?
@@ -27,7 +26,6 @@ class AnnouncementManager
   end
 
   def display_next_announcement
-    puts "HERE"
     if @announcements.empty?
       @current_announcement = nil
     else

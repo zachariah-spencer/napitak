@@ -60,4 +60,10 @@ module GameUtils
     $entity_ids << new_ent_id
     new_ent_id
   end
+
+  def self.tutorial_string?(i)
+    tutorial_json = GTK.read_file("data/tutorials.json")
+    return {} unless tutorial_json # Return empty hash if file doesn't exist
+    GTK.parse_json(tutorial_json)[i.to_s]
+  end
 end

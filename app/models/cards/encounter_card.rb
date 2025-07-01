@@ -9,8 +9,12 @@ class EncounterCard < Card
   end
 
   def tick
-    calc_hover
-    calc_click
+    if !$game.input_locked
+      calc_hover
+      calc_click
+    else
+      @hovered = false
+    end
     calc_position(-1, -1)
   end
 

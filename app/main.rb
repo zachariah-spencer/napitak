@@ -47,7 +47,7 @@ require_relative "scenes/run_summary"
 require_relative "scenes/meta_shop"
 
 def tick(args)
-  $files ||= Files.new
+  Files.new
 
   # GTK.on_tick_count(Kernel.tick_count + 60) do
   $game ||= Game.new

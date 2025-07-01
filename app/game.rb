@@ -2,11 +2,11 @@
 
 class Game
   attr_gtk
-  attr :tutorials, :scene
+  attr :scene, :input_locked
 
   def initialize
     @autosaved = false
-
+    @input_locked = true
     @scene = $files.save_data&.[]("scene")
     @scene_ref = nil
     @paused_scene_ref = nil
@@ -29,7 +29,7 @@ class Game
     @player = Player.new()
     # the game's official instantiation of a RecipeBook, persists between runs
     @recipe_book = RecipeBook.new()
-    @encounter_manager = EncounterManager.new()
+    EncounterManager.new()
 
     @player.load_inventory_data
     @player.load_upgrades_data
@@ -110,7 +110,7 @@ class Game
   end
 
   def tick
-    GameUtils.announce if GTK.args.inputs.keyboard.key_down.i
+    @input_locked = !@input_locked if GTK.args.inputs.keyboard.key_down.i
 
     handle_pause
 
