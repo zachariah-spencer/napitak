@@ -13,6 +13,7 @@ class Game
     @paused = false
     @pause_button_pos = 200 + 20
     AnimationManager.new
+    AnnouncementManager.new 
 
     # keeps track of whether an entity with a specific entity_id has been created already
     @created_entity_ids = []
@@ -109,6 +110,8 @@ class Game
   end
 
   def tick
+    GameUtils.announce if GTK.args.inputs.keyboard.key_down.i
+
     handle_pause
 
     if @new_status_label_queued &&
@@ -125,6 +128,7 @@ class Game
     end
 
     $animation_manager.tick if $animation_manager
+    $announcement_manager.tick
     render
     calc_particles
 
@@ -163,6 +167,7 @@ class Game
 
     # for each particle, construct a prefab
     l4 << @status_labels.map { |particle| status_label_prefab particle }
+    l4 << @announcement_manager&.prefab
 
     outputs.primitives << [l0, l1, l2, l3, l4]
 
