@@ -3,7 +3,6 @@ class Files
   attr :save_data
 
   def initialize
-    $files = self
     # The hash to manipulate save data on during runtime
     @save_data = {}
     read_hash = read

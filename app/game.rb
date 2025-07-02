@@ -39,6 +39,8 @@ class Game
     encounters_completed = $files.save_data&.[]("encounters_completed")
 
     is_mid_run ? change_scene(prev_sc: "", next_sc: @scene) : new_run
+
+    @trans = Transition.new
   end
 
   # reset vars for new run
@@ -128,8 +130,9 @@ class Game
   end
 
   def tick
-    puts $files.save_data
     handle_pause
+
+    @trans.tick
 
     if @new_status_label_queued &&
          @status_label_queue_count.elapsed_time >= 0.75.seconds

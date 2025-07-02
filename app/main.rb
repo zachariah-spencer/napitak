@@ -11,6 +11,7 @@ require_relative "utils/scroll_list_widget_h"
 require_relative "utils/upgrade_level_bar_widget"
 require_relative "utils/button"
 require_relative "utils/announcement"
+require_relative "utils/transition"
 
 require_relative "models/enemies/enemy"
 require_relative "models/enemies/wolf"
@@ -48,8 +49,9 @@ require_relative "scenes/journal"
 require_relative "scenes/run_summary"
 require_relative "scenes/meta_shop"
 
+
 def tick(args)
-  Files.new
+  $files ||= Files.new
   $game ||= Game.new
   $game.args ||= args
   $game.tick if $game != nil
