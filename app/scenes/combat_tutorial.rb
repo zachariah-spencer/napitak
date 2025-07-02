@@ -26,10 +26,14 @@ class CombatTutorial
     @fled = false
     @attempting_flee = false
     @flee_attempts = 0
+    @card_hovered = false
     setup_tutorial_deck
     begin_combat
 
-    GameUtils.announce(text: GameUtils.tutorial_string?(0), duration: 3.5.seconds)
+    GameUtils.announce(
+      text: GameUtils.tutorial_string?(0),
+      duration: 5.0.seconds
+    )
   end
 
   def tick
@@ -47,6 +51,13 @@ class CombatTutorial
     if @fled && @flee_banner_timer &&
          @flee_banner_timer.elapsed_time >= 3.seconds
       leave(2)
+    end
+
+    if card_hovered?
+      GameUtils.announce(
+        text: GameUtils.tutorial_string?(1),
+        duration: 5.0.seconds
+      )
     end
   end
 
@@ -108,6 +119,13 @@ class CombatTutorial
     calc_entity_removals
     @banner_alpha = @banner_alpha.lerp(255, 0.04) if @defeat_banner_timer or
       @victory_banner_timer or @flee_banner_timer
+  end
+
+  def card_hovered?
+    hovered = false
+    @hand.each { |id, c| hovered = true if c.hovered }
+    @card_hovered = true if hovered
+    hovered
   end
 
   def render(layer_num)
@@ -560,7 +578,10 @@ class CombatTutorial
     # roll = Numeric.rand(0..100)
     # flee if roll <= flee_success_rate?
 
-    GameUtils.announce(text: "There is no escaping the darkness...", duration: 1.25.seconds)
+    GameUtils.announce(
+      text: "There is no escaping the darkness...",
+      duration: 1.25.seconds
+    )
     @attempting_flee = true
   end
 
