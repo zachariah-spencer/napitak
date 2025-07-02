@@ -68,11 +68,11 @@ class Game
   def change_scene(prev_sc:, next_sc:, args: [], quick: false)
     @prev_sc = ""
     @next_sc = ""
-    @args = []
+    @scene_args = []
 
     @prev_sc = prev_sc
     @next_sc = next_sc
-    @args = args
+    @scene_args = args
     start_scene_change
 
     if quick
@@ -103,7 +103,7 @@ class Game
   def finish_scene_change()
     case @scene
       when "combat"
-        @scene_ref = Combat.new(@args[0])
+        @scene_ref = Combat.new(@scene_args[0])
       when "alchemy_table"
         @scene_ref = AlchemyTable.new(max_uses: $player.alchemy_table_uses)
       when "alchemy_lab"
