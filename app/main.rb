@@ -48,7 +48,7 @@ require_relative "scenes/pause_menu"
 require_relative "scenes/journal"
 require_relative "scenes/run_summary"
 require_relative "scenes/meta_shop"
-
+require_relative "scenes/combat_tutorial"
 
 def tick(args)
   $files ||= Files.new

@@ -1,11 +1,12 @@
 class AnnouncementManager
   attr_gtk
-  attr :announcements
+  attr :announcements, :completed_announcement
 
   def initialize
     $announcement_manager = self
     @announcements = []
     @current_announcement = nil
+    @completed_announcement = false
   end
 
   def add_announcement(announcement)
@@ -14,14 +15,19 @@ class AnnouncementManager
     display_next_announcement if no_announcements
   end
 
-  def current_announcement_invalid?
-    @current_announcement == nil || @current_announcement.message_completed?
+  def clear_announcements_queue
+    @announcements = []
+    @current_announcement = nil
   end
 
   def tick
+    @completed_announcement = false
     @current_announcement&.tick
     if @current_announcement
-      display_next_announcement if @current_announcement.message_completed?
+      if @current_announcement.message_completed?
+        display_next_announcement
+        @completed_announcement = true
+      end
     end
   end
 

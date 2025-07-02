@@ -4,7 +4,7 @@ class AlchemyLab
   attr_gtk
   attr :sc_id
 
-  def initialize(max_uses:, max_ingredients:)
+  def initialize(max_uses:, max_ingredients:, tutorial: false)
     @sc_id = "alchemy_lab"
     @player = $player
     @recipe_book = $recipe_book
@@ -102,7 +102,10 @@ class AlchemyLab
       if GameUtils.is_potion(potion.id)
         @pot_menu_widget.add_item(potion)
       else
-        potion.instant_set_position(x: GTK.args.grid.w / 2 - (potion.w / 2), y: GTK.args.grid.h / 2 - (potion.h / 2))
+        potion.instant_set_position(
+          x: GTK.args.grid.w / 2 - (potion.w / 2),
+          y: GTK.args.grid.h / 2 - (potion.h / 2)
+        )
         @visible_ingredients[potion.entity_id] = potion
         @ingredients_on_screen.add(potion)
       end
@@ -173,7 +176,6 @@ class AlchemyLab
       calc_inputs_locked
     end
 
-    
     calc_card_positions
   end
 
@@ -181,7 +183,7 @@ class AlchemyLab
     all_moveable_cards =
       @visible_ingredients.merge(@selected_ingredients).merge(@visible_potions)
 
-    all_moveable_cards.each { |id, c| c.grabbed = false}
+    all_moveable_cards.each { |id, c| c.grabbed = false }
 
     state.currently_dragging_card_id = nil
     state.mouse_point_inside_square = nil

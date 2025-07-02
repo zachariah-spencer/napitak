@@ -33,7 +33,6 @@ class Transition
     #    @a = @a.lerp(0, 0.2)
     #  end
     #end
-    puts @start_tick.elapsed_time
     @completed = true if @start_tick.elapsed_time >= @duration
   end
 
@@ -44,15 +43,14 @@ class Transition
   def prefab
     {
       x: 0,
-      y: GTK.args.grid.h - @y,#(GTK.args.grid.h * 1.25) - ,
+      y: GTK.args.grid.h - @y, #(GTK.args.grid.h * 1.25) - ,
       w: GTK.args.grid.w,
       h: GTK.args.grid.h,
       r: 0,
       g: 0,
       b: 0,
       a: 255,
-      primitive_marker: :solid,
+      primitive_marker: :solid
     }
   end
-
 end

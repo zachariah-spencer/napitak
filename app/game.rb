@@ -10,7 +10,6 @@ class Game
     @scene_args
     @transitioning_scenes = false
 
-
     @autosaved = false
     @input_locked = false
     @scene = $files.save_data&.[]("scene")
@@ -20,7 +19,7 @@ class Game
     @paused = false
     @pause_button_pos = 200 + 20
     AnimationManager.new
-    AnnouncementManager.new 
+    AnnouncementManager.new
     @transition = nil
 
     # keeps track of whether an entity with a specific entity_id has been created already
@@ -45,7 +44,11 @@ class Game
     is_mid_run = $files.save_data&.[]("mid_run")
     encounters_completed = $files.save_data&.[]("encounters_completed")
 
-    is_mid_run ? change_scene(prev_sc: "", next_sc: @scene, quick: true) : new_run
+    if is_mid_run
+      change_scene(prev_sc: "", next_sc: @scene, quick: true)
+    else
+      new_run
+    end
   end
 
   # reset vars for new run
@@ -58,14 +61,20 @@ class Game
     if @runs_completed && @runs_completed > 0
       change_scene(prev_sc: "", next_sc: "map", quick: true)
 
-    #sStart of first run for new player (scripted intro then scripted combat encounter before natural gameplay)
+      #sStart of first run for new player (scripted intro then scripted combat encounter before natural gameplay)
     else
       @input_locked = true
       change_scene(prev_sc: "", next_sc: "intro", quick: true)
     end
   end
 
-  def change_scene(prev_sc:, next_sc:, args: [], quick: false, no_transition: false)
+  def change_scene(
+    prev_sc:,
+    next_sc:,
+    args: [],
+    quick: false,
+    no_transition: false
+  )
     @prev_sc = ""
     @next_sc = ""
     @scene_args = []
@@ -106,26 +115,28 @@ class Game
 
   def finish_scene_change()
     case @scene
-      when "combat"
-        @scene_ref = Combat.new(@scene_args[0])
-      when "alchemy_table"
-        @scene_ref = AlchemyTable.new(max_uses: $player.alchemy_table_uses)
-      when "alchemy_lab"
-        @scene_ref =
-          AlchemyLab.new(
-            max_uses: 10,
-            max_ingredients: $player.starting_inventory_size
-          )
-      when "rewards_screen"
-        @scene_ref = RewardsScreen.new(picks: $player.reward_picks)
-      when "map"
-        @scene_ref = Map.new()
-      when "run_summary"
-        @scene_ref = RunSummary.new()
-      when "meta_shop"
-        @scene_ref = MetaShop.new()
-      when "intro"
-        @scene_ref = Intro.new
+    when "combat"
+      @scene_ref = Combat.new(@scene_args[0])
+    when "alchemy_table"
+      @scene_ref = AlchemyTable.new(max_uses: $player.alchemy_table_uses)
+    when "alchemy_lab"
+      @scene_ref =
+        AlchemyLab.new(
+          max_uses: 10,
+          max_ingredients: $player.starting_inventory_size
+        )
+    when "rewards_screen"
+      @scene_ref = RewardsScreen.new(picks: $player.reward_picks)
+    when "map"
+      @scene_ref = Map.new()
+    when "run_summary"
+      @scene_ref = RunSummary.new()
+    when "meta_shop"
+      @scene_ref = MetaShop.new()
+    when "intro"
+      @scene_ref = Intro.new
+    when "combat_tutorial"
+      @scene_ref = CombatTutorial.new
     end
 
     $files.save_data["scene"] = @next_sc
@@ -198,7 +209,8 @@ class Game
     calc_particles
 
     # puts $files.save_data to file
-    if (GTK.quit_requested? && !@autosaved) || GTK.args.inputs.keyboard.key_down.s
+    if (GTK.quit_requested? && !@autosaved) ||
+         GTK.args.inputs.keyboard.key_down.s
       puts $files.save_data
       $files.write
       puts "WRITING SAVE DATA TO FILE"

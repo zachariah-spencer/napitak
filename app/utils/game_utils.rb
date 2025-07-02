@@ -5,8 +5,20 @@ module GameUtils
     $game.status_label(x, y, text, r, g, b, scale)
   end
 
-  def self.announce(text: "debug", duration: 1.0.seconds)
-    $announcement_manager.add_announcement(Announcement.new(text: text, duration: duration))
+  def self.announce(text: "debug", duration: 1.0.seconds, x: Grid.w / 2 - 200, y: Grid.h - 125 - 50)
+    $announcement_manager.add_announcement(
+      Announcement.new(text: text, duration: duration, x: x, y: y, large: false)
+    )
+  end
+
+  def self.announce_lg(text: "debug", duration: 1.0.seconds, x: Grid.w / 2 - 400, y: Grid.h - 250 - 50)
+    $announcement_manager.add_announcement(
+      Announcement.new(text: text, duration: duration, x: x, y: y, large: true)
+    )
+  end
+
+  def self.current_announcement_completed?
+    $announcement_manager.completed_announcement
   end
 
   def self.craftable_ingredients?
