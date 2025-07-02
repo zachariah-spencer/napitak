@@ -18,7 +18,7 @@ class Intro
   end
 
   def calc
-    $game.change_scene(prev_sc: @sc_id, next_sc: "map") if @start_tick.elapsed_time >= @cutscene_duration
+    $game.change_scene(prev_sc: @sc_id, next_sc: "map") if @start_tick.elapsed_time >= @cutscene_duration || GTK.args.inputs.keyboard.key_down.o
   end
 
   def render(layer_num)

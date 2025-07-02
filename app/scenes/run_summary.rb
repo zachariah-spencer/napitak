@@ -9,6 +9,7 @@ class RunSummary
     @shop_btn = Button.new(x: GTK.args.grid.w / 2 - 75, y: 50, w: 150, h: 75, text: "Shop")
 
     $files.save_data["mid_run"] = false
+    $game.increment_runs_completed
   end
 
   def cleanup; end

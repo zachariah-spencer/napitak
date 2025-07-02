@@ -17,7 +17,7 @@ class IngredientCard < Card
       @fw = 120
       @fh = 120
     end
-    
+
     if !@grabbed
       if @selected
         @fw = 150

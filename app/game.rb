@@ -2,13 +2,13 @@
 
 class Game
   attr_gtk
-  attr :scene, :input_locked
+  attr :scene, :input_locked, :runs_completed
 
   def initialize
     @autosaved = false
     @input_locked = false
     @scene = $files.save_data&.[]("scene")
-    @runs_completed = $files.save_data&.[]("runs_completed")
+    @runs_completed = $files.save_data["runs_completed"] ||= 0
     @scene_ref = nil
     @paused_scene_ref = nil
     @paused = false
@@ -121,7 +121,14 @@ class Game
     end
   end
 
+  def increment_runs_completed
+    @runs_completed += 1
+    $files.save_data["runs_completed"] = @runs_completed
+    $files.write
+  end
+
   def tick
+    puts $files.save_data
     handle_pause
 
     if @new_status_label_queued &&
@@ -151,7 +158,8 @@ class Game
     end
 
     # puts $files.save_data to file
-    if (GTK.quit_requested? && !@autosaved)
+    if (GTK.quit_requested? && !@autosaved) || GTK.args.inputs.keyboard.key_down.s
+      puts $files.save_data
       $files.write
       puts "WRITING SAVE DATA TO FILE"
     end
