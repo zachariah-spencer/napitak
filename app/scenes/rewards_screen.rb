@@ -23,17 +23,19 @@ class RewardsScreen
 
   def tick
     calc_card_positions
-    $player.hovered_cards =
-      Geometry.find_all_intersect_rect inputs.mouse, get_card_rects
+    if !$game.input_locked
+      $player.hovered_cards =
+        Geometry.find_all_intersect_rect inputs.mouse, get_card_rects
 
-    if GTK.args.inputs.mouse.click
-      clicked_card = Geometry.find_intersect_rect inputs.mouse, get_card_rects()
-      if clicked_card
-        puts "clicked on a card"
-        clicked_card[:ref].use()
-        @picks -= 1
+      if GTK.args.inputs.mouse.click
+        clicked_card = Geometry.find_intersect_rect inputs.mouse, get_card_rects()
+        if clicked_card
+          puts "clicked on a card"
+          clicked_card[:ref].use()
+          @picks -= 1
 
-        $game.change_scene(prev_sc: @sc_id, next_sc: "map") if @picks <= 0
+          $game.change_scene(prev_sc: @sc_id, next_sc: "map") if @picks <= 0
+        end
       end
     end
 

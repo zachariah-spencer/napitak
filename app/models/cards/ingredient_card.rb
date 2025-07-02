@@ -10,6 +10,14 @@ class IngredientCard < Card
   def calc_position(num_cards, index)
     @f_pos.y = 110 if @pos.y < 110 && $game.scene == "alchemy_lab"
 
+    if @selected
+      @fw = 150
+      @fh = 150
+    else
+      @fw = 120
+      @fh = 120
+    end
+    
     if !@grabbed
       if @selected
         @fw = 150

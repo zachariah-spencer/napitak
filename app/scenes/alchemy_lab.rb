@@ -65,8 +65,6 @@ class AlchemyLab
     puts "cleanup alchemy_lab.rb"
     state.currently_dragging_card_id = nil
     state.mouse_point_inside_square = nil
-    c_ref = nil
-    c_u_m = nil
 
     potions_save_data = []
     @player.potions.all_cards.each { |c| potions_save_data << c.save_data? }
@@ -104,8 +102,7 @@ class AlchemyLab
       if GameUtils.is_potion(potion.id)
         @pot_menu_widget.add_item(potion)
       else
-        potion.f_pos.x = GTK.args.grid.w / 2 - (potion.w / 2)
-        potion.f_pos.y = GTK.args.grid.h / 2 - (potion.h / 2)
+        potion.instant_set_position(x: GTK.args.grid.w / 2 - (potion.w / 2), y: GTK.args.grid.h / 2 - (potion.h / 2))
         @visible_ingredients[potion.entity_id] = potion
         @ingredients_on_screen.add(potion)
       end
@@ -169,18 +166,25 @@ class AlchemyLab
   end
 
   def calc
-    calc_card_positions
-    calc_mouse_inputs
-    calc_keyboard_inputs
-
-    if @prev_loadout_btn.clicked? &&
-         (
-           $player.prev_loadout_potions.all_cards.size > 0 ||
-             $player.prev_loadout_ingredients.all_cards.size > 0
-         )
-      clear_loadout
-      config_prev_loadout
+    if !$game.input_locked
+      calc_keyboard_inputs
+      calc_mouse_inputs
+    else
+      calc_inputs_locked
     end
+
+    
+    calc_card_positions
+  end
+
+  def calc_inputs_locked
+    all_moveable_cards =
+      @visible_ingredients.merge(@selected_ingredients).merge(@visible_potions)
+
+    all_moveable_cards.each { |id, c| c.grabbed = false}
+
+    state.currently_dragging_card_id = nil
+    state.mouse_point_inside_square = nil
   end
 
   def clear_loadout
@@ -284,27 +288,6 @@ class AlchemyLab
 
       l0
     when 1
-      # left_panel ||= {
-      #   x: 0,
-      #   y: 0,
-      #   w: 200,
-      #   h: GTK.args.grid.h,
-      #   r: 50,
-      #   g: 50,
-      #   b: 50,
-      #   a: 50,
-      #   primitive_marker: :solid
-      # }
-
-      #left_panel ||= {
-      #  x: 0,
-      #  y: 0,
-      #  w: 200,
-      #  h: GTK.args.grid.h,
-      #  path: "sprites/panel_blue.png",
-      #  primitive_marker: :sprite
-      #}
-
       left_panel_a ||= {
         x: 0,
         y: 0,
@@ -650,6 +633,15 @@ class AlchemyLab
   end
 
   def calc_mouse_inputs
+    if @prev_loadout_btn.clicked? &&
+         (
+           $player.prev_loadout_potions.all_cards.size > 0 ||
+             $player.prev_loadout_ingredients.all_cards.size > 0
+         )
+      clear_loadout
+      config_prev_loadout
+    end
+
     if GTK.args.inputs.mouse.click &&
          Geometry.intersect_rect?(inputs.mouse, leave_btn)
       puts "clicked on leave_btn"
@@ -694,6 +686,10 @@ class AlchemyLab
           c_ref.free_floating = true
           c_ref.activation_time = Kernel.tick_count
           c_u_m = c_ref.rect
+          c_ref.instant_set_position(
+            x: GTK.args.inputs.mouse.x - 80,
+            y: GTK.args.inputs.mouse.y - 80
+          )
           c_u_m.x = GTK.args.inputs.mouse.x - 80
           c_u_m.y = GTK.args.inputs.mouse.y - 80
           c_ref.grabbed = true
@@ -710,6 +706,10 @@ class AlchemyLab
         if c_ref
           c_ref.activation_time = Kernel.tick_count
           c_u_m = c_ref.rect
+          c_ref.instant_set_position(
+            x: GTK.args.inputs.mouse.x - 80,
+            y: GTK.args.inputs.mouse.y - 80
+          )
           c_u_m.x = GTK.args.inputs.mouse.x - 80
           c_u_m.y = GTK.args.inputs.mouse.y - 80
           c_ref.grabbed = true

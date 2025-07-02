@@ -4,7 +4,11 @@ class TrashCanCard < Card
   end
 
   def tick
-    calc_hover
+    if !$game.input_locked
+      calc_hover
+    else
+      @hovered = false
+    end
     calc_position(-1, -1)
   end
 

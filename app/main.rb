@@ -15,6 +15,7 @@ require_relative "utils/announcement"
 require_relative "models/enemies/enemy"
 require_relative "models/enemies/wolf"
 require_relative "models/enemies/ghost"
+require_relative "models/enemies/abyssal_tutorial"
 
 require_relative "models/cards/card"
 require_relative "models/cards/potion_card"

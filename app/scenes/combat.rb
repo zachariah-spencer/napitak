@@ -73,7 +73,14 @@ class Combat
 
   def calc
     calc_card_positions
-    calc_mouse_inputs if @player.my_turn? && !@fled
+
+    if !$game.input_locked
+      calc_mouse_inputs if @player.my_turn? && !@fled
+    else
+      @hand.each { |id, c| c.grabbed = false }
+      state.currently_dragging_card_id = nil
+      state.mouse_point_inside_square = nil
+    end
 
     if !@enemy.combat_stats.dead
       if @enemy.turn_over?
@@ -558,7 +565,7 @@ class Combat
   end
 
   def calc_mouse_inputs
-    return if $animation_manager&.input_locked?
+    return if $animation_manager&.input_locked? || $game.input_locked
 
     if GTK.args.inputs.mouse.click &&
          Geometry.intersect_rect?(inputs.mouse, flee_btn) && @player.my_turn

@@ -117,10 +117,27 @@ class AlchemyTable
   end
 
   def calc
+    if !$game.input_locked
+      calc_keyboard_inputs
+      calc_mouse_inputs
+    else
+      calc_inputs_locked
+    end
     calc_card_positions
-    calc_mouse_inputs
-    calc_keyboard_inputs
   end
+
+  def calc_inputs_locked
+    all_moveable_cards =
+      @visible_ingredients.merge(@selected_ingredients).merge(@visible_potions)
+
+    all_moveable_cards.each { |id, c| c.grabbed = false}
+
+    state.currently_dragging_card_id = nil
+    state.mouse_point_inside_square = nil
+    c_ref = nil
+    c_u_m = nil
+  end
+
 
   def calc_card_positions
     # @visible_ingredients

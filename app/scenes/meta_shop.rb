@@ -122,10 +122,6 @@ class MetaShop
   end
 
   def calc
-    # GTK.request_quit if GTK.args.inputs.mouse.click and Geometry.intersect_rect?(GTK.args.inputs.mouse, quit_btn)
-    # $game.new_run if GTK.args.inputs.mouse.click and Geometry.intersect_rect?(GTK.args.inputs.mouse, new_run_btn)
-    $game.change_scene(prev_sc: "meta_shop", next_sc: "run_summary") if @leave_btn.clicked?
-
     @siz_btn.text = calc_price(@upgrades_price_sheet[:siz], @siz_info)
     @max_hp_btn.text = calc_price(@upgrades_price_sheet[:max_hp], @max_hp_info)
     @max_focus_btn.text = calc_price(@upgrades_price_sheet[:max_foc], @max_focus_info)
@@ -133,6 +129,11 @@ class MetaShop
     @shop_disc_btn.text = calc_price(@upgrades_price_sheet[:shop_disc], @shop_disc_info)
     @picks_btn.text = calc_price(@upgrades_price_sheet[:picks], @picks_info)
 
+    calc_mouse_inputs if !$game.inputs_locked
+  end
+
+  def calc_mouse_inputs
+    $game.change_scene(prev_sc: "meta_shop", next_sc: "run_summary") if @leave_btn.clicked?
     buy_upgrade(@siz_info) if @siz_btn.clicked?
     buy_upgrade(@max_hp_info) if @max_hp_btn.clicked?
     buy_upgrade(@max_focus_info) if @max_focus_btn.clicked?

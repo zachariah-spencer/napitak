@@ -21,7 +21,8 @@ class Card
                 :uses_left,
                 :hovered,
                 :vx,
-                :vy
+                :vy,
+                :grabbed
 
   def initialize(
     id,
@@ -92,6 +93,8 @@ class Card
   def instant_set_position(x: GTK.args.grid.w / 2, y: GTK.args.grid.h / 2)
     @pos = { x: x, y: y }
     @f_pos = { x: x, y: y }
+    @w = 0
+    @h = 0
   end
 
   def tick()
@@ -112,7 +115,11 @@ class Card
   end
 
   def calc_hover
-    @hovered = Geometry.intersect_rect?(GTK.args.inputs.mouse, rect)
+    if !$game.input_locked
+      @hovered = Geometry.intersect_rect?(GTK.args.inputs.mouse, rect)
+    else
+      @hovered = false
+    end
 
     if @hovered and not @grabbed
       @tt_f_a = 255
@@ -372,6 +379,8 @@ class Card
   end
 
   def interpolate_attributes
+    @w = @w.lerp @fw, 0.2
+    @h = @h.lerp @fh, 0.2
     if @grabbed
       @vx = 0.0
       @vy = 0.0
@@ -390,8 +399,6 @@ class Card
     @f_pos.y = dy
     @pos.x = @pos.x.lerp @f_pos.x, 0.2
     @pos.y = @pos.y.lerp @f_pos.y, 0.2
-    @w = @w.lerp @fw, 0.2
-    @h = @h.lerp @fh, 0.2
     @angle = @angle.lerp @f_angle, 0.2
     @tt_a = @tt_a.lerp(@tt_f_a, 0.2) if @tt_a && @tt_f_a
 

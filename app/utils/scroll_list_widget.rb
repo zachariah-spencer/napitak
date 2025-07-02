@@ -38,9 +38,13 @@ class ScrollListWidget
 
   # update scroll, clear last click, then detect a new one
   def tick(inputs)
-    handle_scroll(inputs)
-    @selected_item = nil # ← reset every frame
-    detect_click(inputs)
+    if !$game.input_locked
+      handle_scroll(inputs)
+      @selected_item = nil # ← reset every frame
+      detect_click(inputs)
+    else
+      @hovered_idx = nil
+    end
   end
 
   # after render/tick, caller can do widget.pop_clicked
