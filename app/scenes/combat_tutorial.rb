@@ -32,13 +32,34 @@ class CombatTutorial
   end
 
   def ready
-    puts "IN READY ON COMBAT TUT"
     $TUTORIAL_INDEX = 0
     id, text = GameUtils.tutorial_string?($TUTORIAL_INDEX)
 
     GameUtils.announce(
       text: text,
-      duration: 5.0.seconds,
+      duration: 5.5.seconds,
+      tutorial_id: id,
+      x: GTK.args.grid.w / 2 - 200,
+      y: 250,
+    )
+
+    $TUTORIAL_INDEX = 1
+    id, text = GameUtils.tutorial_string?($TUTORIAL_INDEX)
+
+    GameUtils.announce(
+      text: text,
+      duration: 4.5.seconds,
+      tutorial_id: id,
+      x: 175,
+      y: 275
+    )
+
+    $TUTORIAL_INDEX = 2
+    id, text = GameUtils.tutorial_string?($TUTORIAL_INDEX)
+
+    GameUtils.announce(
+      text: text,
+      duration: 6.5.seconds,
       tutorial_id: id,
     )
   end
@@ -61,12 +82,31 @@ class CombatTutorial
     end
 
     if $announcement_manager.no_announcements? && !@card_hovered_tutorial_played && card_hovered? && !$game.input_locked
-      $TUTORIAL_INDEX = 1
+      $TUTORIAL_INDEX = 3
       id, text = GameUtils.tutorial_string?($TUTORIAL_INDEX)
       GameUtils.announce(
         text: text,
         duration: 5.0.seconds,
         tutorial_id: id,
+        x: $TUTORIAL_HOVERED_CARD.x - 100,
+        y: $TUTORIAL_HOVERED_CARD.y + 100,
+      )
+      $TUTORIAL_INDEX = 4
+      id, text = GameUtils.tutorial_string?($TUTORIAL_INDEX)
+      GameUtils.announce(
+        text: text,
+        duration: 5.0.seconds,
+        tutorial_id: id,
+      )
+      $TUTORIAL_INDEX = 5
+      id, text = GameUtils.tutorial_string?($TUTORIAL_INDEX)
+
+      GameUtils.announce(
+        text: text,
+        duration: 6.0.seconds,
+        tutorial_id: id,
+        x: 175,
+        y: 475,
       )
     end
   end

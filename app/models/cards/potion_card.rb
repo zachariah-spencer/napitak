@@ -45,7 +45,7 @@ class PotionCard < Card
 
     @tt_f_a = 0 if @grabbed
 
-    @tt_f_a = 255 if $TUTORIAL_HOVERED_CARD == self.entity_id && $announcement_manager.current_announcement_id? == 1
+    @tt_f_a = 255 if $TUTORIAL_HOVERED_CARD == self.entity_id && [4, 5].include?($announcement_manager.current_announcement_id?)
   end
 
   def calc_position(num_cards, index)

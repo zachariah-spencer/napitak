@@ -1,5 +1,14 @@
 {
-    "0": "When you begin combat, you will draw 4 cards from your deck to begin. Every subsequent turn you will draw 1 additional card from you deck.",
-    "1": "TEST2",
-    "2": "tutorial 3"
+
+    "0": "When you begin combat, you will draw 4 cards from your deck to begin. Every subsequent turn you will draw 1 additional card from your deck.",
+    "1": "The goal in combat is to reduce your enemy's HP to 0 and to prevent the same fate from happening to you.",
+    "2": "You will always go first in combat. On your turn you can choose to play cards, attempt to flee, or pass your turn.",
+    
+    "3": "Hovering over a card will give you more information about that card.",
+    "4": "This represents the Focus Cost to play this card.",
+    "5": "At the start of each turn you regain your Focus which you can spend to play potion cards. Each potion card has an associated Focus Cost to play.",
+    "6": "This represents the number of times this potion can be played before it needs refilled at an alchemy workbench. Always consider the cost of empty potion bottles in your deck!",
+    "7": "All of the effects this potion has when played are shown under its potencies list.",
+    "8": "RED = Damage, BLUE = Frost, ORANGE = Scorch, BROWN = Blight, YELLOW = Ward, GREEN = Mending or Restoration"
+
 }
