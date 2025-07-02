@@ -201,6 +201,7 @@ class Game
       if @transition.completed
         @transition = nil
         @input_locked = false
+        @scene_ref.ready if @scene_ref.respond_to?(:ready)
       end
     end
 

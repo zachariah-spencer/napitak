@@ -28,7 +28,11 @@ class CombatTutorial
     @flee_attempts = 0
     @card_hovered_tutorial_played = false
     setup_tutorial_deck
+    begin_combat
+  end
 
+  def ready
+    puts "IN READY ON COMBAT TUT"
     $TUTORIAL_INDEX = 0
     id, text = GameUtils.tutorial_string?($TUTORIAL_INDEX)
 
@@ -37,8 +41,6 @@ class CombatTutorial
       duration: 5.0.seconds,
       tutorial_id: id,
     )
-
-    begin_combat
   end
 
   def tick
@@ -58,7 +60,7 @@ class CombatTutorial
       leave(2)
     end
 
-    if !@card_hovered_tutorial_played && card_hovered? && !$game.input_locked
+    if $announcement_manager.no_announcements? && !@card_hovered_tutorial_played && card_hovered? && !$game.input_locked
       $TUTORIAL_INDEX = 1
       id, text = GameUtils.tutorial_string?($TUTORIAL_INDEX)
       GameUtils.announce(
