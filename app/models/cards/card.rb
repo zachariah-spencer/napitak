@@ -413,7 +413,7 @@ class Card
   end
 
   def velocities_applied?
-    @vx != 0 || @vx != 0
+    @vx != 0 || @vy != 0
   end
 
   def trait_color?(trait)

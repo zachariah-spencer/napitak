@@ -2,9 +2,15 @@
 
 class Game
   attr_gtk
-  attr :scene, :input_locked, :runs_completed
+  attr :scene, :input_locked, :runs_completed, :transitioning_scenes
 
   def initialize
+    @prev_sc
+    @next_sc
+    @scene_args
+    @transitioning_scenes = false
+
+
     @autosaved = false
     @input_locked = false
     @scene = $files.save_data&.[]("scene")
@@ -15,6 +21,7 @@ class Game
     @pause_button_pos = 200 + 20
     AnimationManager.new
     AnnouncementManager.new 
+    @transition = nil
 
     # keeps track of whether an entity with a specific entity_id has been created already
     @created_entity_ids = []
@@ -38,9 +45,7 @@ class Game
     is_mid_run = $files.save_data&.[]("mid_run")
     encounters_completed = $files.save_data&.[]("encounters_completed")
 
-    is_mid_run ? change_scene(prev_sc: "", next_sc: @scene) : new_run
-
-    @trans = Transition.new
+    is_mid_run ? change_scene(prev_sc: "", next_sc: @scene, quick: true) : new_run
   end
 
   # reset vars for new run
@@ -51,49 +56,75 @@ class Game
 
     # if it is not the players first time playing
     if @runs_completed && @runs_completed > 0
-      change_scene(prev_sc: "", next_sc: "map")
+      change_scene(prev_sc: "", next_sc: "map", quick: true)
 
     #sStart of first run for new player (scripted intro then scripted combat encounter before natural gameplay)
     else
       @input_locked = true
-      change_scene(prev_sc: "", next_sc: "intro")
+      change_scene(prev_sc: "", next_sc: "intro", quick: true)
     end
   end
 
-  def change_scene(prev_sc:, next_sc:, args: [])
-    @scene_ref.cleanup if prev_sc != ""
-    @scene = next_sc
+  def change_scene(prev_sc:, next_sc:, args: [], quick: false)
+    @prev_sc = ""
+    @next_sc = ""
+    @args = []
 
-    if next_sc == "run_summary" || next_sc == "meta_shop"
+    @prev_sc = prev_sc
+    @next_sc = next_sc
+    @args = args
+    start_scene_change
+
+    if quick
+      finish_scene_change
+      transition_scene(start_midway: true)
+    else
+      transition_scene(start_midway: false)
+    end
+  end
+
+  def transition_scene(start_midway: false)
+    @input_locked = true
+    @transition = Transition.new(start_midway: start_midway)
+    @transitioning_scenes = true if !@transition.start_midway
+  end
+
+  def start_scene_change()
+    @scene_ref.cleanup if @prev_sc != ""
+    @scene = @next_sc
+
+    if @next_sc == "run_summary" || @next_sc == "meta_shop"
       @pause_button_pos = 15
     else
       @pause_button_pos = 200 + 15
     end
+  end
 
+  def finish_scene_change()
     case @scene
-    when "combat"
-      @scene_ref = Combat.new(args[0])
-    when "alchemy_table"
-      @scene_ref = AlchemyTable.new(max_uses: $player.alchemy_table_uses)
-    when "alchemy_lab"
-      @scene_ref =
-        AlchemyLab.new(
-          max_uses: 10,
-          max_ingredients: $player.starting_inventory_size
-        )
-    when "rewards_screen"
-      @scene_ref = RewardsScreen.new(picks: $player.reward_picks)
-    when "map"
-      @scene_ref = Map.new()
-    when "run_summary"
-      @scene_ref = RunSummary.new()
-    when "meta_shop"
-      @scene_ref = MetaShop.new()
-    when "intro"
-      @scene_ref = Intro.new
+      when "combat"
+        @scene_ref = Combat.new(@args[0])
+      when "alchemy_table"
+        @scene_ref = AlchemyTable.new(max_uses: $player.alchemy_table_uses)
+      when "alchemy_lab"
+        @scene_ref =
+          AlchemyLab.new(
+            max_uses: 10,
+            max_ingredients: $player.starting_inventory_size
+          )
+      when "rewards_screen"
+        @scene_ref = RewardsScreen.new(picks: $player.reward_picks)
+      when "map"
+        @scene_ref = Map.new()
+      when "run_summary"
+        @scene_ref = RunSummary.new()
+      when "meta_shop"
+        @scene_ref = MetaShop.new()
+      when "intro"
+        @scene_ref = Intro.new
     end
 
-    $files.save_data["scene"] = next_sc
+    $files.save_data["scene"] = @next_sc
   end
 
   def toggle_pause(paused_scene_ref: nil)
@@ -132,8 +163,6 @@ class Game
   def tick
     handle_pause
 
-    @trans.tick
-
     if @new_status_label_queued &&
          @status_label_queue_count.elapsed_time >= 0.75.seconds
       new_label = @status_labels_queue.shift
@@ -147,18 +176,24 @@ class Game
       @scene_ref.tick
     end
 
+    if @transition
+      @transition.tick
+      if @transition.completed
+        @transition = nil
+        @input_locked = false
+      end
+
+      if @transitioning_scenes && @transition.past_midway?
+        
+        finish_scene_change
+        @transitioning_scenes = false
+      end
+    end
+
     $animation_manager.tick if $animation_manager
     $announcement_manager.tick
     render
     calc_particles
-
-    if GTK.args.inputs.keyboard.key_down.p
-      puts "\n\nPREV POT LOADOUT\n-------------------------------------------\n"
-      $player.prev_loadout_potions.all_cards.each { |c| puts c.id }
-
-      puts "\n\nCURRENT POTS\n-------------------------------------------\n"
-      $player.potions.all_cards.each { |c| puts c.id }
-    end
 
     # puts $files.save_data to file
     if (GTK.quit_requested? && !@autosaved) || GTK.args.inputs.keyboard.key_down.s
@@ -169,6 +204,7 @@ class Game
   end
 
   def render
+    outputs = GTK.args.outputs
     l0 = []
     l1 = []
     l2 = []
@@ -190,9 +226,14 @@ class Game
     l4 << @status_labels.map { |particle| status_label_prefab particle }
     l4 << $announcement_manager&.prefab
 
+    # render scene pipeline layers
     outputs.primitives << [l0, l1, l2, l3, l4]
 
+    # render pause button
     outputs.primitives << pause_btn(x: @pause_button_pos) if not @paused
+
+    # render scene transition overlay
+    outputs.primitives << @transition.prefab if @transition
   end
 
   def pause_btn(x: 195, y: GTK.args.grid.h - 45, w: 32, h: 32)

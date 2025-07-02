@@ -7,6 +7,7 @@ class Intro
     @sc_id = "intro"
     @cutscene_duration = 3.seconds
     @start_tick = Kernel.tick_count
+    @completed = false
   end
 
   def cleanup
@@ -18,7 +19,10 @@ class Intro
   end
 
   def calc
-    $game.change_scene(prev_sc: @sc_id, next_sc: "map") if @start_tick.elapsed_time >= @cutscene_duration || GTK.args.inputs.keyboard.key_down.o
+    if @start_tick.elapsed_time >= @cutscene_duration && !@completed|| GTK.args.inputs.keyboard.key_down.o
+      $game.change_scene(prev_sc: @sc_id, next_sc: "map") 
+      @completed = true
+    end
   end
 
   def render(layer_num)
