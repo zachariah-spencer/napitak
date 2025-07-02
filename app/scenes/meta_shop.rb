@@ -129,7 +129,7 @@ class MetaShop
     @shop_disc_btn.text = calc_price(@upgrades_price_sheet[:shop_disc], @shop_disc_info)
     @picks_btn.text = calc_price(@upgrades_price_sheet[:picks], @picks_info)
 
-    calc_mouse_inputs if !$game.inputs_locked
+    calc_mouse_inputs if !$game.input_locked
   end
 
   def calc_mouse_inputs

@@ -6,8 +6,9 @@ class Game
 
   def initialize
     @autosaved = false
-    @input_locked = true
+    @input_locked = false
     @scene = $files.save_data&.[]("scene")
+    @runs_completed = $files.save_data&.[]("runs_completed")
     @scene_ref = nil
     @paused_scene_ref = nil
     @paused = false
@@ -45,7 +46,16 @@ class Game
     $files.save_data["mid_run"] = true
     $encounter_manager.reset!
     @player.reset!
-    change_scene(prev_sc: "", next_sc: "map")
+
+    # if it is not the players first time playing
+    if @runs_completed && @runs_completed > 0
+      change_scene(prev_sc: "", next_sc: "map")
+
+    #sStart of first run for new player (scripted intro then scripted combat encounter before natural gameplay)
+    else
+      @input_locked = true
+      change_scene(prev_sc: "", next_sc: "intro")
+    end
   end
 
   def change_scene(prev_sc:, next_sc:, args: [])
@@ -77,6 +87,8 @@ class Game
       @scene_ref = RunSummary.new()
     when "meta_shop"
       @scene_ref = MetaShop.new()
+    when "intro"
+      @scene_ref = Intro.new
     end
 
     $files.save_data["scene"] = next_sc
@@ -110,8 +122,6 @@ class Game
   end
 
   def tick
-    @input_locked = !@input_locked if GTK.args.inputs.keyboard.key_down.i
-
     handle_pause
 
     if @new_status_label_queued &&

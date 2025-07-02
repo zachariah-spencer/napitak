@@ -37,6 +37,7 @@ require_relative "services/files"
 require_relative "services/animation_manager"
 require_relative "services/announcement_manager"
 
+require_relative "scenes/intro"
 require_relative "scenes/combat"
 require_relative "scenes/alchemy_table"
 require_relative "scenes/alchemy_lab"
@@ -49,12 +50,8 @@ require_relative "scenes/meta_shop"
 
 def tick(args)
   Files.new
-
-  # GTK.on_tick_count(Kernel.tick_count + 60) do
   $game ||= Game.new
   $game.args ||= args
-  # end
-
   $game.tick if $game != nil
 end
 

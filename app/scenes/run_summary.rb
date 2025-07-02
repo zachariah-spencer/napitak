@@ -18,7 +18,7 @@ class RunSummary
   end
 
   def calc
-    calc_buttons
+    calc_buttons if !$game.input_locked
   end
 
   def calc_buttons
