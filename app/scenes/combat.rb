@@ -57,6 +57,9 @@ class Combat
   end
 
   def leave(state = 0)
+    @victory_banner_timer = nil
+    @defeat_banner_timer = nil
+    @flee_banner_timer = nil
     state_enum = { victory: 0, defeat: 1, flee: 2 }
     case state
     when state_enum[:victory]
