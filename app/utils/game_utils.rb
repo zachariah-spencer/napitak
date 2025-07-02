@@ -5,15 +5,15 @@ module GameUtils
     $game.status_label(x, y, text, r, g, b, scale)
   end
 
-  def self.announce(text: "debug", duration: 1.0.seconds, x: Grid.w / 2 - 200, y: Grid.h - 125 - 50)
+  def self.announce(text: "debug", duration: 1.0.seconds, x: Grid.w / 2 - 200, y: Grid.h - 125 - 50, tutorial_id: -1)
     $announcement_manager.add_announcement(
-      Announcement.new(text: text, duration: duration, x: x, y: y, large: false)
+      Announcement.new(text: text, duration: duration, x: x, y: y, large: false, tutorial_id: tutorial_id)
     )
   end
 
-  def self.announce_lg(text: "debug", duration: 1.0.seconds, x: Grid.w / 2 - 400, y: Grid.h - 250 - 50)
+  def self.announce_lg(text: "debug", duration: 1.0.seconds, x: Grid.w / 2 - 400, y: Grid.h - 250 - 50, tutorial_id: -1)
     $announcement_manager.add_announcement(
-      Announcement.new(text: text, duration: duration, x: x, y: y, large: true)
+      Announcement.new(text: text, duration: duration, x: x, y: y, large: true, tutorial_id: tutorial_id)
     )
   end
 
@@ -76,6 +76,7 @@ module GameUtils
   def self.tutorial_string?(i)
     tutorial_json = GTK.read_file("data/tutorials.json")
     return {} unless tutorial_json # Return empty hash if file doesn't exist
-    GTK.parse_json(tutorial_json)[i.to_s]
+    text = GTK.parse_json(tutorial_json)[i.to_s]
+    [i, text]
   end
 end

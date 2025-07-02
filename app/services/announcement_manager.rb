@@ -1,12 +1,16 @@
 class AnnouncementManager
   attr_gtk
-  attr :announcements, :completed_announcement
+  attr :announcements, :completed_announcement, :current_announcement
 
   def initialize
     $announcement_manager = self
     @announcements = []
     @current_announcement = nil
     @completed_announcement = false
+  end
+
+  def current_announcement_id?
+    @current_announcement&.tutorial_id || -1
   end
 
   def add_announcement(announcement)
@@ -33,17 +37,16 @@ class AnnouncementManager
         @completed_announcement = true
       end
     end
-
-    $game.input_locked = false if no_announcements?
   end
 
   def display_next_announcement
     if @announcements.empty?
       @current_announcement = nil
+      $game.input_locked = false
     else
-      $game.input_locked = true
       @current_announcement = @announcements.shift
       @current_announcement.start_message
+      $game.input_locked = true
     end
   end
 

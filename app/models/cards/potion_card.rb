@@ -44,6 +44,8 @@ class PotionCard < Card
     end
 
     @tt_f_a = 0 if @grabbed
+
+    @tt_f_a = 255 if $TUTORIAL_HOVERED_CARD == self.entity_id && $announcement_manager.current_announcement_id? == 1
   end
 
   def calc_position(num_cards, index)
@@ -97,6 +99,7 @@ class PotionCard < Card
         end
       else
         @f_angle = 0
+        @angle = @angle.lerp(@f_angle, 0.2)
       end
     end
 

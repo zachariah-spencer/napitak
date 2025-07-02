@@ -5,6 +5,7 @@ class Game
   attr :scene, :input_locked, :runs_completed, :transitioning_scenes
 
   def initialize
+    $game = self
     @prev_sc
     @next_sc
     @scene_args

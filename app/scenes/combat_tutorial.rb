@@ -26,14 +26,19 @@ class CombatTutorial
     @fled = false
     @attempting_flee = false
     @flee_attempts = 0
-    @card_hovered = false
+    @card_hovered_tutorial_played = false
     setup_tutorial_deck
-    begin_combat
+
+    $TUTORIAL_INDEX = 0
+    id, text = GameUtils.tutorial_string?($TUTORIAL_INDEX)
 
     GameUtils.announce(
-      text: GameUtils.tutorial_string?(0),
-      duration: 5.0.seconds
+      text: text,
+      duration: 5.0.seconds,
+      tutorial_id: id,
     )
+
+    begin_combat
   end
 
   def tick
@@ -53,10 +58,13 @@ class CombatTutorial
       leave(2)
     end
 
-    if card_hovered?
+    if !@card_hovered_tutorial_played && card_hovered? && !$game.input_locked
+      $TUTORIAL_INDEX = 1
+      id, text = GameUtils.tutorial_string?($TUTORIAL_INDEX)
       GameUtils.announce(
-        text: GameUtils.tutorial_string?(1),
-        duration: 5.0.seconds
+        text: text,
+        duration: 5.0.seconds,
+        tutorial_id: id,
       )
     end
   end
@@ -123,8 +131,14 @@ class CombatTutorial
 
   def card_hovered?
     hovered = false
-    @hand.each { |id, c| hovered = true if c.hovered }
-    @card_hovered = true if hovered
+    hovered_card = 
+    @hand.each do |id, c| 
+      if c.hovered
+        hovered = true
+        $TUTORIAL_HOVERED_CARD = c.entity_id
+      end  
+    end
+    @card_hovered_tutorial_played = true if hovered
     hovered
   end
 

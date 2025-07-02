@@ -27,7 +27,6 @@ class Intro
   end
 
   def cleanup
-    $game.input_locked = false
     $announcement_manager.clear_announcements_queue
   end
 

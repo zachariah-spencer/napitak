@@ -312,6 +312,7 @@ $PIDS = GameData::PIDS
 $IIDS = GameData::IIDS
 $ENCOUNTERS = GameData::ENCOUNTERS
 $ANIMATIONS = GameData::ANIMATIONS
+$TUTORIAL_INDEX = 0
 
 $entity_ids = []
 $player = nil

@@ -1,8 +1,9 @@
 class Announcement
   attr_gtk
-  attr :text
+  attr :text, :tutorial_id
 
-  def initialize(x: Grid.w / 2 - 400, y: Grid.h - 250 - 50, text:, duration:, large: false)
+  def initialize(x: Grid.w / 2 - 400, y: Grid.h - 250 - 50, text:, duration:, large: false, tutorial_id: -1)
+    @tutorial_id = tutorial_id
     @id = GameUtils.new_id?
     @x = x
     @y = y
