@@ -65,7 +65,7 @@ class Game
     end
   end
 
-  def change_scene(prev_sc:, next_sc:, args: [], quick: false)
+  def change_scene(prev_sc:, next_sc:, args: [], quick: false, no_transition: false)
     @prev_sc = ""
     @next_sc = ""
     @scene_args = []
@@ -75,11 +75,15 @@ class Game
     @scene_args = args
     start_scene_change
 
-    if quick
+    if no_transition
       finish_scene_change
-      transition_scene(start_midway: true)
     else
-      transition_scene(start_midway: false)
+      if quick
+        finish_scene_change
+        transition_scene(start_midway: true)
+      else
+        transition_scene(start_midway: false)
+      end
     end
   end
 

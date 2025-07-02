@@ -39,9 +39,9 @@ class Intro
         y: 0,
         w: GTK.args.grid.w,
         h: GTK.args.grid.h,
-        r: 0,
-        g: 0,
-        b: 0,
+        r: 50,
+        g: 50,
+        b: 50,
         primitive_marker: :solid
       }
 
