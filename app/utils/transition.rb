@@ -6,7 +6,6 @@ class Transition
     @start_midway = start_midway
     @duration = 0.8.seconds
     @start_tick = Kernel.tick_count
-    @midway_tick = @start_tick + (@duration / 2)
     @completed = false
     @a = 0.0
     @a = 255.0 if @start_midway
@@ -16,17 +15,18 @@ class Transition
     if @start_midway
       @a = @a.lerp(0, 0.1)
     else
-      if @start_tick.elapsed_time < @midway_tick
+      if @start_tick.elapsed_time < (@duration / 2)
         @a = @a.lerp(255, 0.1)
       else
         @a = @a.lerp(0, 0.1)
       end
     end
+    puts @start_tick.elapsed_time
     @completed = true if @start_tick.elapsed_time >= @duration
   end
 
   def past_midway?
-    @start_tick.elapsed_time >= @midway_tick
+    @start_tick.elapsed_time >= @duration / 2
   end
 
   def prefab

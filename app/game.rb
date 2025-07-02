@@ -178,15 +178,13 @@ class Game
 
     if @transition
       @transition.tick
+      if @transitioning_scenes && @transition.past_midway?
+        finish_scene_change
+        @transitioning_scenes = false
+      end
       if @transition.completed
         @transition = nil
         @input_locked = false
-      end
-
-      if @transitioning_scenes && @transition.past_midway?
-        
-        finish_scene_change
-        @transitioning_scenes = false
       end
     end
 
