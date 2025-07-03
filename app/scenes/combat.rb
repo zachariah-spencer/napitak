@@ -126,7 +126,7 @@ class Combat
     end
 
     range = 255 - 0
-    x = (Kernel.tick_count * 10) % (2 * range)
+    x = (Kernel.tick_count * 5) % (2 * range)
     osc_val = range - (x - range).abs
 
     case layer_num
