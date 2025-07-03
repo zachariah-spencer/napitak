@@ -32,7 +32,7 @@ class AnnouncementManager
     @completed_announcement = false
     @current_announcement&.tick
     if @current_announcement
-      if @current_announcement.message_completed?
+      if @current_announcement.message_completed? || GTK.args.inputs.mouse.click
         display_next_announcement
         @completed_announcement = true
       end
@@ -40,6 +40,7 @@ class AnnouncementManager
   end
 
   def display_next_announcement
+    
     if @announcements.empty?
       @current_announcement = nil
       $game.input_locked = false

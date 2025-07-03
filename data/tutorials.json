@@ -5,10 +5,10 @@
     "2": "You will always go first in combat. On your turn you can choose to play cards, attempt to flee, or pass your turn.",
     
     "3": "Hovering over a card will give you more information about that card.",
-    "4": "This represents the Focus Cost to play this card.",
-    "5": "At the start of each turn you regain your Focus which you can spend to play potion cards. Each potion card has an associated Focus Cost to play.",
-    "6": "This represents the number of times this potion can be played before it needs refilled at an alchemy workbench. Always consider the cost of empty potion bottles in your deck!",
-    "7": "All of the effects this potion has when played are shown under its potencies list.",
+    "4": "Focus represents the Focus Cost to play this card.",
+    "5": "At the start of each turn you regain your Focus which you can spend to play potion cards. Each potion card has an associated Focus Cost to play it.",
+    "6": "Charges represents the number of times this potion can be played before it needs refilled at an alchemy workbench. Always consider the cost of empty potion bottles in your deck!",
+    "7": "The Potencies list shows all of the effects this potion has when played.",
     "8": "RED = Damage, BLUE = Frost, ORANGE = Scorch, BROWN = Blight, YELLOW = Ward, GREEN = Mending or Restoration"
 
 }

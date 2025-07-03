@@ -88,8 +88,6 @@ class CombatTutorial
         text: text,
         duration: 5.0.seconds,
         tutorial_id: id,
-        x: $TUTORIAL_HOVERED_CARD.x - 100,
-        y: $TUTORIAL_HOVERED_CARD.y + 100,
       )
       $TUTORIAL_INDEX = 4
       id, text = GameUtils.tutorial_string?($TUTORIAL_INDEX)
@@ -97,16 +95,42 @@ class CombatTutorial
         text: text,
         duration: 5.0.seconds,
         tutorial_id: id,
+        x: $TUTORIAL_HOVERED_CARD.pos[:x] - 220,
+        y: $TUTORIAL_HOVERED_CARD.pos[:y] + 50,
       )
       $TUTORIAL_INDEX = 5
       id, text = GameUtils.tutorial_string?($TUTORIAL_INDEX)
-
       GameUtils.announce(
         text: text,
         duration: 6.0.seconds,
         tutorial_id: id,
         x: 175,
         y: 475,
+      )
+      $TUTORIAL_INDEX = 6
+      id, text = GameUtils.tutorial_string?($TUTORIAL_INDEX)
+      GameUtils.announce(
+        text: text,
+        duration: 6.0.seconds,
+        tutorial_id: id,
+        x: $TUTORIAL_HOVERED_CARD.pos[:x] - 120,
+        y: $TUTORIAL_HOVERED_CARD.pos[:y] + 50,
+      )
+      $TUTORIAL_INDEX = 7
+      id, text = GameUtils.tutorial_string?($TUTORIAL_INDEX)
+      GameUtils.announce(
+        text: text,
+        duration: 6.0.seconds,
+        tutorial_id: id,
+        x: $TUTORIAL_HOVERED_CARD.pos[:x] + 0,
+        y: $TUTORIAL_HOVERED_CARD.pos[:y] + 50,
+      )
+      $TUTORIAL_INDEX = 8
+      id, text = GameUtils.tutorial_string?($TUTORIAL_INDEX)
+      GameUtils.announce(
+        text: text,
+        duration: 6.0.seconds,
+        tutorial_id: id,
       )
     end
   end
@@ -177,7 +201,7 @@ class CombatTutorial
     @hand.each do |id, c| 
       if c.hovered
         hovered = true
-        $TUTORIAL_HOVERED_CARD = c.entity_id
+        $TUTORIAL_HOVERED_CARD = c
       end  
     end
     @card_hovered_tutorial_played = true if hovered
@@ -634,11 +658,13 @@ class CombatTutorial
     # roll = Numeric.rand(0..100)
     # flee if roll <= flee_success_rate?
 
-    GameUtils.announce(
+    GameUtils.announce_lg(
       text: "There is no escaping the darkness...",
       duration: 1.25.seconds
     )
     @attempting_flee = true
+    puts $announcement_manager.announcements
+    puts $announcement_manager.current_announcement
   end
 
   def calc_attempt_flee_end
@@ -766,11 +792,23 @@ class CombatTutorial
       end
       @player.begin_turn
       @turn_num += 1
+      
+      case @turn_num
+      when 2
+        puts "TUTS AFTER FIRST ATTACK"
+      when 3
+        puts "TUTS AFTER SECOND ATTACK"
+      when 4
+        puts "TUTS AFTER THIRD ATTACK"
+      end
+
+
       calc_status_effects(type: :BLIGHT)
       draw_card
       begin_turn_stage @turn_stages[:playing_cards]
     elsif new_stage == @turn_stages[:playing_cards]
       puts "start playing_cards stage"
+
     elsif new_stage == @turn_stages[:cleanup]
       puts "start cleanup stage"
       @player.my_turn = false

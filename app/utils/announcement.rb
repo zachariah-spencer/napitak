@@ -1,6 +1,6 @@
 class Announcement
   attr_gtk
-  attr :text, :tutorial_id
+  attr :text, :tutorial_id, :message_completed
 
   def initialize(x: Grid.w / 2 - 400, y: Grid.h - 250 - 50, text:, duration:, large: false, tutorial_id: -1)
     @tutorial_id = tutorial_id
