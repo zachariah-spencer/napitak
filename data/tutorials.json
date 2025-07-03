@@ -1,14 +1,20 @@
 {
 
-    "0": "When you begin combat, you will draw 4 cards from your deck to begin. Every subsequent turn you will draw 1 additional card from your deck.",
+    "0": "You will always go first in combat. On your turn you can choose to play cards, attempt to flee, or pass your turn.",
     "1": "The goal in combat is to reduce your enemy's HP to 0 and to prevent the same fate from happening to you.",
-    "2": "You will always go first in combat. On your turn you can choose to play cards, attempt to flee, or pass your turn.",
+    "2": "When you begin combat, you will draw 4 cards from your deck to begin. Every subsequent turn you will draw 1 additional card from your deck.",
     
     "3": "Hovering over a card will give you more information about that card.",
     "4": "Focus represents the Focus Cost to play this card.",
     "5": "At the start of each turn you regain your Focus which you can spend to play potion cards. Each potion card has an associated Focus Cost to play it.",
     "6": "Charges represents the number of times this potion can be played before it needs refilled at an alchemy workbench. Always consider the cost of empty potion bottles in your deck!",
     "7": "The Potencies list shows all of the effects this potion has when played.",
-    "8": "RED = Damage, BLUE = Frost, ORANGE = Scorch, BROWN = Blight, YELLOW = Ward, GREEN = Mending or Restoration"
+    "8": "RED = Damage, BLUE = Frost, ORANGE = Scorch, BROWN = Blight, YELLOW = Ward, GREEN = Mending or Restoration",
+
+    "9": "That last attack afflicted you with Scorch!",
+    "10": "The Scorch status effect can stack. Scorch will deal the number of stacks that is applied on a creature at the end of every combatants turn as Heat damage.",
+    "11": "Every time damage is dealt, the number of stacks is reduced by 1.",
+
+    "12": "All Damage has a TYPE. You can see the type "
 
 }

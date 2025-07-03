@@ -27,6 +27,7 @@ class CombatTutorial
     @attempting_flee = false
     @flee_attempts = 0
     @card_hovered_tutorial_played = false
+    @second_card_hovered_tutorial_played = false
     setup_tutorial_deck
     begin_combat
   end
@@ -40,7 +41,7 @@ class CombatTutorial
       duration: 5.5.seconds,
       tutorial_id: id,
       x: GTK.args.grid.w / 2 - 200,
-      y: 250,
+      y: 250
     )
 
     $TUTORIAL_INDEX = 1
@@ -57,11 +58,7 @@ class CombatTutorial
     $TUTORIAL_INDEX = 2
     id, text = GameUtils.tutorial_string?($TUTORIAL_INDEX)
 
-    GameUtils.announce(
-      text: text,
-      duration: 6.5.seconds,
-      tutorial_id: id,
-    )
+    GameUtils.announce(text: text, duration: 6.5.seconds, tutorial_id: id)
   end
 
   def tick
@@ -81,14 +78,19 @@ class CombatTutorial
       leave(2)
     end
 
-    if $announcement_manager.no_announcements? && !@card_hovered_tutorial_played && card_hovered? && !$game.input_locked
+    handle_hover_tooltip_tutorial
+  end
+
+  def handle_hover_tooltip_tutorial
+    puts @turn_num
+    if $announcement_manager.no_announcements? &&
+         !@card_hovered_tutorial_played && card_hovered? &&
+         !$game.input_locked && @turn_num >= 2
+      @card_hovered_tutorial_played = true
+
       $TUTORIAL_INDEX = 3
       id, text = GameUtils.tutorial_string?($TUTORIAL_INDEX)
-      GameUtils.announce(
-        text: text,
-        duration: 5.0.seconds,
-        tutorial_id: id,
-      )
+      GameUtils.announce(text: text, duration: 5.0.seconds, tutorial_id: id)
       $TUTORIAL_INDEX = 4
       id, text = GameUtils.tutorial_string?($TUTORIAL_INDEX)
       GameUtils.announce(
@@ -96,7 +98,7 @@ class CombatTutorial
         duration: 5.0.seconds,
         tutorial_id: id,
         x: $TUTORIAL_HOVERED_CARD.pos[:x] - 220,
-        y: $TUTORIAL_HOVERED_CARD.pos[:y] + 50,
+        y: $TUTORIAL_HOVERED_CARD.pos[:y] + 50
       )
       $TUTORIAL_INDEX = 5
       id, text = GameUtils.tutorial_string?($TUTORIAL_INDEX)
@@ -105,7 +107,7 @@ class CombatTutorial
         duration: 6.0.seconds,
         tutorial_id: id,
         x: 175,
-        y: 475,
+        y: 475
       )
       $TUTORIAL_INDEX = 6
       id, text = GameUtils.tutorial_string?($TUTORIAL_INDEX)
@@ -114,7 +116,7 @@ class CombatTutorial
         duration: 6.0.seconds,
         tutorial_id: id,
         x: $TUTORIAL_HOVERED_CARD.pos[:x] - 120,
-        y: $TUTORIAL_HOVERED_CARD.pos[:y] + 50,
+        y: $TUTORIAL_HOVERED_CARD.pos[:y] + 50
       )
       $TUTORIAL_INDEX = 7
       id, text = GameUtils.tutorial_string?($TUTORIAL_INDEX)
@@ -123,15 +125,18 @@ class CombatTutorial
         duration: 6.0.seconds,
         tutorial_id: id,
         x: $TUTORIAL_HOVERED_CARD.pos[:x] + 0,
-        y: $TUTORIAL_HOVERED_CARD.pos[:y] + 50,
+        y: $TUTORIAL_HOVERED_CARD.pos[:y] + 50
       )
       $TUTORIAL_INDEX = 8
       id, text = GameUtils.tutorial_string?($TUTORIAL_INDEX)
-      GameUtils.announce(
-        text: text,
-        duration: 6.0.seconds,
-        tutorial_id: id,
-      )
+      GameUtils.announce(text: text, duration: 6.0.seconds, tutorial_id: id)
+    end
+
+    if $announcement_manager.no_announcements? &&
+         !@second_card_hovered_tutorial_played && card_hovered? &&
+         !$game.input_locked && @turn_num >= 3
+      @second_card_hovered_tutorial_played = true
+      #MORE TUT MESSAGES
     end
   end
 
@@ -197,14 +202,13 @@ class CombatTutorial
 
   def card_hovered?
     hovered = false
-    hovered_card = 
-    @hand.each do |id, c| 
-      if c.hovered
-        hovered = true
-        $TUTORIAL_HOVERED_CARD = c
-      end  
-    end
-    @card_hovered_tutorial_played = true if hovered
+    hovered_card =
+      @hand.each do |id, c|
+        if c.hovered
+          hovered = true
+          $TUTORIAL_HOVERED_CARD = c
+        end
+      end
     hovered
   end
 
@@ -792,23 +796,47 @@ class CombatTutorial
       end
       @player.begin_turn
       @turn_num += 1
-      
+
       case @turn_num
       when 2
         puts "TUTS AFTER FIRST ATTACK"
       when 3
-        puts "TUTS AFTER SECOND ATTACK"
+        puts "Scorch tutorial messages!"
+        $TUTORIAL_INDEX = 9
+        id, text = GameUtils.tutorial_string?($TUTORIAL_INDEX)
+        GameUtils.announce(
+          text: text,
+          duration: 3.0.seconds,
+          tutorial_id: id,
+          y: 500
+        )
+        $TUTORIAL_INDEX = 10
+        id, text = GameUtils.tutorial_string?($TUTORIAL_INDEX)
+        GameUtils.announce(
+          text: text,
+          duration: 3.0.seconds,
+          tutorial_id: id,
+          x: 200,
+          y: 300
+        )
+        $TUTORIAL_INDEX = 11
+        id, text = GameUtils.tutorial_string?($TUTORIAL_INDEX)
+        GameUtils.announce(
+          text: text,
+          duration: 3.0.seconds,
+          tutorial_id: id,
+          x: 200,
+          y: 300
+        )
       when 4
         puts "TUTS AFTER THIRD ATTACK"
       end
-
 
       calc_status_effects(type: :BLIGHT)
       draw_card
       begin_turn_stage @turn_stages[:playing_cards]
     elsif new_stage == @turn_stages[:playing_cards]
       puts "start playing_cards stage"
-
     elsif new_stage == @turn_stages[:cleanup]
       puts "start cleanup stage"
       @player.my_turn = false

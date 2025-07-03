@@ -36,7 +36,7 @@ class Player
     @reward_picks = 2
 
     @my_turn = true
-    @combat_stats = CombatStatsComponent.new(hp: 20, focus: 4, x: 300, y: 25)
+    @combat_stats = CombatStatsComponent.new(hp: 20, focus: 4, x: 100, y: 375)
     @stunned_turns = 0
     @hovered_cards = []
     @died = false
