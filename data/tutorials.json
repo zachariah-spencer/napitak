@@ -13,7 +13,7 @@
 
     "9": "That last attack afflicted you with Scorch!",
     "10": "The Scorch status effect can stack. Scorch will deal the number of stacks that is applied on a creature at the end of every combatants turn as Heat damage.",
-    "11": "Every time damage is dealt, the number of stacks is reduced by 1.",
+    "11": "Every time damage is dealt, the number of stacks is reduced by 1. There are many status effects in this world all with different effects and tempos.",
 
     "12": "All Damage has a TYPE. You can see the type "
 
