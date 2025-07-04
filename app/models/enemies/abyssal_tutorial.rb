@@ -15,7 +15,7 @@ class AbyssalTutorial < Enemy
     $enemy = self
     @combat_stats =
       CombatStatsComponent.new(
-        hp: 50,
+        hp: 30,
         focus: 0,
         x: GTK.args.grid.w / 2,
         y: GTK.args.grid.h - 270

@@ -82,7 +82,6 @@ class CombatTutorial
   end
 
   def handle_hover_tooltip_tutorial
-    puts @turn_num
     if $announcement_manager.no_announcements? &&
          !@card_hovered_tutorial_played && card_hovered? &&
          !$game.input_locked && @turn_num >= 2
@@ -98,7 +97,7 @@ class CombatTutorial
         duration: 5.0.seconds,
         tutorial_id: id,
         x: $TUTORIAL_HOVERED_CARD.pos[:x] - 220,
-        y: $TUTORIAL_HOVERED_CARD.pos[:y] + 50
+        y: $TUTORIAL_HOVERED_CARD.pos[:y] - 25
       )
       $TUTORIAL_INDEX = 5
       id, text = GameUtils.tutorial_string?($TUTORIAL_INDEX)
@@ -116,7 +115,7 @@ class CombatTutorial
         duration: 6.0.seconds,
         tutorial_id: id,
         x: $TUTORIAL_HOVERED_CARD.pos[:x] - 120,
-        y: $TUTORIAL_HOVERED_CARD.pos[:y] + 50
+        y: $TUTORIAL_HOVERED_CARD.pos[:y] - 25
       )
       $TUTORIAL_INDEX = 7
       id, text = GameUtils.tutorial_string?($TUTORIAL_INDEX)
@@ -125,7 +124,7 @@ class CombatTutorial
         duration: 6.0.seconds,
         tutorial_id: id,
         x: $TUTORIAL_HOVERED_CARD.pos[:x] + 0,
-        y: $TUTORIAL_HOVERED_CARD.pos[:y] + 50
+        y: $TUTORIAL_HOVERED_CARD.pos[:y] - 25
       )
       $TUTORIAL_INDEX = 8
       id, text = GameUtils.tutorial_string?($TUTORIAL_INDEX)
@@ -159,7 +158,7 @@ class CombatTutorial
       $game.change_scene(
         prev_sc: @sc_id,
         next_sc: "alchemy_lab",
-        tutorial: true
+        args: [{tutorial: true}],
       )
     when state_enum[:defeat]
       $player.anodyne += $encounter_manager.calc_anodyne_earnings
@@ -658,10 +657,6 @@ class CombatTutorial
   end
 
   def attempt_flee
-    # @flee_attempts += 1
-    # roll = Numeric.rand(0..100)
-    # flee if roll <= flee_success_rate?
-
     GameUtils.announce_lg(
       text: "There is no escaping the darkness...",
       duration: 1.25.seconds
@@ -673,6 +668,7 @@ class CombatTutorial
 
   def calc_attempt_flee_end
     if @attempting_flee && !@fled && GameUtils.current_announcement_completed?
+      puts "HERE"
       @attempting_flee = false
       begin_turn_stage @turn_stages[:cleanup] if !@fled
     end

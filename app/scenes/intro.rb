@@ -76,7 +76,6 @@ class Intro
     @skipping_tick = Kernel.tick_count if GTK.args.inputs.mouse.down
     @skipping_tick = nil if GTK.args.inputs.mouse.up
 
-    puts @skipping_tick.elapsed_time if @skipping_tick
     if @skipping_tick && @skipping_tick.elapsed_time >= 1.0.seconds && !@cutscene_skipped
       @cutscene_skipped = true
       $game.change_scene(prev_sc: @sc_id, next_sc: "combat_tutorial")

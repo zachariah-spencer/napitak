@@ -16,6 +16,8 @@ class AlchemyLab
     @ingredient_generators = {}
     @ingredients_on_screen = Inventory.new()
     @craftable_potion = nil
+    @from_tutorial = tutorial
+    puts @from_tutorial
 
     padding = 40
     card_size = 80

@@ -8,6 +8,7 @@ class Announcement
     text:,
     duration:,
     large: false,
+    custom_sprite: nil,
     tutorial_id: -1
   )
     @tutorial_id = tutorial_id
@@ -26,6 +27,7 @@ class Announcement
       @max_chars_per_line = 40
     end
 
+    @custom_sprite = custom_sprite
     @text = text
     @duration = duration
     @created_tick = nil
@@ -52,44 +54,48 @@ class Announcement
     @created_tick ? message_over? && @a <= 10 : false
   end
 
-  def prefab
-    # define total dimensions of announcement box for rendering
-    GTK.args.outputs["announcement_#{@id}"].w = @w
-    GTK.args.outputs["announcement_#{@id}"].h = @h
+  def prefab(is_custom = @custom_sprite)
+    if is_custom
+      # definition for custom_sprite
+    else
+      # define total dimensions of announcement box for rendering
+      GTK.args.outputs["announcement_#{@id}"].w = @w
+      GTK.args.outputs["announcement_#{@id}"].h = @h
 
-    # render box as the background to lay text over
-    GTK.args.outputs["announcement_#{@id}"].primitives << {
-      x: 0,
-      y: 0,
-      w: @w,
-      h: @h,
-      r: 0,
-      g: 0,
-      b: 0,
-      primitive_marker: :solid
-    }
-
-    # render labels for each line of the text until the message is fully rendered
-    multi_line_text = String.wrapped_lines @text, @max_chars_per_line
-    GTK.args.outputs[
-      "announcement_#{@id}"
-    ].primitives << multi_line_text.map_with_index do |s, i|
-      {
-        x: @w / 2,
-        y: @h / 2 + @px_size,
-        text: s.to_s,
-        anchor_x: 0.5,
-        anchor_y: i,
-        r: 255,
-        g: 255,
-        b: 255,
-        size_px: @px_size,
-        primitive_marker: :label,
-        font: "fonts/eaglelake.ttf"
+      # render box as the background to lay text over
+      GTK.args.outputs["announcement_#{@id}"].primitives << {
+        x: 0,
+        y: 0,
+        w: @w,
+        h: @h,
+        r: 0,
+        g: 0,
+        b: 0,
+        primitive_marker: :solid
       }
-    end
 
-    # return completed render target cache for calling class to use for rendering
-    { x: @x, y: @y, w: @w, h: @h, a: @a, path: "announcement_#{@id}" }
+      # render labels for each line of the text until the message is fully rendered
+      multi_line_text = String.wrapped_lines @text, @max_chars_per_line
+      GTK.args.outputs[
+        "announcement_#{@id}"
+      ].primitives << multi_line_text.map_with_index do |s, i|
+        {
+          x: @w / 2,
+          y: @h / 2 + @px_size,
+          text: s.to_s,
+          anchor_x: 0.5,
+          anchor_y: i,
+          r: 255,
+          g: 255,
+          b: 255,
+          size_px: @px_size,
+          primitive_marker: :label,
+          font: "fonts/eaglelake.ttf"
+        }
+      end
+
+      # return completed render target cache for calling class to use for rendering
+      { x: @x, y: @y, w: @w, h: @h, a: @a, path: "announcement_#{@id}" }
+    end
   end
 end

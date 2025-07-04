@@ -121,10 +121,14 @@ class Game
     when "alchemy_table"
       @scene_ref = AlchemyTable.new(max_uses: $player.alchemy_table_uses)
     when "alchemy_lab"
+      from_tutorial = false
+      from_tutorial = @scene_args[0].values[0] if !@scene_args.empty?
+
       @scene_ref =
         AlchemyLab.new(
           max_uses: 10,
-          max_ingredients: $player.starting_inventory_size
+          max_ingredients: $player.starting_inventory_size,
+          tutorial: from_tutorial
         )
     when "rewards_screen"
       @scene_ref = RewardsScreen.new(picks: $player.reward_picks)
