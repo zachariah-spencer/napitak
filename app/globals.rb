@@ -123,7 +123,7 @@ module GameData
       name: "Combustible Potion",
       desc: "Explodes upon throwing causing destruction to nearby creatures.",
       fc: 2,
-      max_uses: 1,
+      max_uses: 2,
       path: "sprites/circle/orange.png",
       ingredients: {
         "i001" => 1,

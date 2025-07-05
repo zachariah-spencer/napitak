@@ -12,6 +12,8 @@ class AbyssalTutorial < Enemy
 
   def initialize()
     super
+    @w = 200
+    @h = 200
     $enemy = self
     @combat_stats =
       CombatStatsComponent.new(
@@ -22,6 +24,7 @@ class AbyssalTutorial < Enemy
       )
     @sprite = "sprites/triangle/equilateral/red.png"
     @name = "The Abyssal"
+    @fled = false
     @attacks = {
       0 => {
         name: "Attack 1",
@@ -56,7 +59,7 @@ class AbyssalTutorial < Enemy
         traits: [
           {
             $CARD_TRAITS[:damage] => {
-              amount: 10,
+              amount: 2,
               type: $DAMAGE_TYPES[:force]
             }
           },
@@ -69,7 +72,7 @@ class AbyssalTutorial < Enemy
         traits: [
           {
             $CARD_TRAITS[:damage] => {
-              amount: 10,
+              amount: 3,
               type: $DAMAGE_TYPES[:force]
             }
           },
@@ -82,11 +85,10 @@ class AbyssalTutorial < Enemy
         traits: [
           {
             $CARD_TRAITS[:damage] => {
-              amount: 10,
+              amount: 4,
               type: $DAMAGE_TYPES[:force]
             }
           },
-          { $CARD_TRAITS[:scorch] => 1 }
         ]
       }
     }
@@ -104,5 +106,51 @@ class AbyssalTutorial < Enemy
     end
     puts "ATTACK CHOSEN: #{attack[:name]}"
     attack
+  end
+
+  def prefab
+      enemy_sprite ||= {
+        x: @x,
+        y: @y,
+        angle: @ang,
+        w: @w,
+        h: @h,
+        path: @sprite,
+        primitive_marker: :sprite
+      }
+
+      enemy_hp_label ||= {
+        x: GTK.args.grid.w / 2,
+        y: GTK.args.grid.h - 270,
+        alignment_enum: 1,
+        size_enum: 5,
+        r: 150,
+        g: 0,
+        b: 0,
+        text: "#{@combat_stats.hp}/#{@combat_stats.max_hp}",
+        primitive_marker: :label
+      }
+
+      [enemy_sprite, enemy_hp_label]
+  end
+
+  def tick
+    @combat_stats.tick
+    if @my_turn and not @combat_stats.dead
+      calc
+    elsif @combat_stats.dead
+      @combat_stats.hp = 1
+      @fled = true
+      end_turn
+    end
+
+    if @fled
+      puts "HERE"
+      @x = @x.lerp(1050, 0.02)
+      @w = @w.lerp(0, 0.03)
+      @h = @h.lerp(0, 0.03)
+    else
+      calc_float
+    end
   end
 end

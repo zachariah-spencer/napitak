@@ -13,7 +13,7 @@ class CombatTutorial
     }
     @hand = {}
     @matching_potion = nil
-    @max_hand_size = 8
+    @max_hand_size = 5
     @turn_stage = nil
     @turn_num = -1
     @player = $player
@@ -83,8 +83,8 @@ class CombatTutorial
 
   def handle_hover_tooltip_tutorial
     if $announcement_manager.no_announcements? &&
-         !@card_hovered_tutorial_played && card_hovered? &&
-         !$game.input_locked && @turn_num >= 2
+         !@card_hovered_tutorial_played &&
+         !$game.input_locked && @turn_num >= 4 && card_hovered?
       @card_hovered_tutorial_played = true
 
       $TUTORIAL_INDEX = 3
@@ -105,19 +105,10 @@ class CombatTutorial
         text: text,
         duration: 6.0.seconds,
         tutorial_id: id,
-        x: 175,
-        y: 475
-      )
-      $TUTORIAL_INDEX = 6
-      id, text = GameUtils.tutorial_string?($TUTORIAL_INDEX)
-      GameUtils.announce(
-        text: text,
-        duration: 6.0.seconds,
-        tutorial_id: id,
         x: $TUTORIAL_HOVERED_CARD.pos[:x] - 120,
         y: $TUTORIAL_HOVERED_CARD.pos[:y] - 25
       )
-      $TUTORIAL_INDEX = 7
+      $TUTORIAL_INDEX = 6
       id, text = GameUtils.tutorial_string?($TUTORIAL_INDEX)
       GameUtils.announce(
         text: text,
@@ -126,9 +117,6 @@ class CombatTutorial
         x: $TUTORIAL_HOVERED_CARD.pos[:x] + 0,
         y: $TUTORIAL_HOVERED_CARD.pos[:y] - 25
       )
-      $TUTORIAL_INDEX = 8
-      id, text = GameUtils.tutorial_string?($TUTORIAL_INDEX)
-      GameUtils.announce(text: text, duration: 6.0.seconds, tutorial_id: id)
     end
 
     if $announcement_manager.no_announcements? &&
@@ -152,21 +140,13 @@ class CombatTutorial
     @defeat_banner_timer = nil
     @flee_banner_timer = nil
     state_enum = { victory: 0, defeat: 1, flee: 2 }
-    case state
-    when state_enum[:victory]
-      $encounter_manager.inc_combats_won
-      $game.change_scene(
-        prev_sc: @sc_id,
-        next_sc: "alchemy_lab",
-        args: [{tutorial: true}],
-      )
-    when state_enum[:defeat]
-      $player.anodyne += $encounter_manager.calc_anodyne_earnings
-      $player.save_upgrades_data
-      $game.change_scene(prev_sc: @sc_id, next_sc: "run_summary")
-    when state_enum[:flee]
-      $game.change_scene(prev_sc: @sc_id, next_sc: "map")
-    end
+
+    $encounter_manager.inc_combats_won
+    $game.change_scene(
+      prev_sc: @sc_id,
+      next_sc: "alchemy_lab",
+      args: [{tutorial: true}],
+    )
   end
 
   def calc
@@ -712,6 +692,8 @@ class CombatTutorial
         puts "clicked on deck"
       elsif Geometry.intersect_rect? inputs.mouse, get_pass_button_rect and
             @turn_stage == @turn_stages[:playing_cards]
+
+        draw_card if @player.combat_stats.focus == @player.combat_stats.max_focus
         begin_turn_stage @turn_stages[:cleanup]
       end
     end
@@ -795,16 +777,33 @@ class CombatTutorial
 
       case @turn_num
       when 2
-        puts "TUTS AFTER FIRST ATTACK"
+        puts "Focus Tutorial"
+        $TUTORIAL_INDEX = 7
+        id, text = GameUtils.tutorial_string?($TUTORIAL_INDEX)
+        GameUtils.announce(
+          text: text,
+          duration: 5.0.seconds,
+          tutorial_id: id,
+          y: 500
+        )
       when 3
         puts "Scorch tutorial messages!"
-        $TUTORIAL_INDEX = 9
+        $TUTORIAL_INDEX = 8
         id, text = GameUtils.tutorial_string?($TUTORIAL_INDEX)
         GameUtils.announce(
           text: text,
           duration: 3.0.seconds,
           tutorial_id: id,
           y: 500
+        )
+        $TUTORIAL_INDEX = 9
+        id, text = GameUtils.tutorial_string?($TUTORIAL_INDEX)
+        GameUtils.announce(
+          text: text,
+          duration: 3.0.seconds,
+          tutorial_id: id,
+          x: 200,
+          y: 300
         )
         $TUTORIAL_INDEX = 10
         id, text = GameUtils.tutorial_string?($TUTORIAL_INDEX)
@@ -815,17 +814,18 @@ class CombatTutorial
           x: 200,
           y: 300
         )
+      when 4
+        puts "TUTS AFTER THIRD ATTACK"
+      when 5
+        puts "Extra card draw on pass tutorial"
         $TUTORIAL_INDEX = 11
         id, text = GameUtils.tutorial_string?($TUTORIAL_INDEX)
         GameUtils.announce(
           text: text,
-          duration: 3.0.seconds,
+          duration: 6.0.seconds,
           tutorial_id: id,
-          x: 200,
-          y: 300
+          y: 500
         )
-      when 4
-        puts "TUTS AFTER THIRD ATTACK"
       end
 
       calc_status_effects(type: :BLIGHT)
@@ -866,8 +866,7 @@ class CombatTutorial
 
   def draw_card
     if @player.potions.all_cards.size > 0 && @hand.size < @max_hand_size
-      card = @player.potions.draw
-      puts card
+      card = @player.potions.draw(true)
       @hand[card.entity_id] = card
     end
   end

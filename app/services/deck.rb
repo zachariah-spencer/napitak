@@ -24,6 +24,7 @@ class Deck
   def draw(random_sample = false)
     if random_sample
       card = (@draw_pile + @discard_pile).sample()
+      @draw_pile.delete(card)
       card
     else
       reshuffle if @draw_pile.empty? && !@discard_pile.empty?
@@ -35,7 +36,8 @@ class Deck
 
   # Discard a card into the discard pile.
   def discard(card)
-    @discard_pile << card
+    # @discard_pile << card
+    @draw_pile << card
   end
 
   def remove(card)
