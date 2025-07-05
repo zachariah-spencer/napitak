@@ -975,7 +975,7 @@ class CombatTutorial
   def end_combat()
     @victory_banner_timer = Kernel.tick_count
     @player.my_turn = false
-    GameUtils.announce_lg(text: "The creature has fled and disappeared into the cover of night.", duration: 3.0.seconds, tutorial_id: id)
+    GameUtils.announce_lg(text: "The creature has fled and disappeared into the cover of night.", duration: 3.0.seconds)
   end
 
   def get_card_rects

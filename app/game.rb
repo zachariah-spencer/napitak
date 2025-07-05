@@ -115,6 +115,7 @@ class Game
   end
 
   def finish_scene_change()
+    $announcement_manager.clear_announcements_queue
     case @scene
     when "combat"
       @scene_ref = Combat.new(@scene_args[0])
