@@ -17,7 +17,7 @@ class AbyssalTutorial < Enemy
     $enemy = self
     @combat_stats =
       CombatStatsComponent.new(
-        hp: 50,
+        hp: 2,
         focus: 0,
         x: GTK.args.grid.w / 2,
         y: GTK.args.grid.h - 270
@@ -145,7 +145,6 @@ class AbyssalTutorial < Enemy
     end
 
     if @fled
-      puts "HERE"
       @x = @x.lerp(1050, 0.02)
       @w = @w.lerp(0, 0.03)
       @h = @h.lerp(0, 0.03)

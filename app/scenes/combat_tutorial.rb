@@ -69,10 +69,10 @@ class CombatTutorial
          @victory_banner_timer.elapsed_time >= 3.seconds
       leave(0)
     end
-    if @player.combat_stats.dead && @defeat_banner_timer &&
-         @defeat_banner_timer.elapsed_time >= 3.seconds
-      leave(1)
-    end
+    # if @player.combat_stats.dead && @defeat_banner_timer &&
+    #      @defeat_banner_timer.elapsed_time >= 3.seconds
+    #   leave(1)
+    # end
     if @fled && @flee_banner_timer &&
          @flee_banner_timer.elapsed_time >= 3.seconds
       leave(2)
@@ -127,12 +127,21 @@ class CombatTutorial
     end
   end
 
-  def calc_enemy_turn_ended
-    if @player.combat_stats.dead
-      @defeat_banner_timer = Kernel.tick_count
-    else
+  def calc_player_revive
+    if @player.combat_stats.dead && @player.combat_stats.dead_tick.elapsed_time >= 0.5.seconds
+      @player.combat_stats.hp = @player.combat_stats.max_hp
+      @player.combat_stats.dead = false
+      @player.combat_stats.dead_tick = nil
+      GameUtils.announce_lg(
+      text: "You are reinvigorated with a determination to protect your laboratory.",
+      duration: 2.0.seconds
+      )
       begin_turn_stage @turn_stages[:drawing_cards]
     end
+  end
+
+  def calc_enemy_turn_ended
+    begin_turn_stage @turn_stages[:drawing_cards] if !@player.combat_stats.dead
   end
 
   def leave(state = 0)
@@ -147,6 +156,8 @@ class CombatTutorial
       next_sc: "alchemy_lab",
       args: [{tutorial: true}],
     )
+
+
   end
 
   def calc
@@ -172,6 +183,7 @@ class CombatTutorial
       end
     end
 
+    calc_player_revive if @player.combat_stats.dead && !@enemy.my_turn
     calc_attempt_flee_end
 
     calc_entity_removals
@@ -331,7 +343,7 @@ class CombatTutorial
         g: 255,
         b: 255,
         a: 255,
-        text: "#{flee_success_rate?.to_i}% Chance",
+        text: "???% Chance",
         primitive_marker: :label
       }
 
@@ -617,6 +629,8 @@ class CombatTutorial
     @player.potions.all_cards.each { |c| potions_save_data << c.save_data? }
 
     $files.save_data["player"]["potions"] = potions_save_data
+
+    $announcement_manager.clear_announcements_queue
   end
 
   def calc_card_positions
@@ -850,16 +864,16 @@ class CombatTutorial
       GameUtils.gen_new_card("p001"),
       GameUtils.gen_new_card("p001"),
       GameUtils.gen_new_card("p001"),
-      GameUtils.gen_new_card("p002"),
-      GameUtils.gen_new_card("p002"),
+      GameUtils.gen_new_card("p001"),
+      GameUtils.gen_new_card("p001"),
+      GameUtils.gen_new_card("p001"),
       GameUtils.gen_new_card("p003"),
       GameUtils.gen_new_card("p003"),
-      GameUtils.gen_new_card("p004"),
-      GameUtils.gen_new_card("p004"),
-      GameUtils.gen_new_card("p005"),
-      GameUtils.gen_new_card("p005"),
-      GameUtils.gen_new_card("p002"),
-      GameUtils.gen_new_card("p002")
+      GameUtils.gen_new_card("p003"),
+      GameUtils.gen_new_card("p003"),
+      GameUtils.gen_new_card("p003"),
+      GameUtils.gen_new_card("p003"),
+      GameUtils.gen_new_card("p003")
     ]
     $player.potions = Inventory.new(starting_pots)
   end
@@ -960,6 +974,8 @@ class CombatTutorial
 
   def end_combat()
     @victory_banner_timer = Kernel.tick_count
+    @player.my_turn = false
+    GameUtils.announce_lg(text: "The creature has fled and disappeared into the cover of night.", duration: 3.0.seconds, tutorial_id: id)
   end
 
   def get_card_rects

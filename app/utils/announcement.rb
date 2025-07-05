@@ -18,8 +18,8 @@ class Announcement
     if large
       @w = 800
       @h = 250
-      @px_size = 30
-      @max_chars_per_line = 70
+      @px_size = 36
+      @max_chars_per_line = 60
     else
       @w = 384
       @h = 192

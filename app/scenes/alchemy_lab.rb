@@ -16,8 +16,19 @@ class AlchemyLab
     @ingredient_generators = {}
     @ingredients_on_screen = Inventory.new()
     @craftable_potion = nil
+
     @from_tutorial = tutorial
-    puts @from_tutorial
+    puts "Entering AlchemyLab from tutorial" if @from_tutorial
+    @tutorial_steps = {
+      base_ingredient_generated: false,
+      ingredient_selected: false,
+      recipe_selected: false,
+      recipe_mixed: false,
+      starting_ingredients_packed: false,
+      potions_mixed: false,
+    }
+    # proc encounter manager so it is on correct map layer in the event that user came from scripted scenes instead of first map layer
+    $encounter_manager.next_choices? if @from_tutorial
 
     padding = 40
     card_size = 80
@@ -61,6 +72,18 @@ class AlchemyLab
         h: 75,
         text: "Prev. Loadout"
       )
+  end
+
+  def ready
+    if @from_tutorial
+      $TUTORIAL_INDEX = 12
+      id, text = GameUtils.tutorial_string?($TUTORIAL_INDEX)
+      GameUtils.announce(text: text, duration: 6.5.seconds, tutorial_id: id)
+
+      $TUTORIAL_INDEX = 13
+      id, text = GameUtils.tutorial_string?($TUTORIAL_INDEX)
+      GameUtils.announce(text: text, duration: 6.5.seconds, tutorial_id: id)
+    end
   end
 
   def cleanup
@@ -112,7 +135,27 @@ class AlchemyLab
         @ingredients_on_screen.add(potion)
       end
 
+      if @from_tutorial && !@tutorial_steps[:potions_mixed] && @pot_menu_widget.items?.count >= 8 && @tutorial_steps[:base_ingredient_generated] && @tutorial_steps[:ingredient_selected] && @tutorial_steps[:recipe_selected] && @tutorial_steps[:recipe_mixed] && @tutorial_steps[:starting_ingredients_packed]
+        @tutorial_steps[:potions_mixed] = true
+
+        $TUTORIAL_INDEX = 21
+        id, text = GameUtils.tutorial_string?($TUTORIAL_INDEX)
+        GameUtils.announce(text: text, duration: 6.5.seconds, tutorial_id: id)
+      end
+
       puts "CRAFTED #{potion.name}"
+      if @from_tutorial && !@tutorial_steps[:recipe_mixed]
+        @tutorial_steps[:recipe_mixed] = true
+        $TUTORIAL_INDEX = 18
+        id, text = GameUtils.tutorial_string?($TUTORIAL_INDEX)
+        GameUtils.announce(text: text, duration: 6.5.seconds, tutorial_id: id)
+        $TUTORIAL_INDEX = 23
+        id, text = GameUtils.tutorial_string?($TUTORIAL_INDEX)
+        GameUtils.announce(text: text, duration: 6.5.seconds, tutorial_id: id)
+        $TUTORIAL_INDEX = 19
+        id, text = GameUtils.tutorial_string?($TUTORIAL_INDEX)
+        GameUtils.announce(text: text, duration: 6.5.seconds, tutorial_id: id)
+      end
 
       update_uses_left
     else
@@ -723,6 +766,13 @@ class AlchemyLab
 
     @ingredient_generators.each do |id, c|
       if clicked = c.pop_clicked
+        if @from_tutorial && !@tutorial_steps[:base_ingredient_generated] 
+          @tutorial_steps[:base_ingredient_generated] = true
+          $TUTORIAL_INDEX = 14
+          id, text = GameUtils.tutorial_string?($TUTORIAL_INDEX)
+          GameUtils.announce(text: text, duration: 6.5.seconds, tutorial_id: id)
+
+        end
         puts "YOU CLICKED: #{clicked}"
         c_ref = GameUtils.gen_new_card(clicked[:id])
         puts c_ref
@@ -772,6 +822,14 @@ class AlchemyLab
              !GameUtils.is_potion(c_ref.id)
         @ing_menu_widget.add_item(c_ref)
         @visible_ingredients.reject! { |id, c| c == c_ref }
+
+        if @from_tutorial && !@tutorial_steps[:starting_ingredients_packed] && @ing_menu_widget.items?.count >= 3 && @tutorial_steps[:base_ingredient_generated] && @tutorial_steps[:ingredient_selected] && @tutorial_steps[:recipe_selected] && @tutorial_steps[:recipe_mixed]
+          @tutorial_steps[:starting_ingredients_packed] = true
+
+          $TUTORIAL_INDEX = 20
+          id, text = GameUtils.tutorial_string?($TUTORIAL_INDEX)
+          GameUtils.announce(text: text, duration: 6.5.seconds, tutorial_id: id)
+        end
       end
 
       if inputs.mouse.intersect_rect?(@trash_can.rect)
@@ -800,6 +858,14 @@ class AlchemyLab
     puts "CALLED USE CARD"
     toggle_card_selected(c) if !GameUtils.is_potion(c.id)
     @craftable_potion = @recipe_book.craftable_potion?(@selected_ingredients)
+
+    if @from_tutorial && @craftable_potion && !@tutorial_steps[:recipe_selected]
+      @tutorial_steps[:recipe_selected] = true
+      $TUTORIAL_INDEX = 17
+      id, text = GameUtils.tutorial_string?($TUTORIAL_INDEX)
+      GameUtils.announce(text: text, duration: 6.5.seconds, tutorial_id: id)
+
+    end
   end
 
   def unselect_cards
@@ -808,6 +874,19 @@ class AlchemyLab
 
   def toggle_card_selected(c)
     if !GameUtils.is_potion(c)
+      if @from_tutorial && !@tutorial_steps[:ingredient_selected]
+        @tutorial_steps[:ingredient_selected] = true
+        $TUTORIAL_INDEX = 15
+        id, text = GameUtils.tutorial_string?($TUTORIAL_INDEX)
+        GameUtils.announce(text: text, duration: 6.5.seconds, tutorial_id: id)
+        $TUTORIAL_INDEX = 16
+        id, text = GameUtils.tutorial_string?($TUTORIAL_INDEX)
+        GameUtils.announce(text: text, duration: 6.5.seconds, tutorial_id: id)
+        $TUTORIAL_INDEX = 22
+        id, text = GameUtils.tutorial_string?($TUTORIAL_INDEX)
+        GameUtils.announce(text: text, duration: 6.5.seconds, tutorial_id: id)
+
+      end
       if !c.selected
         move_card(c, @selected_ingredients, @visible_ingredients)
       else

@@ -1,4 +1,5 @@
 {
+    "-1": "INTRO COMBAT TUTORIAL",
     "0": "You will always go first in combat. On your turn you can choose to play cards, attempt to flee, or pass your turn. Turns will alternate until someone's HP is reduced to 0.",
     "1": "When you begin combat, you will draw 4 cards from your deck to begin. Every subsequent turn you will draw 1 additional card from your deck.",
     "2": "You have a max hand size of 5 by default. If a card is to be drawn but your max hand size is already reached, you will miss out on that draw.",
@@ -14,5 +15,21 @@
     "9": "The Scorch status effect can stack. Scorch will deal the number of stacks that is applied on a creature at the end of every combatants turn as Heat damage.",
     "10": "Every time damage is dealt, the number of stacks is reduced by 1. There are many status effects in this world all with different effects and tempos.",
 
-    "11": "If you pass your turn with your maximum focus still available, that focus is used to draw an extra card. This is useful if you are running out of cards in your hand to play."
+    "11": "If you pass your turn with your maximum focus still available, that focus is used to draw an extra card. This is useful if you are running out of cards in your hand to play.",
+
+
+    "-2": "INTRO ALCHEMY LAB TUTORIAL",
+    "12": "The creature left your laboratory in total disarray! Thankfully there are still a few ingredients lying around...",
+    "13": "Select and drag base ingredients from the bins at the bottom of the screen. This will generate Ingredient Cards that can be dragged around freely.",
+    "14": "Select/deselect Ingredient Cards by quickly tapping them.",
+    "15": "Selecting a combination of Ingredients that corresponds to a recipe will present a pop-up indicating what potion or secondary ingredient you can create.",
+    "22": "HINT: All potions are made up of a bottle and a combination of 2 or more ingredients.",
+    "16": "All of your research was torn to shreds so you'll have to start from scratch. Try experimenting with combinations to see if you can mix something new!",
+    "17": "Tapping the MIX button or pressing SPACE BAR will finalize creating the potion/ingredient.",
+    "18": "Great work! You just mixed your first potion/ingredient! You're already on the path to restoring your research to its former glory.",
+    "19": "You must go discover new base ingredients and hunt down whatever that thing was to prevent this from happening again. Don't forget to drag some ingredients into your satchel before you head out!",
+    "20": "Good job! It is also a good idea to craft a total deck of at least 8 potions before continuing onward.",
+    "21": "You're now ready to set out by pressing the LEAVE button. You can continue to add ingredients/potions to your satchel on your journey by looting dead creatures or exploring.",
+    "23": "Every mixing encounter has a finite amount of uses before you cannot mix anymore potions/ingredients and must move on. This is represented at the bottom of the screen by its capacity."
+
 }

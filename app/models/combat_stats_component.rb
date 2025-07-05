@@ -10,8 +10,8 @@ class CombatStatsComponent
        :focus,
        :max_focus,
        :mod_max_focus,
-       :ward
-
+       :ward,
+       :dead_tick
   def initialize(x:, y:, hp: 1, focus: 0, resistances: [], vulnerabilities: [])
     @statuses = {
       $STATUS_TYPES[:SCORCH] => 0,
@@ -33,6 +33,7 @@ class CombatStatsComponent
     @mod_max_focus = focus
     @ward = 0
     @dead = false
+    @dead_tick = nil
   end
 
   def heal(amt)
@@ -64,6 +65,7 @@ class CombatStatsComponent
     GameUtils.status_label(@x, @y, "VULNERABLE", 255, 255, 255, 100) if vulnerable
     GameUtils.status_label(@x, @y, "RESISTANT", 255, 255, 255, 100) if resistant
     @dead = true if dead?
+    @dead_tick = Kernel.tick_count if @dead
   end
 
   def validate_upgrades(max_hp, max_focus)
@@ -75,6 +77,7 @@ class CombatStatsComponent
     validate_upgrades(max_hp, max_foc)
     @hp = @max_hp
     @dead = false
+    @dead_tick = nil
     @statuses = {
       $STATUS_TYPES[:SCORCH] => 0,
       $STATUS_TYPES[:BLIGHT] => 0,
@@ -129,6 +132,7 @@ class CombatStatsComponent
     end
 
     @dead = true if dead?
+    @dead_tick = Kernel.tick_count if @dead
 
     # puts @statuses
   end

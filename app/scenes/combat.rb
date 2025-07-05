@@ -783,6 +783,7 @@ class Combat
 
   def end_combat()
     @victory_banner_timer = Kernel.tick_count
+    @player.my_turn = false
   end
 
   def get_card_rects
