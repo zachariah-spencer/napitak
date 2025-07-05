@@ -32,7 +32,8 @@ class AnnouncementManager
     @completed_announcement = false
     @current_announcement&.tick
     if @current_announcement
-      if @current_announcement.message_completed? || GTK.args.inputs.mouse.up
+      # created_tick.elapsed_time check prevents a race condition for many click skip events
+      if @current_announcement.message_completed? || GTK.args.inputs.mouse.click && @current_announcement.created_tick.elapsed_time >= 1
         display_next_announcement
         @completed_announcement = true
       end

@@ -1,6 +1,6 @@
 class Announcement
   attr_gtk
-  attr :text, :tutorial_id, :message_completed
+  attr :text, :tutorial_id, :message_completed, :created_tick
 
   def initialize(
     x: Grid.w / 2 - 400,
