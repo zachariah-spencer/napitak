@@ -149,8 +149,6 @@ class CombatTutorial
     @defeat_banner_timer = nil
     @flee_banner_timer = nil
     state_enum = { victory: 0, defeat: 1, flee: 2 }
-
-    $encounter_manager.inc_combats_won
     $game.change_scene(
       prev_sc: @sc_id,
       next_sc: "alchemy_lab",

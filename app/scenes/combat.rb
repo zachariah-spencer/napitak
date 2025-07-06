@@ -27,7 +27,20 @@ class Combat
     @flee_banner_timer = nil
     @fled = false
     @flee_attempts = 0
+    @flee_tutorial_completed = false
     begin_combat
+  end
+
+  def ready
+    if $encounter_manager.combats_won == 0 && !@flee_tutorial_completed
+      @flee_tutorial_completed = true
+      $TUTORIAL_INDEX = 24
+      id, text = GameUtils.tutorial_string?($TUTORIAL_INDEX)
+      GameUtils.announce(text: text, duration: 6.5.seconds, tutorial_id: id, x: 900, y: 50)
+      $TUTORIAL_INDEX = 25
+      id, text = GameUtils.tutorial_string?($TUTORIAL_INDEX)
+      GameUtils.announce(text: text, duration: 6.5.seconds, tutorial_id: id, x: 900, y: 50)
+    end
   end
 
   def tick

@@ -30,6 +30,10 @@
     "19": "You must go discover new base ingredients and hunt down whatever that thing was to prevent this from happening again. Don't forget to drag some ingredients into your satchel before you head out!",
     "20": "Good job! It is also a good idea to craft a total deck of at least 8 potions before continuing onward.",
     "21": "You're now ready to set out by pressing the LEAVE button. You can continue to add ingredients/potions to your satchel on your journey by looting dead creatures or exploring.",
-    "23": "Every mixing encounter has a finite amount of uses before you cannot mix anymore potions/ingredients and must move on. This is represented at the bottom of the screen by its capacity."
+    "23": "Every mixing encounter has a finite amount of uses before you cannot mix anymore potions/ingredients and must move on. This is represented at the bottom of the screen by its capacity.",
 
+
+    "-3": "AS THEY HAPPEN TUTORIALS",
+    "24": "At any point in combat you have the option to try to consume all of your focus to flee. Your chance to get away successfully increases the lower your enemies HP gets.",
+    "25": "If your attempt to flee fails then you lose your turn, however, any failed attempt to flee increases the base percentage of a successful escape by 5%."
 }
