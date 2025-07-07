@@ -28,6 +28,7 @@ class Combat
     @fled = false
     @flee_attempts = 0
     @flee_tutorial_completed = false
+    @damage_types_tutorial_completed = false
     begin_combat
   end
 
@@ -36,10 +37,53 @@ class Combat
       @flee_tutorial_completed = true
       $TUTORIAL_INDEX = 24
       id, text = GameUtils.tutorial_string?($TUTORIAL_INDEX)
-      GameUtils.announce(text: text, duration: 6.5.seconds, tutorial_id: id, x: 900, y: 50)
+      GameUtils.announce(
+        text: text,
+        duration: 6.5.seconds,
+        tutorial_id: id,
+        x: 900,
+        y: 50
+      )
       $TUTORIAL_INDEX = 25
       id, text = GameUtils.tutorial_string?($TUTORIAL_INDEX)
-      GameUtils.announce(text: text, duration: 6.5.seconds, tutorial_id: id, x: 900, y: 50)
+      GameUtils.announce(
+        text: text,
+        duration: 6.5.seconds,
+        tutorial_id: id,
+        x: 900,
+        y: 50
+      )
+    end
+
+    enemy_stats = @enemy.combat_stats
+    if !(enemy_stats.vulnerabilities + enemy_stats.resistances).empty? &&
+         !@damage_types_tutorial_completed
+      $TUTORIAL_INDEX = 26
+      id, text = GameUtils.tutorial_string?($TUTORIAL_INDEX)
+
+      vulnerability_list_string = ""
+      if !enemy_stats.vulnerabilities.empty?
+        enemy_stats.vulnerabilities.each_with_index do |v, i|
+          if enemy_stats.vulnerabilities.size == 1
+            vulnerability_list_string += "#{v}."
+          elsif (i + 1) < enemy_stats.vulnerabilities.size
+            vulnerability_list_string += "#{v}, "
+          elsif (i + 1) == enemy_stats.vulnerabilities.size
+            vulnerability_list_string += " and #{v}."
+          end
+        end
+      end
+
+      text +=
+        " The #{@enemy.name} is vulnerable to #{vulnerability_list_string}"
+
+      GameUtils.announce(
+        text: text,
+        duration: 6.5.seconds,
+        tutorial_id: id,
+        x: 900,
+        y: 50
+      )
     end
   end
 
@@ -591,7 +635,8 @@ class Combat
       c_ref = @hand[state.currently_dragging_card_id]
     else
       #card_under_mouse lol
-      c_u_m = Geometry.find_intersect_rect inputs.mouse, get_card_rects().reverse
+      c_u_m =
+        Geometry.find_intersect_rect inputs.mouse, get_card_rects().reverse
       c_ref = nil
     end
 

@@ -35,5 +35,8 @@
 
     "-3": "AS THEY HAPPEN TUTORIALS",
     "24": "At any point in combat you have the option to try to consume all of your focus to flee. Your chance to get away successfully increases the lower your enemies HP gets.",
-    "25": "If your attempt to flee fails then you lose your turn, however, any failed attempt to flee increases the base percentage of a successful escape by 5%."
+    "25": "If your attempt to flee fails then you lose your turn, however, any failed attempt to flee increases the base percentage of a successful escape by 5%.",
+    
+    "26": "This enemy has a resistance/vulnerability!",
+    "29": "Many enemies are resistant or vulnerable to certain damage types. All damage from any source has a type. Simple damage's type depends on the potion that deals it and is indicated on the potion's tooltip."
 }

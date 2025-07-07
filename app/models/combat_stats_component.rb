@@ -11,7 +11,9 @@ class CombatStatsComponent
        :max_focus,
        :mod_max_focus,
        :ward,
-       :dead_tick
+       :dead_tick,
+       :resistances,
+       :vulnerabilities
   def initialize(x:, y:, hp: 1, focus: 0, resistances: [], vulnerabilities: [])
     @statuses = {
       $STATUS_TYPES[:SCORCH] => 0,
@@ -62,7 +64,9 @@ class CombatStatsComponent
     end
 
     GameUtils.status_label(@x, @y, "#{mod_amt}", 255, 0, 0, 100)
-    GameUtils.status_label(@x, @y, "VULNERABLE", 255, 255, 255, 100) if vulnerable
+    if vulnerable
+      GameUtils.status_label(@x, @y, "VULNERABLE", 255, 255, 255, 100)
+    end
     GameUtils.status_label(@x, @y, "RESISTANT", 255, 255, 255, 100) if resistant
     @dead = true if dead?
     @dead_tick = Kernel.tick_count if @dead
