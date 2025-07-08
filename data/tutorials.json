@@ -38,5 +38,17 @@
     "25": "If your attempt to flee fails then you lose your turn, however, any failed attempt to flee increases the base percentage of a successful escape by 5%.",
     
     "26": "This enemy has a resistance/vulnerability! Resistance means that damage of that type is halved. Vulnerability means that damage of that type is doubled.",
-    "29": "Many enemies are resistant or vulnerable to certain damage types. All damage from any source has a type. Damage's type depends on the potion that deals it and is indicated on the potion's tooltip."
+    "29": "Many enemies are resistant or vulnerable to certain damage types. All damage from any source has a type. Damage's type depends on the potion that deals it and is indicated on the potion's tooltip.",
+
+    "30": "The FROST status effect is unique in that it afflicts you and enemies differently. When applied to you, each stack reduces a focus point from your max focus cost.",
+    "31": "When an enemy is afflicted with FROST, it skips one of their turns for each stack applied to them. Stacks decrease at a rate of 1 per turn.",
+
+    "32": "The BLIGHT status effect causes the afflicted creature to take damage at the every round equal to the number of stacks applied to them. Stacks of BLIGHT remain for the duration of that combat.",
+    "33": "BLIGHT 2. UNUSED CURRENTLY",
+
+    "34": "The WARD status effect functions as a shield from damage to a creature's HP. Stacks operate as bonus HP but with the added bonus that damage is WARDs are resistant to all damage types.",
+    "35": "Stacks remain until the ward takes damage.",
+
+    "36": "The RESTORATION status effect heals the afflicted creature at the beginning of that creature's turns equivalent to the number of RESTORATION stacks the creature has applied to them.",
+    "37": "RESTORATION stacks decrease at a rate of 1 per turn."
 }

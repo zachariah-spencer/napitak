@@ -38,7 +38,8 @@ class Ghost < Enemy
               amount: 1,
               type: $DAMAGE_TYPES[:force]
             }
-          }
+          },
+          { $CARD_TRAITS[:frost] => 1 }
         ]
       },
       20 => {

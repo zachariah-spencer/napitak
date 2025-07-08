@@ -144,6 +144,7 @@ class CombatStatsComponent
   # type: String || stacks: int
   # Applies stacks of a certain status type.
   def apply_status(type:, stacks:)
+    calc_status_tutorial(type: type)
     @statuses[$STATUS_TYPES[type]] += stacks
     color = status_color?($STATUS_TYPES[type])
     GameUtils.status_label(
@@ -155,6 +156,89 @@ class CombatStatsComponent
       color[2],
       80
     )
+  end
+
+  def calc_status_tutorial(type:)
+    case type
+    when :FROST
+      if !$STATUS_EFFECT_TUTORIALS_PLAYED[:FROST]
+        $STATUS_EFFECT_TUTORIALS_PLAYED[:FROST] = true
+        puts "PLAY TUTORIAL FOR FROST"
+        $TUTORIAL_INDEX = 30
+        id, text = GameUtils.tutorial_string?($TUTORIAL_INDEX)
+        GameUtils.announce(
+          text: text,
+          duration: 6.5.seconds,
+          tutorial_id: id,
+        )
+        $TUTORIAL_INDEX = 31
+        id, text = GameUtils.tutorial_string?($TUTORIAL_INDEX)
+        GameUtils.announce(
+          text: text,
+          duration: 6.5.seconds,
+          tutorial_id: id,
+        )
+      end
+    when :BLIGHT
+      if !$STATUS_EFFECT_TUTORIALS_PLAYED[:BLIGHT]
+        $STATUS_EFFECT_TUTORIALS_PLAYED[:BLIGHT] = true
+        puts "PLAY TUTORIAL FOR BLIGHT"
+        $TUTORIAL_INDEX = 32
+        id, text = GameUtils.tutorial_string?($TUTORIAL_INDEX)
+        GameUtils.announce(
+          text: text,
+          duration: 6.5.seconds,
+          tutorial_id: id,
+        )
+        # $TUTORIAL_INDEX = 33
+        # id, text = GameUtils.tutorial_string?($TUTORIAL_INDEX)
+        # GameUtils.announce(
+        #   text: text,
+        #   duration: 6.5.seconds,
+        #   tutorial_id: id,
+        # )
+      end
+    when :WARD
+      if !$STATUS_EFFECT_TUTORIALS_PLAYED[:WARD]
+        $STATUS_EFFECT_TUTORIALS_PLAYED[:WARD] = true
+        puts "PLAY TUTORIAL FOR WARD"
+        $TUTORIAL_INDEX = 34
+        id, text = GameUtils.tutorial_string?($TUTORIAL_INDEX)
+        GameUtils.announce(
+          text: text,
+          duration: 6.5.seconds,
+          tutorial_id: id,
+        )
+        $TUTORIAL_INDEX = 35
+        id, text = GameUtils.tutorial_string?($TUTORIAL_INDEX)
+        GameUtils.announce(
+          text: text,
+          duration: 6.5.seconds,
+          tutorial_id: id,
+        )
+      end
+    when :RESTORATION
+      if !$STATUS_EFFECT_TUTORIALS_PLAYED[:RESTORATION]
+        $STATUS_EFFECT_TUTORIALS_PLAYED[:RESTORATION] = true
+        puts "PLAY TUTORIAL FOR RESTORATION"
+        $TUTORIAL_INDEX = 36
+        id, text = GameUtils.tutorial_string?($TUTORIAL_INDEX)
+        GameUtils.announce(
+          text: text,
+          duration: 6.5.seconds,
+          tutorial_id: id,
+        )
+        $TUTORIAL_INDEX = 37
+        id, text = GameUtils.tutorial_string?($TUTORIAL_INDEX)
+        GameUtils.announce(
+          text: text,
+          duration: 6.5.seconds,
+          tutorial_id: id,
+        )
+      end
+    end
+
+    # FIXME: Save tutorials played to $files.save_data here
   end
 
   def status_color?(type_enum)

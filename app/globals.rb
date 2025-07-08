@@ -323,6 +323,12 @@ $IIDS = GameData::IIDS
 $ENCOUNTERS = GameData::ENCOUNTERS
 $ANIMATIONS = GameData::ANIMATIONS
 $TUTORIAL_INDEX = 0
+$STATUS_EFFECT_TUTORIALS_PLAYED = {
+  $STATUS_TYPES[:frost] => false,
+  $STATUS_TYPES[:blight] => false,
+  $STATUS_TYPES[:ward] => false,
+  $STATUS_TYPES[:restoration] => false
+}
 
 $entity_ids = []
 $player = nil
