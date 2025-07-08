@@ -29,6 +29,8 @@ class Enemy
     @fy = GTK.args.grid.h - 250
     @x = @fx
     @y = @fy
+    @w = 200
+    @h = 200
     @fang = 0
 
     @attack_y = GTK.args.grid.h - 250 - 500
@@ -148,7 +150,21 @@ class Enemy
       end_turn
     end
 
-    calc_float
+    if !@combat_stats.dead
+      calc_float
+    else
+      calc_death_anim
+    end
+  end
+
+  def calc_death_anim
+    @w = @w.lerp(0, 0.025)
+    @h = @h.lerp(0, 0.025)
+    dx = @x + 50
+    dy = @y + 50
+    @x = @x.lerp(dx, 0.01)
+    @y = @y.lerp(dy, 0.01)
+    @ang += 10
   end
 
   def calc
@@ -204,13 +220,13 @@ class Enemy
   end
 
   def prefab
-    if not @combat_stats.dead
       enemy_sprite ||= {
         x: @x,
         y: @y,
         angle: @ang,
-        w: 200,
-        h: 200,
+        w: @w,
+        h: @h,
+        r: @r,
         path: @sprite,
         primitive_marker: :sprite
       }
@@ -228,6 +244,5 @@ class Enemy
       }
 
       [enemy_sprite, enemy_hp_label]
-    end
   end
 end

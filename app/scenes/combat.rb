@@ -468,9 +468,9 @@ class Combat
 
         defeat_banner ||= {
           x: 0,
-          y: GTK.args.grid.h / 2 - 100,
+          y: GTK.args.grid.h / 2 - 50,
           w: GTK.args.grid.w,
-          h: 200,
+          h: 100,
           r: 150,
           g: 0,
           b: 0,
@@ -499,9 +499,9 @@ class Combat
 
         victory_banner ||= {
           x: 0,
-          y: GTK.args.grid.h / 2 - 100,
+          y: GTK.args.grid.h / 2 - 50,
           w: GTK.args.grid.w,
-          h: 200,
+          h: 100,
           r: 0,
           g: 150,
           b: 0,
@@ -529,9 +529,9 @@ class Combat
 
         flee_banner ||= {
           x: 0,
-          y: GTK.args.grid.h / 2 - 100,
+          y: GTK.args.grid.h / 2 - 50,
           w: GTK.args.grid.w,
-          h: 200,
+          h: 100,
           r: 0,
           g: 0,
           b: 150,
