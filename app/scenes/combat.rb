@@ -15,7 +15,7 @@ class Combat
     }
     @hand = {}
     @matching_potion = nil
-    @max_hand_size = 8
+    @max_hand_size = 5
     @turn_stage = nil
     @turn_num = -1
     @player = $player
@@ -65,11 +65,11 @@ class Combat
       if !enemy_stats.vulnerabilities.empty?
         enemy_stats.vulnerabilities.each_with_index do |v, i|
           if enemy_stats.vulnerabilities.size == 1
-            vulnerability_list_string += "#{v}."
+            vulnerability_list_string += "#{$DAMAGE_TYPE_NAMES[v]}."
           elsif (i + 1) < enemy_stats.vulnerabilities.size
-            vulnerability_list_string += "#{v}, "
+            vulnerability_list_string += "#{$DAMAGE_TYPE_NAMES[v]}, "
           elsif (i + 1) == enemy_stats.vulnerabilities.size
-            vulnerability_list_string += " and #{v}."
+            vulnerability_list_string += " and #{$DAMAGE_TYPE_NAMES[v]}."
           end
         end
       end
@@ -584,6 +584,7 @@ class Combat
     @player.potions.all_cards.each { |c| potions_save_data << c.save_data? }
 
     $files.save_data["player"]["potions"] = potions_save_data
+    $announcement_manager.clear_announcements_queue
   end
 
   def calc_card_positions
@@ -649,6 +650,9 @@ class Combat
         puts "clicked on deck"
       elsif Geometry.intersect_rect? inputs.mouse, get_pass_button_rect and
             @turn_stage == @turn_stages[:playing_cards]
+        if @player.combat_stats.focus == @player.combat_stats.max_focus
+          draw_card
+        end
         begin_turn_stage @turn_stages[:cleanup]
       end
     end
@@ -745,9 +749,8 @@ class Combat
   end
 
   def draw_card
-    if @player.potions.all_cards.size > 0
-      card = @player.potions.draw
-      puts card
+    if @player.potions.all_cards.size > 0 && @hand.size < @max_hand_size
+      card = @player.potions.draw(true)
       @hand[card.entity_id] = card
     end
   end

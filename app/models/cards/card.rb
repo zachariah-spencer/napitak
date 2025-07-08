@@ -22,8 +22,8 @@ class Card
                 :hovered,
                 :vx,
                 :vy,
-                :grabbed
 
+  
   def initialize(
     id,
     entity_id,

@@ -26,6 +26,15 @@ module GameData
     spark: 5,
     disease: 6
   }.freeze
+  DAMAGE_TYPE_NAMES = {
+    DAMAGE_TYPES[:force] => "Simple",
+    DAMAGE_TYPES[:heat] => "Heat",
+    DAMAGE_TYPES[:cold] => "Cold",
+    DAMAGE_TYPES[:light] => "Light",
+    DAMAGE_TYPES[:dark] => "Dark",
+    DAMAGE_TYPES[:spark] => "Spark",
+    DAMAGE_TYPES[:disease] => "Disease"
+  }.freeze
   STATUS_EFFECT_COLORS = {
     STATUS_TYPES[:SCORCH] => {
       r: 255,
@@ -305,6 +314,7 @@ end
 $CARD_TRAITS = GameData::CARD_TRAITS
 $STATUS_TYPES = GameData::STATUS_TYPES
 $DAMAGE_TYPES = GameData::DAMAGE_TYPES
+$DAMAGE_TYPE_NAMES = GameData::DAMAGE_TYPE_NAMES
 $STATUS_EFFECT_COLORS = GameData::STATUS_EFFECT_COLORS
 $DAMAGE_TYPE_COLORS = GameData::DAMAGE_TYPE_COLORS
 $DAMAGE_TYPE_SPRITES = GameData::DAMAGE_TYPE_SPRITES

@@ -83,8 +83,8 @@ class CombatTutorial
 
   def handle_hover_tooltip_tutorial
     if $announcement_manager.no_announcements? &&
-         !@card_hovered_tutorial_played &&
-         !$game.input_locked && @turn_num >= 4 && card_hovered?
+         !@card_hovered_tutorial_played && !$game.input_locked &&
+         @turn_num >= 4 && card_hovered?
       @card_hovered_tutorial_played = true
 
       $TUTORIAL_INDEX = 3
@@ -128,13 +128,15 @@ class CombatTutorial
   end
 
   def calc_player_revive
-    if @player.combat_stats.dead && @player.combat_stats.dead_tick.elapsed_time >= 0.5.seconds
+    if @player.combat_stats.dead &&
+         @player.combat_stats.dead_tick.elapsed_time >= 0.5.seconds
       @player.combat_stats.hp = @player.combat_stats.max_hp
       @player.combat_stats.dead = false
       @player.combat_stats.dead_tick = nil
       GameUtils.announce_lg(
-      text: "You are reinvigorated with a determination to protect your laboratory.",
-      duration: 2.0.seconds
+        text:
+          "You are reinvigorated with a determination to protect your laboratory.",
+        duration: 2.0.seconds
       )
       begin_turn_stage @turn_stages[:drawing_cards]
     end
@@ -152,10 +154,8 @@ class CombatTutorial
     $game.change_scene(
       prev_sc: @sc_id,
       next_sc: "alchemy_lab",
-      args: [{tutorial: true}],
+      args: [{ tutorial: true }]
     )
-
-
   end
 
   def calc
@@ -627,7 +627,6 @@ class CombatTutorial
     @player.potions.all_cards.each { |c| potions_save_data << c.save_data? }
 
     $files.save_data["player"]["potions"] = potions_save_data
-
     $announcement_manager.clear_announcements_queue
   end
 
@@ -704,8 +703,9 @@ class CombatTutorial
         puts "clicked on deck"
       elsif Geometry.intersect_rect? inputs.mouse, get_pass_button_rect and
             @turn_stage == @turn_stages[:playing_cards]
-
-        draw_card if @player.combat_stats.focus == @player.combat_stats.max_focus
+        if @player.combat_stats.focus == @player.combat_stats.max_focus
+          draw_card
+        end
         begin_turn_stage @turn_stages[:cleanup]
       end
     end
@@ -973,7 +973,10 @@ class CombatTutorial
   def end_combat()
     @victory_banner_timer = Kernel.tick_count
     @player.my_turn = false
-    GameUtils.announce_lg(text: "The creature has fled and disappeared into the cover of night.", duration: 3.0.seconds)
+    GameUtils.announce_lg(
+      text: "The creature has fled and disappeared into the cover of night.",
+      duration: 3.0.seconds
+    )
   end
 
   def get_card_rects
