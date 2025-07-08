@@ -179,10 +179,10 @@ class Card
     }
 
     args.outputs[@card_composite_sprite_ref].primitives << {
-      x: @w / 2 - 40,
-      y: @h / 2 - 40,
-      w: 80,
-      h: 80,
+      x: @w / 4,
+      y: @h / 4,
+      w: @w / 2,
+      h: @h / 2,
       angle: 0,
       a: prefab_alpha,
       path: @img

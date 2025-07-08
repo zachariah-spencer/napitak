@@ -915,8 +915,10 @@ class AlchemyLab
       end
       if !c.selected
         move_card(c, @selected_ingredients, @visible_ingredients)
+        c.calc_render_target(GTK.args)
       else
         move_card(c, @visible_ingredients, @selected_ingredients)
+        c.calc_render_target(GTK.args)
       end
     end
   end
