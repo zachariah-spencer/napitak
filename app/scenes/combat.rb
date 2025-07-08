@@ -797,6 +797,8 @@ class Combat
   end
 
   def draw_card
+    GameUtils.status_label(700, 50, "NO CARDS IN DECK", 255, 255, 255, 40) if @player.potions.all_cards.size <= 0
+    GameUtils.status_label(700, 50, "NO ROOM IN HAND", 255, 255, 255, 40) if @hand.size >= @max_hand_size
     if @player.potions.all_cards.size > 0 && @hand.size < @max_hand_size
       card = @player.potions.draw(true)
       @hand[card.entity_id] = card
@@ -914,7 +916,7 @@ class Combat
 
   def begin_combat
     @turn_num = 0
-    3.times { draw_card }
+    3.times { draw_card if @player.potions.all_cards.size > 0 }
 
     begin_turn_stage @turn_stages[:drawing_cards]
     begin_turn_stage @turn_stages[:playing_cards]

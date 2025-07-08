@@ -877,6 +877,8 @@ class CombatTutorial
   end
 
   def draw_card
+    GameUtils.status_label(700, 200, "NO CARDS IN DECK", 255, 255, 255, 40) if @player.potions.all_cards.size <= 0
+    GameUtils.status_label(700, 200, "NO ROOM IN HAND", 255, 255, 255, 40) if @hand.size >= @max_hand_size
     if @player.potions.all_cards.size > 0 && @hand.size < @max_hand_size
       card = @player.potions.draw(true)
       @hand[card.entity_id] = card
