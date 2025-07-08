@@ -354,80 +354,104 @@ class AlchemyTable
     }
   end
 
-  def potions_label
-    GTK.args.outputs[:potions_label].w = 136
-    GTK.args.outputs[:potions_label].h = 72
+  def potions_label()
+    sprite_frames = 6
+    time_per_frame = 0.5.seconds
+    repeat_index = true
+    tile_index = 0.frame_index(sprite_frames, time_per_frame, repeat_index)
 
-    GTK.args.outputs[:potions_label].primitives << {
-      x: 0,
-      y: 0,
-      w: 136,
-      h: 72,
-      angle: 0,
-      primitive_marker: :sprite,
-      path: "sprites/modal_blue.png"
+    prefabs = []
+
+    prefabs << {
+      x: GTK.args.grid.w - 162 - 16,
+      y: GTK.args.grid.h - (114) - (16 * 1.5),
+      w: 162,
+      h: 114,
+      path: "sprites/sketchymodal_162x114.png",
+      tile_x: 0 + (tile_index * 162),
+      tile_y: 0,
+      tile_w: 162,
+      tile_h: 114,
+      primitive_marker: :sprite
     }
 
-    GTK.args.outputs[:potions_label].primitives << {
-      x: 136 / 2,
-      y: 72 / 2,
-      text: "POTIONS",
+    prefabs << {
+      x: GTK.args.grid.w - 162 - 12 + (162 / 2),
+      y: GTK.args.grid.h - (114) - (16 * 1.5) + (114 / 2) + 5 + 8,
+      text: "POTION",
       anchor_x: 0.5,
       anchor_y: 0.5,
       r: 255,
       g: 255,
       b: 255,
-      size_px: 20,
-      font: "fonts/eaglelake.ttf"
+      font: "fonts/eaglelake.ttf",
+      size_px: 20
     }
 
-    {
-      x: GTK.args.grid.w - 32 - 136,
-      y: GTK.args.grid.h - (72) - (16 * 3),
-      w: 136,
-      h: 72,
-      angle: 0,
-      path: :potions_label,
-      primitive_marker: :sprite
+    prefabs << {
+      x: GTK.args.grid.w - 162 - 12 + (162 / 2),
+      y: GTK.args.grid.h - (114) - (16 * 1.5) + (114 / 2) + 5 - 12,
+      text: "SATCHEL",
+      anchor_x: 0.5,
+      anchor_y: 0.5,
+      r: 255,
+      g: 255,
+      b: 255,
+      font: "fonts/eaglelake.ttf",
+      size_px: 20
     }
+
+    prefabs
   end
 
-  def ingredients_label
-    GTK.args.outputs[:ingredients_label].w = 136
-    GTK.args.outputs[:ingredients_label].h = 72
+  def ingredients_label()
+    sprite_frames = 6
+    time_per_frame = 0.5.seconds
+    repeat_index = true
+    tile_index = 0.frame_index(sprite_frames, time_per_frame, repeat_index)
 
-    GTK.args.outputs[:ingredients_label].primitives << {
-      x: 0,
-      y: 0,
-      w: 136,
-      h: 72,
-      angle: 0,
-      path: "sprites/modal_blue.png",
+    prefabs = []
+
+    prefabs << {
+      x: 16,
+      y: GTK.args.grid.h - (114) - (16 * 1.5),
+      w: 162,
+      h: 114,
+      path: "sprites/sketchymodal_162x114.png",
+      tile_x: 0 + (tile_index * 162),
+      tile_y: 0,
+      tile_w: 162,
+      tile_h: 114,
       primitive_marker: :sprite
     }
 
-    GTK.args.outputs[:ingredients_label].primitives << {
-      x: 136 / 2,
-      y: 72 / 2,
-      text: "INGREDIENTS",
+    prefabs << {
+      x: 100,
+      y: GTK.args.grid.h - (114) - (16 * 1.5) + (114 / 2) + 5 + 8,
+      text: "INGREDIENT",
       anchor_x: 0.5,
       anchor_y: 0.5,
       r: 255,
       g: 255,
       b: 255,
-      size_px: 20,
-      font: "fonts/eaglelake.ttf"
+      font: "fonts/eaglelake.ttf",
+      size_px: 20
     }
 
-    {
-      x: 32,
-      y: GTK.args.grid.h - (72) - (16 * 3),
-      w: 136,
-      h: 72,
-      angle: 0,
-      path: :ingredients_label,
-      primitive_marker: :sprite
+    prefabs << {
+      x: 100,
+      y: GTK.args.grid.h - (114) - (16 * 1.5) + (114 / 2) + 5 - 12,
+      text: "SATCHEL",
+      anchor_x: 0.5,
+      anchor_y: 0.5,
+      r: 255,
+      g: 255,
+      b: 255,
+      font: "fonts/eaglelake.ttf",
+      size_px: 20
     }
+
+    prefabs
   end
 
   def leave_btn

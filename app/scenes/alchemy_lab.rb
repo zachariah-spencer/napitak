@@ -488,8 +488,21 @@ class AlchemyLab
 
     prefabs << {
       x: GTK.args.grid.w - 162 - 12 + (162 / 2),
-      y: GTK.args.grid.h - (114) - (16 * 1.5) + (114 / 2) + 5,
-      text: "POTIONS",
+      y: GTK.args.grid.h - (114) - (16 * 1.5) + (114 / 2) + 5 + 8,
+      text: "POTION",
+      anchor_x: 0.5,
+      anchor_y: 0.5,
+      r: 255,
+      g: 255,
+      b: 255,
+      font: "fonts/eaglelake.ttf",
+      size_px: 20
+    }
+
+    prefabs << {
+      x: GTK.args.grid.w - 162 - 12 + (162 / 2),
+      y: GTK.args.grid.h - (114) - (16 * 1.5) + (114 / 2) + 5 - 12,
+      text: "SATCHEL",
       anchor_x: 0.5,
       anchor_y: 0.5,
       r: 255,
@@ -525,8 +538,21 @@ class AlchemyLab
 
     prefabs << {
       x: 100,
-      y: GTK.args.grid.h - (114) - (16 * 1.5) + (114 / 2) + 5,
-      text: "INGREDIENTS",
+      y: GTK.args.grid.h - (114) - (16 * 1.5) + (114 / 2) + 5 + 8,
+      text: "INGREDIENT",
+      anchor_x: 0.5,
+      anchor_y: 0.5,
+      r: 255,
+      g: 255,
+      b: 255,
+      font: "fonts/eaglelake.ttf",
+      size_px: 20
+    }
+
+    prefabs << {
+      x: 100,
+      y: GTK.args.grid.h - (114) - (16 * 1.5) + (114 / 2) + 5 - 12,
+      text: "SATCHEL",
       anchor_x: 0.5,
       anchor_y: 0.5,
       r: 255,

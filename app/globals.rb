@@ -27,13 +27,13 @@ module GameData
     disease: 6
   }.freeze
   DAMAGE_TYPE_NAMES = {
-    DAMAGE_TYPES[:force] => "Simple",
-    DAMAGE_TYPES[:heat] => "Heat",
-    DAMAGE_TYPES[:cold] => "Cold",
-    DAMAGE_TYPES[:light] => "Light",
-    DAMAGE_TYPES[:dark] => "Dark",
-    DAMAGE_TYPES[:spark] => "Spark",
-    DAMAGE_TYPES[:disease] => "Disease"
+    DAMAGE_TYPES[:force] => "FORCE",
+    DAMAGE_TYPES[:heat] => "HEAT",
+    DAMAGE_TYPES[:cold] => "COLD",
+    DAMAGE_TYPES[:light] => "LIGHT",
+    DAMAGE_TYPES[:dark] => "DARK",
+    DAMAGE_TYPES[:spark] => "SPARK",
+    DAMAGE_TYPES[:disease] => "DISEASE"
   }.freeze
   STATUS_EFFECT_COLORS = {
     STATUS_TYPES[:SCORCH] => {

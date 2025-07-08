@@ -19,7 +19,12 @@ class Ghost < Enemy
         focus: 0,
         x: GTK.args.grid.w / 2,
         y: GTK.args.grid.h - 270,
-        vulnerabilities: [ $DAMAGE_TYPES[:heat] ],
+        vulnerabilities: [
+          $DAMAGE_TYPES[:heat],
+          $DAMAGE_TYPES[:cold],
+          $DAMAGE_TYPES[:dark]
+        ],
+        resistances: [$DAMAGE_TYPES[:light]]
       )
     @sprite = "sprites/ghost.png"
     @name = "Ghost"

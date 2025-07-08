@@ -25,7 +25,6 @@ class PotionCard < Card
       potencies,
       uses_left: uses_left
     )
-
     @free_floating = free_floating
     @desc = $PIDS[id].desc
     @potencies = $PIDS[id].traits

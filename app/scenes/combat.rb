@@ -58,24 +58,68 @@ class Combat
     enemy_stats = @enemy.combat_stats
     if !(enemy_stats.vulnerabilities + enemy_stats.resistances).empty? &&
          !@damage_types_tutorial_completed
+      @damage_types_tutorial_completed = true
       $TUTORIAL_INDEX = 26
       id, text = GameUtils.tutorial_string?($TUTORIAL_INDEX)
+      GameUtils.announce(
+        text: text,
+        duration: 6.5.seconds,
+        tutorial_id: id,
+        x: 900,
+        y: 50
+      )
 
-      vulnerability_list_string = ""
+      details_text = ""
       if !enemy_stats.vulnerabilities.empty?
+        list_string = ""
         enemy_stats.vulnerabilities.each_with_index do |v, i|
           if enemy_stats.vulnerabilities.size == 1
-            vulnerability_list_string += "#{$DAMAGE_TYPE_NAMES[v]}."
+            list_string += "#{$DAMAGE_TYPE_NAMES[v]}."
+          elsif enemy_stats.vulnerabilities.size == 2
+            if (i + 1) == 1
+              list_string += "#{$DAMAGE_TYPE_NAMES[v]}"
+            elsif (i + 1) == 2
+              list_string += " and #{$DAMAGE_TYPE_NAMES[v]}."
+            end
           elsif (i + 1) < enemy_stats.vulnerabilities.size
-            vulnerability_list_string += "#{$DAMAGE_TYPE_NAMES[v]}, "
+            list_string += "#{$DAMAGE_TYPE_NAMES[v]}, "
           elsif (i + 1) == enemy_stats.vulnerabilities.size
-            vulnerability_list_string += " and #{$DAMAGE_TYPE_NAMES[v]}."
+            list_string += " and #{$DAMAGE_TYPE_NAMES[v]}."
           end
         end
+        details_text += " The #{@enemy.name} is vulnerable to #{list_string}"
       end
 
-      text +=
-        " The #{@enemy.name} is vulnerable to #{vulnerability_list_string}"
+      if !enemy_stats.resistances.empty?
+        list_string = ""
+        enemy_stats.resistances.each_with_index do |v, i|
+          if enemy_stats.resistances.size == 1
+            list_string += "#{$DAMAGE_TYPE_NAMES[v]}."
+          elsif enemy_stats.resistances.size == 2
+            if (i + 1) == 1
+              list_string += "#{$DAMAGE_TYPE_NAMES[v]}"
+            elsif (i + 1) == 2
+              list_string += " and #{$DAMAGE_TYPE_NAMES[v]}."
+            end
+          elsif (i + 1) < enemy_stats.resistances.size
+            list_string += "#{$DAMAGE_TYPE_NAMES[v]}, "
+          elsif (i + 1) == enemy_stats.resistances.size
+            list_string += " and #{$DAMAGE_TYPE_NAMES[v]}."
+          end
+        end
+        details_text += " The #{@enemy.name} is resistant to #{list_string}"
+      end
+
+      GameUtils.announce(
+        text: details_text,
+        duration: 6.5.seconds,
+        tutorial_id: id,
+        x: 900,
+        y: 50
+      )
+
+      $TUTORIAL_INDEX = 29
+      id, text = GameUtils.tutorial_string?($TUTORIAL_INDEX)
 
       GameUtils.announce(
         text: text,
@@ -607,7 +651,11 @@ class Combat
   def attempt_flee
     @flee_attempts += 1
     roll = Numeric.rand(0..100)
-    flee if roll <= flee_success_rate?
+    if roll <= flee_success_rate?
+      flee
+    else
+      GameUtils.status_label(1100, 50, "FLEE ATTEMPT FAILED", 255, 255, 255, 25)
+    end
 
     begin_turn_stage @turn_stages[:cleanup] if !@fled
   end

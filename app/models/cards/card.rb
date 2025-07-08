@@ -21,9 +21,8 @@ class Card
                 :uses_left,
                 :hovered,
                 :vx,
-                :vy,
+                :vy
 
-  
   def initialize(
     id,
     entity_id,
@@ -163,6 +162,9 @@ class Card
     args.outputs[@card_composite_sprite_ref].w = @w
     args.outputs[@card_composite_sprite_ref].h = @h
 
+    prefab_alpha = 255
+    prefab_alpha = (@uses_left > 0) ? 255 : 150 if GameUtils.is_potion(self.id)
+
     args.outputs[@card_composite_sprite_ref].primitives << {
       x: 0,
       y: 0,
@@ -172,6 +174,7 @@ class Card
       r: @r,
       g: @g,
       b: @b,
+      a: prefab_alpha,
       path: @card_back_img
     }
 
@@ -181,6 +184,7 @@ class Card
       w: 80,
       h: 80,
       angle: 0,
+      a: prefab_alpha,
       path: @img
     }
 
@@ -195,8 +199,39 @@ class Card
       g: 255,
       b: 255,
       size_px: 20,
+      a: prefab_alpha,
       font: "fonts/eaglelake.ttf"
     }
+
+    if GameUtils.is_potion(self.id)
+      args.outputs[@card_composite_sprite_ref].primitives << {
+        x: @w / 5,
+        y: @h / 5,
+        text: "#{@fc}",
+        anchor_x: 0.5,
+        anchor_y: 0.5,
+        r: 0,
+        g: 150,
+        b: 150,
+        size_px: 26,
+        a: prefab_alpha,
+        font: "fonts/eaglelake.ttf"
+      }
+
+      args.outputs[@card_composite_sprite_ref].primitives << {
+        x: @w / 1.3,
+        y: @h / 5,
+        text: "#{@uses_left} / #{@max_uses}",
+        anchor_x: 0.5,
+        anchor_y: 0.5,
+        r: 200,
+        g: 100,
+        b: 200,
+        size_px: 18,
+        a: prefab_alpha,
+        font: "fonts/eaglelake.ttf"
+      }
+    end
 
     args.outputs.primitives << {
       x: 0,

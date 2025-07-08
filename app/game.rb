@@ -29,7 +29,6 @@ class Game
     @status_labels = []
     # queue of labels to render to the screen
     @status_labels_queue = []
-    @new_status_label_queued = false
     @status_label_queue_count = Kernel.tick_count
     # keeps track of whether a render target for the specific number has been created already
     @created_prefabs = {}
@@ -184,7 +183,7 @@ class Game
   def tick
     handle_pause
 
-    if @new_status_label_queued &&
+    if !@status_labels_queue.empty? &&
          @status_label_queue_count.elapsed_time >= 0.75.seconds
       new_label = @status_labels_queue.shift
       new_label.created_at = Kernel.tick_count
@@ -280,7 +279,6 @@ class Game
     w = text_w + padding * 2
     h = text_h + padding * 2
 
-    @new_status_label_queued = true
     @status_labels_queue << {
       x: x,
       y: y,
