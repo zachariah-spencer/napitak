@@ -56,7 +56,7 @@ class Combat
     end
 
     enemy_stats = @enemy.combat_stats
-    if !(enemy_stats.vulnerabilities + enemy_stats.resistances).empty? && $encounter_manager.combats_won == 1 &&
+    if !(enemy_stats.vulnerabilities + enemy_stats.resistances).empty? && $encounter_manager.combats_won >= 1 &&
          !@damage_types_tutorial_completed
       @damage_types_tutorial_completed = true
       $TUTORIAL_INDEX = 26
