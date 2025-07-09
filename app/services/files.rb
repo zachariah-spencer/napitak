@@ -9,6 +9,7 @@ class Files
     @save_data = read_hash if read_hash != nil and read_hash != ""
     @save_data["player"] = {} unless save_data["player"]
     @save_data["player"]["upgrades"] = {} unless save_data["player"]["upgrades"]
+    @save_data["tutorials"] = {} unless save_data["tutorials"]
   end
 
   def write()

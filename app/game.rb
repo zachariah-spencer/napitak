@@ -37,7 +37,7 @@ class Game
     # the game's official instantiation of a RecipeBook, persists between runs
     @recipe_book = RecipeBook.new()
     EncounterManager.new()
-
+    
     @player.load_inventory_data
     @player.load_upgrades_data
 

@@ -161,8 +161,8 @@ class CombatStatsComponent
   def calc_status_tutorial(type:)
     case type
     when :FROST
-      if !$STATUS_EFFECT_TUTORIALS_PLAYED[:FROST]
-        $STATUS_EFFECT_TUTORIALS_PLAYED[:FROST] = true
+      if !$files.save_data["tutorials"]["frost"]
+        $files.save_data["tutorials"]["frost"] = true
         puts "PLAY TUTORIAL FOR FROST"
         $TUTORIAL_INDEX = 30
         id, text = GameUtils.tutorial_string?($TUTORIAL_INDEX)
@@ -180,8 +180,8 @@ class CombatStatsComponent
         )
       end
     when :BLIGHT
-      if !$STATUS_EFFECT_TUTORIALS_PLAYED[:BLIGHT]
-        $STATUS_EFFECT_TUTORIALS_PLAYED[:BLIGHT] = true
+      if !$files.save_data["tutorials"]["blight"]
+        $files.save_data["tutorials"]["blight"] = true
         puts "PLAY TUTORIAL FOR BLIGHT"
         $TUTORIAL_INDEX = 32
         id, text = GameUtils.tutorial_string?($TUTORIAL_INDEX)
@@ -199,8 +199,8 @@ class CombatStatsComponent
         # )
       end
     when :WARD
-      if !$STATUS_EFFECT_TUTORIALS_PLAYED[:WARD]
-        $STATUS_EFFECT_TUTORIALS_PLAYED[:WARD] = true
+      if !$files.save_data["tutorials"]["ward"]
+        $files.save_data["tutorials"]["ward"] = true
         puts "PLAY TUTORIAL FOR WARD"
         $TUTORIAL_INDEX = 34
         id, text = GameUtils.tutorial_string?($TUTORIAL_INDEX)
@@ -218,8 +218,8 @@ class CombatStatsComponent
         )
       end
     when :RESTORATION
-      if !$STATUS_EFFECT_TUTORIALS_PLAYED[:RESTORATION]
-        $STATUS_EFFECT_TUTORIALS_PLAYED[:RESTORATION] = true
+      if !$files.save_data["tutorials"]["restoration"]
+        $files.save_data["tutorials"]["restoration"] = true
         puts "PLAY TUTORIAL FOR RESTORATION"
         $TUTORIAL_INDEX = 36
         id, text = GameUtils.tutorial_string?($TUTORIAL_INDEX)

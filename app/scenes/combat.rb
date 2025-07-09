@@ -27,14 +27,15 @@ class Combat
     @flee_banner_timer = nil
     @fled = false
     @flee_attempts = 0
-    @flee_tutorial_completed = false
-    @damage_types_tutorial_completed = false
+    @flee_tutorial_completed = $files.save_data["tutorials"]["fleeing"] || false
+    @damage_types_tutorial_completed = $files.save_data["tutorials"]["damage_types"] || false
     begin_combat
   end
 
   def ready
     if $encounter_manager.combats_won == 0 && !@flee_tutorial_completed
       @flee_tutorial_completed = true
+      $files.save_data["tutorials"]["fleeing"] = true
       $TUTORIAL_INDEX = 24
       id, text = GameUtils.tutorial_string?($TUTORIAL_INDEX)
       GameUtils.announce(
@@ -59,6 +60,7 @@ class Combat
     if !(enemy_stats.vulnerabilities + enemy_stats.resistances).empty? && $encounter_manager.combats_won >= 1 &&
          !@damage_types_tutorial_completed
       @damage_types_tutorial_completed = true
+      $files.save_data["tutorials"]["damage_types"] = true
       $TUTORIAL_INDEX = 26
       id, text = GameUtils.tutorial_string?($TUTORIAL_INDEX)
       GameUtils.announce(

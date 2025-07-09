@@ -21,7 +21,8 @@ class AlchemyLab
     @leave_btn_clicked_tick = nil
     @leave_btn_message_a = 0
 
-    @from_tutorial = tutorial
+    @from_tutorial = !$files.save_data["tutorials"]["alchemy_lab_tutorial"] || tutorial
+    $files.save_data["tutorials"]["alchemy_lab_tutorial"] = !@from_tutorial
     puts "Entering AlchemyLab from tutorial" if @from_tutorial
     @tutorial_steps = {
       base_ingredient_generated: false,
@@ -205,6 +206,7 @@ class AlchemyLab
     @player.ingredients = Inventory.new(new_ings)
 
     $encounter_manager.inc_encounters_completed
+    $files.save_data["tutorials"]["alchemy_lab_tutorial"] = true
 
     $game.change_scene(prev_sc: @sc_id, next_sc: "map")
   end
