@@ -16,6 +16,10 @@ class AlchemyLab
     @ingredient_generators = {}
     @ingredients_on_screen = Inventory.new()
     @craftable_potion = nil
+    @leave_btn_text = "LEAVE"
+    @leave_btn_clicks = 0
+    @leave_btn_clicked_tick = nil
+    @leave_btn_message_a = 0
 
     @from_tutorial = tutorial
     puts "Entering AlchemyLab from tutorial" if @from_tutorial
@@ -211,6 +215,15 @@ class AlchemyLab
     @ingredient_generators.each { |id, c| c.tick }
     @trash_can.tick
     calc
+
+    if @leave_btn_clicked_tick && @leave_btn_clicked_tick.elapsed_time >= 5.0.seconds
+      @leave_btn_clicks = 0 
+      @leave_btn_text = "LEAVE"
+      @leave_btn_clicked_tick = nil
+      @leave_btn_message_a = @leave_btn_message_a.lerp(0, 0.1)
+    elsif @leave_btn_clicked_tick && @leave_btn_clicked_tick.elapsed_time < 5.0.seconds
+      @leave_btn_message_a = @leave_btn_message_a.lerp(255, 0.1)
+    end
   end
 
   def calc
@@ -459,6 +472,54 @@ class AlchemyLab
 
       l4 << [uses_left_label, ingredients_stored_label]
 
+      if @leave_btn_clicks > 0
+        l4 << {
+          x: GTK.args.grid.w / 2 - 200,
+          y: GTK.args.grid.h / 2 - 100,
+          w: 400,
+          h: 200,
+          r: 0,
+          g: 0,
+          b: 0,
+          a: @leave_btn_message_a,
+          primitive_marker: :solid,
+        }
+
+        l4 << {
+          x: GTK.args.grid.w / 2,
+          y: GTK.args.grid.h / 2 + 70,
+          alignment_enum: 1,
+          anchor_y: 0.5,
+          anchor_x: 0.5,
+          r: 255,
+          g: 255,
+          b: 255,
+          a: @leave_btn_message_a,
+          font: "fonts/eaglelake.ttf",
+          text: "Are you sure?",
+          size_px: 26,
+          primitive_marker: :label,
+        }
+
+        t = String.wrapped_lines "You do not yet have your satchel full of potions and ingredients for your long journey...", 40
+        l4 << t.map_with_index do |s, i|
+          {
+            x: GTK.args.grid.w / 2,
+            y: GTK.args.grid.h / 2,
+            text: "#{s}",
+            anchor_x: 0.5,
+            anchor_y: i * 1.15,
+            r: 255,
+            g: 255,
+            b: 255,
+            a: @leave_btn_message_a,
+            size_px: 26,
+            font: "fonts/eaglelake.ttf",
+            primitive_marker: :label,
+          }
+        end
+      end
+
       l4
     else
       # puts "combat.rb: Invalid Render Argument"
@@ -649,7 +710,7 @@ class AlchemyLab
     GTK.args.outputs[:leave_btn].primitives << {
       x: 150 / 2,
       y: 75 / 2,
-      text: "LEAVE",
+      text: "#{@leave_btn_text}",
       anchor_x: 0.5,
       anchor_y: 0.5,
       r: 0,
@@ -718,7 +779,18 @@ class AlchemyLab
     if GTK.args.inputs.mouse.click &&
          Geometry.intersect_rect?(inputs.mouse, leave_btn)
       puts "clicked on leave_btn"
-      leave
+
+      if @from_tutorial
+        @leave_btn_clicks += 1
+        if @leave_btn_clicks == 1
+          @leave_btn_clicked_tick = Kernel.tick_count
+          @leave_btn_text = "CONFIRM"
+        elsif @leave_btn_clicks == 2
+          leave
+        end
+      else
+        leave
+      end
     end
 
     if GTK.args.inputs.mouse.click &&
