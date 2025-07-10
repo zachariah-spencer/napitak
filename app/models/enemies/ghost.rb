@@ -11,6 +11,7 @@ class Ghost < Enemy
        :combat_stats
 
   def initialize()
+    @enemy_id = "ghost"
     super
     $enemy = self
     @combat_stats =

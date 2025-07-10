@@ -11,6 +11,7 @@ class AbyssalTutorial < Enemy
        :combat_stats
 
   def initialize()
+    @enemy_id = "abyssal"
     super
     @w = 200
     @h = 200

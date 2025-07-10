@@ -14,6 +14,8 @@ class Enemy
 
   def initialize()
     $enemy = self
+    # @enemy_id must be implemented on every enemy
+    @shout_component = ShoutComponent.new(enemy_id: @enemy_id)
     @turn_start_timer = 0
     @attacked = false
     @combat_stats = nil
@@ -130,6 +132,7 @@ class Enemy
   end
 
   def begin_turn
+    @shout_component.shout
     @combat_stats.calc_status(type: :RESTORATION)
     frost_stacks = @combat_stats.statuses[$STATUS_TYPES[:FROST]]
     if frost_stacks > 0
@@ -151,6 +154,7 @@ class Enemy
     end
 
     if !@combat_stats.dead
+      @shout_component.tick
       calc_float
     else
       calc_death_anim
@@ -243,6 +247,14 @@ class Enemy
         primitive_marker: :label
       }
 
-      [enemy_sprite, enemy_hp_label]
+      if !@combat_stats.dead && @shout_component.prefab
+        enemy_shout = @shout_component.prefab
+      else
+        enemy_shout = nil
+      end
+
+      array = [enemy_sprite, enemy_hp_label]
+      array << enemy_shout if enemy_shout
+      array
   end
 end
