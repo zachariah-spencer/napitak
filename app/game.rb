@@ -254,6 +254,13 @@ class Game
 
     # render scene transition overlay
     outputs.primitives << @transition.prefab if @transition
+
+    if Kernel.tick_count == 0
+      # args.outputs.static_primitives << Layout.debug_primitives.map do |primitive|
+      #   primitive.merge(r: 255, g: 255, b: 255)
+      # end
+      # args.outputs.static_primitives << Layout.debug_primitives
+    end
   end
 
   def pause_btn(x: 195, y: GTK.args.grid.h - 45, w: 32, h: 32)

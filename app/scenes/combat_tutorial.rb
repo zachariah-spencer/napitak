@@ -939,7 +939,7 @@ class CombatTutorial
           &.[]($CARD_TRAITS[:ward])
 
       if damage_trait
-        @enemy.combat_stats.hurt(damage_trait[:amount], damage_trait[:type])
+        @enemy.hurt(damage_trait[:amount], damage_trait[:type])
       end
 
       @player.combat_stats.heal(mend_trait) if mend_trait

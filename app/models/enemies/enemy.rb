@@ -45,8 +45,12 @@ class Enemy
     attack = select_attack
     $animation_manager.queue_animation(attack[:attack_id], lock_input: true)
     handle_attack_effects(attack)
-    # $player.combat_stats.hurt(attack[:damage])
     @attacked = true
+  end
+
+  def hurt(amt, type)
+    @shout_component.shout_defensively
+    @combat_stats.hurt(amt, type)
   end
 
   def handle_attack_effects(attack)
@@ -132,13 +136,13 @@ class Enemy
   end
 
   def begin_turn
-    @shout_component.shout
     @combat_stats.calc_status(type: :RESTORATION)
     frost_stacks = @combat_stats.statuses[$STATUS_TYPES[:FROST]]
     if frost_stacks > 0
       @combat_stats.calc_status(type: :FROST)
       end_turn
     else
+      @shout_component.shout_offensively
       @my_turn = true
       @turn_start_timer = Kernel.tick_count
     end

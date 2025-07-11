@@ -1,6 +1,18 @@
 {
-    "enemy": ["1", "2", "3"],
-    "wolf": ["a", "b", "c"],
-    "ghost": ["d", "e", "f"],
-    "abyssal": ["g", "h", "i"]
+    "enemy": {
+        "offense": ["this is the max character length -->", "lorem ipsum doe lorem ipsum doe lorem ipsum doe lorem ipsum doe lorem ipsum doe lorem ipsum doe lorem ipsum doe lorem ipsum doe"],
+        "defense": ["defense strings play when the creature takes damage"]
+    },
+    "wolf": {
+        "offense": ["Your scent guides my jaws. Prepare to be torn!", "Pack or lone, I stand unbroken!", "Your screams are the song of the hunt!", "No prey escapes the moon’s favor!"],
+        "defense": ["I bleed, but the hunt goes on!", "This wound only fuels my fury!", "You draw blood, but you’ll taste mine first!", "My ribs crack, yet my spirit howls!"]
+    },
+    "ghost": {
+        "offense": ["d", "e", "f"],
+        "defense": ["d", "e", "f"]
+    },
+    "abyssal": {
+        "offense": ["g", "h", "i"],
+        "defense": ["g", "h", "i"]
+    }
 }
