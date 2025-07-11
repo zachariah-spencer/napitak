@@ -56,11 +56,11 @@ class EncounterCard < Card
 
   def calc_position(num_cards, index)
     if @hovered
-      @fw = 250
-      @fh = 250
+      @fw = 230
+      @fh = 230
     else
-      @fw = 225
-      @fh = 225
+      @fw = 190
+      @fh = 190
       @f_pos.y =
         @f_pos.y + (Math.sin(@floating_seed + Kernel.tick_count * 0.01) * 0.15)
       @f_angle = Math.sin(@floating_seed + Kernel.tick_count * 0.005) * 2
@@ -88,26 +88,44 @@ class EncounterCard < Card
     }
 
     args.outputs[@card_composite_sprite_ref].primitives << {
-      x: 40,
-      y: 40,
-      w: 80,
-      h: 80,
+      x: 50,
+      y: 50,
+      w: 60,
+      h: 60,
       angle: 0,
       path: @img
     }
 
     # add a label in the center of the render target
-    args.outputs[@card_composite_sprite_ref].primitives << {
-      x: 80,
-      y: 135,
-      text: "#{@name}",
-      anchor_x: 0.5,
-      anchor_y: 0.5,
-      r: 255,
-      g: 255,
-      b: 255,
-      size_px: 20
-    }
+    # args.outputs[@card_composite_sprite_ref].primitives << {
+    #   x: 80,
+    #   y: 135,
+    #   text: "#{@name}",
+    #   anchor_x: 0.5,
+    #   anchor_y: 0.5,
+    #   r: 255,
+    #   g: 255,
+    #   b: 255,
+    #   size_px: 20
+    # }
+
+    parsed_name = String.wrapped_lines @name, 15
+    args.outputs[
+      @card_composite_sprite_ref
+    ].primitives << parsed_name.map_with_index do |s, i|
+      {
+        x: 80,
+        y: 128,
+        text: "#{s}",
+        anchor_x: 0.5,
+        anchor_y: i,
+        r: 255,
+        g: 255,
+        b: 255,
+        font: "fonts/eaglelake.ttf",
+        size_px: 20
+      }
+    end
 
     args.outputs.primitives << {
       x: 0,
