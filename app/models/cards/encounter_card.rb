@@ -106,7 +106,7 @@ class EncounterCard < Card
       r: 255,
       g: 255,
       b: 255,
-      size_px: 15
+      size_px: 20
     }
 
     args.outputs.primitives << {

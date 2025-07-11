@@ -140,7 +140,7 @@ module GameData
         "i006" => 1
       },
       traits: [
-        { CARD_TRAITS[:damage] => { amount: 6, type: DAMAGE_TYPES[:force] } }
+        { CARD_TRAITS[:damage] => { amount: 5, type: DAMAGE_TYPES[:force] } }
       ]
     },
     "p003" => {
@@ -181,6 +181,125 @@ module GameData
         "i006" => 2
       },
       traits: [{ CARD_TRAITS[:scorch] => 3 }]
+    },
+    "p006" => {
+      name: "Rock Potion",
+      desc:
+        "Liquid solidifies as it is thrown out of the bottle, slamming into foes.",
+      fc: 0,
+      max_uses: 5,
+      path: "sprites/circle/green.png",
+      ingredients: {
+        "i001" => 1,
+        "i004" => 2
+      },
+      traits: [
+        { CARD_TRAITS[:damage] => { amount: 1, type: DAMAGE_TYPES[:force] } }
+      ]
+    },
+    "p007" => {
+      name: "Wind Potion",
+      desc: "A gust of wind bursts out of the bottle at foes.",
+      fc: 2,
+      max_uses: 3,
+      path: "sprites/circle/white.png",
+      ingredients: {
+        "i001" => 1,
+        "i005" => 2
+      },
+      traits: [
+        { CARD_TRAITS[:damage] => { amount: 1, type: DAMAGE_TYPES[:force] } },
+        { CARD_TRAITS[:restoration] => 2 }
+      ]
+    },
+    "p009" => {
+      name: "Sandstone Potion",
+      desc:
+        "Reinforced dust globs out of the bottle forming a wall betwixt you and foes.",
+      fc: 3,
+      max_uses: 3,
+      path: "sprites/circle/yellow.png",
+      ingredients: {
+        "i001" => 1,
+        "i004" => 1,
+        "i007" => 1
+      },
+      traits: [{ CARD_TRAITS[:ward] => 5 }]
+    },
+    "p010" => {
+      name: "Sandstorm Potion",
+      desc:
+        "Sand gusts out of the bottle creating a vortex of sand that swirls towards foes.",
+      fc: 5,
+      max_uses: 4,
+      path: "sprites/circle/yellow.png",
+      ingredients: {
+        "i001" => 1,
+        "i004" => 1,
+        "i007" => 1
+      },
+      traits: [
+        { CARD_TRAITS[:damage] => { amount: 5, type: DAMAGE_TYPES[:force] } },
+        { CARD_TRAITS[:scorch] => 3 }
+      ]
+    },
+    "p011" => {
+      name: "Dune Potion",
+      desc:
+        "Sand gusts out of the bottle creating a vortex of sand that swirls towards foes.",
+      fc: 4,
+      max_uses: 1,
+      path: "sprites/circle/yellow.png",
+      ingredients: {
+        "i001" => 1,
+        "i007" => 2
+      },
+      traits: [
+        { CARD_TRAITS[:scorch] => 5 },
+        { CARD_TRAITS[:mend] => 1 },
+        { CARD_TRAITS[:ward] => 2 }
+      ]
+    },
+    "p012" => {
+      name: "Quicksand Potion",
+      desc: "Creates a puddle of quicksand below enemies that envelop them.",
+      fc: 1,
+      max_uses: 6,
+      path: "sprites/circle/yellow.png",
+      ingredients: {
+        "i001" => 1,
+        "i002" => 1,
+        "i007" => 1
+      },
+      traits: [
+        { CARD_TRAITS[:damage] => { amount: 2, type: DAMAGE_TYPES[:force] } }
+      ]
+    },
+    "p013" => {
+      name: "Brickwall Potion",
+      desc: "Creates a brickwall betwixt you and foes.",
+      fc: 3,
+      max_uses: 4,
+      path: "sprites/circle/red.png",
+      ingredients: {
+        "i001" => 1,
+        "i009" => 2
+      },
+      traits: [{ CARD_TRAITS[:ward] => 4 }]
+    },
+    "p014" => {
+      name: "Lightning Potion",
+      desc: "Strikes an arc of lightning at foes.",
+      fc: 2,
+      max_uses: 5,
+      path: "sprites/circle/yellow.png",
+      ingredients: {
+        "i001" => 1,
+        "i008" => 2
+      },
+      traits: [
+        { CARD_TRAITS[:damage] => { amount: 2, type: DAMAGE_TYPES[:spark] } }
+      ]
     }
   }.freeze
   IIDS = {
@@ -219,6 +338,69 @@ module GameData
         "i002" => 1,
         "i003" => 1
       }
+    },
+    "i007" => {
+      name: "Sand",
+      path: "sprites/hexagon/yellow.png",
+      base: false,
+      ingredients: {
+        "i004" => 1,
+        "i005" => 1
+      }
+    },
+    "i008" => {
+      name: "Spark",
+      path: "sprites/hexagon/yellow.png",
+      base: false,
+      ingredients: {
+        "i003" => 1,
+        "i005" => 1
+      }
+    },
+    "i009" => {
+      name: "Brick",
+      path: "sprites/hexagon/red.png",
+      base: false,
+      ingredients: {
+        "i003" => 1,
+        "i004" => 1
+      }
+    },
+    "i010" => {
+      name: "Mist",
+      path: "sprites/hexagon/blue.png",
+      base: false,
+      ingredients: {
+        "i002" => 1,
+        "i005" => 1
+      }
+    },
+    "i011" => {
+      name: "Mud",
+      path: "sprites/hexagon/green.png",
+      base: false,
+      ingredients: {
+        "i002" => 1,
+        "i004" => 1
+      }
+    },
+    "i012" => {
+      name: "Glass",
+      path: "sprites/hexagon/white.png",
+      base: false,
+      ingredients: {
+        "i003" => 1,
+        "i007" => 1
+      }
+    },
+    "i013" => {
+      name: "Electricity",
+      path: "sprites/hexagon/yellow.png",
+      base: false,
+      ingredients: {
+        "i002" => 1,
+        "i008" => 1
+      }
     }
   }.freeze
   ENCOUNTERS = {
@@ -245,6 +427,12 @@ module GameData
       path: "sprites/wraith.png",
       is_combat: true,
       chance: 2
+    },
+    "dracolisk" => {
+      name: "Crystal Dracolisk",
+      path: "sprites/triangle/equilateral/red.png",
+      is_combat: true,
+      chance: 0
     }
   }.freeze
   ANIMATIONS = {

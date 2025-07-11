@@ -17,13 +17,9 @@ class Map
   end
 
   def tick
-    if !$game.input_locked
-      calc_input
-    end
+    calc_input if !$game.input_locked
 
-    @choices.each do |c|
-      c.tick
-    end
+    @choices.each { |c| c.tick }
   end
 
   def calc_input

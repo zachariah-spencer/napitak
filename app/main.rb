@@ -15,6 +15,7 @@ require_relative "models/components/shout_component"
 require_relative "models/enemies/enemy"
 require_relative "models/enemies/wolf"
 require_relative "models/enemies/wraith"
+require_relative "models/enemies/dracolisk"
 require_relative "models/enemies/abyssal_tutorial"
 
 # cards

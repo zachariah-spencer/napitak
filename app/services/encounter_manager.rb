@@ -8,7 +8,7 @@ class EncounterManager
     @unique_encounters = Hash.new { |h, layer| h[layer] = [] }
 
     @encounter_map = [
-      [rand_encounter?(1)],
+      ["dracolisk"],
       [rand_encounter?(2), rand_encounter?(2), rand_encounter?(2)],
       [rand_encounter?(3), rand_encounter?(3), rand_encounter?(3)],
       [rand_encounter?(4), rand_encounter?(4)],

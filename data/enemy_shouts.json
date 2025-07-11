@@ -31,6 +31,14 @@
             "I wail in the darkness you dared to wound!"
         ]
     },
+    "dracolisk": {
+        "offense": [
+            ""
+        ],
+        "defense": [
+            ""
+        ]
+    },
     "abyssal": {
         "offense": ["..."],
         "defense": ["..."]

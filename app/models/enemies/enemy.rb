@@ -10,7 +10,8 @@ class Enemy
        :turn_ended_signal,
        :combat_stats,
        :sprite,
-       :name
+       :name,
+       :enemy_id
 
   def initialize()
     $enemy = self
@@ -228,37 +229,37 @@ class Enemy
   end
 
   def prefab
-      enemy_sprite ||= {
-        x: @x,
-        y: @y,
-        angle: @ang,
-        w: @w,
-        h: @h,
-        r: @r,
-        path: @sprite,
-        primitive_marker: :sprite
-      }
+    enemy_sprite ||= {
+      x: @x,
+      y: @y,
+      angle: @ang,
+      w: @w,
+      h: @h,
+      r: @r,
+      path: @sprite,
+      primitive_marker: :sprite
+    }
 
-      enemy_hp_label ||= {
-        x: GTK.args.grid.w / 2,
-        y: GTK.args.grid.h - 270,
-        alignment_enum: 1,
-        size_enum: 5,
-        r: 150,
-        g: 0,
-        b: 0,
-        text: "#{@combat_stats.hp}/#{@combat_stats.max_hp}",
-        primitive_marker: :label
-      }
+    enemy_hp_label ||= {
+      x: GTK.args.grid.w / 2,
+      y: GTK.args.grid.h - 270,
+      alignment_enum: 1,
+      size_enum: 5,
+      r: 150,
+      g: 0,
+      b: 0,
+      text: "#{@combat_stats.hp}/#{@combat_stats.max_hp}",
+      primitive_marker: :label
+    }
 
-      if !@combat_stats.dead && @shout_component.prefab
-        enemy_shout = @shout_component.prefab
-      else
-        enemy_shout = nil
-      end
+    if !@combat_stats.dead && @shout_component.prefab
+      enemy_shout = @shout_component.prefab
+    else
+      enemy_shout = nil
+    end
 
-      array = [enemy_sprite, enemy_hp_label]
-      array << enemy_shout if enemy_shout
-      array
+    array = [enemy_sprite, enemy_hp_label]
+    array << enemy_shout if enemy_shout
+    array
   end
 end
