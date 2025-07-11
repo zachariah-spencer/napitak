@@ -14,6 +14,7 @@ class EncounterManager
       [rand_encounter?(4), rand_encounter?(4)],
       [rand_encounter?(5), rand_encounter?(5), rand_encounter?(5)],
       [rand_encounter?(6), rand_encounter?(6)],
+      ["dracolisk"],
       ["alchemy_lab"]
     ]
 

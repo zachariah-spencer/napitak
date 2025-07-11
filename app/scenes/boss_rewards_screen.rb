@@ -8,6 +8,20 @@ class BossRewardsScreen
     puts "init BossRewardsScreen"
     @sc_id = "boss_rewards_screen"
     @boss_defeated_id = boss_defeated_id
+    @reward_cards = []
+
+    unlock_boss_rewards
+  end
+
+  def unlock_boss_rewards
+    case @boss_defeated_id
+    when "dracolisk"
+      $recipe_book.unlock_base("i004")
+      $recipe_book.unlock_base("i005")
+      @reward_cards << GameUtils.gen_new_card("i004", is_reward: true)
+      @reward_cards << GameUtils.gen_new_card("i005", is_reward: true)
+
+    end
   end
 
   def cleanup
@@ -15,8 +29,17 @@ class BossRewardsScreen
   end
 
   def tick
+    calc_card_positions
     if GTK.args.inputs.mouse.click
       $game.change_scene(prev_sc: @sc_id, next_sc: "rewards_screen")
+    end
+  end
+
+  def calc_card_positions
+    @reward_cards.each_with_index do |c, i|
+      c.f_pos.y = GTK.args.grid.h / 2 - 196
+      c.calc_position @reward_cards.size, i
+      c.tick
     end
   end
 
@@ -66,15 +89,20 @@ class BossRewardsScreen
     when 4
       rewards_left_label = {
         x: GTK.args.grid.w / 2,
-        y: 100,
+        y: GTK.args.grid.h / 2 + 128,
         alignment_enum: 1,
-        size_px: Math.sin(Kernel.tick_count * 0.08) * 4 + 80,
+        size_px: Math.sin(Kernel.tick_count * 0.08) + 32,
         r: 255,
         g: 255,
         b: 255,
-        text: "Loot X new ingredients!",
+        text: "Congratulations, you've successfully recovered new base ingredients!",
+        font: "fonts/eaglelake.ttf",
         primitive_marker: :label
       }
+
+      @reward_cards.each do |c|
+        l4 << c.prefab
+      end
       l4 << [rewards_left_label]
       return l4
     else

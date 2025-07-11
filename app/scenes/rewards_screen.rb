@@ -131,6 +131,7 @@ class RewardsScreen
 
   def calc_card_positions
     @choices.each_with_index do |(id, c), i|
+      c.f_pos.y = GTK.args.grid.h / 2 - 80
       c.calc_position @choices.length, i
       c.tick
     end

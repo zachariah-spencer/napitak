@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 class IngredientRewardCard < Card
+
   def calc_position(num_cards, index)
     x_s = (GTK.args.grid.w / 2) - (num_cards * ((@w + @padding + 100) / 2))
     @f_pos.x = x_s + (index * (@w + @padding + 100)) - 20 # slight offset to x position if cards are "fanned" because the angling makes them look off-center otherwise
-    @f_pos.y = GTK.args.grid.h / 2 - 80
 
     if @hovered
       @fw = 230
