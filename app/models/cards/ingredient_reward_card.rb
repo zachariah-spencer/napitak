@@ -6,16 +6,15 @@ class IngredientRewardCard < Card
     @f_pos.y = GTK.args.grid.h / 2 - 80
 
     if @hovered
-      @fw = 250
-      @fh = 250
+      @fw = 230
+      @fh = 230
     else
-      @fw = 225
-      @fh = 225
+      @fw = 190
+      @fh = 190
       @f_pos.y =
         @f_pos.y + (Math.sin(@floating_seed + Kernel.tick_count * 0.01) * 0.15)
       @f_angle = Math.sin(@floating_seed + Kernel.tick_count * 0.01) * 2
     end
-
     super
   end
 

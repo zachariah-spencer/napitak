@@ -28,7 +28,8 @@ class Combat
     @fled = false
     @flee_attempts = 0
     @flee_tutorial_completed = $files.save_data["tutorials"]["fleeing"] || false
-    @damage_types_tutorial_completed = $files.save_data["tutorials"]["damage_types"] || false
+    @damage_types_tutorial_completed =
+      $files.save_data["tutorials"]["damage_types"] || false
     begin_combat
   end
 
@@ -57,7 +58,8 @@ class Combat
     end
 
     enemy_stats = @enemy.combat_stats
-    if !(enemy_stats.vulnerabilities + enemy_stats.resistances).empty? && $encounter_manager.combats_won >= 1 &&
+    if !(enemy_stats.vulnerabilities + enemy_stats.resistances).empty? &&
+         $encounter_manager.combats_won >= 1 &&
          !@damage_types_tutorial_completed
       @damage_types_tutorial_completed = true
       $files.save_data["tutorials"]["damage_types"] = true
@@ -167,7 +169,15 @@ class Combat
     case state
     when state_enum[:victory]
       $encounter_manager.inc_combats_won
-      $game.change_scene(prev_sc: @sc_id, next_sc: "rewards_screen")
+      if @enemy.is_boss
+        $game.change_scene(
+          prev_sc: @sc_id,
+          next_sc: "boss_rewards_screen",
+          args: [@enemy.enemy_id]
+        )
+      else
+        $game.change_scene(prev_sc: @sc_id, next_sc: "rewards_screen")
+      end
     when state_enum[:defeat]
       $player.anodyne += $encounter_manager.calc_anodyne_earnings
       $player.save_upgrades_data
@@ -799,8 +809,12 @@ class Combat
   end
 
   def draw_card
-    GameUtils.status_label(700, 50, "NO CARDS IN DECK", 255, 255, 255, 40) if @player.potions.all_cards.size <= 0
-    GameUtils.status_label(700, 50, "NO ROOM IN HAND", 255, 255, 255, 40) if @hand.size >= @max_hand_size
+    if @player.potions.all_cards.size <= 0
+      GameUtils.status_label(700, 50, "NO CARDS IN DECK", 255, 255, 255, 40)
+    end
+    if @hand.size >= @max_hand_size
+      GameUtils.status_label(700, 50, "NO ROOM IN HAND", 255, 255, 255, 40)
+    end
     if @player.potions.all_cards.size > 0 && @hand.size < @max_hand_size
       card = @player.potions.draw(true)
       @hand[card.entity_id] = card
@@ -860,9 +874,7 @@ class Combat
           .find { |h| h.key?($CARD_TRAITS[:ward]) }
           &.[]($CARD_TRAITS[:ward])
 
-      if damage_trait
-        @enemy.hurt(damage_trait[:amount], damage_trait[:type])
-      end
+      @enemy.hurt(damage_trait[:amount], damage_trait[:type]) if damage_trait
 
       @player.combat_stats.heal(mend_trait) if mend_trait
 

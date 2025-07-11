@@ -11,7 +11,8 @@ class Enemy
        :combat_stats,
        :sprite,
        :name,
-       :enemy_id
+       :enemy_id,
+       :is_boss
 
   def initialize()
     $enemy = self
@@ -24,6 +25,7 @@ class Enemy
     @turn_ended_signal = false
     @sprite = nil
     @name = nil
+    @is_boss = false
 
     @floating_seed = Numeric.rand(0.0..100.0)
 

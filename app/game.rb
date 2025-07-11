@@ -37,7 +37,7 @@ class Game
     # the game's official instantiation of a RecipeBook, persists between runs
     @recipe_book = RecipeBook.new()
     EncounterManager.new()
-    
+
     @player.load_inventory_data
     @player.load_upgrades_data
 
@@ -132,6 +132,8 @@ class Game
         )
     when "rewards_screen"
       @scene_ref = RewardsScreen.new(picks: $player.reward_picks)
+    when "boss_rewards_screen"
+      @scene_ref = BossRewardsScreen.new(boss_defeated_id: @scene_args[0])
     when "map"
       @scene_ref = Map.new()
     when "run_summary"

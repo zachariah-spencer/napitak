@@ -40,6 +40,7 @@ require_relative "scenes/journal"
 require_relative "scenes/run_summary"
 require_relative "scenes/meta_shop"
 require_relative "scenes/combat_tutorial"
+require_relative "scenes/boss_rewards_screen"
 
 # services and manager classes
 require_relative "services/deck"
