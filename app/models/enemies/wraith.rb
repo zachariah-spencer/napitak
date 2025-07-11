@@ -1,4 +1,4 @@
-class Ghost < Enemy
+class Wraith < Enemy
   attr_gtk
   attr :hp,
        :max_hp,
@@ -11,7 +11,7 @@ class Ghost < Enemy
        :combat_stats
 
   def initialize()
-    @enemy_id = "ghost"
+    @enemy_id = "wraith"
     super
     $enemy = self
     @combat_stats =
@@ -27,8 +27,8 @@ class Ghost < Enemy
         ],
         resistances: [$DAMAGE_TYPES[:light]]
       )
-    @sprite = "sprites/ghost.png"
-    @name = "Ghost"
+    @sprite = "sprites/wraith.png"
+    @name = "Wraith"
     @attacks = {
       70 => {
         name: "Basic Attack",

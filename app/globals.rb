@@ -240,9 +240,9 @@ module GameData
       is_combat: true,
       chance: 5
     },
-    "ghost" => {
-      name: "Ghost",
-      path: "sprites/ghost.png",
+    "wraith" => {
+      name: "Wraith",
+      path: "sprites/wraith.png",
       is_combat: true,
       chance: 2
     }

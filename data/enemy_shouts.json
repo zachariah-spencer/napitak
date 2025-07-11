@@ -4,15 +4,35 @@
         "defense": ["defense strings play when the creature takes damage"]
     },
     "wolf": {
-        "offense": ["Your scent guides my jaws. Prepare to be torn!", "Pack or lone, I stand unbroken!", "Your screams are the song of the hunt!", "No prey escapes the moon’s favor!"],
-        "defense": ["I bleed, but the hunt goes on!", "This wound only fuels my fury!", "You draw blood, but you’ll taste mine first!", "My ribs crack, yet my spirit howls!"]
+        "offense": [
+            "Your scent guides my jaws. Prepare to be torn!",
+            "Pack or lone, I stand unbroken!", 
+            "Your screams are the song of the hunt!", 
+            "No prey escapes the moon’s favor!"
+        ],
+        "defense": [
+            "I bleed, but the hunt goes on!",
+            "This wound only fuels my fury!", 
+            "You draw blood, but you’ll taste mine first!", 
+            "My ribs crack, yet my spirit howls!"
+        ]
     },
-    "ghost": {
-        "offense": ["d", "e", "f"],
-        "defense": ["d", "e", "f"]
+    "wraith": {
+        "offense": [
+            "Feel the frost of death’s embrace!", 
+            "I shall drag you screaming into shadow!", 
+            "The grave beckons... heed its call!",
+            "Your soul will crumble beneath my touch!"
+        ],
+        "defense": [
+            "My essence falters, yet I linger…", 
+            "A fleeting pain... Soon you’ll fade!", 
+            "Your strike shakes my form, but not my will!",
+            "I wail in the darkness you dared to wound!"
+        ]
     },
     "abyssal": {
-        "offense": ["g", "h", "i"],
-        "defense": ["g", "h", "i"]
+        "offense": ["..."],
+        "defense": ["..."]
     }
 }
