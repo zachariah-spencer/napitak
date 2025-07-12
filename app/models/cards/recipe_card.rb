@@ -16,6 +16,7 @@ class RecipeCard < Card
     @tt_a = 0
 
     @f_pos = { x: x, y: y }
+    @hovered_f_pos = { x: x, y: y }
     @fw = w
     @fh = h
     @f_angle = 0
@@ -69,6 +70,9 @@ class RecipeCard < Card
     @b = 255 # Numeric.rand(100..200)
     @hovered = false
     @page = page
+    @anchored = false
+    @vx = 0.0
+    @vy = 0.0
   end
 
   def tick()
@@ -124,7 +128,19 @@ class RecipeCard < Card
       @f_angle = Math.sin(@floating_seed + Kernel.tick_count * 0.005) * 2
     end
 
-    interpolate_attributes
+    @w = @w.lerp @fw, 0.2
+    @h = @h.lerp @fh, 0.2
+    @hovered_f_pos.x = @f_pos.x - (@fw * 0.01)
+    @hovered_f_pos.y = @f_pos.y - (@fh * 0.01)
+    if @hovered
+      @pos.x = @pos.x.lerp @hovered_f_pos.x, 0.2
+      @pos.y = @pos.y.lerp @hovered_f_pos.y, 0.2
+    else
+      @pos.x = @pos.x.lerp @f_pos.x, 0.2
+      @pos.y = @pos.y.lerp @f_pos.y, 0.2
+    end
+    @angle = @angle.lerp @f_angle, 0.2
+    @tt_a = @tt_a.lerp(@tt_f_a, 0.2) if @tt_a && @tt_f_a
   end
 
   def calc_render_target(args)
@@ -205,7 +221,7 @@ class RecipeCard < Card
         r: 255,
         g: 255,
         b: 255,
-        size_enum: 10
+        size_px: 30
       }
     end
 
@@ -233,7 +249,7 @@ class RecipeCard < Card
     end
 
     if GameUtils.is_potion(@id)
-      parsed_description = String.wrapped_lines @desc, 25
+      parsed_description = String.wrapped_lines @desc, 30
       # add a label in the center of the render target
       args.outputs[
         @card_composite_tooltip_ref
@@ -247,7 +263,7 @@ class RecipeCard < Card
           r: 255,
           g: 255,
           b: 255,
-          size_enum: 5
+          size_px: 22
         }
       end
 
