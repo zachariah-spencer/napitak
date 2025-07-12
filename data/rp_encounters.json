@@ -1,0 +1,35 @@
+{
+    "woods": {
+        "probability": "10",
+        "prompt": "prompt text with big decisions to be made!",
+        "options": [
+                    {
+                    "text": "first text",
+                    "dc": 20,
+                    "outcome_messages": {
+                        "GOOD": "good outcome message for option 1",
+                        "NEUTRAL": "neutral outcome message for option 1",
+                        "BAD": "bad outcome message for option 1"
+                        }
+                    },
+                    {
+                    "text": "second text",
+                    "dc": 10,
+                    "outcome_messages": {
+                        "GOOD": "good outcome message for option 2",
+                        "NEUTRAL": "neutral outcome message for option 2",
+                        "BAD": "bad outcome message for option 2"
+                        }
+                    },
+                    {
+                    "text": "third text",
+                    "dc": 5,
+                    "outcome_messages": {
+                        "GOOD": "good outcome message for option 3",
+                        "NEUTRAL": "neutral outcome message for option 3",
+                        "BAD": "bad outcome message for option 3"
+                        }
+                    }
+                ]
+        }
+}

@@ -144,6 +144,8 @@ class Game
       @scene_ref = Intro.new
     when "combat_tutorial"
       @scene_ref = CombatTutorial.new
+    when "rp_encounter"
+      @scene_ref = RoleplayEncounter.new
     end
 
     $files.save_data["scene"] = @next_sc
