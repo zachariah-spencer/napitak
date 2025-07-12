@@ -23,7 +23,7 @@ class AbyssalTutorial < Enemy
         x: GTK.args.grid.w / 2,
         y: GTK.args.grid.h - 270
       )
-    @sprite = "sprites/triangle/equilateral/red.png"
+    @sprite = "sprites/triangle/equilateral/blue.png"
     @name = "The Abyssal"
     @fled = false
     @attacks = {
@@ -49,9 +49,7 @@ class AbyssalTutorial < Enemy
               type: $DAMAGE_TYPES[:force]
             }
           },
-          {
-            $CARD_TRAITS[:scorch] => 4
-          }
+          { $CARD_TRAITS[:scorch] => 4 }
         ]
       },
       2 => {
@@ -89,7 +87,7 @@ class AbyssalTutorial < Enemy
               amount: 4,
               type: $DAMAGE_TYPES[:force]
             }
-          },
+          }
         ]
       }
     }
@@ -110,29 +108,29 @@ class AbyssalTutorial < Enemy
   end
 
   def prefab
-      enemy_sprite ||= {
-        x: @x,
-        y: @y,
-        angle: @ang,
-        w: @w,
-        h: @h,
-        path: @sprite,
-        primitive_marker: :sprite
-      }
+    enemy_sprite ||= {
+      x: @x,
+      y: @y,
+      angle: @ang,
+      w: @w,
+      h: @h,
+      path: @sprite,
+      primitive_marker: :sprite
+    }
 
-      enemy_hp_label ||= {
-        x: GTK.args.grid.w / 2,
-        y: GTK.args.grid.h - 270,
-        alignment_enum: 1,
-        size_enum: 5,
-        r: 150,
-        g: 0,
-        b: 0,
-        text: "#{@combat_stats.hp}/#{@combat_stats.max_hp}",
-        primitive_marker: :label
-      }
+    enemy_hp_label ||= {
+      x: GTK.args.grid.w / 2,
+      y: GTK.args.grid.h - 270,
+      alignment_enum: 1,
+      size_enum: 5,
+      r: 150,
+      g: 0,
+      b: 0,
+      text: "#{@combat_stats.hp}/#{@combat_stats.max_hp}",
+      primitive_marker: :label
+    }
 
-      [enemy_sprite, enemy_hp_label]
+    [enemy_sprite, enemy_hp_label]
   end
 
   def tick

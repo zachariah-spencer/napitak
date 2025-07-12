@@ -414,25 +414,42 @@ module GameData
       name: "Alchemy Workbench",
       path: "sprites/triangle/equilateral/yellow.png",
       is_combat: false,
-      chance: 10
+      chance: 8
     },
+    # basic enemy
     "wolf" => {
       name: "Wolf",
       path: "sprites/wolf.png",
       is_combat: true,
-      chance: 5
+      chance: 4
     },
+    # frost guy
     "wraith" => {
       name: "Wraith",
       path: "sprites/wraith.png",
       is_combat: true,
-      chance: 2
+      chance: 1
     },
+    # first boss encounter, uses
     "dracolisk" => {
       name: "Crystal Dracolisk",
-      path: "sprites/triangle/equilateral/red.png",
+      path: "sprites/triangle/equilateral/violet.png",
       is_combat: true,
       chance: 0
+    },
+    # ward earth guy
+    "sentinel" => {
+      name: "Ironroot Sentinel",
+      path: "sprites/triangle/equilateral/green.png",
+      is_combat: true,
+      chance: 2
+    },
+    # fire guy
+    "mawfiend" => {
+      name: "Abyssal Mawfiend",
+      path: "sprites/triangle/equilateral/orange.png",
+      is_combat: true,
+      chance: 2
     }
   }.freeze
   ANIMATIONS = {

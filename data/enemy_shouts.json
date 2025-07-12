@@ -39,6 +39,22 @@
             ""
         ]
     },
+    "sentinel": {
+        "offense": [
+            ""
+        ],
+        "defense": [
+            ""
+        ]
+    },
+    "mawfiend": {
+        "offense": [
+            ""
+        ],
+        "defense": [
+            ""
+        ]
+    },
     "abyssal": {
         "offense": ["..."],
         "defense": ["..."]
