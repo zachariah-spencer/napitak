@@ -18,47 +18,65 @@ class Dracolisk < Enemy
     $enemy = self
     @combat_stats =
       CombatStatsComponent.new(
-        hp: 2,
+        hp: 30,
         focus: 0,
         x: GTK.args.grid.w / 2,
         y: GTK.args.grid.h - 270,
-        resistances: []
+        resistances: [$DAMAGE_TYPES[:force]],
+        vulnerabilities: [$DAMAGE_TYPES[:spark]]
       )
     @sprite = "sprites/triangle/equilateral/red.png"
     @name = "Crystal Dracolisk"
     @attacks = {
-      70 => {
+      45 => {
         name: "Basic Attack",
         attack_id: "a001",
         traits: [
           {
             $CARD_TRAITS[:damage] => {
-              amount: 1,
-              type: $DAMAGE_TYPES[:force]
+              amount: 2,
+              type: $DAMAGE_TYPES[:disease]
             }
           }
         ]
       },
-      20 => {
+      25 => {
         name: "Power Attack",
         attack_id: "a002",
-        traits: [
-          {
-            $CARD_TRAITS[:damage] => {
-              amount: 2,
-              type: $DAMAGE_TYPES[:force]
-            }
-          }
-        ]
+        traits: [{ $CARD_TRAITS[:blight] => 1 }]
+      },
+      10 => {
+        name: "Ultimate Attack",
+        attack_id: "a003",
+        traits: [{ $CARD_TRAITS[:blight] => 1 }, { $CARD_TRAITS[:ward] => 1 }]
       },
       10 => {
         name: "Ultimate Attack",
         attack_id: "a003",
         traits: [
+          { $CARD_TRAITS[:blight] => 1 },
+          {
+            $CARD_TRAITS[:damage] => {
+              amount: 1,
+              type: $DAMAGE_TYPES[:disease]
+            }
+          }
+        ]
+      },
+      5 => {
+        name: "Ultimate Attack",
+        attack_id: "a003",
+        traits: [{ $CARD_TRAITS[:ward] => 4 }]
+      },
+      5 => {
+        name: "Ultimate Attack",
+        attack_id: "a003",
+        traits: [
+          { $CARD_TRAITS[:mend] => 1 },
           {
             $CARD_TRAITS[:damage] => {
               amount: 2,
-              type: $DAMAGE_TYPES[:force]
+              type: $DAMAGE_TYPES[:disease]
             }
           }
         ]

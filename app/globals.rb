@@ -417,7 +417,7 @@ module GameData
       chance: 8
     },
     "rp_encounter" => {
-      name: "Roleplay Encounter",
+      name: "Event",
       path: "sprites/square/indigo.png",
       is_combat: false,
       chance: 20

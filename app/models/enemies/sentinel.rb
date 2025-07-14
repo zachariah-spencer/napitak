@@ -20,7 +20,8 @@ class Sentinel < Enemy
         focus: 0,
         x: GTK.args.grid.w / 2,
         y: GTK.args.grid.h - 270,
-        resistances: []
+        resistances: [$DAMAGE_TYPES[:cold]],
+        vulnerabilities: [$DAMAGE_TYPES[:heat]]
       )
     @sprite = "sprites/triangle/equilateral/green.png"
     @name = "Ironroot Sentinel"
@@ -28,22 +29,16 @@ class Sentinel < Enemy
       70 => {
         name: "Basic Attack",
         attack_id: "a001",
-        traits: [
-          {
-            $CARD_TRAITS[:damage] => {
-              amount: 1,
-              type: $DAMAGE_TYPES[:force]
-            }
-          }
-        ]
+        traits: [{ $CARD_TRAITS[:ward] => 1 }]
       },
       20 => {
         name: "Power Attack",
         attack_id: "a002",
         traits: [
+          { $CARD_TRAITS[:ward] => 2 },
           {
             $CARD_TRAITS[:damage] => {
-              amount: 2,
+              amount: 1,
               type: $DAMAGE_TYPES[:force]
             }
           }
@@ -53,6 +48,7 @@ class Sentinel < Enemy
         name: "Ultimate Attack",
         attack_id: "a003",
         traits: [
+          { $CARD_TRAITS[:ward] => 3 },
           {
             $CARD_TRAITS[:damage] => {
               amount: 2,

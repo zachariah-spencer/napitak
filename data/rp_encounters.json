@@ -1,33 +1,66 @@
 {
     "woods": {
         "probability": "10",
-        "prompt": "prompt text with big decisions to be made!",
+        "prompt": "You push through a veil of ferns into a moonlit grove. Ancient trees loom overhead, their twisted branches silhouetted against a silver sky. A distant, lilting melody drifts on the breeze, and the soft glow of fireflies dances among the undergrowth.",
         "options": [
                     {
-                    "text": "first text",
-                    "dc": 20,
+                    "text": "Approach the source of the melody",
+                    "dc": 12,
                     "outcome_messages": {
-                        "GOOD": "good outcome message for option 1",
-                        "NEUTRAL": "neutral outcome message for option 1",
-                        "BAD": "bad outcome message for option 1"
+                        "GOOD": "As you step into the clearing, a graceful dryad emerges, smiling. She offers you guidance through the forest’s safest paths and grants you her blessing.",
+                        "NEUTRAL": "The melody fades before you reach its source. You find nothing but empty air, then carry on undisturbed.",
+                        "BAD": "A banshee’s shriek rends the air. You reel back as spectral hands claw at your mind."
                         }
                     },
                     {
-                    "text": "second text",
-                    "dc": 10,
+                    "text": "Inspect the cluster of bioluminescent mushrooms",
+                    "dc": 14,
                     "outcome_messages": {
-                        "GOOD": "good outcome message for option 2",
-                        "NEUTRAL": "neutral outcome message for option 2",
-                        "BAD": "bad outcome message for option 2"
+                        "GOOD": "One mushroom crumbles easily in your hand, revealing a sweet, restorative sap. You feel invigorated.",
+                        "NEUTRAL": "You examine the fungi but decide they’re edible only to creatures of the deep woods. No change in your condition.",
+                        "BAD": "A faint whisper coaxes you to eat more. When you resist, you’re struck by sudden dizziness."
                         }
                     },
                     {
-                    "text": "third text",
-                    "dc": 5,
+                    "text": "Move stealthily around the clearing",
+                    "dc": 16,
                     "outcome_messages": {
-                        "GOOD": "good outcome message for option 3",
-                        "NEUTRAL": "neutral outcome message for option 3",
-                        "BAD": "bad outcome message for option 3"
+                        "GOOD": "You slip through shadow and underbrush unseen, spotting a hidden stag rutting spot. You gain valuable scouting information.",
+                        "NEUTRAL": "You pass through silently but find nothing unusual, just the quiet murmur of leaves.",
+                        "BAD": "A twig snaps underfoot, echoing through the grove. Moments later, a snarling wolf pack emerges, baring teeth in the dim light."
+                        }
+                    }
+                ]
+        },
+    "cave": {
+        "probability": "10",
+        "prompt": "Your lantern’s glow dances off damp stone as you descend into a vaulted cavern. Stalactites drip rhythmically, and somewhere deeper you hear a low rumble, like distant thunder beneath the earth.",
+        "options": [
+                    {
+                    "text": "Examine the shimmering crystals embedded in the wall",
+                    "dc": 12,
+                    "outcome_messages": {
+                        "GOOD": "The crystals pulse with faint energy. You touch one and feel your senses sharpen.",
+                        "NEUTRAL": "They glow softly but seem inert. You note their presence and move on without incident.",
+                        "BAD": "A sudden crack echoes as the crystals shatter, releasing a cloud of choking dust. You cough violently."
+                        }
+                    },
+                    {
+                    "text": "Venture down the narrow, water-slick passage",
+                    "dc": 14,
+                    "outcome_messages": {
+                        "GOOD": "You navigate the slick floor expertly and find a hidden alcove filled with discarded gear: tinder, rations, and a tattered map marking a safe route forward.",
+                        "NEUTRAL": "The tunnel twists and turns but leads you back to the main cavern, neither safer nor more dangerous.",
+                        "BAD": "Halfway through the passage, the footing gives way beneath you. You tumble into knee-deep cold water, soaking your gear."
+                        }
+                    },
+                    {
+                    "text": "Call out to whatever dwells below",
+                    "dc": 16,
+                    "outcome_messages": {
+                        "GOOD": "Your voice fades and then returns as a gentle, resonant hum. A friendly myconid emerges to offer a glowing sporecap that cures minor poisons.",
+                        "NEUTRAL": "Your shout echoes endlessly and then dies away. No response, and you’ve alerted nothing, or no one.",
+                        "BAD": "A screeching roar answers you. From the darkness, giant cave bats descend in a flurry of wings."
                         }
                     }
                 ]

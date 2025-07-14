@@ -9,7 +9,7 @@ class RoleplayEncounter
 
   # incrementally display some flavor text prompt
 
-  # upon completion of the flavor text or if the user left clicks, present the player with x number of option 
+  # upon completion of the flavor text or if the user left clicks, present the player with x number of option
   # buttons describing actions they can take as a reaction to the prompt
 
   # weigh the probability of a good, bad, or neutral outcome based on the player's selected action
@@ -20,17 +20,11 @@ class RoleplayEncounter
 
   # await a left click to leave encounter
 
-
   def initialize()
     puts "init Roleplay Encounter"
     @sc_id = "rp_encounter_generic"
 
-    @OUTCOMES = {
-      undetermined: 0,
-      bad: 1,
-      neutral: 2,
-      good: 3  
-    }
+    @OUTCOMES = { undetermined: 0, bad: 1, neutral: 2, good: 3 }
     @outcome = @OUTCOMES[:undetermined]
 
     @options
@@ -48,10 +42,10 @@ class RoleplayEncounter
   def load_encounter_from_json
     encounters_json = GTK.read_file("data/rp_encounters.json")
     encounters_hash = GTK.parse_json(encounters_json)
-    specific_encounter_hash = encounters_hash["woods"]
+    specific_encounter_hash = encounters_hash[encounters_hash.keys.sample]
 
     @options = specific_encounter_hash["options"]
-    puts @options
+    @options.shuffle!
     play_message(specific_encounter_hash["prompt"])
   end
 
@@ -67,8 +61,10 @@ class RoleplayEncounter
     m = ""
     num_chars_to_display = (@message_displaying_tick.elapsed_time / 4).floor
     m << @message[0, num_chars_to_display] if @message_displaying_tick
-    @message_completed = true if @message_displaying_tick && num_chars_to_display >= @message.size && !@option_selected_tick
-    @result_message_completed = true if @message_displaying_tick && num_chars_to_display >= @message.size && @option_selected_tick
+    @message_completed = true if @message_displaying_tick &&
+      num_chars_to_display >= @message.size && !@option_selected_tick
+    @result_message_completed = true if @message_displaying_tick &&
+      num_chars_to_display >= @message.size && @option_selected_tick
     m
   end
 
@@ -90,8 +86,9 @@ class RoleplayEncounter
         end
       end
 
-
-      @message_displaying_tick = -1000 if @message_completed == false || @option_selected_tick && @result_message_completed == false && @option_selected_tick.elapsed_time >= 0.1.seconds
+      @message_displaying_tick = -1000 if @message_completed == false ||
+        @option_selected_tick && @result_message_completed == false &&
+          @option_selected_tick.elapsed_time >= 0.1.seconds
 
       leave if @option_selected_tick && @result_message_completed
     end
@@ -106,14 +103,13 @@ class RoleplayEncounter
     elsif roll < dc && dc - roll <= 5
       @outcome = @OUTCOMES[:neutral]
       play_message(option["outcome_messages"]["NEUTRAL"])
-    else roll < dc && dc - roll > 5
+    else
+      roll < dc && dc - roll > 5
       @outcome = @OUTCOMES[:bad]
       play_message(option["outcome_messages"]["BAD"])
     end
 
-    @options.each do |o|
-      o["rect"] = nil
-    end
+    @options.each { |o| o["rect"] = nil }
     @option_selected_tick = Kernel.tick_count
   end
 
@@ -172,7 +168,6 @@ class RoleplayEncounter
         b: 100,
         primitive_marker: :solid
       }
-
     end
   end
 
@@ -210,20 +205,20 @@ class RoleplayEncounter
         r: 255,
         g: 255,
         b: 255,
-        text: "Roleplay Encounter",
+        text: "Event",
         primitive_marker: :label
       }
 
       l2 << [encounter_label]
       return l2
     when 3
-      l3 << [ render_splash_art ]
+      l3 << [render_splash_art]
       return l3
     when 4
       msg_loc = Layout.rect(row: 10, col: 10, w: 4, h: 1).center
       msg = incremented_text?
       msg_lines = []
-      wrapped_msg = String.wrapped_lines msg, 50
+      wrapped_msg = String.wrapped_lines msg, 110
       msg_lines << wrapped_msg.map_with_index do |s, i|
         msg_loc.merge(
           text: "#{s}",
@@ -234,13 +229,15 @@ class RoleplayEncounter
           b: 255,
           size_px: 30,
           font: "fonts/eaglelake.ttf",
-          primitive_marker: :label)
+          primitive_marker: :label
+        )
       end
 
       if @message_completed && @outcome == @OUTCOMES[:undetermined]
         @options_alpha = @options_alpha.lerp(255, 0.15)
         @options.each_with_index do |o, i|
-          options_loc = Layout.rect(row: 2 + (i * 2), col: 10, w: 4, h: 1).center
+          options_loc =
+            Layout.rect(row: 2 + (i * 2), col: 10, w: 4, h: 1).center
           options_rect = Layout.rect(row: 1.5 + (i * 2), col: 6, w: 12, h: 1.5)
 
           @options[i]["rect"] = options_rect
@@ -271,7 +268,8 @@ class RoleplayEncounter
               a: @options_alpha,
               size_px: 22,
               font: "fonts/eaglelake.ttf",
-              primitive_marker: :label)
+              primitive_marker: :label
+            )
           end
 
           l4 << [options_background, options_lines]
@@ -289,13 +287,14 @@ class RoleplayEncounter
         r: 255,
         g: 255,
         b: 255,
-        primitive_marker: :label,
-
+        primitive_marker: :label
       }
 
-      l4 << click_prompt_label if @option_selected_tick && @result_message_completed
+      if @option_selected_tick && @result_message_completed
+        l4 << click_prompt_label
+      end
 
-      l4 << [ msg_lines ]
+      l4 << [msg_lines]
       return l4
     else
       # puts "combat.rb: Invalid Render Argument"
