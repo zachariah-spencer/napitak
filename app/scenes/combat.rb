@@ -411,9 +411,19 @@ class Combat
       end
       return l1
     when 2
+      deck_frame = 0.frame_index(3, 0.18.seconds, true)
+
       deck_rect = Layout.rect(col: 0.12, row: 10.75, w: 1.5, h: 1.5)
+      puts deck_rect
       deck_sprite =
-        deck_rect.merge(r: 40, g: 40, b: 80, primitive_marker: :solid)
+        deck_rect.merge(
+          primitive_marker: :sprite,
+          path: "sprites/deck_sheet.png",
+          tile_x: 0 + (deck_frame * 128),
+          tile_y: 0,
+          tile_w: 128,
+          tile_h: 128
+        )
 
       deck_card_count_label =
         deck_rect.center.merge(
