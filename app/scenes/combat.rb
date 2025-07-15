@@ -242,18 +242,31 @@ class Combat
     x = (Kernel.tick_count * 5) % (2 * range)
     osc_val = range - (x - range).abs
 
+    bg_tile_index = 0.frame_index(5, 1.0.seconds, true)
+    tile_index = 0.frame_index(6, 0.25.seconds, true)
+
     case layer_num
     when 0
-      background ||= {
+      background_solid = {
         x: 0,
         y: 0,
-        w: GTK.args.grid.w,
-        h: GTK.args.grid.h,
-        path: "sprites/background.png",
-        primitive_marker: :sprite
+        w: 1280,
+        h: 720,
+        r: 0,
+        g: 0,
+        b: 0,
+        primitive_marker: :solid
+      }
+      rect = Layout.rect(row: 0, col: 2, w: 20, h: 14)
+      background = {
+        x: rect[:x],
+        y: rect[:y],
+        w: rect[:w],
+        h: rect[:h],
+        path: "sprites/background_frames/woods/woods_bg#{bg_tile_index + 1}.png" # "sprites/background_frames/woods/woods_bg#{bg_tile_index + 1}.png"
       }
 
-      l0 << [background]
+      l0 << [background_solid, background]
       return l0
     when 1
       left_panel ||= {
@@ -271,6 +284,32 @@ class Combat
         w: 200,
         h: GTK.args.grid.h,
         path: "sprites/panel_blue.png",
+        primitive_marker: :sprite
+      }
+
+      left_panel_a ||= {
+        x: 0,
+        y: 0,
+        w: 200,
+        h: GTK.args.grid.h,
+        path: "sprites/sketchypanel02.png",
+        tile_x: 0 + (tile_index * 200),
+        tile_y: 0,
+        tile_w: 200,
+        tile_h: GTK.args.grid.h,
+        primitive_marker: :sprite
+      }
+
+      right_panel_a ||= {
+        x: GTK.args.grid.w - 200,
+        y: 0,
+        w: 200,
+        h: GTK.args.grid.h,
+        path: "sprites/sketchypanel02.png",
+        tile_x: 0 + (tile_index * 200),
+        tile_y: 0,
+        tile_w: 200,
+        tile_h: GTK.args.grid.h,
         primitive_marker: :sprite
       }
 
@@ -335,8 +374,8 @@ class Combat
       }
 
       l1 << [
-        left_panel,
-        right_panel,
+        left_panel_a,
+        right_panel_a,
         @enemy.prefab,
         player_hp_label_header,
         player_hp_label,
@@ -450,8 +489,6 @@ class Combat
       l2 << [
         deck_sprite,
         deck_card_count_label,
-        discards_sprite,
-        discards_card_count_label,
         pass_button,
         pass_button_label,
         cards,
