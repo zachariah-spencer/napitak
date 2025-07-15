@@ -239,7 +239,7 @@ class Combat
     end
 
     range = 255 - 0
-    x = (Kernel.tick_count * 5) % (2 * range)
+    x = (Kernel.tick_count * 2) % (2 * range)
     osc_val = range - (x - range).abs
 
     bg_tile_index = 0.frame_index(5, 1.0.seconds, true)
@@ -257,7 +257,7 @@ class Combat
         b: 0,
         primitive_marker: :solid
       }
-      rect = Layout.rect(row: 0, col: 2, w: 20, h: 14)
+      rect = Layout.rect(row: 0, col: 1, w: 22, h: 14)
       background = {
         x: rect[:x],
         y: rect[:y],
@@ -290,7 +290,7 @@ class Combat
       left_panel_a ||= {
         x: 0,
         y: 0,
-        w: 200,
+        w: 128,
         h: GTK.args.grid.h,
         path: "sprites/sketchypanel02.png",
         tile_x: 0 + (tile_index * 200),
@@ -301,9 +301,9 @@ class Combat
       }
 
       right_panel_a ||= {
-        x: GTK.args.grid.w - 200,
+        x: GTK.args.grid.w - 128,
         y: 0,
-        w: 200,
+        w: 128,
         h: GTK.args.grid.h,
         path: "sprites/sketchypanel02.png",
         tile_x: 0 + (tile_index * 200),
@@ -317,11 +317,12 @@ class Combat
         x: 100,
         y: GTK.args.grid.h - 225,
         alignment_enum: 1,
-        size_enum: 8,
+        size_px: 20,
         r: 255,
         g: 255,
         b: 255,
         text: "HP",
+        font: "fonts/eaglelake.ttf",
         primitive_marker: :label
       }
 
@@ -329,11 +330,12 @@ class Combat
         x: 100,
         y: GTK.args.grid.h - 275,
         alignment_enum: 1,
-        size_enum: 8,
+        size_px: 20,
         r: 0,
         g: 150,
         b: 0,
-        text: "#{@player.combat_stats.hp}/#{@player.combat_stats.max_hp}",
+        text: "#{@player.combat_stats.hp} / #{@player.combat_stats.max_hp}",
+        font: "fonts/eaglelake.ttf",
         primitive_marker: :label
       }
 
@@ -341,11 +343,12 @@ class Combat
         x: 100,
         y: GTK.args.grid.h - 315,
         alignment_enum: 1,
-        size_enum: 8,
+        size_px: 20,
         r: 255,
         g: 255,
         b: 0,
         text: "#{@player.combat_stats.statuses[$STATUS_TYPES[:WARD]]}",
+        font: "fonts/eaglelake.ttf",
         primitive_marker: :label
       }
 
@@ -353,11 +356,12 @@ class Combat
         x: 100,
         y: GTK.args.grid.h - 125,
         alignment_enum: 1,
-        size_enum: 8,
+        size_px: 20,
         r: 255,
         g: 255,
         b: 255,
         text: "FOCUS",
+        font: "fonts/eaglelake.ttf",
         primitive_marker: :label
       }
 
@@ -365,11 +369,13 @@ class Combat
         x: 100,
         y: GTK.args.grid.h - 175,
         alignment_enum: 1,
-        size_enum: 8,
+        size_px: 20,
         r: 0,
         g: 150,
         b: 150,
-        text: "#{@player.combat_stats.focus}",
+        text:
+          "#{@player.combat_stats.focus} / #{@player.combat_stats.max_focus}",
+        font: "fonts/eaglelake.ttf",
         primitive_marker: :label
       }
 
@@ -389,12 +395,13 @@ class Combat
         alignment_enum: 1,
         anchor_x: 0.5,
         anchor_y: 0.5,
-        size_enum: 1,
+        size_px: 20,
         r: 255,
         g: 255,
         b: 255,
         a: 255,
         text: "#{flee_success_rate?.to_i}% Chance",
+        font: "fonts/eaglelake.ttf",
         primitive_marker: :label
       }
 
@@ -405,24 +412,27 @@ class Combat
       end
       return l1
     when 2
+      deck_rect = Layout.rect(col: 0.15, row: 10.75, w: 1.5, h: 1.5)
+      deck_label_rect = deck_rect.center
       deck_sprite ||= {
-        x: 20,
-        y: 20,
-        w: 160,
-        h: 160,
-        r: 80,
-        g: 20,
+        x: deck_rect[:x],
+        y: deck_rect[:y],
+        w: deck_rect[:w],
+        h: deck_rect[:h],
+        r: 40,
+        g: 40,
         b: 80,
         primitive_marker: :solid
       }
 
       deck_card_count_label ||= {
         text: "#{@player.potions.size}",
-        x: 100,
-        y: 100,
+        font: "fonts/eaglelake.ttf",
+        x: deck_label_rect[:x],
+        y: deck_label_rect[:y],
         anchor_x: 0.5,
         anchor_y: 0.5,
-        size_enum: 10,
+        size_px: 20,
         r: 255,
         g: 255,
         b: 255,
@@ -440,43 +450,34 @@ class Combat
         primitive_marker: :solid
       }
 
-      discards_card_count_label ||= {
-        text: "#{@player.potions.discard_size}",
-        x: 100,
-        y: 280,
-        anchor_x: 0.5,
-        anchor_y: 0.5,
-        size_enum: 10,
-        r: 255,
-        g: 255,
-        b: 255,
-        primitive_marker: :label
-      }
+      pass_btn_rect = Layout.rect(col: 0.25, row: 0, w: 1.5, h: 0.75)
 
       pass_button ||= {
-        x: 20,
-        y: GTK.args.grid.h - 50 - (60 / 2),
-        w: 160,
-        h: 60,
-        r: 100,
-        g: 20,
-        b: 20,
+        x: pass_btn_rect[:x],
+        y: pass_btn_rect[:y],
+        w: pass_btn_rect[:w],
+        h: pass_btn_rect[:h],
+        r: 40,
+        g: 40,
+        b: 40,
         primitive_marker: :solid
       }
 
       if @player.combat_stats.focus == @player.combat_stats.mod_max_focus
         pass_btn_text = "PASS"
-        pass_btn_size = 10
+        pass_btn_size = 20
       else
-        pass_btn_text = "NEXT TURN"
-        pass_btn_size = 5
+        pass_btn_text = "NEXT"
+        pass_btn_size = 20
       end
 
+      pass_btn_label_rect = pass_btn_rect.center
       pass_button_label ||= {
-        x: 20 + (pass_button.w / 2),
-        y: GTK.args.grid.h - 50,
+        x: pass_btn_label_rect[:x],
+        y: pass_btn_label_rect[:y],
         text: "#{pass_btn_text}",
-        size_enum: pass_btn_size,
+        font: "fonts/eaglelake.ttf",
+        size_px: pass_btn_size,
         alignment_enum: 1,
         anchor_x: 0.5,
         anchor_y: 0.5,
@@ -506,11 +507,12 @@ class Combat
           alignment_enum: 1,
           anchor_x: 0.5,
           anchor_y: 0.5,
-          size_enum: 20,
+          size_px: 32,
           r: 255,
           g: 255,
           b: 255,
           a: @banner_alpha,
+          font: "fonts/eaglelake.ttf",
           text: "DEFEAT",
           primitive_marker: :label
         }
@@ -537,11 +539,12 @@ class Combat
           alignment_enum: 1,
           anchor_x: 0.5,
           anchor_y: 0.5,
-          size_enum: 20,
+          size_px: 32,
           r: 255,
           g: 255,
           b: 255,
           a: @banner_alpha,
+          font: "fonts/eaglelake.ttf",
           text: "VICTORY",
           primitive_marker: :label
         }
@@ -567,11 +570,12 @@ class Combat
           alignment_enum: 1,
           anchor_x: 0.5,
           anchor_y: 0.5,
-          size_enum: 20,
+          size_px: 32,
           r: 255,
           g: 255,
           b: 255,
           a: @banner_alpha,
+          font: "fonts/eaglelake.ttf",
           text: "FLED",
           primitive_marker: :label
         }
@@ -594,12 +598,13 @@ class Combat
       players_turn_label ||= {
         x: GTK.args.grid.w / 2,
         y: GTK.args.grid.h / 2,
-        size_enum: 10,
+        size_px: 26,
         r: 255,
         g: 255,
         b: 255,
         a: osc_val,
         alignment_enum: 1,
+        font: "fonts/eaglelake.ttf",
         text: "YOUR TURN"
       }
 
@@ -648,12 +653,13 @@ class Combat
       x: 150 / 2,
       y: 75 / 2,
       text: "FLEE",
+      font: "fonts/eaglelake.ttf",
       anchor_x: 0.5,
       anchor_y: 0.5,
       r: 0,
       g: 0,
       b: 0,
-      size_enum: 3
+      size_px: 20
     }
 
     {
@@ -962,7 +968,7 @@ class Combat
   end
 
   def get_pass_button_rect
-    { x: 20, y: GTK.args.grid.h - 50 - (60 / 2), w: 160, h: 60 }
+    Layout.rect(col: 0.25, row: 0, w: 1.5, h: 0.75)
   end
 
   def begin_combat

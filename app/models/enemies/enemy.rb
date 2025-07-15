@@ -246,11 +246,12 @@ class Enemy
       x: GTK.args.grid.w / 2,
       y: GTK.args.grid.h - 270,
       alignment_enum: 1,
-      size_enum: 5,
+      size_px: 20,
       r: 150,
       g: 0,
       b: 0,
-      text: "#{@combat_stats.hp}/#{@combat_stats.max_hp}",
+      text: "#{@combat_stats.hp} / #{@combat_stats.max_hp}",
+      font: "fonts/eaglelake.ttf",
       primitive_marker: :label
     }
 
