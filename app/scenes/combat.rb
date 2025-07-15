@@ -312,32 +312,32 @@ class Combat
         tile_h: GTK.args.grid.h,
         primitive_marker: :sprite
       }
+      hp_label_rect = Layout.rect(col: 0.4, row: 0.5, w: 1, h: 1)
+      hp_label_num_rect = Layout.rect(col: 0.4, row: 0.9, w: 1, h: 1)
 
-      player_hp_label_header ||= {
-        x: 100,
-        y: GTK.args.grid.h - 225,
-        alignment_enum: 1,
-        size_px: 20,
-        r: 255,
-        g: 255,
-        b: 255,
-        text: "HP",
-        font: "fonts/eaglelake.ttf",
-        primitive_marker: :label
-      }
+      player_hp_label_header =
+        hp_label_rect.center.merge(
+          anchor_x: 0.5,
+          size_px: 20,
+          r: 255,
+          g: 255,
+          b: 255,
+          text: "HP",
+          font: "fonts/eaglelake.ttf",
+          primitive_marker: :label
+        )
 
-      player_hp_label ||= {
-        x: 100,
-        y: GTK.args.grid.h - 275,
-        alignment_enum: 1,
-        size_px: 20,
-        r: 0,
-        g: 150,
-        b: 0,
-        text: "#{@player.combat_stats.hp} / #{@player.combat_stats.max_hp}",
-        font: "fonts/eaglelake.ttf",
-        primitive_marker: :label
-      }
+      player_hp_label =
+        hp_label_num_rect.center.merge(
+          anchor_x: 0.5,
+          size_px: 20,
+          r: 0,
+          g: 150,
+          b: 0,
+          text: "#{@player.combat_stats.hp} / #{@player.combat_stats.max_hp}",
+          font: "fonts/eaglelake.ttf",
+          primitive_marker: :label
+        )
 
       player_ward_label ||= {
         x: 100,
@@ -352,32 +352,33 @@ class Combat
         primitive_marker: :label
       }
 
-      player_focus_label_header ||= {
-        x: 100,
-        y: GTK.args.grid.h - 125,
-        alignment_enum: 1,
-        size_px: 20,
-        r: 255,
-        g: 255,
-        b: 255,
-        text: "FOCUS",
-        font: "fonts/eaglelake.ttf",
-        primitive_marker: :label
-      }
+      focus_label_rect = Layout.rect(col: 0.4, row: 1.5, w: 1, h: 1)
+      focus_label_num_rect = Layout.rect(col: 0.4, row: 1.9, w: 1, h: 1)
 
-      player_focus_label ||= {
-        x: 100,
-        y: GTK.args.grid.h - 175,
-        alignment_enum: 1,
-        size_px: 20,
-        r: 0,
-        g: 150,
-        b: 150,
-        text:
-          "#{@player.combat_stats.focus} / #{@player.combat_stats.max_focus}",
-        font: "fonts/eaglelake.ttf",
-        primitive_marker: :label
-      }
+      player_focus_label_header =
+        focus_label_rect.center.merge(
+          size_px: 20,
+          anchor_x: 0.5,
+          r: 255,
+          g: 255,
+          b: 255,
+          text: "FOCUS",
+          font: "fonts/eaglelake.ttf",
+          primitive_marker: :label
+        )
+
+      player_focus_label =
+        focus_label_num_rect.center.merge(
+          size_px: 20,
+          anchor_x: 0.5,
+          r: 0,
+          g: 150,
+          b: 150,
+          text:
+            "#{@player.combat_stats.focus} / #{@player.combat_stats.max_focus}",
+          font: "fonts/eaglelake.ttf",
+          primitive_marker: :label
+        )
 
       l1 << [
         left_panel_a,
@@ -389,12 +390,10 @@ class Combat
         player_focus_label
       ]
 
-      flee_percentage_label ||= {
-        x: GTK.args.grid.w - 100,
-        y: 125,
-        alignment_enum: 1,
+      flee_percentage_label = {
+        x: flee_btn[:x] + 40,
+        y: flee_btn[:y] + 64,
         anchor_x: 0.5,
-        anchor_y: 0.5,
         size_px: 20,
         r: 255,
         g: 255,
@@ -412,32 +411,22 @@ class Combat
       end
       return l1
     when 2
-      deck_rect = Layout.rect(col: 0.15, row: 10.75, w: 1.5, h: 1.5)
-      deck_label_rect = deck_rect.center
-      deck_sprite ||= {
-        x: deck_rect[:x],
-        y: deck_rect[:y],
-        w: deck_rect[:w],
-        h: deck_rect[:h],
-        r: 40,
-        g: 40,
-        b: 80,
-        primitive_marker: :solid
-      }
+      deck_rect = Layout.rect(col: 0.12, row: 10.75, w: 1.5, h: 1.5)
+      deck_sprite =
+        deck_rect.merge(r: 40, g: 40, b: 80, primitive_marker: :solid)
 
-      deck_card_count_label ||= {
-        text: "#{@player.potions.size}",
-        font: "fonts/eaglelake.ttf",
-        x: deck_label_rect[:x],
-        y: deck_label_rect[:y],
-        anchor_x: 0.5,
-        anchor_y: 0.5,
-        size_px: 20,
-        r: 255,
-        g: 255,
-        b: 255,
-        primitive_marker: :label
-      }
+      deck_card_count_label =
+        deck_rect.center.merge(
+          text: "#{@player.potions.size}",
+          font: "fonts/eaglelake.ttf",
+          anchor_x: 0.5,
+          anchor_y: 0.5,
+          size_px: 20,
+          r: 255,
+          g: 255,
+          b: 255,
+          primitive_marker: :label
+        )
 
       discards_sprite ||= {
         x: 20,
@@ -450,18 +439,10 @@ class Combat
         primitive_marker: :solid
       }
 
-      pass_btn_rect = Layout.rect(col: 0.25, row: 0, w: 1.5, h: 0.75)
+      pass_btn_rect = Layout.rect(col: 0.2, row: 0, w: 1.5, h: 0.75)
 
-      pass_button ||= {
-        x: pass_btn_rect[:x],
-        y: pass_btn_rect[:y],
-        w: pass_btn_rect[:w],
-        h: pass_btn_rect[:h],
-        r: 40,
-        g: 40,
-        b: 40,
-        primitive_marker: :solid
-      }
+      pass_button =
+        pass_btn_rect.merge(r: 40, g: 40, b: 40, primitive_marker: :solid)
 
       if @player.combat_stats.focus == @player.combat_stats.mod_max_focus
         pass_btn_text = "PASS"
@@ -471,21 +452,19 @@ class Combat
         pass_btn_size = 20
       end
 
-      pass_btn_label_rect = pass_btn_rect.center
-      pass_button_label ||= {
-        x: pass_btn_label_rect[:x],
-        y: pass_btn_label_rect[:y],
-        text: "#{pass_btn_text}",
-        font: "fonts/eaglelake.ttf",
-        size_px: pass_btn_size,
-        alignment_enum: 1,
-        anchor_x: 0.5,
-        anchor_y: 0.5,
-        r: 255,
-        g: 255,
-        b: 255,
-        primitive_marker: :label
-      }
+      pass_button_label =
+        pass_btn_rect.center.merge(
+          text: "#{pass_btn_text}",
+          font: "fonts/eaglelake.ttf",
+          size_px: pass_btn_size,
+          alignment_enum: 1,
+          anchor_x: 0.5,
+          anchor_y: 0.5,
+          r: 255,
+          g: 255,
+          b: 255,
+          primitive_marker: :label
+        )
 
       l2 << [
         deck_sprite,
@@ -619,20 +598,26 @@ class Combat
   end
 
   def flee_btn
-    GTK.args.outputs[:flee_btn].w = 150
-    GTK.args.outputs[:flee_btn].h = 75
+    flee_btn_rect =
+      Layout.rect(
+        col: Layout.col_count - 1.75,
+        row: Layout.row_count - 0.5,
+        w: 1.5,
+        h: 0.75
+      )
 
-    GTK.args.outputs[:flee_btn].primitives << {
+    GTK.args.outputs[:flee_btn].w = flee_btn_rect[:w]
+    GTK.args.outputs[:flee_btn].h = flee_btn_rect[:h]
+
+    GTK.args.outputs[:flee_btn].primitives << flee_btn_rect.merge(
       x: 0,
       y: 0,
-      w: 150,
-      h: 75,
       angle: 0,
       r: 0,
       g: 0,
       b: 0,
       primitive_marker: :solid
-    }
+    )
 
     btn_color = { r: 150, g: 150, b: 150 }
     btn_color = { r: 80, g: 80, b: 200 } if @player.my_turn?
@@ -640,8 +625,8 @@ class Combat
     GTK.args.outputs[:flee_btn].primitives << {
       x: 5,
       y: 5,
-      w: 140,
-      h: 65,
+      w: flee_btn_rect[:w] - 5,
+      h: flee_btn_rect[:h] - 5,
       angle: 0,
       r: btn_color[:r],
       g: btn_color[:g],
@@ -650,27 +635,19 @@ class Combat
     }
 
     GTK.args.outputs[:flee_btn].primitives << {
-      x: 150 / 2,
-      y: 75 / 2,
+      x: flee_btn_rect[:w] / 2 + 2.5,
+      y: flee_btn_rect[:h] / 2 + 2.5,
       text: "FLEE",
       font: "fonts/eaglelake.ttf",
       anchor_x: 0.5,
       anchor_y: 0.5,
-      r: 0,
-      g: 0,
-      b: 0,
+      r: 255,
+      g: 255,
+      b: 255,
       size_px: 20
     }
 
-    {
-      x: GTK.args.grid.w - 25 - 150,
-      y: 20,
-      w: 150,
-      h: 75,
-      angle: 0,
-      path: :flee_btn,
-      primitive_marker: :sprite
-    }
+    flee_btn_rect.merge(path: :flee_btn, primitive_marker: :sprite)
   end
 
   def cleanup
