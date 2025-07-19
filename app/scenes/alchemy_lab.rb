@@ -351,6 +351,16 @@ class AlchemyLab
 
     case layer_num
     when 0
+      background_solid = {
+        x: 0,
+        y: 0,
+        w: 1280,
+        h: 720,
+        r: 0,
+        g: 0,
+        b: 0,
+        primitive_marker: :solid,
+      }
       background = {
         x: 0,
         y: 0,
@@ -359,11 +369,12 @@ class AlchemyLab
         r: 50,
         g: 50,
         b: 50,
+        a: 200,
         path:
           "sprites/background_frames/sketchybackground#{bg_tile_index + 1}.png"
       }
 
-      l0 << [background]
+      l0 << [background_solid, background]
 
       l0
     when 1

@@ -10,6 +10,7 @@ class TrashCanCard < Card
       @hovered = false
     end
     calc_position(-1, -1)
+    calc_render_target(GTK.args)
   end
 
   def calc_hover
@@ -17,20 +18,20 @@ class TrashCanCard < Card
   end
 
   def calc_position(num_cards, index)
-      if @hovered
-        @fw = 100
-        @fh = 100
-      else
-        @fw = 90
-        @fh = 90
-        @f_pos.x =
-          @f_pos.x +
-            (Math.cos(@floating_seed + Kernel.tick_count * 0.01) * 0.01)
-        @f_pos.y =
-          @f_pos.y +
-            (Math.sin(@floating_seed + Kernel.tick_count * 0.01) * 0.01)
-        @f_angle = Math.sin(@floating_seed + Kernel.tick_count * 0.01) * 2
-      end
+    if @hovered
+      @fw = 100
+      @fh = 100
+    else
+      @fw = 90
+      @fh = 90
+      @f_pos.x =
+        @f_pos.x +
+          (Math.cos(@floating_seed + Kernel.tick_count * 0.01) * 0.01)
+      @f_pos.y =
+        @f_pos.y +
+          (Math.sin(@floating_seed + Kernel.tick_count * 0.01) * 0.01)
+      @f_angle = Math.sin(@floating_seed + Kernel.tick_count * 0.01) * 2
+    end
     super
   end
 end

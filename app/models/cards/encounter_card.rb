@@ -16,6 +16,7 @@ class EncounterCard < Card
       @hovered = false
     end
     calc_position(-1, -1)
+    calc_render_target(GTK.args)
   end
 
   def calc_hover
@@ -70,6 +71,21 @@ class EncounterCard < Card
   end
 
   def calc_render_target(args)
+    # start_looping_at = Numeric.rand(0..3)
+    card_sprite_frame =
+      0.frame_index(
+        count: 4,
+        hold_for: 30,
+        repeat: true,
+        repeat_index: 0,
+        tick_count_override: Kernel.tick_count
+      )
+
+    card_sprite_frame += @anim_seed
+    card_sprite_frame -= 4 if card_sprite_frame > 3
+
+    prefab_alpha = 255
+    prefab_alpha = (@uses_left > 0) ? 255 : 150 if GameUtils.is_potion(self.id)
     # define the dimensions of the combined sprite
     # the name of the combined sprite is :card_combo
     args.outputs[@card_composite_sprite_ref].w = @w
@@ -81,41 +97,33 @@ class EncounterCard < Card
       w: @w,
       h: @h,
       angle: 0,
-      r: @r,
-      g: @g,
-      b: @b,
-      path: @card_back_img
+      r: 50,
+      g: 255,
+      b: 255,
+      a: prefab_alpha,
+      path: @card_back_img,
+      tile_x: (card_sprite_frame * 128),
+      tile_y: 0,
+      tile_w: 128,
+      tile_h: 128
     }
 
     args.outputs[@card_composite_sprite_ref].primitives << {
-      x: 50,
-      y: 50,
+      x: @w / 2 - 30,
+      y: @h / 2 - 30,
       w: 60,
       h: 60,
       angle: 0,
       path: @img
     }
 
-    # add a label in the center of the render target
-    # args.outputs[@card_composite_sprite_ref].primitives << {
-    #   x: 80,
-    #   y: 135,
-    #   text: "#{@name}",
-    #   anchor_x: 0.5,
-    #   anchor_y: 0.5,
-    #   r: 255,
-    #   g: 255,
-    #   b: 255,
-    #   size_px: 20
-    # }
-
     parsed_name = String.wrapped_lines @name, 15
     args.outputs[
       @card_composite_sprite_ref
     ].primitives << parsed_name.map_with_index do |s, i|
       {
-        x: 80,
-        y: 128,
+        x: @w / 2,
+        y: @h - 40,
         text: "#{s}",
         anchor_x: 0.5,
         anchor_y: i,

@@ -178,20 +178,34 @@ class RoleplayEncounter
     l3 = []
     l4 = []
 
+    bg_tile_index = 0.frame_index(24, 1.0.seconds, true)
+
     case layer_num
     when 0
-      background ||= {
+      background_solid = {
         x: 0,
         y: 0,
-        w: GTK.args.grid.w,
-        h: GTK.args.grid.h,
+        w: 1280,
+        h: 720,
+        r: 0,
+        g: 0,
+        b: 0,
+        primitive_marker: :solid,
+      }
+      background = {
+        x: 0,
+        y: 0,
+        w: 1280,
+        h: 720,
         r: 50,
         g: 50,
-        b: 70,
-        primitive_marker: :solid
+        b: 50,
+        a: 200,
+        path:
+          "sprites/background_frames/sketchybackground#{bg_tile_index + 1}.png"
       }
 
-      l0 << [background]
+      l0 << [background_solid, background]
       return l0
     when 1
       l1 << []
