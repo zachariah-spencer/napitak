@@ -28,9 +28,13 @@ class Combat
     @fled = false
     @flee_attempts = 0
     @flee_tutorial_completed = $files.save_data["tutorials"]["fleeing"] || false
+    @dealing_tick = nil
+    @dealing_time = 1.seconds
+    @pre_deal_tick = Kernel.tick_count
+    @pre_deal_time = 1.seconds
     @damage_types_tutorial_completed =
       $files.save_data["tutorials"]["damage_types"] || false
-    begin_combat
+    GTK.args.audio[:shuffle] = { input: "sounds/sfx/card/SFX_Shuffle2.wav" }
   end
 
   def ready
@@ -136,20 +140,27 @@ class Combat
   end
 
   def tick
+    begin_combat if @pre_deal_tick && @pre_deal_tick.elapsed_time >= @pre_deal_time
     calc
-    @enemy.tick
-    @player.tick
-    if @enemy.combat_stats.dead && @victory_banner_timer &&
-         @victory_banner_timer.elapsed_time >= 3.seconds
-      leave(0)
-    end
-    if @player.combat_stats.dead && @defeat_banner_timer &&
-         @defeat_banner_timer.elapsed_time >= 3.seconds
-      leave(1)
-    end
-    if @fled && @flee_banner_timer &&
-         @flee_banner_timer.elapsed_time >= 3.seconds
-      leave(2)
+    if @dealing_tick && @dealing_tick.elapsed_time < @dealing_time
+      puts "HELP" if @dealing_tick.elapsed_time % (@dealing_time / 4) == 0 && @player.potions.all_cards.size > 0
+      draw_card if @dealing_tick.elapsed_time % (@dealing_time / 4) == 0 && @player.potions.all_cards.size > 0
+    else
+      calc
+      @enemy.tick
+      @player.tick
+      if @enemy.combat_stats.dead && @victory_banner_timer &&
+          @victory_banner_timer.elapsed_time >= 3.seconds
+        leave(0)
+      end
+      if @player.combat_stats.dead && @defeat_banner_timer &&
+          @defeat_banner_timer.elapsed_time >= 3.seconds
+        leave(1)
+      end
+      if @fled && @flee_banner_timer &&
+          @flee_banner_timer.elapsed_time >= 3.seconds
+        leave(2)
+      end
     end
   end
 
@@ -958,10 +969,10 @@ class Combat
   end
 
   def begin_combat
+    @dealing_tick = Kernel.tick_count
+    @pre_deal_tick = nil
     @turn_num = 0
-    3.times { draw_card if @player.potions.all_cards.size > 0 }
-
-    begin_turn_stage @turn_stages[:drawing_cards]
+    # 3.times { draw_card if @player.potions.all_cards.size > 0 }
     begin_turn_stage @turn_stages[:playing_cards]
   end
 end

@@ -118,8 +118,8 @@ class Card
       @hovered = false
     end
 
-    GTK.args.audio[:hovering_on] = { input: "sounds/sfx/card/SFX_Card5.wav", gain: 0.5 } if was_hovered != @hovered && @hovered && !@grabbed
-    GTK.args.audio[:hovering_off] = { input: "sounds/sfx/card/SFX_Card5.wav", gain: 0.2, pitch: 0.9 } if was_hovered != @hovered && !@hovered && !@grabbed
+    calc_hover_audio(was_hovered) if @activation_time.elapsed_time >= 0.2.seconds
+
     if @hovered and not @grabbed
       @tt_f_a = 255
     else
@@ -127,6 +127,11 @@ class Card
     end
 
     @tt_f_a = 0 if @grabbed
+  end
+
+  def calc_hover_audio(was_hovered)
+    GTK.args.audio[:hovering_on] = { input: "sounds/sfx/card/SFX_Card5.wav", gain: 0.5 } if was_hovered != @hovered && @hovered && !@grabbed
+    GTK.args.audio[:hovering_off] = { input: "sounds/sfx/card/SFX_Card5.wav", gain: 0.2, pitch: 0.9 } if was_hovered != @hovered && !@hovered && !@grabbed
   end
 
   def prefab
