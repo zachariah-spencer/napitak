@@ -136,6 +136,11 @@ class Combat
   end
 
   def tick
+
+    if GTK.args.inputs.keyboard.key_down.o
+      puts "PLAY SFX"
+      GTK.args.outputs.sounds << "sounds/sfx/card/SFX_Card4.wav"
+    end 
     calc
     @enemy.tick
     @player.tick
@@ -414,7 +419,6 @@ class Combat
       deck_frame = 0.frame_index(3, 0.18.seconds, true)
 
       deck_rect = Layout.rect(col: 0.12, row: 10.75, w: 1.5, h: 1.5)
-      puts deck_rect
       deck_sprite =
         deck_rect.merge(
           primitive_marker: :sprite,
