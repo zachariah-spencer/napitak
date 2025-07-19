@@ -35,12 +35,16 @@ class PotionCard < Card
   end
 
   def calc_hover
+    was_hovered = @hovered
     @hovered = Geometry.intersect_rect?(GTK.args.inputs.mouse, rect)
     if @hovered and front_card? and not @grabbed
       @tt_f_a = 255
     else
       @tt_f_a = 0
     end
+
+    GTK.args.audio[:hovering_on] = { input: "sounds/sfx/card/SFX_Card5.wav", gain: 0.5 } if was_hovered != @hovered && @hovered && !@grabbed
+    GTK.args.audio[:hovering_off] = { input: "sounds/sfx/card/SFX_Card5.wav", gain: 0.2, pitch: 0.9 } if was_hovered != @hovered && !@hovered && !@grabbed
 
     @tt_f_a = 0 if @grabbed
 

@@ -111,12 +111,15 @@ class Card
   end
 
   def calc_hover
+    was_hovered = @hovered
     if !$game.input_locked
       @hovered = Geometry.intersect_rect?(GTK.args.inputs.mouse, rect)
     else
       @hovered = false
     end
 
+    GTK.args.audio[:hovering_on] = { input: "sounds/sfx/card/SFX_Card5.wav", gain: 0.5 } if was_hovered != @hovered && @hovered && !@grabbed
+    GTK.args.audio[:hovering_off] = { input: "sounds/sfx/card/SFX_Card5.wav", gain: 0.2, pitch: 0.9 } if was_hovered != @hovered && !@hovered && !@grabbed
     if @hovered and not @grabbed
       @tt_f_a = 255
     else

@@ -136,11 +136,6 @@ class Combat
   end
 
   def tick
-
-    if GTK.args.inputs.keyboard.key_down.o
-      puts "PLAY SFX"
-      GTK.args.outputs.sounds << "sounds/sfx/card/SFX_Card4.wav"
-    end 
     calc
     @enemy.tick
     @player.tick
