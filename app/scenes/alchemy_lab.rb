@@ -322,7 +322,6 @@ class AlchemyLab
     @visible_ingredients
       .merge(@visible_potions)
       .each do |id, c|
-
       if GameUtils.is_potion(c)
         prefab = c.prefab
       else

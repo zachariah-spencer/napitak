@@ -187,7 +187,11 @@ class AlchemyTable
 
     @visible_ingredients.each do |id, c|
       prefab = c.prefab
-
+      if GameUtils.is_potion(c)
+        prefab = c.prefab
+      else
+        prefab, tooltip_prefab = c.prefab
+      end
       if c.grabbed
         front_card = prefab
       else
@@ -195,44 +199,76 @@ class AlchemyTable
       end
     end
 
-    @selected_ingredients.each { |id, c| sel_cards.append(c.prefab) }
+    @selected_ingredients.each do |id, c| 
+      if GameUtils.is_potion(c)
+        sel_cards.append(c.prefab)
+      else
+        prefab, tooltip_prefab = c.prefab
+        sel_cards.append(prefab)
+      end
+    end
+
+    tile_index = 0.frame_index(6, 0.25.seconds, true)
+    bg_tile_index = 0.frame_index(24, 1.0.seconds, true)
 
     case layer_num
     when 0
-      background ||= {
+      background_solid = {
         x: 0,
         y: 0,
-        w: GTK.args.grid.w,
-        h: GTK.args.grid.h,
-        path: "sprites/background.png",
-        primitive_marker: :sprite
+        w: 1280,
+        h: 720,
+        r: 0,
+        g: 0,
+        b: 0,
+        primitive_marker: :solid,
+      }
+      background = {
+        x: 0,
+        y: 0,
+        w: 1280,
+        h: 720,
+        r: 50,
+        g: 50,
+        b: 50,
+        a: 200,
+        path:
+          "sprites/background_frames/sketchybackground#{bg_tile_index + 1}.png"
       }
 
-      l0 << [background]
+      l0 << [background_solid, background]
 
       l0
     when 1
-      left_panel ||= {
+      left_panel_a ||= {
         x: 0,
         y: 0,
         w: 200,
         h: GTK.args.grid.h,
-        path: "sprites/panel_blue.png",
+        path: "sprites/sketchypanel02.png",
+        tile_x: 0 + (tile_index * 200),
+        tile_y: 0,
+        tile_w: 200,
+        tile_h: GTK.args.grid.h,
         primitive_marker: :sprite
       }
 
-      right_panel ||= {
+      right_panel_a ||= {
         x: GTK.args.grid.w - 200,
         y: 0,
         w: 200,
         h: GTK.args.grid.h,
-        path: "sprites/panel_blue.png",
+        path: "sprites/sketchypanel02.png",
+        tile_x: 0 + (tile_index * 200),
+        tile_y: 0,
+        tile_w: 200,
+        tile_h: GTK.args.grid.h,
         primitive_marker: :sprite
       }
 
       l1 << [
-        left_panel,
-        right_panel,
+        left_panel_a,
+        right_panel_a,
         @ing_menu_widget.render,
         @pot_menu_widget.render
       ]
