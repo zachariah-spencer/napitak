@@ -215,6 +215,9 @@ class AlchemyLab
     @ing_menu_widget.tick(GTK.args.inputs)
     @pot_menu_widget.tick(GTK.args.inputs)
     @ingredient_generators.each { |id, c| c.tick }
+    @visible_ingredients.each { |id, c| c.tick }
+    @visible_potions.each { |id, c| c.tick }
+    @selected_ingredients.each { |id, c| c.tick }
     @trash_can.tick
     calc
 
@@ -319,14 +322,28 @@ class AlchemyLab
     @visible_ingredients
       .merge(@visible_potions)
       .each do |id, c|
+
+      if GameUtils.is_potion(c)
         prefab = c.prefab
-        if c.grabbed
-          front_card = prefab
-        else
-          cards.append prefab
-        end
+      else
+        prefab, tooltip_prefab = c.prefab
       end
-    @selected_ingredients.each { |id, c| sel_cards.append(c.prefab) }
+      if c.grabbed
+        front_card = prefab
+      else
+        cards.append prefab
+      end
+    end
+
+    @selected_ingredients.each do |id, c|
+    if GameUtils.is_potion(c)
+      sel_cards.append(c.prefab)
+    else
+      prefab, tooltip_prefab = c.prefab
+      sel_cards.append(prefab)
+    end
+      
+    end
     @ingredient_generators.each { |id, c| generator_cards.append(c.prefab) }
 
     tile_index = 0.frame_index(6, 0.25.seconds, true)

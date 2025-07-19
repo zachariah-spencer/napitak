@@ -43,6 +43,7 @@ class Card
 
     @entity_id = entity_id
     @floating_seed = Numeric.rand(0.0..100.0)
+    @anim_seed = Numeric.rand(0..3)
     @anchored = anchored
 
     @w = 160
@@ -64,11 +65,7 @@ class Card
     @angle = 0
     @f_angle = 0
 
-    @card_back_img = %w[
-      sprites/card_back_1.png
-      sprites/card_back_2.png
-      sprites/card_back_3.png
-    ].sample
+    @card_back_img = "sprites/card_sheet.png"
     @img = img
     @max_uses = max_uses
     @uses_left = uses_left || max_uses
@@ -157,6 +154,16 @@ class Card
   end
 
   def calc_render_target(args)
+    # start_looping_at = Numeric.rand(0..3)
+    card_sprite_frame = 0.frame_index(
+                        count: 4,
+                        hold_for: 30,
+                        repeat: true,
+                        repeat_index: 0,
+                        tick_count_override: Kernel.tick_count)
+
+    card_sprite_frame += @anim_seed
+    card_sprite_frame -= 4 if card_sprite_frame > 3
     # define the dimensions of the combined sprite
     # the name of the combined sprite is :card_combo
     args.outputs[@card_composite_sprite_ref].w = @w
@@ -175,7 +182,11 @@ class Card
       g: @g,
       b: @b,
       a: prefab_alpha,
-      path: @card_back_img
+      path: @card_back_img,
+      tile_x: (card_sprite_frame * 128),
+      tile_y: 0,
+      tile_w: 128,
+      tile_h: 128
     }
 
     args.outputs[@card_composite_sprite_ref].primitives << {

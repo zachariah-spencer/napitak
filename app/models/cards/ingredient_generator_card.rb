@@ -1,6 +1,13 @@
 class IngredientGeneratorCard < Card
   def initialize(id)
-    super(id, GameUtils.new_id?, $IIDS[id].name, 0, $IIDS[id].path, anchored: true)
+    super(
+      id,
+      GameUtils.new_id?,
+      $IIDS[id].name,
+      0,
+      $IIDS[id].path,
+      anchored: true
+    )
     @selected = nil
   end
 
@@ -12,6 +19,7 @@ class IngredientGeneratorCard < Card
       @hovered = false
     end
     calc_position(-1, -1)
+    calc_render_target(GTK.args)
   end
 
   def calc_hover
