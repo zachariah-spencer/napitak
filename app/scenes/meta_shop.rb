@@ -1,5 +1,4 @@
-class MetaShop
-  attr_gtk
+class MetaShop < Scene
   attr :sc_id
 
   def initialize()
@@ -133,7 +132,7 @@ class MetaShop
   end
 
   def calc_mouse_inputs
-    $game.change_scene(prev_sc: "meta_shop", next_sc: "run_summary") if @leave_btn.clicked?
+    $game.change_scene(prev_sc: "meta_shop", next_scene: "run_summary") if @leave_btn.clicked?
     buy_upgrade(@siz_info) if @siz_btn.clicked?
     buy_upgrade(@max_hp_info) if @max_hp_btn.clicked?
     buy_upgrade(@max_focus_info) if @max_focus_btn.clicked?

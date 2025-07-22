@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
-class RewardsScreen
-  attr_gtk
+class RewardsScreen < Scene
   attr :sc_id
 
   def initialize(choices: 4, picks: 2)
@@ -34,7 +33,7 @@ class RewardsScreen
           clicked_card[:ref].use()
           @picks -= 1
 
-          $game.change_scene(prev_sc: @sc_id, next_sc: "map") if @picks <= 0
+          $game.change_scene(prev_sc: @sc_id, next_scene: "map") if @picks <= 0
         end
       end
     end

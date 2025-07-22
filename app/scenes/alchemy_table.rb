@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
-class AlchemyTable
-  attr_gtk
+class AlchemyTable < Scene
   attr :sc_id
 
   def initialize(max_uses:)
@@ -107,7 +106,7 @@ class AlchemyTable
     # overwrite the player's ingredients with this collection
     @player.ingredients = Inventory.new(new_cards)
 
-    $game.change_scene(prev_sc: @sc_id, next_sc: "map")
+    $game.change_scene(prev_sc: @sc_id, next_scene: "map")
   end
 
   def tick

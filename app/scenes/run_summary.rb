@@ -1,5 +1,4 @@
-class RunSummary
-  attr_gtk
+class RunSummary < Scene
   attr :sc_id
 
   def initialize(choices: 4, picks: 2)
@@ -23,7 +22,7 @@ class RunSummary
   end
 
   def calc_buttons
-    $game.change_scene(prev_sc: @sc_id, next_sc: "meta_shop") if @shop_btn.clicked?
+    $game.change_scene(prev_sc: @sc_id, next_scene: "meta_shop") if @shop_btn.clicked?
     GTK.request_quit if GTK.args.inputs.mouse.click and Geometry.intersect_rect?(GTK.args.inputs.mouse, quit_btn)
     $game.new_run if GTK.args.inputs.mouse.click and Geometry.intersect_rect?(GTK.args.inputs.mouse, new_run_btn)
   end

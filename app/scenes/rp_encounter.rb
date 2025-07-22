@@ -1,5 +1,4 @@
-class RoleplayEncounter
-  attr_gtk
+class RoleplayEncounter < Scene
   attr :sc_id
 
   # pseudocode
@@ -72,7 +71,7 @@ class RoleplayEncounter
   end
 
   def leave
-    $game.change_scene(prev_sc: @sc_id, next_sc: "map")
+    $game.change_scene(prev_sc: @sc_id, next_scene: "map")
   end
 
   def tick
