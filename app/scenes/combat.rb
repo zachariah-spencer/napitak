@@ -51,10 +51,6 @@ class Combat < Scene
     if @dealing_tick && @dealing_tick.elapsed_time < @dealing_time
       if @dealing_tick.elapsed_time % (@dealing_time / 4) == 0 &&
            @player.potions.all_cards.size > 0
-        puts "HELP"
-      end
-      if @dealing_tick.elapsed_time % (@dealing_time / 4) == 0 &&
-           @player.potions.all_cards.size > 0
         @hand_manager.draw_card
       end
     else
@@ -79,9 +75,13 @@ class Combat < Scene
   def calc_enemy_turn_ended
     if @player.combat_stats.dead
       @defeat_banner_timer = Kernel.tick_count
-    else
+    elsif !is_combat_ended?
       begin_turn_stage @turn_stages[:drawing_cards]
     end
+  end
+
+  def is_combat_ended?
+    @victory_banner_timer || @defeat_banner_timer || @flee_banner_timer
   end
 
   def leave(state = 0)
