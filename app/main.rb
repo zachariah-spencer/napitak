@@ -31,6 +31,7 @@ require_relative "models/cards/ingredient_generator_card"
 require_relative "models/cards/trash_can_card"
 
 # scenes
+require_relative "scenes/scene"
 require_relative "scenes/intro"
 require_relative "scenes/combat"
 require_relative "scenes/alchemy_table"
@@ -56,6 +57,7 @@ require_relative "services/announcement_manager"
 require_relative "services/card_hand_manager"
 require_relative "services/enemy_ai"
 require_relative "services/tutorial_service"
+require_relative "services/event_bus"
 
 # utilities and helper classes
 # (some of these could be models but are so small and self contained that they are here instead)

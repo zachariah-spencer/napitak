@@ -1,5 +1,4 @@
-class CombatTutorial
-  attr_gtk
+class CombatTutorial < Scene
   attr :sc_id
 
   def initialize()
@@ -153,7 +152,7 @@ class CombatTutorial
     state_enum = { victory: 0, defeat: 1, flee: 2 }
     $game.change_scene(
       prev_sc: @sc_id,
-      next_sc: "alchemy_lab",
+      next_scene: "alchemy_lab",
       args: [{ tutorial: true }]
     )
   end
@@ -664,6 +663,7 @@ class CombatTutorial
     puts "cleanup combat.rb"
     state.currently_dragging_card_id = nil
     state.mouse_point_inside_square = nil
+    $event_bus.unsubscribe_owner(@enemy)
     @hand.each { |id, c| @player.potions.add(c) }
 
     potions_save_data = []
@@ -982,32 +982,29 @@ class CombatTutorial
           &.[]($CARD_TRAITS[:ward])
 
       if damage_trait
-        @enemy.hurt(damage_trait[:amount], damage_trait[:type])
+        $event_bus.publish(:enemy_hurt, amount: damage_trait[:amount], type: damage_trait[:type])
       end
 
-      @player.combat_stats.heal(mend_trait) if mend_trait
+      $event_bus.publish(:player_heal, mend_trait) if mend_trait
 
       if restoration_trait
-        @player.combat_stats.apply_status(
-          type: :RESTORATION,
-          stacks: restoration_trait
-        )
+        $event_bus.publish(:player_apply_status, type: :RESTORATION, stacks: restoration_trait)
       end
 
       if scorch_trait
-        @enemy.combat_stats.apply_status(type: :SCORCH, stacks: scorch_trait)
+        $event_bus.publish(:enemy_apply_status, type: :SCORCH, stacks: scorch_trait)
       end
 
       if blight_trait
-        @enemy.combat_stats.apply_status(type: :BLIGHT, stacks: blight_trait)
+        $event_bus.publish(:enemy_apply_status, type: :BLIGHT, stacks: blight_trait)
       end
 
       if frost_trait
-        @enemy.combat_stats.apply_status(type: :FROST, stacks: frost_trait)
+        $event_bus.publish(:enemy_apply_status, type: :FROST, stacks: frost_trait)
       end
 
       if ward_trait
-        @player.combat_stats.apply_status(type: :WARD, stacks: ward_trait)
+        $event_bus.publish(:player_apply_status, type: :WARD, stacks: ward_trait)
       end
 
       end_combat if @enemy.combat_stats.dead

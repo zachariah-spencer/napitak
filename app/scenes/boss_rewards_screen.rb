@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
-class BossRewardsScreen
-  attr_gtk
+class BossRewardsScreen < Scene
   attr :sc_id
 
   def initialize(boss_defeated_id: "dracolisk")
@@ -31,7 +30,7 @@ class BossRewardsScreen
   def tick
     calc_card_positions
     if GTK.args.inputs.mouse.click
-      $game.change_scene(prev_sc: @sc_id, next_sc: "rewards_screen")
+      $game.change_scene(prev_sc: @sc_id, next_scene: "rewards_screen")
     end
   end
 

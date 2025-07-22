@@ -8,6 +8,7 @@ class Game
     $game = self
     @prev_sc
     @next_sc
+    @next_scene_instance
     @scene_args
     @transitioning_scenes = false
 
@@ -21,6 +22,7 @@ class Game
     @pause_button_pos = 200 + 20
     AnimationManager.new
     AnnouncementManager.new
+    EventBus.new
     @transition = nil
 
     # keeps track of whether an entity with a specific entity_id has been created already
@@ -45,7 +47,7 @@ class Game
     encounters_completed = $files.save_data&.[]("encounters_completed")
 
     if is_mid_run
-      change_scene(prev_sc: "", next_sc: @scene, quick: true)
+      change_scene(prev_sc: "", next_scene: @scene, quick: true)
     else
       new_run
     end
@@ -59,18 +61,18 @@ class Game
 
     # if it is not the players first time playing
     if @runs_completed && @runs_completed > 0
-      change_scene(prev_sc: "", next_sc: "map", quick: true)
+      change_scene(prev_sc: "", next_scene: "map", quick: true)
 
       #sStart of first run for new player (scripted intro then scripted combat encounter before natural gameplay)
     else
       @input_locked = true
-      change_scene(prev_sc: "", next_sc: "intro", quick: true)
+      change_scene(prev_sc: "", next_scene: "intro", quick: true)
     end
   end
 
   def change_scene(
     prev_sc:,
-    next_sc:,
+    next_scene:,
     args: [],
     quick: false,
     no_transition: false
@@ -78,9 +80,15 @@ class Game
     @prev_sc = ""
     @next_sc = ""
     @scene_args = []
+    @next_scene_instance = nil
 
-    @prev_sc = prev_sc
-    @next_sc = next_sc
+    @prev_sc = prev_sc.is_a?(Scene) ? prev_sc.sc_id : prev_sc
+    if next_scene.is_a?(Scene)
+      @next_scene_instance = next_scene
+      @next_sc = next_scene.sc_id
+    else
+      @next_sc = next_scene
+    end
     @scene_args = args
     start_scene_change
 
@@ -115,37 +123,42 @@ class Game
 
   def finish_scene_change()
     $announcement_manager.clear_announcements_queue
-    case @scene
-    when "combat"
-      @scene_ref = Combat.new(@scene_args[0])
-    when "alchemy_table"
-      @scene_ref = AlchemyTable.new(max_uses: $player.alchemy_table_uses)
-    when "alchemy_lab"
-      from_tutorial = false
-      from_tutorial = @scene_args[0].values[0] if !@scene_args.empty?
+    if @next_scene_instance
+      @scene_ref = @next_scene_instance
+      @next_scene_instance = nil
+    else
+      case @scene
+      when "combat"
+        @scene_ref = Combat.new(@scene_args[0])
+      when "alchemy_table"
+        @scene_ref = AlchemyTable.new(max_uses: $player.alchemy_table_uses)
+      when "alchemy_lab"
+        from_tutorial = false
+        from_tutorial = @scene_args[0].values[0] if !@scene_args.empty?
 
-      @scene_ref =
-        AlchemyLab.new(
-          max_uses: 10,
-          max_ingredients: $player.starting_inventory_size,
-          tutorial: from_tutorial
-        )
-    when "rewards_screen"
-      @scene_ref = RewardsScreen.new(picks: $player.reward_picks)
-    when "boss_rewards_screen"
-      @scene_ref = BossRewardsScreen.new(boss_defeated_id: @scene_args[0])
-    when "map"
-      @scene_ref = Map.new()
-    when "run_summary"
-      @scene_ref = RunSummary.new()
-    when "meta_shop"
-      @scene_ref = MetaShop.new()
-    when "intro"
-      @scene_ref = Intro.new
-    when "combat_tutorial"
-      @scene_ref = CombatTutorial.new
-    when "rp_encounter"
-      @scene_ref = RoleplayEncounter.new
+        @scene_ref =
+          AlchemyLab.new(
+            max_uses: 10,
+            max_ingredients: $player.starting_inventory_size,
+            tutorial: from_tutorial
+          )
+      when "rewards_screen"
+        @scene_ref = RewardsScreen.new(picks: $player.reward_picks)
+      when "boss_rewards_screen"
+        @scene_ref = BossRewardsScreen.new(boss_defeated_id: @scene_args[0])
+      when "map"
+        @scene_ref = Map.new()
+      when "run_summary"
+        @scene_ref = RunSummary.new()
+      when "meta_shop"
+        @scene_ref = MetaShop.new()
+      when "intro"
+        @scene_ref = Intro.new
+      when "combat_tutorial"
+        @scene_ref = CombatTutorial.new
+      when "rp_encounter"
+        @scene_ref = RoleplayEncounter.new
+      end
     end
 
     $files.save_data["scene"] = @next_sc

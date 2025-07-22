@@ -42,6 +42,16 @@ class Enemy
     @home_y = GTK.args.grid.h - 250
 
     @attacks = {}
+
+    $event_bus.subscribe(:enemy_hurt, self) do |data|
+      hurt(data[:amount], data[:type])
+    end
+    $event_bus.subscribe(:enemy_heal, self) do |amt|
+      @combat_stats.heal(amt)
+    end
+    $event_bus.subscribe(:enemy_apply_status, self) do |data|
+      @combat_stats.apply_status(type: data[:type], stacks: data[:stacks])
+    end
   end
 
   def attack
@@ -97,28 +107,28 @@ class Enemy
         &.[]($CARD_TRAITS[:ward])
 
     if damage_trait
-      $player.combat_stats.hurt(damage_trait[:amount], damage_trait[:type])
+      $event_bus.publish(:player_hurt, amount: damage_trait[:amount], type: damage_trait[:type])
     end
 
-    @combat_stats.heal(mend_trait) if mend_trait
+    $event_bus.publish(:enemy_heal, mend_trait) if mend_trait
 
     if restoration_trait
-      @combat_stats.apply_status(type: :RESTORATION, stacks: restoration_trait)
+      $event_bus.publish(:enemy_apply_status, type: :RESTORATION, stacks: restoration_trait)
     end
 
     if scorch_trait
-      $player.combat_stats.apply_status(type: :SCORCH, stacks: scorch_trait)
+      $event_bus.publish(:player_apply_status, type: :SCORCH, stacks: scorch_trait)
     end
 
     if blight_trait
-      $player.combat_stats.apply_status(type: :BLIGHT, stacks: blight_trait)
+      $event_bus.publish(:player_apply_status, type: :BLIGHT, stacks: blight_trait)
     end
 
     if frost_trait
-      $player.combat_stats.apply_status(type: :FROST, stacks: frost_trait)
+      $event_bus.publish(:player_apply_status, type: :FROST, stacks: frost_trait)
     end
 
-    @combat_stats.apply_status(type: :WARD, stacks: ward_trait) if ward_trait
+    $event_bus.publish(:enemy_apply_status, type: :WARD, stacks: ward_trait) if ward_trait
   end
 
   def select_attack

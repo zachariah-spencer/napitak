@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
-class AlchemyLab
-  attr_gtk
+class AlchemyLab < Scene
   attr :sc_id
 
   def initialize(max_uses:, max_ingredients:, tutorial: false)
@@ -208,7 +207,7 @@ class AlchemyLab
     $encounter_manager.inc_encounters_completed
     $files.save_data["tutorials"]["alchemy_lab_tutorial"] = true
 
-    $game.change_scene(prev_sc: @sc_id, next_sc: "map")
+    $game.change_scene(prev_sc: @sc_id, next_scene: "map")
   end
 
   def tick

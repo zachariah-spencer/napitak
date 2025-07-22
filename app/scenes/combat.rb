@@ -1,5 +1,4 @@
-class Combat
-  attr_gtk
+class Combat < Scene
   attr :sc_id
 
   def initialize(enemy = nil)
@@ -87,18 +86,18 @@ class Combat
       if @enemy.is_boss
         $game.change_scene(
           prev_sc: @sc_id,
-          next_sc: "boss_rewards_screen",
+          next_scene: "boss_rewards_screen",
           args: [@enemy.enemy_id]
         )
       else
-        $game.change_scene(prev_sc: @sc_id, next_sc: "rewards_screen")
+        $game.change_scene(prev_sc: @sc_id, next_scene: "rewards_screen")
       end
     when state_enum[:defeat]
       $player.anodyne += $encounter_manager.calc_anodyne_earnings
       $player.save_upgrades_data
-      $game.change_scene(prev_sc: @sc_id, next_sc: "run_summary")
+      $game.change_scene(prev_sc: @sc_id, next_scene: "run_summary")
     when state_enum[:flee]
-      $game.change_scene(prev_sc: @sc_id, next_sc: "map")
+      $game.change_scene(prev_sc: @sc_id, next_scene: "map")
     end
   end
 
@@ -572,6 +571,7 @@ class Combat
     state.currently_dragging_card_id = nil
     state.mouse_point_inside_square = nil
     @hand_manager.cleanup
+    $event_bus.unsubscribe_owner(@enemy)
 
     potions_save_data = []
     @player.potions.all_cards.each { |c| potions_save_data << c.save_data? }
@@ -737,7 +737,6 @@ class Combat
       @enemy.begin_turn
     end
   end
-
 
   def end_combat()
     @victory_banner_timer = Kernel.tick_count

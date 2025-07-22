@@ -1,7 +1,5 @@
-class PauseMenu
-  attr_gtk
-  attr
-
+class PauseMenu < Scene
+  
   def initialize()
     puts "PAUSED GAME"
     @pause_screen = "main"
