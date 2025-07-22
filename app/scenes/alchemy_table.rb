@@ -87,24 +87,36 @@ class AlchemyTable < Scene
   end
 
   def leave
-    # consolidate all ingredient cards into the player's inventory
-    new_cards = []
+    # gather all ingredient cards to return to the player's inventory
+    new_ings = []
 
-    # items still inside the vertical ingredient menu
     if @ing_menu_widget.respond_to?(:items?)
-      new_cards.concat(@ing_menu_widget.items?)
+      new_ings.concat(@ing_menu_widget.items?)
     else
-      new_cards.concat(@ing_menu_widget.instance_variable_get(:@items))
+      new_ings.concat(@ing_menu_widget.instance_variable_get(:@items))
     end
 
-    # cards currently on the table but not selected
-    new_cards.concat(@visible_ingredients.values)
+    # split cards currently on the table into ingredients and potions
+    table_cards = @visible_ingredients.values
+    selected_cards = @selected_ingredients.values
+    new_ings.concat(table_cards.reject { |c| GameUtils.is_potion(c.id) })
+    new_ings.concat(selected_cards.reject { |c| GameUtils.is_potion(c.id) })
 
-    # cards that are currently selected for crafting
-    new_cards.concat(@selected_ingredients.values)
+    # gather potions from the potion menu and any visible/selected potion stacks
+    new_pots = []
 
-    # overwrite the player's ingredients with this collection
-    @player.ingredients = Inventory.new(new_cards)
+    if @pot_menu_widget.respond_to?(:items?)
+      new_pots.concat(@pot_menu_widget.items?)
+    else
+      new_pots.concat(@pot_menu_widget.instance_variable_get(:@items))
+    end
+
+    new_pots.concat(@visible_potions.values)
+    new_pots.concat(table_cards.select { |c| GameUtils.is_potion(c.id) })
+    new_pots.concat(selected_cards.select { |c| GameUtils.is_potion(c.id) })
+
+    @player.ingredients = Inventory.new(new_ings)
+    @player.potions = Inventory.new(new_pots)
 
     $game.change_scene(prev_sc: @sc_id, next_scene: "map")
   end
