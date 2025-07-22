@@ -665,9 +665,11 @@ class Combat
         c_ref.grabbed = false
         c_ref = @hand_manager.hand[state.currently_dragging_card_id]
 
-        if state.click_hold_time.elapsed_time < 20 and
+        if state.click_hold_time.elapsed_time < 20 &&
              (Geometry.distance c_ref.pos, c_ref.f_pos) < 20
           @hand_manager.use_card c_ref
+          end_combat if @enemy.combat_stats.dead
+          begin_turn_stage(@turn_stages[:cleanup]) unless @hand_manager.actions_available?
         end
 
         # For active hand cards, perform reordering.
