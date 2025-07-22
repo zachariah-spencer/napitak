@@ -242,18 +242,8 @@ class CombatStatsComponent
   end
 
   def status_color?(type_enum)
-    case type_enum
-    when $STATUS_TYPES[:SCORCH]
-      return 255, 100, 0
-    when $STATUS_TYPES[:BLIGHT]
-      return 120, 150, 60
-    when $STATUS_TYPES[:FROST]
-      return 0, 255, 255
-    when $STATUS_TYPES[:WARD]
-      return 255, 255, 0
-    when $STATUS_TYPES[:RESTORATION]
-      return 0, 255, 0
-    end
+    color = $STATUS_EFFECT_COLORS[type_enum]
+    [color[:r], color[:g], color[:b]]
   end
 
   def prefab()
