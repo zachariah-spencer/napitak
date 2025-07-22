@@ -20,11 +20,12 @@ class Combat < Scene
     @enemy = Object.const_get($files.save_data["current_enemy"].capitalize).new
     @hand_manager = CardHandManager.new(player: @player, enemy: @enemy)
     @enemy_ai = EnemyAI.new(@enemy, on_turn_end: method(:calc_enemy_turn_ended))
-    @tutorial_service = TutorialService.new(
-      files: $files,
-      encounter_manager: $encounter_manager,
-      enemy: @enemy
-    )
+    @tutorial_service =
+      TutorialService.new(
+        files: $files,
+        encounter_manager: $encounter_manager,
+        enemy: @enemy
+      )
     @banner_alpha = 0
     @defeat_banner_timer = nil
     @victory_banner_timer = nil
@@ -43,25 +44,33 @@ class Combat < Scene
   end
 
   def tick
-    begin_combat if @pre_deal_tick && @pre_deal_tick.elapsed_time >= @pre_deal_time
+    if @pre_deal_tick && @pre_deal_tick.elapsed_time >= @pre_deal_time
+      begin_combat
+    end
     calc
     if @dealing_tick && @dealing_tick.elapsed_time < @dealing_time
-      puts "HELP" if @dealing_tick.elapsed_time % (@dealing_time / 4) == 0 && @player.potions.all_cards.size > 0
-      @hand_manager.draw_card if @dealing_tick.elapsed_time % (@dealing_time / 4) == 0 && @player.potions.all_cards.size > 0
+      if @dealing_tick.elapsed_time % (@dealing_time / 4) == 0 &&
+           @player.potions.all_cards.size > 0
+        puts "HELP"
+      end
+      if @dealing_tick.elapsed_time % (@dealing_time / 4) == 0 &&
+           @player.potions.all_cards.size > 0
+        @hand_manager.draw_card
+      end
     else
       calc
       @enemy_ai.tick
       @player.tick
       if @enemy.combat_stats.dead && @victory_banner_timer &&
-          @victory_banner_timer.elapsed_time >= 3.seconds
+           @victory_banner_timer.elapsed_time >= 3.seconds
         leave(0)
       end
       if @player.combat_stats.dead && @defeat_banner_timer &&
-          @defeat_banner_timer.elapsed_time >= 3.seconds
+           @defeat_banner_timer.elapsed_time >= 3.seconds
         leave(1)
       end
       if @fled && @flee_banner_timer &&
-          @flee_banner_timer.elapsed_time >= 3.seconds
+           @flee_banner_timer.elapsed_time >= 3.seconds
         leave(2)
       end
     end
@@ -580,7 +589,6 @@ class Combat < Scene
     $announcement_manager.clear_announcements_queue
   end
 
-
   def calc_status_effects(type:)
     @player.combat_stats.calc_status(type: type)
     @enemy.combat_stats.calc_status(type: type)
@@ -609,7 +617,6 @@ class Combat < Scene
     @flee_banner_timer = Kernel.tick_count
     @fled = true
   end
-
 
   def calc_mouse_inputs
     return if $animation_manager&.input_locked? || $game.input_locked
@@ -669,7 +676,9 @@ class Combat < Scene
              (Geometry.distance c_ref.pos, c_ref.f_pos) < 20
           @hand_manager.use_card c_ref
           end_combat if @enemy.combat_stats.dead
-          begin_turn_stage(@turn_stages[:cleanup]) unless @hand_manager.actions_available?
+          unless @hand_manager.actions_available?
+            begin_turn_stage(@turn_stages[:cleanup])
+          end
         end
 
         # For active hand cards, perform reordering.
@@ -697,7 +706,10 @@ class Combat < Scene
           sorted_ids.insert(new_index, state.currently_dragging_card_id)
 
           # Rebuild the active hand from these sorted IDs.
-          @hand_manager.instance_variable_set(:@hand, sorted_ids.map { |id| [id, @hand_manager.hand[id]] }.to_h)
+          @hand_manager.instance_variable_set(
+            :@hand,
+            sorted_ids.map { |id| [id, @hand_manager.hand[id]] }.to_h
+          )
         end
 
         state.currently_dragging_card_id = nil
@@ -759,6 +771,7 @@ class Combat < Scene
     @dealing_tick = Kernel.tick_count
     @pre_deal_tick = nil
     @turn_num = 0
+    @player.begin_turn
     # 3.times { @hand_manager.draw_card if @player.potions.all_cards.size > 0 }
     begin_turn_stage @turn_stages[:playing_cards]
   end
