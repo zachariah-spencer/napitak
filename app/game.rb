@@ -21,6 +21,7 @@ class Game
     @pause_button_pos = 200 + 20
     AnimationManager.new
     AnnouncementManager.new
+    EventBus.new
     @transition = nil
 
     # keeps track of whether an entity with a specific entity_id has been created already
