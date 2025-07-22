@@ -53,6 +53,7 @@ require_relative "services/encounter_manager"
 require_relative "services/files"
 require_relative "services/animation_manager"
 require_relative "services/announcement_manager"
+require_relative "services/event_bus"
 
 # utilities and helper classes
 # (some of these could be models but are so small and self contained that they are here instead)
