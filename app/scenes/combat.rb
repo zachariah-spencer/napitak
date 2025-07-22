@@ -12,130 +12,34 @@ class Combat < Scene
       cleanup: 2,
       enemy_turn: 3
     }
-    @hand = {}
     @matching_potion = nil
-    @max_hand_size = 5
     @turn_stage = nil
     @turn_num = -1
     @player = $player
     @player.combat_stats.reset!(@player.maximum_hp, @player.maximum_focus)
     @enemy = Object.const_get($files.save_data["current_enemy"].capitalize).new
+    @hand_manager = CardHandManager.new(player: @player, enemy: @enemy)
+    @enemy_ai = EnemyAI.new(@enemy, on_turn_end: method(:calc_enemy_turn_ended))
+    @tutorial_service = TutorialService.new(
+      files: $files,
+      encounter_manager: $encounter_manager,
+      enemy: @enemy
+    )
     @banner_alpha = 0
     @defeat_banner_timer = nil
     @victory_banner_timer = nil
     @flee_banner_timer = nil
     @fled = false
     @flee_attempts = 0
-    @flee_tutorial_completed = $files.save_data["tutorials"]["fleeing"] || false
     @dealing_tick = nil
     @dealing_time = 1.seconds
     @pre_deal_tick = Kernel.tick_count
     @pre_deal_time = 1.seconds
-    @damage_types_tutorial_completed =
-      $files.save_data["tutorials"]["damage_types"] || false
     GTK.args.audio[:shuffle] = { input: "sounds/sfx/card/SFX_Shuffle2.wav" }
   end
 
   def ready
-    if $encounter_manager.combats_won == 0 && !@flee_tutorial_completed
-      @flee_tutorial_completed = true
-      $files.save_data["tutorials"]["fleeing"] = true
-      $TUTORIAL_INDEX = 24
-      id, text = GameUtils.tutorial_string?($TUTORIAL_INDEX)
-      GameUtils.announce(
-        text: text,
-        duration: 6.5.seconds,
-        tutorial_id: id,
-        x: 900,
-        y: 50
-      )
-      $TUTORIAL_INDEX = 25
-      id, text = GameUtils.tutorial_string?($TUTORIAL_INDEX)
-      GameUtils.announce(
-        text: text,
-        duration: 6.5.seconds,
-        tutorial_id: id,
-        x: 900,
-        y: 50
-      )
-    end
-
-    enemy_stats = @enemy.combat_stats
-    if !(enemy_stats.vulnerabilities + enemy_stats.resistances).empty? &&
-         $encounter_manager.combats_won >= 1 &&
-         !@damage_types_tutorial_completed
-      @damage_types_tutorial_completed = true
-      $files.save_data["tutorials"]["damage_types"] = true
-      $TUTORIAL_INDEX = 26
-      id, text = GameUtils.tutorial_string?($TUTORIAL_INDEX)
-      GameUtils.announce(
-        text: text,
-        duration: 6.5.seconds,
-        tutorial_id: id,
-        x: 900,
-        y: 50
-      )
-
-      details_text = ""
-      if !enemy_stats.vulnerabilities.empty?
-        list_string = ""
-        enemy_stats.vulnerabilities.each_with_index do |v, i|
-          if enemy_stats.vulnerabilities.size == 1
-            list_string += "#{$DAMAGE_TYPE_NAMES[v]}."
-          elsif enemy_stats.vulnerabilities.size == 2
-            if (i + 1) == 1
-              list_string += "#{$DAMAGE_TYPE_NAMES[v]}"
-            elsif (i + 1) == 2
-              list_string += " and #{$DAMAGE_TYPE_NAMES[v]}."
-            end
-          elsif (i + 1) < enemy_stats.vulnerabilities.size
-            list_string += "#{$DAMAGE_TYPE_NAMES[v]}, "
-          elsif (i + 1) == enemy_stats.vulnerabilities.size
-            list_string += " and #{$DAMAGE_TYPE_NAMES[v]}."
-          end
-        end
-        details_text += " The #{@enemy.name} is vulnerable to #{list_string}"
-      end
-
-      if !enemy_stats.resistances.empty?
-        list_string = ""
-        enemy_stats.resistances.each_with_index do |v, i|
-          if enemy_stats.resistances.size == 1
-            list_string += "#{$DAMAGE_TYPE_NAMES[v]}."
-          elsif enemy_stats.resistances.size == 2
-            if (i + 1) == 1
-              list_string += "#{$DAMAGE_TYPE_NAMES[v]}"
-            elsif (i + 1) == 2
-              list_string += " and #{$DAMAGE_TYPE_NAMES[v]}."
-            end
-          elsif (i + 1) < enemy_stats.resistances.size
-            list_string += "#{$DAMAGE_TYPE_NAMES[v]}, "
-          elsif (i + 1) == enemy_stats.resistances.size
-            list_string += " and #{$DAMAGE_TYPE_NAMES[v]}."
-          end
-        end
-        details_text += " The #{@enemy.name} is resistant to #{list_string}"
-      end
-
-      GameUtils.announce(
-        text: details_text,
-        duration: 6.5.seconds,
-        tutorial_id: id,
-        x: 900,
-        y: 50
-      )
-
-      $TUTORIAL_INDEX = 29
-      id, text = GameUtils.tutorial_string?($TUTORIAL_INDEX)
-
-      GameUtils.announce(
-        text: text,
-        duration: 6.5.seconds,
-        tutorial_id: id,
-        x: 900,
-        y: 50
-      )
-    end
+    @tutorial_service.handle_combat_start
   end
 
   def tick
@@ -143,10 +47,10 @@ class Combat < Scene
     calc
     if @dealing_tick && @dealing_tick.elapsed_time < @dealing_time
       puts "HELP" if @dealing_tick.elapsed_time % (@dealing_time / 4) == 0 && @player.potions.all_cards.size > 0
-      draw_card if @dealing_tick.elapsed_time % (@dealing_time / 4) == 0 && @player.potions.all_cards.size > 0
+      @hand_manager.draw_card if @dealing_tick.elapsed_time % (@dealing_time / 4) == 0 && @player.potions.all_cards.size > 0
     else
       calc
-      @enemy.tick
+      @enemy_ai.tick
       @player.tick
       if @enemy.combat_stats.dead && @victory_banner_timer &&
           @victory_banner_timer.elapsed_time >= 3.seconds
@@ -198,29 +102,22 @@ class Combat < Scene
   end
 
   def calc
-    calc_card_positions
+    @hand_manager.calc_card_positions
 
     if !$game.input_locked
       calc_mouse_inputs if @player.my_turn? && !@fled
     else
-      @hand.each { |id, c| c.grabbed = false }
+      @hand_manager.hand.each { |_id, c| c.grabbed = false }
       state.currently_dragging_card_id = nil
       state.mouse_point_inside_square = nil
     end
 
-    if !@enemy.combat_stats.dead
-      if @enemy.turn_over?
-        puts "ENEMY_TURN_ENDED\n\n"
-        calc_enemy_turn_ended
-      end
-    else
-      if @enemy.turn_over? and not @victory_banner_timer
-        puts "ENEMY_DIED_COMBAT_ENDED\n\n"
-        end_combat
-      end
+    if @enemy.combat_stats.dead && @enemy.turn_over? && !@victory_banner_timer
+      puts "ENEMY_DIED_COMBAT_ENDED\n\n"
+      end_combat
     end
 
-    calc_entity_removals
+    @hand_manager.remove_marked
     @banner_alpha = @banner_alpha.lerp(255, 0.04) if @defeat_banner_timer or
       @victory_banner_timer or @flee_banner_timer
   end
@@ -236,7 +133,7 @@ class Combat < Scene
     tool_tips ||= []
     front_card = []
 
-    @hand.each do |id, c|
+    @hand_manager.hand.each do |id, c|
       tool_tip = nil
       card = nil
       if c.grabbed
@@ -673,8 +570,8 @@ class Combat < Scene
     puts "cleanup combat.rb"
     state.currently_dragging_card_id = nil
     state.mouse_point_inside_square = nil
+    @hand_manager.cleanup
     $event_bus.unsubscribe_owner(@enemy)
-    @hand.each { |id, c| @player.potions.add(c) }
 
     potions_save_data = []
     @player.potions.all_cards.each { |c| potions_save_data << c.save_data? }
@@ -683,12 +580,6 @@ class Combat < Scene
     $announcement_manager.clear_announcements_queue
   end
 
-  def calc_card_positions
-    @hand.each_with_index do |(id, c), i|
-      c.calc_position(@hand.length, i)
-      c.tick()
-    end
-  end
 
   def calc_status_effects(type:)
     @player.combat_stats.calc_status(type: type)
@@ -719,9 +610,6 @@ class Combat < Scene
     @fled = true
   end
 
-  def calc_entity_removals
-    @hand.reject! { |id, c| c.needs_removed }
-  end
 
   def calc_mouse_inputs
     return if $animation_manager&.input_locked? || $game.input_locked
@@ -733,7 +621,7 @@ class Combat < Scene
     end
 
     if state.currently_dragging_card_id
-      c_ref = @hand[state.currently_dragging_card_id]
+      c_ref = @hand_manager.hand[state.currently_dragging_card_id]
     else
       #card_under_mouse lol
       c_u_m =
@@ -751,7 +639,7 @@ class Combat < Scene
       elsif Geometry.intersect_rect? inputs.mouse, get_pass_button_rect and
             @turn_stage == @turn_stages[:playing_cards]
         if @player.combat_stats.focus == @player.combat_stats.max_focus
-          draw_card
+          @hand_manager.draw_card
         end
         begin_turn_stage @turn_stages[:cleanup]
       end
@@ -760,7 +648,7 @@ class Combat < Scene
     if @turn_stage == @turn_stages[:playing_cards]
       if inputs.mouse.click and c_u_m
         state.currently_dragging_card_id = c_u_m.id
-        c_ref = @hand[state.currently_dragging_card_id]
+        c_ref = @hand_manager.hand[state.currently_dragging_card_id]
         c_ref.grabbed = true
 
         state.mouse_point_inside_square = {
@@ -775,18 +663,20 @@ class Combat < Scene
       elsif inputs.mouse.up and state.currently_dragging_card_id
         # Re-fetch the card from either group.
         c_ref.grabbed = false
-        c_ref = @hand[state.currently_dragging_card_id]
+        c_ref = @hand_manager.hand[state.currently_dragging_card_id]
 
-        if state.click_hold_time.elapsed_time < 20 and
+        if state.click_hold_time.elapsed_time < 20 &&
              (Geometry.distance c_ref.pos, c_ref.f_pos) < 20
-          use_card c_ref
+          @hand_manager.use_card c_ref
+          end_combat if @enemy.combat_stats.dead
+          begin_turn_stage(@turn_stages[:cleanup]) unless @hand_manager.actions_available?
         end
 
         # For active hand cards, perform reordering.
-        if @hand.key?(state.currently_dragging_card_id)
+        if @hand_manager.hand.key?(state.currently_dragging_card_id)
           # Exclude the dragged card from the current order.
           other_cards =
-            @hand.values.reject do |card|
+            @hand_manager.hand.values.reject do |card|
               card.entity_id == state.currently_dragging_card_id
             end
           sorted_ids =
@@ -800,14 +690,14 @@ class Combat < Scene
           # Determine where to insert the dragged card.
           new_index =
             sorted_ids.find_index do |card_id|
-              card = @hand[card_id]
+              card = @hand_manager.hand[card_id]
               dragged_center < (card.pos.x + (card.w / 2))
             end
           new_index ||= sorted_ids.length
           sorted_ids.insert(new_index, state.currently_dragging_card_id)
 
           # Rebuild the active hand from these sorted IDs.
-          @hand = sorted_ids.map { |id| [id, @hand[id]] }.to_h
+          @hand_manager.instance_variable_set(:@hand, sorted_ids.map { |id| [id, @hand_manager.hand[id]] }.to_h)
         end
 
         state.currently_dragging_card_id = nil
@@ -834,7 +724,7 @@ class Combat < Scene
       @player.begin_turn
       @turn_num += 1
       calc_status_effects(type: :BLIGHT)
-      draw_card
+      @hand_manager.draw_card
       begin_turn_stage @turn_stages[:playing_cards]
     elsif new_stage == @turn_stages[:playing_cards]
       puts "start playing_cards stage"
@@ -848,113 +738,13 @@ class Combat < Scene
     end
   end
 
-  def draw_card
-    if @player.potions.all_cards.size <= 0
-      GameUtils.status_label(700, 50, "NO CARDS IN DECK", 255, 255, 255, 40)
-    end
-    if @hand.size >= @max_hand_size
-      GameUtils.status_label(700, 50, "NO ROOM IN HAND", 255, 255, 255, 40)
-    end
-    if @player.potions.all_cards.size > 0 && @hand.size < @max_hand_size
-      card = @player.potions.draw(true)
-      @hand[card.entity_id] = card
-    end
-  end
-
-  def actions_available?
-    return true if (@player.combat_stats.focus > 0 and @hand.length >= 1)
-  end
-
-  def use_card(card)
-    potion_info = $PIDS[card.id]
-    # handle deducting potion throwing focus cost
-    if @player.combat_stats.focus >= potion_info.fc and card.uses_left > 0
-      @player.combat_stats.focus -= potion_info.fc
-      card.uses_left -= 1
-      card.update_sprite()
-      @player.potions.discard card
-      @hand.delete card.entity_id
-
-      # handle potion card behavior
-      damage_trait =
-        potion_info
-          .traits
-          .find { |h| h.key?($CARD_TRAITS[:damage]) }
-          &.[]($CARD_TRAITS[:damage])
-      mend_trait =
-        potion_info
-          .traits
-          .find { |h| h.key?($CARD_TRAITS[:mend]) }
-          &.[]($CARD_TRAITS[:mend])
-      restoration_trait =
-        potion_info
-          .traits
-          .find { |h| h.key?($CARD_TRAITS[:restoration]) }
-          &.[]($CARD_TRAITS[:restoration])
-      scorch_trait =
-        potion_info
-          .traits
-          .find { |h| h.key?($CARD_TRAITS[:scorch]) }
-          &.[]($CARD_TRAITS[:scorch])
-      blight_trait =
-        potion_info
-          .traits
-          .find { |h| h.key?($CARD_TRAITS[:blight]) }
-          &.[]($CARD_TRAITS[:blight])
-
-      frost_trait =
-        potion_info
-          .traits
-          .find { |h| h.key?($CARD_TRAITS[:frost]) }
-          &.[]($CARD_TRAITS[:frost])
-
-      ward_trait =
-        potion_info
-          .traits
-          .find { |h| h.key?($CARD_TRAITS[:ward]) }
-          &.[]($CARD_TRAITS[:ward])
-
-      $event_bus.publish(:enemy_hurt, amount: damage_trait[:amount], type: damage_trait[:type]) if damage_trait
-
-      $event_bus.publish(:player_heal, mend_trait) if mend_trait
-
-      if restoration_trait
-        $event_bus.publish(:player_apply_status, type: :RESTORATION, stacks: restoration_trait)
-      end
-
-      if scorch_trait
-        $event_bus.publish(:enemy_apply_status, type: :SCORCH, stacks: scorch_trait)
-      end
-
-      if blight_trait
-        $event_bus.publish(:enemy_apply_status, type: :BLIGHT, stacks: blight_trait)
-      end
-
-      if frost_trait
-        $event_bus.publish(:enemy_apply_status, type: :FROST, stacks: frost_trait)
-      end
-
-      if ward_trait
-        $event_bus.publish(:player_apply_status, type: :WARD, stacks: ward_trait)
-      end
-
-      end_combat if @enemy.combat_stats.dead
-      begin_turn_stage @turn_stages[:cleanup] if not actions_available?
-    end
-  end
-
   def end_combat()
     @victory_banner_timer = Kernel.tick_count
     @player.my_turn = false
   end
 
   def get_card_rects
-    card_rects = []
-
-    # Include all active hand cards
-    @hand.each { |id, card| card_rects << card.rect }
-
-    card_rects
+    @hand_manager.get_card_rects
   end
 
   def get_deck_rect
@@ -969,7 +759,7 @@ class Combat < Scene
     @dealing_tick = Kernel.tick_count
     @pre_deal_tick = nil
     @turn_num = 0
-    # 3.times { draw_card if @player.potions.all_cards.size > 0 }
+    # 3.times { @hand_manager.draw_card if @player.potions.all_cards.size > 0 }
     begin_turn_stage @turn_stages[:playing_cards]
   end
 end
