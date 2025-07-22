@@ -70,6 +70,7 @@ require_relative "utils/upgrade_level_bar_widget"
 require_relative "utils/button"
 require_relative "utils/announcement"
 require_relative "utils/transition"
+require_relative "utils/combat_status_effects"
 
 def tick(args)
   $files ||= Files.new

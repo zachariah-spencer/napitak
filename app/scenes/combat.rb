@@ -1,4 +1,5 @@
 class Combat < Scene
+  include CombatStatusEffects
   attr :sc_id
 
   def initialize(enemy = nil)
@@ -581,10 +582,6 @@ class Combat < Scene
   end
 
 
-  def calc_status_effects(type:)
-    @player.combat_stats.calc_status(type: type)
-    @enemy.combat_stats.calc_status(type: type)
-  end
 
   def flee_success_rate?
     enemy_hp_percentage = @enemy.combat_stats.hp / @enemy.combat_stats.max_hp
