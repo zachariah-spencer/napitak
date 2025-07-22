@@ -1,5 +1,4 @@
-class Map
-  attr_gtk
+class Map < Scene
   attr :sc_id
 
   def initialize
@@ -28,11 +27,11 @@ class Map
         if $ENCOUNTERS[clicked[:id]].is_combat
           $game.change_scene(
             prev_sc: "map",
-            next_sc: "combat",
+            next_scene: "combat",
             args: [clicked[:id]]
           )
         else
-          $game.change_scene(prev_sc: "map", next_sc: clicked[:id])
+          $game.change_scene(prev_sc: "map", next_scene: clicked[:id])
         end
       end
     end

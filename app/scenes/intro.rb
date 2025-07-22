@@ -1,5 +1,4 @@
-class Intro
-  attr_gtk
+class Intro < Scene
   attr :sc_id
 
   def initialize()
@@ -44,7 +43,7 @@ class Intro
       when 4
         # STEP 4
         @steps_completed = 5
-        $game.change_scene(prev_sc: @sc_id, next_sc: "combat_tutorial")
+        $game.change_scene(prev_sc: @sc_id, next_scene: "combat_tutorial")
       end
     end
 
@@ -78,7 +77,7 @@ class Intro
 
     if @skipping_tick && @skipping_tick.elapsed_time >= 1.0.seconds && !@cutscene_skipped
       @cutscene_skipped = true
-      $game.change_scene(prev_sc: @sc_id, next_sc: "combat_tutorial")
+      $game.change_scene(prev_sc: @sc_id, next_scene: "combat_tutorial")
     end
   end
 

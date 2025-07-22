@@ -1,5 +1,4 @@
-class CombatTutorial
-  attr_gtk
+class CombatTutorial < Scene
   attr :sc_id
 
   def initialize()
@@ -153,7 +152,7 @@ class CombatTutorial
     state_enum = { victory: 0, defeat: 1, flee: 2 }
     $game.change_scene(
       prev_sc: @sc_id,
-      next_sc: "alchemy_lab",
+      next_scene: "alchemy_lab",
       args: [{ tutorial: true }]
     )
   end

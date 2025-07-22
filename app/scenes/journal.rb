@@ -1,5 +1,4 @@
-class Journal
-  attr_gtk
+class Journal < Scene
   attr :sc_id
 
   def initialize(pause_menu_instance:)

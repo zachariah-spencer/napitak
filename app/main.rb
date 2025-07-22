@@ -31,6 +31,7 @@ require_relative "models/cards/ingredient_generator_card"
 require_relative "models/cards/trash_can_card"
 
 # scenes
+require_relative "scenes/scene"
 require_relative "scenes/intro"
 require_relative "scenes/combat"
 require_relative "scenes/alchemy_table"
