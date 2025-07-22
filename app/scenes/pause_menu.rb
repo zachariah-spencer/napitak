@@ -30,20 +30,44 @@ class PauseMenu < Scene
   end
 
   def calc_main
-    if GTK.args.inputs.mouse.click and
-         Geometry.intersect_rect?(GTK.args.inputs.mouse, resume_btn)
+    if Button.new(
+         x: GTK.args.grid.w / 2 - 75,
+         y: (GTK.args.grid.h - 100) / 1.25,
+         w: 150,
+         h: 75,
+         text: "Resume"
+       ).clicked?
       $game.toggle_pause
     end
-    if GTK.args.inputs.mouse.click and
-         Geometry.intersect_rect?(GTK.args.inputs.mouse, journal_btn)
+
+    if Button.new(
+         x: GTK.args.grid.w / 2 - 75,
+         y: (GTK.args.grid.h - 100) / 1.5,
+         w: 150,
+         h: 75,
+         text: "Journal"
+       ).clicked?
       @journal_instance = Journal.new(pause_menu_instance: self)
       @pause_screen = "journal"
     end
 
-    @pause_screen = "settings" if GTK.args.inputs.mouse.click and
-      Geometry.intersect_rect?(GTK.args.inputs.mouse, settings_btn)
-    if GTK.args.inputs.mouse.click and
-         Geometry.intersect_rect?(GTK.args.inputs.mouse, exit_btn)
+    if Button.new(
+         x: GTK.args.grid.w / 2 - 75,
+         y: (GTK.args.grid.h - 100) / 1.88,
+         w: 150,
+         h: 75,
+         text: "Settings"
+       ).clicked?
+      @pause_screen = "settings"
+    end
+
+    if Button.new(
+         x: GTK.args.grid.w / 2 - 75,
+         y: (GTK.args.grid.h - 100) / 2.5,
+         w: 150,
+         h: 75,
+         text: "Quit"
+       ).clicked?
       GTK.request_quit
     end
   end
@@ -153,211 +177,51 @@ class PauseMenu < Scene
   end
 
   def resume_btn
-    GTK.args.outputs[:resume_btn].w = 150
-    GTK.args.outputs[:resume_btn].h = 75
-
-    GTK.args.outputs[:resume_btn].primitives << {
-      x: 0,
-      y: 0,
-      w: 150,
-      h: 75,
-      angle: 0,
-      r: 0,
-      g: 0,
-      b: 0,
-      primitive_marker: :solid
-    }
-
-    GTK.args.outputs[:resume_btn].primitives << {
-      x: 5,
-      y: 5,
-      w: 140,
-      h: 65,
-      angle: 0,
-      r: 70,
-      g: 70,
-      b: 150,
-      a: 100,
-      primitive_marker: :solid
-    }
-
-    GTK.args.outputs[:resume_btn].primitives << {
-      x: 150 / 2,
-      y: 75 / 2,
-      text: "Resume",
-      anchor_x: 0.5,
-      anchor_y: 0.5,
-      r: 255,
-      g: 255,
-      b: 255,
-      size_enum: 3
-    }
-
-    {
-      x: GTK.args.grid.w / 2 - 75,
-      y: (GTK.args.grid.h - 100) / 1.25,
-      w: 150,
-      h: 75,
-      angle: 0,
-      path: :resume_btn,
-      primitive_marker: :sprite
-    }
+    Button
+      .new(
+        x: GTK.args.grid.w / 2 - 75,
+        y: (GTK.args.grid.h - 100) / 1.25,
+        w: 150,
+        h: 75,
+        text: "Resume"
+      )
+      .prefab
   end
 
   def journal_btn
-    GTK.args.outputs[:journal_btn].w = 150
-    GTK.args.outputs[:journal_btn].h = 75
-
-    GTK.args.outputs[:journal_btn].primitives << {
-      x: 0,
-      y: 0,
-      w: 150,
-      h: 75,
-      angle: 0,
-      r: 0,
-      g: 0,
-      b: 0,
-      primitive_marker: :solid
-    }
-
-    GTK.args.outputs[:journal_btn].primitives << {
-      x: 5,
-      y: 5,
-      w: 140,
-      h: 65,
-      angle: 0,
-      r: 70,
-      g: 70,
-      b: 150,
-      a: 100,
-      primitive_marker: :solid
-    }
-
-    GTK.args.outputs[:journal_btn].primitives << {
-      x: 150 / 2,
-      y: 75 / 2,
-      text: "Journal",
-      anchor_x: 0.5,
-      anchor_y: 0.5,
-      r: 255,
-      g: 255,
-      b: 255,
-      size_enum: 3
-    }
-
-    {
-      x: GTK.args.grid.w / 2 - 75,
-      y: (GTK.args.grid.h - 100) / 1.5,
-      w: 150,
-      h: 75,
-      angle: 0,
-      path: :journal_btn,
-      primitive_marker: :sprite
-    }
+    Button
+      .new(
+        x: GTK.args.grid.w / 2 - 75,
+        y: (GTK.args.grid.h - 100) / 1.5,
+        w: 150,
+        h: 75,
+        text: "Journal"
+      )
+      .prefab
   end
 
   def settings_btn
-    GTK.args.outputs[:settings_btn].w = 150
-    GTK.args.outputs[:settings_btn].h = 75
-
-    GTK.args.outputs[:settings_btn].primitives << {
-      x: 0,
-      y: 0,
-      w: 150,
-      h: 75,
-      angle: 0,
-      r: 0,
-      g: 0,
-      b: 0,
-      primitive_marker: :solid
-    }
-
-    GTK.args.outputs[:settings_btn].primitives << {
-      x: 5,
-      y: 5,
-      w: 140,
-      h: 65,
-      angle: 0,
-      r: 70,
-      g: 70,
-      b: 150,
-      a: 100,
-      primitive_marker: :solid
-    }
-
-    GTK.args.outputs[:settings_btn].primitives << {
-      x: 150 / 2,
-      y: 75 / 2,
-      text: "Settings",
-      anchor_x: 0.5,
-      anchor_y: 0.5,
-      r: 255,
-      g: 255,
-      b: 255,
-      size_enum: 3
-    }
-
-    {
-      x: GTK.args.grid.w / 2 - 75,
-      y: (GTK.args.grid.h - 100) / 1.88,
-      w: 150,
-      h: 75,
-      angle: 0,
-      path: :settings_btn,
-      primitive_marker: :sprite
-    }
+    Button
+      .new(
+        x: GTK.args.grid.w / 2 - 75,
+        y: (GTK.args.grid.h - 100) / 1.88,
+        w: 150,
+        h: 75,
+        text: "Settings"
+      )
+      .prefab
   end
 
   def exit_btn
-    GTK.args.outputs[:exit_btn].w = 150
-    GTK.args.outputs[:exit_btn].h = 75
-
-    GTK.args.outputs[:exit_btn].primitives << {
-      x: 0,
-      y: 0,
-      w: 150,
-      h: 75,
-      angle: 0,
-      r: 0,
-      g: 0,
-      b: 0,
-      primitive_marker: :solid
-    }
-
-    GTK.args.outputs[:exit_btn].primitives << {
-      x: 5,
-      y: 5,
-      w: 140,
-      h: 65,
-      angle: 0,
-      r: 70,
-      g: 70,
-      b: 150,
-      a: 100,
-      primitive_marker: :solid
-    }
-
-    GTK.args.outputs[:exit_btn].primitives << {
-      x: 150 / 2,
-      y: 75 / 2,
-      text: "Quit",
-      anchor_x: 0.5,
-      anchor_y: 0.5,
-      r: 255,
-      g: 255,
-      b: 255,
-      size_enum: 3
-    }
-
-    {
-      x: GTK.args.grid.w / 2 - 75,
-      y: (GTK.args.grid.h - 100) / 2.5,
-      w: 150,
-      h: 75,
-      angle: 0,
-      path: :exit_btn,
-      primitive_marker: :sprite
-    }
+    Button
+      .new(
+        x: GTK.args.grid.w / 2 - 75,
+        y: (GTK.args.grid.h - 100) / 2.5,
+        w: 150,
+        h: 75,
+        text: "Quit"
+      )
+      .prefab
   end
 
   def render(layer_num)

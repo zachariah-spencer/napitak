@@ -337,56 +337,15 @@ class AlchemyTable < Scene
   end
 
   def craft_btn
-    GTK.args.outputs[:craft_btn].w = 150
-    GTK.args.outputs[:craft_btn].h = 75
-
-    GTK.args.outputs[:craft_btn].primitives << {
-      x: 0,
-      y: 0,
-      w: 150,
-      h: 75,
-      angle: 0,
-      r: 0,
-      g: 0,
-      b: 0,
-      primitive_marker: :solid
-    }
-
-    GTK.args.outputs[:craft_btn].primitives << {
-      x: 5,
-      y: 5,
-      w: 140,
-      h: 65,
-      angle: 0,
-      r: 70,
-      g: 70,
-      b: 150,
-      a: 100,
-      primitive_marker: :solid
-    }
-
-    GTK.args.outputs[:craft_btn].primitives << {
-      x: 150 / 2,
-      y: 75 / 2,
-      text: "CRAFT",
-      anchor_x: 0.5,
-      anchor_y: 0.5,
-      r: 255,
-      g: 255,
-      b: 255,
-      size_enum: 3,
-      font: "fonts/eaglelake.ttf"
-    }
-
-    {
-      x: GTK.args.grid.w / 2 - 75,
-      y: GTK.args.grid.h - 75 - 100,
-      w: 150,
-      h: 75,
-      angle: 0,
-      path: :craft_btn,
-      primitive_marker: :sprite
-    }
+    Button
+      .new(
+        x: GTK.args.grid.w / 2 - 75,
+        y: GTK.args.grid.h - 75 - 100,
+        w: 150,
+        h: 75,
+        text: "CRAFT"
+      )
+      .prefab
   end
 
   def potions_label()
@@ -490,54 +449,15 @@ class AlchemyTable < Scene
   end
 
   def leave_btn
-    GTK.args.outputs[:leave_btn].w = 150
-    GTK.args.outputs[:leave_btn].h = 75
-
-    GTK.args.outputs[:leave_btn].primitives << {
-      x: 0,
-      y: 0,
-      w: 150,
-      h: 75,
-      angle: 0,
-      r: 0,
-      g: 0,
-      b: 0,
-      primitive_marker: :solid
-    }
-
-    GTK.args.outputs[:leave_btn].primitives << {
-      x: 5,
-      y: 5,
-      w: 140,
-      h: 65,
-      angle: 0,
-      r: 100,
-      g: 150,
-      b: 150,
-      primitive_marker: :solid
-    }
-
-    GTK.args.outputs[:leave_btn].primitives << {
-      x: 150 / 2,
-      y: 75 / 2,
-      text: "LEAVE",
-      anchor_x: 0.5,
-      anchor_y: 0.5,
-      r: 0,
-      g: 0,
-      b: 0,
-      size_enum: 3
-    }
-
-    {
-      x: GTK.args.grid.w - 25 - 150,
-      y: 20,
-      w: 150,
-      h: 75,
-      angle: 0,
-      path: :leave_btn,
-      primitive_marker: :sprite
-    }
+    Button
+      .new(
+        x: GTK.args.grid.w - 25 - 150,
+        y: 20,
+        w: 150,
+        h: 75,
+        text: "LEAVE"
+      )
+      .prefab
   end
 
   def get_card_rects
@@ -575,14 +495,24 @@ class AlchemyTable < Scene
   end
 
   def calc_mouse_inputs
-    if GTK.args.inputs.mouse.click &&
-         Geometry.intersect_rect?(inputs.mouse, leave_btn)
+    if Button.new(
+         x: GTK.args.grid.w - 25 - 150,
+         y: 20,
+         w: 150,
+         h: 75,
+         text: "LEAVE"
+       ).clicked?
       puts "clicked on leave_btn"
       leave
     end
 
-    if GTK.args.inputs.mouse.click &&
-         Geometry.intersect_rect?(inputs.mouse, craft_btn) && @craftable_potion
+    if Button.new(
+         x: GTK.args.grid.w / 2 - 75,
+         y: GTK.args.grid.h - 75 - 100,
+         w: 150,
+         h: 75,
+         text: "CRAFT"
+       ).clicked? && @craftable_potion
       puts "clicked on craft_btn"
       craft(@craftable_potion.id)
       @craftable_potion = nil
