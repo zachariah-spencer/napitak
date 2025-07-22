@@ -31,10 +31,10 @@ class Combat < Scene
     @flee_banner_timer = nil
     @fled = false
     @flee_attempts = 0
-    @dealing_tick = nil
-    @dealing_time = 1.seconds
     @pre_deal_tick = Kernel.tick_count
     @pre_deal_time = 1.seconds
+    @dealing_tick = nil
+    @dealing_time = 1.seconds
     GTK.args.audio[:shuffle] = { input: "sounds/sfx/card/SFX_Shuffle2.wav" }
   end
 
