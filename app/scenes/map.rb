@@ -2,13 +2,14 @@ class Map
   attr_gtk
   attr :sc_id
 
-  def initialize
+  def initialize(context)
+    @context = context
     @sc_id = "map"
 
     @choices = []
-    @encounter_manager = $encounter_manager
-    if $files.save_data["scene"] == "map" and $files.save_data["map_layer"] != 1
-      choice_ids = $files.save_data["map_choices"]
+    @encounter_manager = @context.encounter_manager
+    if @context.files.save_data["scene"] == "map" && @context.files.save_data["map_layer"] != 1
+      choice_ids = @context.files.save_data["map_choices"]
       choice_ids.each { |id| @choices << EncounterCard.new(id) }
       puts @choices
     else
@@ -17,7 +18,7 @@ class Map
   end
 
   def tick
-    calc_input if !$game.input_locked
+    calc_input if !@context.game.input_locked
 
     @choices.each { |c| c.tick }
   end
@@ -26,13 +27,13 @@ class Map
     @choices.each do |c|
       if (clicked = c.pop_clicked)
         if $ENCOUNTERS[clicked[:id]].is_combat
-          $game.change_scene(
+          @context.game.change_scene(
             prev_sc: "map",
             next_sc: "combat",
             args: [clicked[:id]]
           )
         else
-          $game.change_scene(prev_sc: "map", next_sc: clicked[:id])
+          @context.game.change_scene(prev_sc: "map", next_sc: clicked[:id])
         end
       end
     end
@@ -129,6 +130,6 @@ class Map
   end
 
   def cleanup
-    $files.save_data["map_layer"] = ($encounter_manager.map_layer)
+    @context.files.save_data["map_layer"] = (@context.encounter_manager.map_layer)
   end
 end

@@ -37,8 +37,9 @@ class ScrollListWidget
   end
 
   # update scroll, clear last click, then detect a new one
-  def tick(inputs)
-    if !$game.input_locked
+  def tick(inputs, context = nil)
+    game = context&.game || $game
+    if !game.input_locked
       handle_scroll(inputs)
       @selected_item = nil # ← reset every frame
       detect_click(inputs)

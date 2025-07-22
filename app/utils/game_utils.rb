@@ -1,8 +1,9 @@
 # frozen_string_literal: true
 
 module GameUtils
-  def self.status_label(x, y, text, r, g, b, scale)
-    $game.status_label(x, y, text, r, g, b, scale)
+  def self.status_label(x, y, text, r, g, b, scale, context = nil)
+    game = context&.game || $game
+    game.status_label(x, y, text, r, g, b, scale)
   end
 
   def self.announce(text: "debug", duration: 1.0.seconds, x: Grid.w / 2 - 200, y: Grid.h - 125 - 50, tutorial_id: -1)

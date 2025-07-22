@@ -4,8 +4,17 @@ class Game
   attr_gtk
   attr :scene, :input_locked, :runs_completed, :transitioning_scenes
 
-  def initialize
+  def initialize(context)
     $game = self
+    @context = context
+    @context.game = self
+    @files = context.files
+    @player = context.player
+    @recipe_book = context.recipe_book
+    $files = @files
+    $player = @player
+    $recipe_book = @recipe_book
+    $encounter_manager = context.encounter_manager
     @prev_sc
     @next_sc
     @scene_args
@@ -32,11 +41,6 @@ class Game
     @status_label_queue_count = Kernel.tick_count
     # keeps track of whether a render target for the specific number has been created already
     @created_prefabs = {}
-    # the game's official instantiation of a Player for an individual game.
-    @player = Player.new()
-    # the game's official instantiation of a RecipeBook, persists between runs
-    @recipe_book = RecipeBook.new()
-    EncounterManager.new()
 
     @player.load_inventory_data
     @player.load_upgrades_data
@@ -117,7 +121,7 @@ class Game
     $announcement_manager.clear_announcements_queue
     case @scene
     when "combat"
-      @scene_ref = Combat.new(@scene_args[0])
+      @scene_ref = Combat.new(@context, @scene_args[0])
     when "alchemy_table"
       @scene_ref = AlchemyTable.new(max_uses: $player.alchemy_table_uses)
     when "alchemy_lab"
@@ -135,7 +139,7 @@ class Game
     when "boss_rewards_screen"
       @scene_ref = BossRewardsScreen.new(boss_defeated_id: @scene_args[0])
     when "map"
-      @scene_ref = Map.new()
+      @scene_ref = Map.new(@context)
     when "run_summary"
       @scene_ref = RunSummary.new()
     when "meta_shop"

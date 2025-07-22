@@ -3,6 +3,7 @@
 # top level classes
 require_relative "game"
 require_relative "globals"
+require_relative "game_context"
 
 # models (just player)
 require_relative "models/player"
@@ -67,8 +68,25 @@ require_relative "utils/announcement"
 require_relative "utils/transition"
 
 def tick(args)
-  $files ||= Files.new
-  $game ||= Game.new
+  $context ||= begin
+    files = Files.new
+    $files = files
+    player = Player.new
+    $player = player
+    recipe_book = RecipeBook.new
+    $recipe_book = recipe_book
+    encounter_manager = EncounterManager.new
+    $encounter_manager = encounter_manager
+    GameContext.new(
+      files: files,
+      player: player,
+      recipe_book: recipe_book,
+      encounter_manager: encounter_manager
+    )
+  end
+
+  $files ||= $context.files
+  $game ||= Game.new($context)
   $game.args ||= args
   $game.tick if $game != nil
 end

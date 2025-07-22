@@ -2,10 +2,11 @@ class Combat
   attr_gtk
   attr :sc_id
 
-  def initialize(enemy = nil)
+  def initialize(context, enemy = nil)
+    @context = context
     @sc_id = "combat"
 
-    $files.save_data["current_enemy"] = enemy if enemy
+    @context.files.save_data["current_enemy"] = enemy if enemy
 
     @turn_stages = {
       drawing_cards: 0,
@@ -18,29 +19,29 @@ class Combat
     @max_hand_size = 5
     @turn_stage = nil
     @turn_num = -1
-    @player = $player
+    @player = @context.player
     @player.combat_stats.reset!(@player.maximum_hp, @player.maximum_focus)
-    @enemy = Object.const_get($files.save_data["current_enemy"].capitalize).new
+    @enemy = Object.const_get(@context.files.save_data["current_enemy"].capitalize).new
     @banner_alpha = 0
     @defeat_banner_timer = nil
     @victory_banner_timer = nil
     @flee_banner_timer = nil
     @fled = false
     @flee_attempts = 0
-    @flee_tutorial_completed = $files.save_data["tutorials"]["fleeing"] || false
+    @flee_tutorial_completed = @context.files.save_data["tutorials"]["fleeing"] || false
     @dealing_tick = nil
     @dealing_time = 1.seconds
     @pre_deal_tick = Kernel.tick_count
     @pre_deal_time = 1.seconds
     @damage_types_tutorial_completed =
-      $files.save_data["tutorials"]["damage_types"] || false
+      @context.files.save_data["tutorials"]["damage_types"] || false
     GTK.args.audio[:shuffle] = { input: "sounds/sfx/card/SFX_Shuffle2.wav" }
   end
 
   def ready
-    if $encounter_manager.combats_won == 0 && !@flee_tutorial_completed
+    if @context.encounter_manager.combats_won == 0 && !@flee_tutorial_completed
       @flee_tutorial_completed = true
-      $files.save_data["tutorials"]["fleeing"] = true
+      @context.files.save_data["tutorials"]["fleeing"] = true
       $TUTORIAL_INDEX = 24
       id, text = GameUtils.tutorial_string?($TUTORIAL_INDEX)
       GameUtils.announce(
@@ -63,10 +64,10 @@ class Combat
 
     enemy_stats = @enemy.combat_stats
     if !(enemy_stats.vulnerabilities + enemy_stats.resistances).empty? &&
-         $encounter_manager.combats_won >= 1 &&
+         @context.encounter_manager.combats_won >= 1 &&
          !@damage_types_tutorial_completed
       @damage_types_tutorial_completed = true
-      $files.save_data["tutorials"]["damage_types"] = true
+      @context.files.save_data["tutorials"]["damage_types"] = true
       $TUTORIAL_INDEX = 26
       id, text = GameUtils.tutorial_string?($TUTORIAL_INDEX)
       GameUtils.announce(
@@ -179,29 +180,29 @@ class Combat
     state_enum = { victory: 0, defeat: 1, flee: 2 }
     case state
     when state_enum[:victory]
-      $encounter_manager.inc_combats_won
+      @context.encounter_manager.inc_combats_won
       if @enemy.is_boss
-        $game.change_scene(
+        @context.game.change_scene(
           prev_sc: @sc_id,
           next_sc: "boss_rewards_screen",
           args: [@enemy.enemy_id]
         )
       else
-        $game.change_scene(prev_sc: @sc_id, next_sc: "rewards_screen")
+        @context.game.change_scene(prev_sc: @sc_id, next_sc: "rewards_screen")
       end
     when state_enum[:defeat]
-      $player.anodyne += $encounter_manager.calc_anodyne_earnings
-      $player.save_upgrades_data
-      $game.change_scene(prev_sc: @sc_id, next_sc: "run_summary")
+      @context.player.anodyne += @context.encounter_manager.calc_anodyne_earnings
+      @context.player.save_upgrades_data
+      @context.game.change_scene(prev_sc: @sc_id, next_sc: "run_summary")
     when state_enum[:flee]
-      $game.change_scene(prev_sc: @sc_id, next_sc: "map")
+      @context.game.change_scene(prev_sc: @sc_id, next_sc: "map")
     end
   end
 
   def calc
     calc_card_positions
 
-    if !$game.input_locked
+    if !@context.game.input_locked
       calc_mouse_inputs if @player.my_turn? && !@fled
     else
       @hand.each { |id, c| c.grabbed = false }
@@ -679,7 +680,7 @@ class Combat
     potions_save_data = []
     @player.potions.all_cards.each { |c| potions_save_data << c.save_data? }
 
-    $files.save_data["player"]["potions"] = potions_save_data
+    @context.files.save_data["player"]["potions"] = potions_save_data
     $announcement_manager.clear_announcements_queue
   end
 
@@ -724,7 +725,7 @@ class Combat
   end
 
   def calc_mouse_inputs
-    return if $animation_manager&.input_locked? || $game.input_locked
+    return if $animation_manager&.input_locked? || @context.game.input_locked
 
     if GTK.args.inputs.mouse.click &&
          Geometry.intersect_rect?(inputs.mouse, flee_btn) && @player.my_turn
