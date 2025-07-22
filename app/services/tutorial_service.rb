@@ -44,22 +44,17 @@ class TutorialService
   end
 
   def format_damage_list(list)
-    str = ""
-    list.each_with_index do |v, i|
-      if list.size == 1
-        str += "#{$DAMAGE_TYPE_NAMES[v]}."
-      elsif list.size == 2
-        if i.zero?
-          str += "#{$DAMAGE_TYPE_NAMES[v]}"
-        else
-          str += " and #{$DAMAGE_TYPE_NAMES[v]}."
-        end
-      elsif i < list.size - 1
-        str += "#{$DAMAGE_TYPE_NAMES[v]}, "
-      else
-        str += " and #{$DAMAGE_TYPE_NAMES[v]}."
-      end
+    names = list.map { |v| $DAMAGE_TYPE_NAMES[v] }
+
+    case names.length
+    when 0
+      ""
+    when 1
+      "#{names.first}."
+    when 2
+      "#{names.first} and #{names.last}."
+    else
+      "#{names[0..-2].join(', ')}, and #{names.last}."
     end
-    str
   end
 end
