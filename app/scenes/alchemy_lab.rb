@@ -566,7 +566,6 @@ class AlchemyLab < Scene
           }
         end
       end
-
       l4
     else
       # puts "combat.rb: Invalid Render Argument"

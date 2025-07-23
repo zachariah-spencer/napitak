@@ -403,6 +403,16 @@ module GameData
       }
     }
   }.freeze
+  SHOP_ITEMS = {
+    "s001" => {
+      name: "Increased Focus",
+      path: "sprites/hexagon/blue.png"
+    },
+    "s002" => {
+      name: "Increased HP",
+      path: "sprites/hexagon/red.png"
+    }
+  }.merge(IIDS)
   ENCOUNTERS = {
     "alchemy_lab" => {
       name: "Laboratory",
@@ -421,6 +431,12 @@ module GameData
       path: "sprites/square/indigo.png",
       is_combat: false,
       chance: 20
+    },
+    "shop" => {
+      name: "Trader",
+      path: "sprites/square/white.png",
+      is_combat: false,
+      chance: 100
     },
     # basic enemy
     "wolf" => {
@@ -533,6 +549,7 @@ $PIDS = GameData::PIDS
 $IIDS = GameData::IIDS
 $ENCOUNTERS = GameData::ENCOUNTERS
 $ANIMATIONS = GameData::ANIMATIONS
+$SHOP_ITEMS = GameData::SHOP_ITEMS
 $TUTORIAL_INDEX = 0
 
 $entity_ids = []

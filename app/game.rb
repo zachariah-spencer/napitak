@@ -159,6 +159,8 @@ class Game
         @scene_ref = CombatTutorial.new
       when "rp_encounter"
         @scene_ref = RoleplayEncounter.new
+      when "shop"
+        @scene_ref = Shop.new
       end
     end
 

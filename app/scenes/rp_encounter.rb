@@ -89,7 +89,7 @@ class RoleplayEncounter < Scene
         @option_selected_tick && @result_message_completed == false &&
           @option_selected_tick.elapsed_time >= 0.1.seconds
 
-      leave if @option_selected_tick && @result_message_completed
+      leave if @option_selected_tick && @result_message_completed && !$game.input_locked
     end
   end
 

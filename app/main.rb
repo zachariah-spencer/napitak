@@ -29,6 +29,7 @@ require_relative "models/cards/encounter_card"
 require_relative "models/cards/recipe_card"
 require_relative "models/cards/ingredient_generator_card"
 require_relative "models/cards/trash_can_card"
+require_relative "models/cards/shop_item_card"
 
 # scenes
 require_relative "scenes/scene"
@@ -45,6 +46,7 @@ require_relative "scenes/meta_shop"
 require_relative "scenes/combat_tutorial"
 require_relative "scenes/boss_rewards_screen"
 require_relative "scenes/rp_encounter"
+require_relative "scenes/shop"
 
 # services and manager classes
 require_relative "services/deck"
