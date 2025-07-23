@@ -20,7 +20,8 @@ class AlchemyLab < Scene
     @leave_btn_clicked_tick = nil
     @leave_btn_message_a = 0
 
-    @from_tutorial = !$files.save_data["tutorials"]["alchemy_lab_tutorial"] || tutorial
+    @from_tutorial =
+      !$files.save_data["tutorials"]["alchemy_lab_tutorial"] || tutorial
     $files.save_data["tutorials"]["alchemy_lab_tutorial"] = !@from_tutorial
     puts "Entering AlchemyLab from tutorial" if @from_tutorial
     @tutorial_steps = {
@@ -29,7 +30,7 @@ class AlchemyLab < Scene
       recipe_selected: false,
       recipe_mixed: false,
       starting_ingredients_packed: false,
-      potions_mixed: false,
+      potions_mixed: false
     }
     # proc encounter manager so it is on correct map layer in the event that user came from scripted scenes instead of first map layer
     $encounter_manager.next_choices? if @from_tutorial
@@ -139,7 +140,13 @@ class AlchemyLab < Scene
         @ingredients_on_screen.add(potion)
       end
 
-      if @from_tutorial && !@tutorial_steps[:potions_mixed] && @pot_menu_widget.items?.count >= 8 && @tutorial_steps[:base_ingredient_generated] && @tutorial_steps[:ingredient_selected] && @tutorial_steps[:recipe_selected] && @tutorial_steps[:recipe_mixed] && @tutorial_steps[:starting_ingredients_packed]
+      if @from_tutorial && !@tutorial_steps[:potions_mixed] &&
+           @pot_menu_widget.items?.count >= 8 &&
+           @tutorial_steps[:base_ingredient_generated] &&
+           @tutorial_steps[:ingredient_selected] &&
+           @tutorial_steps[:recipe_selected] &&
+           @tutorial_steps[:recipe_mixed] &&
+           @tutorial_steps[:starting_ingredients_packed]
         @tutorial_steps[:potions_mixed] = true
 
         $TUTORIAL_INDEX = 21
@@ -182,8 +189,22 @@ class AlchemyLab < Scene
   end
 
   def leave
-    # consolidate all new cards into the player's inventory
+    # gather all ingredient cards to return to the player's inventory
     new_ings = []
+
+    if @ing_menu_widget.respond_to?(:items?)
+      new_ings.concat(@ing_menu_widget.items?)
+    else
+      new_ings.concat(@ing_menu_widget.instance_variable_get(:@items))
+    end
+
+    # split cards currently on the table into ingredients and potions
+    table_cards = @visible_ingredients.values
+    selected_cards = @selected_ingredients.values
+    new_ings.concat(table_cards.reject { |c| GameUtils.is_potion(c.id) })
+    new_ings.concat(selected_cards.reject { |c| GameUtils.is_potion(c.id) })
+
+    # gather potions from the potion menu and any visible/selected potion stacks
     new_pots = []
 
     if @pot_menu_widget.respond_to?(:items?)
@@ -192,17 +213,12 @@ class AlchemyLab < Scene
       new_pots.concat(@pot_menu_widget.instance_variable_get(:@items))
     end
 
-    # items still inside the vertical ingredient menu
-    if @ing_menu_widget.respond_to?(:items?)
-      new_ings.concat(@ing_menu_widget.items?)
-    else
-      new_new_ings.concat(@ing_menu_widget.instance_variable_get(:@items))
-    end
+    new_pots.concat(@visible_potions.values)
+    new_pots.concat(table_cards.select { |c| GameUtils.is_potion(c.id) })
+    new_pots.concat(selected_cards.select { |c| GameUtils.is_potion(c.id) })
 
-    # overwrite the player's potions with this collection
-    @player.potions = Inventory.new(new_pots)
-    # overwrite the player's ingredients with this collection
     @player.ingredients = Inventory.new(new_ings)
+    @player.potions = Inventory.new(new_pots)
 
     $encounter_manager.inc_encounters_completed
     $files.save_data["tutorials"]["alchemy_lab_tutorial"] = true
@@ -220,12 +236,14 @@ class AlchemyLab < Scene
     @trash_can.tick
     calc
 
-    if @leave_btn_clicked_tick && @leave_btn_clicked_tick.elapsed_time >= 5.0.seconds
-      @leave_btn_clicks = 0 
+    if @leave_btn_clicked_tick &&
+         @leave_btn_clicked_tick.elapsed_time >= 5.0.seconds
+      @leave_btn_clicks = 0
       @leave_btn_text = "LEAVE"
       @leave_btn_clicked_tick = nil
       @leave_btn_message_a = @leave_btn_message_a.lerp(0, 0.1)
-    elsif @leave_btn_clicked_tick && @leave_btn_clicked_tick.elapsed_time < 5.0.seconds
+    elsif @leave_btn_clicked_tick &&
+          @leave_btn_clicked_tick.elapsed_time < 5.0.seconds
       @leave_btn_message_a = @leave_btn_message_a.lerp(255, 0.1)
     end
   end
@@ -321,26 +339,25 @@ class AlchemyLab < Scene
     @visible_ingredients
       .merge(@visible_potions)
       .each do |id, c|
-      if GameUtils.is_potion(c)
-        prefab = c.prefab
-      else
-        prefab, tooltip_prefab = c.prefab
+        if GameUtils.is_potion(c)
+          prefab = c.prefab
+        else
+          prefab, tooltip_prefab = c.prefab
+        end
+        if c.grabbed
+          front_card = prefab
+        else
+          cards.append prefab
+        end
       end
-      if c.grabbed
-        front_card = prefab
-      else
-        cards.append prefab
-      end
-    end
 
     @selected_ingredients.each do |id, c|
-    if GameUtils.is_potion(c)
-      sel_cards.append(c.prefab)
-    else
-      prefab, tooltip_prefab = c.prefab
-      sel_cards.append(prefab)
-    end
-      
+      if GameUtils.is_potion(c)
+        sel_cards.append(c.prefab)
+      else
+        prefab, tooltip_prefab = c.prefab
+        sel_cards.append(prefab)
+      end
     end
     @ingredient_generators.each { |id, c| generator_cards.append(c.prefab) }
 
@@ -357,7 +374,7 @@ class AlchemyLab < Scene
         r: 0,
         g: 0,
         b: 0,
-        primitive_marker: :solid,
+        primitive_marker: :solid
       }
       background = {
         x: 0,
@@ -510,7 +527,7 @@ class AlchemyLab < Scene
           g: 0,
           b: 0,
           a: @leave_btn_message_a,
-          primitive_marker: :solid,
+          primitive_marker: :solid
         }
 
         l4 << {
@@ -526,10 +543,12 @@ class AlchemyLab < Scene
           font: "fonts/eaglelake.ttf",
           text: "Are you sure?",
           size_px: 26,
-          primitive_marker: :label,
+          primitive_marker: :label
         }
 
-        t = String.wrapped_lines "You do not yet have your satchel full of potions and ingredients for your long journey...", 40
+        t =
+          String.wrapped_lines "You do not yet have your satchel full of potions and ingredients for your long journey...",
+                               40
         l4 << t.map_with_index do |s, i|
           {
             x: GTK.args.grid.w / 2,
@@ -543,7 +562,7 @@ class AlchemyLab < Scene
             a: @leave_btn_message_a,
             size_px: 26,
             font: "fonts/eaglelake.ttf",
-            primitive_marker: :label,
+            primitive_marker: :label
           }
         end
       end
@@ -892,12 +911,11 @@ class AlchemyLab < Scene
 
     @ingredient_generators.each do |id, c|
       if clicked = c.pop_clicked
-        if @from_tutorial && !@tutorial_steps[:base_ingredient_generated] 
+        if @from_tutorial && !@tutorial_steps[:base_ingredient_generated]
           @tutorial_steps[:base_ingredient_generated] = true
           $TUTORIAL_INDEX = 14
           id, text = GameUtils.tutorial_string?($TUTORIAL_INDEX)
           GameUtils.announce(text: text, duration: 6.5.seconds, tutorial_id: id)
-
         end
         puts "YOU CLICKED: #{clicked}"
         c_ref = GameUtils.gen_new_card(clicked[:id])
@@ -949,7 +967,11 @@ class AlchemyLab < Scene
         @ing_menu_widget.add_item(c_ref)
         @visible_ingredients.reject! { |id, c| c == c_ref }
 
-        if @from_tutorial && !@tutorial_steps[:starting_ingredients_packed] && @ing_menu_widget.items?.count >= 3 && @tutorial_steps[:base_ingredient_generated] && @tutorial_steps[:ingredient_selected] && @tutorial_steps[:recipe_selected] && @tutorial_steps[:recipe_mixed]
+        if @from_tutorial && !@tutorial_steps[:starting_ingredients_packed] &&
+             @ing_menu_widget.items?.count >= 3 &&
+             @tutorial_steps[:base_ingredient_generated] &&
+             @tutorial_steps[:ingredient_selected] &&
+             @tutorial_steps[:recipe_selected] && @tutorial_steps[:recipe_mixed]
           @tutorial_steps[:starting_ingredients_packed] = true
 
           $TUTORIAL_INDEX = 20
@@ -990,7 +1012,6 @@ class AlchemyLab < Scene
       $TUTORIAL_INDEX = 17
       id, text = GameUtils.tutorial_string?($TUTORIAL_INDEX)
       GameUtils.announce(text: text, duration: 6.5.seconds, tutorial_id: id)
-
     end
   end
 
@@ -1011,7 +1032,6 @@ class AlchemyLab < Scene
         $TUTORIAL_INDEX = 22
         id, text = GameUtils.tutorial_string?($TUTORIAL_INDEX)
         GameUtils.announce(text: text, duration: 6.5.seconds, tutorial_id: id)
-
       end
       if !c.selected
         move_card(c, @selected_ingredients, @visible_ingredients)
