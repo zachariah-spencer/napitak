@@ -45,53 +45,66 @@ class Combat < Scene
   end
 
   def tick
-    if @pre_deal_tick && @pre_deal_tick.elapsed_time >= @pre_deal_time
-      begin_combat
-    end
+    begin_combat if ready_for_combat?
     calc
-    if @dealing_tick && @dealing_tick.elapsed_time < @dealing_time
-      if @dealing_tick.elapsed_time % (@dealing_time / 4) == 0 &&
-           @player.potions.all_cards.size > 0
-        @hand_manager.draw_card
-      end
+
+    if dealing?
+      handle_card_dealing
     else
       calc
       @enemy_ai.tick
       @player.tick
-      if @enemy.combat_stats.dead && @victory_banner_timer &&
-           @victory_banner_timer.elapsed_time >= 3.seconds
-        leave(0)
-      end
-      if @player.combat_stats.dead && @defeat_banner_timer &&
-           @defeat_banner_timer.elapsed_time >= 3.seconds
-        leave(1)
-      end
-      if @fled && @flee_banner_timer &&
-           @flee_banner_timer.elapsed_time >= 3.seconds
-        leave(2)
-      end
+      handle_combat_end
+    end
+  end
+
+  def ready_for_combat?
+    @pre_deal_tick && @pre_deal_tick.elapsed_time >= @pre_deal_time
+  end
+
+  def dealing?
+    @dealing_tick && @dealing_tick.elapsed_time < @dealing_time
+  end
+
+  def handle_card_dealing
+    return unless @dealing_tick.elapsed_time % (@dealing_time / 4) == 0
+    return unless @player.potions.all_cards.size.positive?
+
+    @hand_manager.draw_card
+  end
+
+  def handle_combat_end
+    if @enemy.combat_stats.dead && @victory_banner_timer &&
+         @victory_banner_timer.elapsed_time >= 3.seconds
+      leave(:victory)
+    elsif @player.combat_stats.dead && @defeat_banner_timer &&
+          @defeat_banner_timer.elapsed_time >= 3.seconds
+      leave(:defeat)
+    elsif @fled && @flee_banner_timer &&
+          @flee_banner_timer.elapsed_time >= 3.seconds
+      leave(:flee)
     end
   end
 
   def calc_enemy_turn_ended
     if @player.combat_stats.dead
       @defeat_banner_timer = Kernel.tick_count
-    elsif !is_combat_ended? && !@enemy.combat_stats.dead && !@player.combat_stats.dead
+    elsif !combat_ended? && !@enemy.combat_stats.dead && !@player.combat_stats.dead
       begin_turn_stage @turn_stages[:drawing_cards]
     end
   end
 
-  def is_combat_ended?
-    (@victory_banner_timer || @defeat_banner_timer || @flee_banner_timer)
+  def combat_ended?
+    @victory_banner_timer || @defeat_banner_timer || @flee_banner_timer
   end
 
-  def leave(state = 0)
+  def leave(state = :victory)
     @victory_banner_timer = nil
     @defeat_banner_timer = nil
     @flee_banner_timer = nil
-    state_enum = { victory: 0, defeat: 1, flee: 2 }
+
     case state
-    when state_enum[:victory]
+    when :victory
       $encounter_manager.inc_combats_won
       if @enemy.is_boss
         $game.change_scene(
@@ -102,11 +115,11 @@ class Combat < Scene
       else
         $game.change_scene(prev_sc: @sc_id, next_scene: "rewards_screen")
       end
-    when state_enum[:defeat]
+    when :defeat
       $player.anodyne += $encounter_manager.calc_anodyne_earnings
       $player.save_upgrades_data
       $game.change_scene(prev_sc: @sc_id, next_scene: "run_summary")
-    when state_enum[:flee]
+    when :flee
       $game.change_scene(prev_sc: @sc_id, next_scene: "map")
     end
   end
@@ -114,22 +127,34 @@ class Combat < Scene
   def calc
     @hand_manager.calc_card_positions
 
-    if !$game.input_locked
-      calc_mouse_inputs if @player.my_turn? && !@fled
-    else
-      @hand_manager.hand.each { |_id, c| c.grabbed = false }
-      state.currently_dragging_card_id = nil
-      state.mouse_point_inside_square = nil
+    if $game.input_locked
+      clear_dragging_state
+    elsif @player.my_turn? && !@fled
+      calc_mouse_inputs
     end
 
-    if @enemy.combat_stats.dead && @enemy.turn_over? && !@victory_banner_timer
-      puts "ENEMY_DIED_COMBAT_ENDED\n\n"
-      end_combat
-    end
-
+    check_enemy_death
     @hand_manager.remove_marked
-    @banner_alpha = @banner_alpha.lerp(255, 0.04) if @defeat_banner_timer or
-      @victory_banner_timer or @flee_banner_timer
+    fade_banners
+  end
+
+  def clear_dragging_state
+    @hand_manager.hand.each { |_id, c| c.grabbed = false }
+    state.currently_dragging_card_id = nil
+    state.mouse_point_inside_square = nil
+  end
+
+  def check_enemy_death
+    return unless @enemy.combat_stats.dead && @enemy.turn_over? && !@victory_banner_timer
+
+    puts "ENEMY_DIED_COMBAT_ENDED\n\n"
+    end_combat
+  end
+
+  def fade_banners
+    if @defeat_banner_timer || @victory_banner_timer || @flee_banner_timer
+      @banner_alpha = @banner_alpha.lerp(255, 0.04)
+    end
   end
 
   def render(layer_num)

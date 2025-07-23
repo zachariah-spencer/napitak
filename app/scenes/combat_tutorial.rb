@@ -66,7 +66,7 @@ class CombatTutorial < Scene
     @player.tick
     if @enemy.combat_stats.dead && @victory_banner_timer &&
          @victory_banner_timer.elapsed_time >= 3.seconds
-      leave(0)
+      leave(:victory)
     end
     # if @player.combat_stats.dead && @defeat_banner_timer &&
     #      @defeat_banner_timer.elapsed_time >= 3.seconds
@@ -74,7 +74,7 @@ class CombatTutorial < Scene
     # end
     if @fled && @flee_banner_timer &&
          @flee_banner_timer.elapsed_time >= 3.seconds
-      leave(2)
+      leave(:flee)
     end
 
     handle_hover_tooltip_tutorial
@@ -145,11 +145,10 @@ class CombatTutorial < Scene
     begin_turn_stage @turn_stages[:drawing_cards] if !@player.combat_stats.dead
   end
 
-  def leave(state = 0)
+  def leave(_state = :victory)
     @victory_banner_timer = nil
     @defeat_banner_timer = nil
     @flee_banner_timer = nil
-    state_enum = { victory: 0, defeat: 1, flee: 2 }
     $game.change_scene(
       prev_sc: @sc_id,
       next_scene: "alchemy_lab",
