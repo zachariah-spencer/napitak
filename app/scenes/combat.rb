@@ -12,9 +12,6 @@ class Combat < Scene
       cleanup: 2,
       enemy_turn: 3
     }
-    @matching_potion = nil
-    @turn_stage = nil
-    @turn_num = -1
     @player = $player
     @player.combat_stats.reset!(@player.maximum_hp, @player.maximum_focus)
     @enemy = Object.const_get($files.save_data["current_enemy"].capitalize).new
@@ -51,7 +48,6 @@ class Combat < Scene
     if dealing?
       handle_card_dealing
     else
-      calc
       @enemy_ai.tick
       @player.tick
       handle_combat_end
@@ -164,8 +160,8 @@ class Combat < Scene
     l3 = []
     l4 = []
 
-    cards ||= []
-    tool_tips ||= []
+    cards = []
+    tool_tips = []
     front_card = []
 
     @hand_manager.hand.each do |id, c|
@@ -760,7 +756,6 @@ class Combat < Scene
         return
       end
       @player.begin_turn
-      @turn_num += 1
       calc_status_effects(type: :BLIGHT)
       @hand_manager.draw_card
       begin_turn_stage @turn_stages[:playing_cards]
@@ -796,7 +791,6 @@ class Combat < Scene
   def begin_combat
     @dealing_tick = Kernel.tick_count
     @pre_deal_tick = nil
-    @turn_num = 0
     @player.begin_turn
     # 3.times { @hand_manager.draw_card if @player.potions.all_cards.size > 0 }
     begin_turn_stage @turn_stages[:playing_cards]
