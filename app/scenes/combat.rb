@@ -37,6 +37,7 @@ class Combat < Scene
     @dealing_tick = nil
     @dealing_time = 1.seconds
     GTK.args.audio[:shuffle] = { input: "sounds/sfx/card/SFX_Shuffle2.wav" }
+    puts @hand_manager.hand
   end
 
   def ready
@@ -75,13 +76,13 @@ class Combat < Scene
   def calc_enemy_turn_ended
     if @player.combat_stats.dead
       @defeat_banner_timer = Kernel.tick_count
-    elsif !is_combat_ended?
+    elsif !is_combat_ended? && !@enemy.combat_stats.dead && !@player.combat_stats.dead
       begin_turn_stage @turn_stages[:drawing_cards]
     end
   end
 
   def is_combat_ended?
-    @victory_banner_timer || @defeat_banner_timer || @flee_banner_timer
+    (@victory_banner_timer || @defeat_banner_timer || @flee_banner_timer)
   end
 
   def leave(state = 0)
