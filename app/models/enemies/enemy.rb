@@ -26,7 +26,7 @@ class Enemy
     @sprite = nil
     @name = nil
     @is_boss = false
-
+    @accuracy = 90.0
     @floating_seed = Numeric.rand(0.0..100.0)
 
     @ang = 0
@@ -57,7 +57,20 @@ class Enemy
   def attack
     attack = select_attack
     $animation_manager.queue_animation(attack[:attack_id], lock_input: true)
-    handle_attack_effects(attack)
+    hit_roll = Numeric.rand(0.0..100.0)
+    if hit_roll <= @accuracy
+      handle_attack_effects(attack)
+    else
+      GameUtils.status_label(
+        GTK.args.grid.w / 2,
+        GTK.args.grid.h - 250,
+        "MISSED",
+        255,
+        255,
+        255,
+        64
+        )
+    end
     @attacked = true
   end
 
