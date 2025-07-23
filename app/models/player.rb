@@ -21,7 +21,8 @@ class Player
        :shop_discount,
        :reward_picks,
        :prev_loadout_ingredients,
-       :prev_loadout_potions
+       :prev_loadout_potions,
+       :feathers
 
   def initialize
     $player = self
@@ -40,6 +41,8 @@ class Player
     @stunned_turns = 0
     @hovered_cards = []
     @died = false
+    @feathers = load_feathers_data || 0
+    save_feathers_data
 
     @ingredients = Inventory.new()
     @potions = Inventory.new()
@@ -63,6 +66,7 @@ class Player
     @combat_stats.reset!(@maximum_hp, @maximum_focus)
     @died = false
     @my_turn = true
+    @feathers = 0
 
     save_upgrades_data
     save_inventory_data
@@ -72,6 +76,18 @@ class Player
     potions_save_data, ingredients_save_data = get_inventory_save_data
     $files.save_data["player"]["potions"] = potions_save_data
     $files.save_data["player"]["ingredients"] = ingredients_save_data
+  end
+
+  def save_feathers_data
+    $files.save_data["player"]["feathers"] = @feathers
+  end
+
+  def load_feathers_data
+    if $files.save_data["player"]["feathers"]
+      return @feathers = $files.save_data["player"]["feathers"] 
+    else
+      return nil
+    end
   end
 
   def get_inventory_save_data

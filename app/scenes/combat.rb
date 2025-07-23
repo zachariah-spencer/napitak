@@ -101,6 +101,9 @@ class Combat < Scene
 
     case state
     when :victory
+      @player.feathers += @enemy.value
+      puts "FEATHERS: #{@player.feathers}"
+      @player.save_feathers_data
       $encounter_manager.inc_combats_won
       if @enemy.is_boss
         $game.change_scene(

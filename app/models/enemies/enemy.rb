@@ -12,7 +12,8 @@ class Enemy
        :sprite,
        :name,
        :enemy_id,
-       :is_boss
+       :is_boss,
+       :value
 
   def initialize()
     $enemy = self
@@ -27,6 +28,7 @@ class Enemy
     @name = nil
     @is_boss = false
     @accuracy = 90.0
+    @value = 1
     @floating_seed = Numeric.rand(0.0..100.0)
 
     @ang = 0

@@ -47,6 +47,7 @@ class Game
     encounters_completed = $files.save_data&.[]("encounters_completed")
 
     if is_mid_run
+      @player.load_feathers_data
       change_scene(prev_sc: "", next_scene: @scene, quick: true)
     else
       new_run
