@@ -18,13 +18,24 @@ class Shop < Scene
     10.times do 
       @items << ShopItemCard.new($SHOP_ITEMS.keys.sample)
     end
-    
+
+    spacing = 32
+    start_x = (GTK.args.grid.w / 2) - ((128 + spacing) * (@items.length / 2))
     @items.each_with_index do |item, i|
       if i < (@items.length / 2)
-        item.instant_set_position(x: 100, y: 512 - 128)
+        item.instant_set_position(x: item.pos.x, y: 512 - 128)
       else
-        item.instant_set_position(x: 100, y: 256 - 128)
+        item.instant_set_position(x: item.pos.x, y: 256 - 128)
       end
+      row_i = i
+      if row_i >= 5
+        row_i -= 5
+      end
+
+      x_pos = start_x + ((128 + spacing) * row_i)
+      puts "INDEX: #{row_i}\nPOSITION SET RESULT X VAL: #{x_pos}"
+
+      item.instant_set_position(x: x_pos, y: item.pos.y)
     end
   end
 
