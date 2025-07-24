@@ -147,20 +147,23 @@ class Enemy
   end
 
   def select_attack
-    rand_n = Numeric.rand(0..100)
-    att_probs = @attacks.keys
-    attack = 0
+    # Build an array of [weight, attack_data] while preserving insertion order.
+    weighted_attacks = @attacks.map { |weight, atk| [weight, atk] }
+    return weighted_attacks.first.last if weighted_attacks.empty?
 
-    if rand_n >= 0 && rand_n < att_probs[0]
-      attack = @attacks[att_probs[0]]
-    elsif rand_n >= att_probs[0] && rand_n < (att_probs[0] + att_probs[1])
-      attack = @attacks[att_probs[1]]
-    elsif rand_n >= (att_probs[0] + att_probs[1]) &&
-          rand_n <= (att_probs[0] + att_probs[1] + att_probs[2])
-      attack = @attacks[att_probs[2]]
+    total_weight = weighted_attacks.sum { |w, _| w }
+    # Avoid division by zero or invalid ranges when total_weight is 0.
+    return weighted_attacks.first.last if total_weight <= 0
+
+    rand_n = Numeric.rand(0...total_weight)
+    cumulative = 0
+
+    weighted_attacks.each do |weight, attack|
+      cumulative += weight
+      return attack if rand_n < cumulative
     end
 
-    attack
+    weighted_attacks.last.last
   end
 
   def begin_turn
