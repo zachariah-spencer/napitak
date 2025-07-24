@@ -77,6 +77,8 @@ class CombatStatsComponent
     @max_focus = max_focus
   end
 
+  def tick; end
+
   def reset!(max_hp, max_foc)
     validate_upgrades(max_hp, max_foc)
     @hp = @max_hp
@@ -94,6 +96,7 @@ class CombatStatsComponent
   def dead?
     @hp <= 0
   end
+
 
   # If is_turn is false then it is the end of round calc
   # TAKES A STRING
