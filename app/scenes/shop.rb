@@ -20,7 +20,10 @@ class Shop < Scene
     end
 
     spacing = 32
-    start_x = (GTK.args.grid.w / 2) - ((128 + spacing) * (@items.length / 2))
+
+    num_per_row = @items.length / 2             # => 5
+    row_width = (128 + spacing) * num_per_row - spacing  # 768px total
+    start_x = (GTK.args.grid.w - row_width) / 2           # 256px when grid.w = 1280
     @items.each_with_index do |item, i|
       if i < (@items.length / 2)
         item.instant_set_position(x: item.pos.x, y: 512 - 128)
