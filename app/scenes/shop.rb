@@ -45,6 +45,7 @@ class Shop < Scene
   def cleanup
     $player.save_feathers_data
     $player.save_run_upgrades_data
+    $player.save_inventory_data
   end
 
   def tick
