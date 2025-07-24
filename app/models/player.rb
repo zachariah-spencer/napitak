@@ -17,6 +17,8 @@ class Player
        :starting_inventory_size,
        :maximum_focus,
        :maximum_hp,
+       :start_maximum_focus,
+       :start_maximum_hp,
        :alchemy_table_uses,
        :shop_discount,
        :reward_picks,
@@ -32,6 +34,8 @@ class Player
     @starting_inventory_size = 5
     @maximum_focus = 2
     @maximum_hp = 10
+    @start_maximum_hp = 10
+    @start_maximum_focus = 2
     @alchemy_table_uses = 1
     @shop_discount = 0 # out of 100 (integer percentile) (CURRENTLY UNUSED)
     @reward_picks = 2
@@ -63,12 +67,16 @@ class Player
   def reset!
     @ingredients = Inventory.new()
     @potions = Inventory.new()
+    @maximum_hp = @start_maximum_hp
+    @maximum_focus = @start_maximum_focus
     @combat_stats.reset!(@maximum_hp, @maximum_focus)
     @died = false
     @my_turn = true
     @feathers = 0
 
+    save_feathers_data
     save_upgrades_data
+    save_run_upgrades_data
     save_inventory_data
   end
 
@@ -88,6 +96,16 @@ class Player
     else
       return nil
     end
+  end
+
+  def save_run_upgrades_data
+    $files.save_data["player"]["run_upgrades"]["maximum_focus"] = @maximum_focus
+    $files.save_data["player"]["run_upgrades"]["maximum_hp"] = @maximum_hp
+  end
+
+  def load_run_upgrades_data
+    @maximum_focus = $files.save_data["player"]["run_upgrades"]["maximum_focus"]
+    @maximum_hp = $files.save_data["player"]["run_upgrades"]["maximum_hp"]
   end
 
   def get_inventory_save_data
@@ -153,8 +171,8 @@ class Player
     $files.save_data["player"]["upgrades"][
       "starting_inventory_size"
     ] = @starting_inventory_size
-    $files.save_data["player"]["upgrades"]["maximum_focus"] = @maximum_focus
-    $files.save_data["player"]["upgrades"]["maximum_hp"] = @maximum_hp
+    $files.save_data["player"]["upgrades"]["start_maximum_focus"] = @start_maximum_focus
+    $files.save_data["player"]["upgrades"]["start_maximum_hp"] = @start_maximum_hp
     $files.save_data["player"]["upgrades"][
       "alchemy_table_uses"
     ] = @alchemy_table_uses
@@ -234,9 +252,8 @@ class Player
       @anodyne = $files.save_data["player"]["upgrades"]["anodyne"]
       @starting_inventory_size =
         $files.save_data["player"]["upgrades"]["starting_inventory_size"]
-      @maximum_focus = $files.save_data["player"]["upgrades"]["maximum_focus"]
-      @maximum_hp = $files.save_data["player"]["upgrades"]["maximum_hp"]
-      puts "MAX HP: #{@maximum_hp} || HP SAVED: #{$files.save_data["player"]["upgrades"]["maximum_hp"]}"
+      @start_maximum_focus = $files.save_data["player"]["upgrades"]["start_maximum_focus"]
+      @start_maximum_hp = $files.save_data["player"]["upgrades"]["start_maximum_hp"]
       @alchemy_table_uses =
         $files.save_data["player"]["upgrades"]["alchemy_table_uses"]
       @shop_discount = $files.save_data["player"]["upgrades"]["shop_discount"]

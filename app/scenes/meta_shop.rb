@@ -34,10 +34,10 @@ class MetaShop < Scene
       sym: :max_hp,
       level:
         @upgrades_price_sheet[:max_hp]
-          .find { |lvl, data| data[:val] == $player.maximum_hp }
+          .find { |lvl, data| data[:val] == $player.start_maximum_hp }
           &.first,
       max_level: @upgrades_price_sheet[:max_hp].keys.size - 1,
-      val: $player.maximum_hp
+      val: $player.start_maximum_hp
     }
     @max_hp_btn =
       Button.new(x: GTK.args.grid.w / 2 - 90, y: GTK.args.grid.h / 2 + 50, w: 180, h: 100, text: "#{calc_price(@upgrades_price_sheet[:max_hp], @max_hp_info)}")
@@ -49,10 +49,10 @@ class MetaShop < Scene
       sym: :max_foc,
       level:
         @upgrades_price_sheet[:max_foc]
-          .find { |lvl, data| data[:val] == $player.maximum_focus }
+          .find { |lvl, data| data[:val] == $player.start_maximum_focus }
           &.first,
       max_level: @upgrades_price_sheet[:max_foc].keys.size - 1,
-      val: $player.maximum_focus
+      val: $player.start_maximum_focus
     }
     @max_focus_btn =
       Button.new(x: GTK.args.grid.w - 90 - 200, y: GTK.args.grid.h / 2 + 50, w: 180, h: 100, text: "#{calc_price(@upgrades_price_sheet[:max_foc], @max_focus_info)}")
@@ -166,9 +166,9 @@ class MetaShop < Scene
       when :siz
         $player.starting_inventory_size = price_sheet_entry[upgrade_info[:level]][:val]
       when :max_hp
-        $player.maximum_hp = price_sheet_entry[upgrade_info[:level]][:val]
+        $player.start_maximum_hp = price_sheet_entry[upgrade_info[:level]][:val]
       when :max_foc
-        $player.maximum_focus = price_sheet_entry[upgrade_info[:level]][:val]
+        $player.start_maximum_focus = price_sheet_entry[upgrade_info[:level]][:val]
       when :alc_tab_use
         $player.alchemy_table_uses = price_sheet_entry[upgrade_info[:level]][:val]
       when :shop_disc

@@ -43,11 +43,13 @@ class Shop < Scene
   end
 
   def cleanup
-    # $player.save_upgrades_data
+    $player.save_feathers_data
+    $player.save_run_upgrades_data
   end
 
   def tick
     @items.each { |item| item.tick }
+    @items.reject! { |item| item.bought_tick && item.bought_tick.elapsed_time >= 0.5.seconds}
     calc
   end
 
@@ -56,6 +58,11 @@ class Shop < Scene
   end
 
   def calc_mouse_inputs
+    @items.each do |item|
+      if (clicked = item.pop_clicked)
+        item.buy
+      end
+    end
     $game.change_scene(prev_sc: "shop", next_scene: "map") if @leave_btn.clicked?
   end
 

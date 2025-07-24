@@ -48,6 +48,7 @@ class Game
 
     if is_mid_run
       @player.load_feathers_data
+      @player.load_run_upgrades_data
       change_scene(prev_sc: "", next_scene: @scene, quick: true)
     else
       new_run
@@ -201,6 +202,8 @@ class Game
   end
 
   def tick
+
+    puts "VAL: #{$player.maximum_hp}" if GTK.args.inputs.keyboard.key_down.o
     handle_pause
 
     if !@status_labels_queue.empty? &&

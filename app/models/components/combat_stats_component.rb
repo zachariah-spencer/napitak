@@ -95,9 +95,6 @@ class CombatStatsComponent
     @hp <= 0
   end
 
-  def tick
-  end
-
   # If is_turn is false then it is the end of round calc
   # TAKES A STRING
   def calc_status(type:)
