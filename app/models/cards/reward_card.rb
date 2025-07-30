@@ -1,5 +1,14 @@
 # frozen_string_literal: true
-class IngredientRewardCard < Card
+class RewardCard < Card
+  def initialize(id)
+    super(
+      id,
+      GameUtils.new_id?,
+      $REWARD_ITEMS[id][:name],
+      -1,
+      $REWARD_ITEMS[id][:path]
+    )
+  end
 
   def calc_position(num_cards, index)
     x_s = (GTK.args.grid.w / 2) - (num_cards * ((@w + @padding + 100) / 2))
@@ -19,8 +28,23 @@ class IngredientRewardCard < Card
   end
 
   def use()
-    puts "ADDED #{@id} TO PLAYER INVENTORY"
-    $player.ingredients.add(GameUtils.gen_new_card(@id))
+    if @id == "s001"
+      #inc focus
+      $player.maximum_focus += 1
+    elsif @id == "s002"
+      #inc hp
+      $player.maximum_hp += 1
+    else
+      $player.ingredients.add(
+        IngredientCard.new(
+          @id,
+          GameUtils.new_id?,
+          $IIDS[@id].name,
+          -1,
+          $IIDS[@id].path
+        )
+      )
+    end
     @needs_removed = true
   end
 

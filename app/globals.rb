@@ -413,6 +413,7 @@ module GameData
       path: "sprites/hexagon/red.png"
     }
   }.merge(IIDS)
+  REWARD_ITEMS = SHOP_ITEMS.select { |k, v| k[0] == "s" || v[:base] }
   ENCOUNTERS = {
     "alchemy_lab" => {
       name: "Laboratory",
@@ -550,6 +551,7 @@ $IIDS = GameData::IIDS
 $ENCOUNTERS = GameData::ENCOUNTERS
 $ANIMATIONS = GameData::ANIMATIONS
 $SHOP_ITEMS = GameData::SHOP_ITEMS
+$REWARD_ITEMS = GameData::REWARD_ITEMS
 $TUTORIAL_INDEX = 0
 
 $entity_ids = []

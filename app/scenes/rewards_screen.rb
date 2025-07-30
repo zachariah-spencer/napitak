@@ -9,10 +9,15 @@ class RewardsScreen < Scene
     @picks = picks
     @choices = {}
     choices.times.each do
-      random_ingredient_id = $recipe_book.unlocked_bases.sample
-      random_ingredient_card =
-        GameUtils.gen_new_card(random_ingredient_id, is_reward: true)
-      @choices[random_ingredient_card.entity_id] = random_ingredient_card
+      random_reward_id =
+        (
+          $REWARD_ITEMS.keys.select do |id|
+            $recipe_book.unlocked_bases.include?(id) || id[0] == "s"
+          end
+        ).sample
+      puts random_reward_id
+      random_reward_card = RewardCard.new(random_reward_id)
+      @choices[random_reward_card.entity_id] = random_reward_card
     end
   end
 
@@ -27,7 +32,8 @@ class RewardsScreen < Scene
         Geometry.find_all_intersect_rect inputs.mouse, get_card_rects
 
       if GTK.args.inputs.mouse.click
-        clicked_card = Geometry.find_intersect_rect inputs.mouse, get_card_rects()
+        clicked_card =
+          Geometry.find_intersect_rect inputs.mouse, get_card_rects()
         if clicked_card
           puts "clicked on a card"
           clicked_card[:ref].use()
@@ -118,7 +124,7 @@ class RewardsScreen < Scene
         r: 255,
         g: 255,
         b: 255,
-        text: "Loot #{@picks} new ingredients!",
+        text: "Loot #{@picks}!",
         primitive_marker: :label
       }
       l4 << [rewards_left_label]
