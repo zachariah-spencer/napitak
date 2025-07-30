@@ -28,6 +28,7 @@ class Combat < Scene
     @victory_banner_timer = nil
     @flee_banner_timer = nil
     @fled = false
+    @flee_btn_alpha = 0
     @flee_attempts = 0
     @pre_deal_tick = Kernel.tick_count
     @pre_deal_time = 1.seconds
@@ -334,14 +335,14 @@ class Combat < Scene
       ]
 
       flee_percentage_label = {
-        x: flee_btn[:x] + 40,
+        x: flee_btn[:x] + 32,
         y: flee_btn[:y] + 64,
         anchor_x: 0.5,
         size_px: 20,
         r: 255,
         g: 255,
         b: 255,
-        a: 255,
+        a: @flee_btn_alpha,
         text: "#{flee_success_rate?.to_i}% Chance",
         font: "fonts/eaglelake.ttf",
         primitive_marker: :label
@@ -550,45 +551,39 @@ class Combat < Scene
   end
 
   def flee_btn
+    flee_btn_frames = 0.frame_index(3, 0.5.seconds, true)
     flee_btn_rect =
       Layout.rect(
-        col: Layout.col_count - 1.75,
+        col: Layout.col_count - 1.625,
         row: Layout.row_count - 0.5,
-        w: 1.5,
-        h: 0.75
       )
 
-    GTK.args.outputs[:flee_btn].w = flee_btn_rect[:w]
-    GTK.args.outputs[:flee_btn].h = flee_btn_rect[:h]
+    GTK.args.outputs[:flee_btn].w = 64
+    GTK.args.outputs[:flee_btn].h = 32
+    btn_color = { r: 150, g: 150, b: 150 }
+    if @player.my_turn?
+      @flee_btn_alpha = @flee_btn_alpha.lerp(255, 0.1)
+    else
+      @flee_btn_alpha = @flee_btn_alpha.lerp(0, 0.1)
+    end
 
     GTK.args.outputs[:flee_btn].primitives << flee_btn_rect.merge(
       x: 0,
       y: 0,
+      w: 64,
+      h: 32,
       angle: 0,
-      r: 0,
-      g: 0,
-      b: 0,
-      primitive_marker: :solid
+      path: "sprites/button-64x32-sheet-3.png",
+      tile_x: 64 * flee_btn_frames,
+      tile_y: 0,
+      tile_w: 64,
+      tile_h: 32,
+      primitive_marker: :sprite
     )
 
-    btn_color = { r: 150, g: 150, b: 150 }
-    btn_color = { r: 80, g: 80, b: 200 } if @player.my_turn?
-
     GTK.args.outputs[:flee_btn].primitives << {
-      x: 5,
-      y: 5,
-      w: flee_btn_rect[:w] - 5,
-      h: flee_btn_rect[:h] - 5,
-      angle: 0,
-      r: btn_color[:r],
-      g: btn_color[:g],
-      b: btn_color[:b],
-      primitive_marker: :solid
-    }
-
-    GTK.args.outputs[:flee_btn].primitives << {
-      x: flee_btn_rect[:w] / 2 + 2.5,
-      y: flee_btn_rect[:h] / 2 + 2.5,
+      x: 64 / 2,
+      y: 32 / 2,
       text: "FLEE",
       font: "fonts/eaglelake.ttf",
       anchor_x: 0.5,
@@ -596,10 +591,10 @@ class Combat < Scene
       r: 255,
       g: 255,
       b: 255,
-      size_px: 20
+      size_px: 22
     }
 
-    flee_btn_rect.merge(path: :flee_btn, primitive_marker: :sprite)
+    flee_btn_rect.merge(w: 64, h: 32, path: :flee_btn, primitive_marker: :sprite, a: @flee_btn_alpha,)
   end
 
   def cleanup
