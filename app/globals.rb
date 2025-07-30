@@ -430,27 +430,27 @@ module GameData
       name: "Event",
       path: "sprites/square/indigo.png",
       is_combat: false,
-      chance: 20
+      chance: 2
     },
     "shop" => {
       name: "Trader",
       path: "sprites/square/white.png",
       is_combat: false,
-      chance: 100
+      chance: 5
     },
     # basic enemy
     "wolf" => {
       name: "Wolf",
       path: "sprites/wolf-sheet-3.png",
       is_combat: true,
-      chance: 150
+      chance: 10
     },
     # frost guy
     "wraith" => {
       name: "Wraith",
       path: "sprites/wraith.png",
       is_combat: true,
-      chance: 1
+      chance: 3
     },
     # first boss encounter, uses
     "dracolisk" => {
@@ -464,14 +464,14 @@ module GameData
       name: "Ironroot Sentinel",
       path: "sprites/triangle/equilateral/green.png",
       is_combat: true,
-      chance: 2
+      chance: 1
     },
     # fire guy
     "mawfiend" => {
       name: "Abyssal Mawfiend",
       path: "sprites/triangle/equilateral/orange.png",
       is_combat: true,
-      chance: 2
+      chance: 1
     }
   }.freeze
   ANIMATIONS = {
