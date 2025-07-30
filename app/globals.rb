@@ -119,7 +119,7 @@ module GameData
       desc: "Flames leap from the bottle at foes.",
       fc: 1,
       max_uses: 5,
-      path: "sprites/circle/orange.png",
+      path: "sprites/flamelickbottle.png",
       ingredients: {
         "i001" => 1,
         "i003" => 2
@@ -140,7 +140,7 @@ module GameData
         "i006" => 1
       },
       traits: [
-        { CARD_TRAITS[:damage] => { amount: 5, type: DAMAGE_TYPES[:force] } }
+        { CARD_TRAITS[:damage] => { amount: 5, type: DAMAGE_TYPES[:heat] } }
       ]
     },
     "p003" => {
@@ -148,13 +148,13 @@ module GameData
       desc: "Sprays water at high pressure at foes.",
       fc: 2,
       max_uses: 5,
-      path: "sprites/circle/blue.png",
+      path: "sprites/waterbeambottle.png",
       ingredients: {
         "i001" => 1,
         "i002" => 2
       },
       traits: [
-        { CARD_TRAITS[:damage] => { amount: 2, type: DAMAGE_TYPES[:force] } }
+        { CARD_TRAITS[:damage] => { amount: 2, type: DAMAGE_TYPES[:cold] } }
       ]
     },
     "p004" => {
@@ -306,17 +306,17 @@ module GameData
     # BASEs
     "i001" => {
       name: "Bottle",
-      path: "sprites/hexagon/white.png",
+      path: "sprites/bottle.png",
       base: true
     },
     "i002" => {
       name: "Water",
-      path: "sprites/hexagon/blue.png",
+      path: "sprites/water.png",
       base: true
     },
     "i003" => {
       name: "Fire",
-      path: "sprites/hexagon/orange.png",
+      path: "sprites/fire.png",
       base: true
     },
     "i004" => {
@@ -332,7 +332,7 @@ module GameData
     # T1s
     "i006" => {
       name: "Steam",
-      path: "sprites/hexagon/indigo.png",
+      path: "sprites/steam.png",
       base: false,
       ingredients: {
         "i002" => 1,
@@ -441,9 +441,9 @@ module GameData
     # basic enemy
     "wolf" => {
       name: "Wolf",
-      path: "sprites/wolf.png",
+      path: "sprites/wolf-sheet-3.png",
       is_combat: true,
-      chance: 4
+      chance: 150
     },
     # frost guy
     "wraith" => {

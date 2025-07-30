@@ -40,15 +40,15 @@ class EncounterCard < Card
   end
 
   def prefab
-    {
-      x: @pos.x,
-      y: @pos.y,
-      w: @w,
-      h: @h,
-      angle: @angle,
-      path: @card_composite_sprite_ref,
-      primitive_marker: :sprite
-    }
+      {
+        x: @pos.x,
+        y: @pos.y,
+        w: @w,
+        h: @h,
+        angle: @angle,
+        path: @card_composite_sprite_ref,
+        primitive_marker: :sprite
+      }
   end
 
   def rect
@@ -108,14 +108,38 @@ class EncounterCard < Card
       tile_h: 128
     }
 
-    args.outputs[@card_composite_sprite_ref].primitives << {
-      x: @w / 2 - 30,
-      y: @h / 2 - 30,
-      w: 60,
-      h: 60,
-      angle: 0,
-      path: @img
-    }
+    
+    if @name == "Wolf"
+      sprite_frame = 0.frame_index(
+                      count: 3,
+                      hold_for: 30,
+                      repeat: true,
+                      repeat_index: 0,
+                      tick_count_override: Kernel.tick_count)
+      args.outputs[@card_composite_sprite_ref].primitives << {
+        x: @w / 4,
+        y: @h / 4,
+        w: @w / 2,
+        h: @h / 2,
+        angle: 0,
+        a: prefab_alpha,
+        path: @img,
+        tile_x: (sprite_frame * 128),
+        tile_y: 0,
+        tile_w: 128,
+        tile_h: 128,
+      }
+    else
+      args.outputs[@card_composite_sprite_ref].primitives << {
+        x: @w / 3,
+        y: @h / 3,
+        w: @w / 3,
+        h: @h / 3,
+        angle: 0,
+        a: prefab_alpha,
+        path: @img,
+      }
+    end
 
     parsed_name = String.wrapped_lines @name, 15
     args.outputs[

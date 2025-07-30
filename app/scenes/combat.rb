@@ -204,6 +204,7 @@ class Combat < Scene
         y: rect[:y],
         w: rect[:w],
         h: rect[:h],
+        a: 100,
         path: "sprites/background_frames/woods/woods_bg#{bg_tile_index + 1}.png" # "sprites/background_frames/woods/woods_bg#{bg_tile_index + 1}.png"
       }
 

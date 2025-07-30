@@ -196,7 +196,7 @@ class Card
       tile_w: 128,
       tile_h: 128
     }
-
+    
     args.outputs[@card_composite_sprite_ref].primitives << {
       x: @w / 4,
       y: @h / 4,
@@ -204,8 +204,9 @@ class Card
       h: @h / 2,
       angle: 0,
       a: prefab_alpha,
-      path: @img
+      path: @img,
     }
+    
 
     # add a label in the center of the render target
     args.outputs[@card_composite_sprite_ref].primitives << {
