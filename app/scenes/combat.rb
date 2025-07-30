@@ -183,7 +183,8 @@ class Combat < Scene
     x = (Kernel.tick_count * 2) % (2 * range)
     osc_val = range - (x - range).abs
 
-    bg_tile_index = 0.frame_index(5, 1.0.seconds, true)
+    # bg_tile_index = 0.frame_index(5, 1.0.seconds, true)
+    bg_tile_index = 0.frame_index(3, 1.0.seconds, true)
     tile_index = 0.frame_index(6, 0.25.seconds, true)
 
     case layer_num
@@ -198,14 +199,14 @@ class Combat < Scene
         b: 0,
         primitive_marker: :solid
       }
-      rect = Layout.rect(row: 0, col: 1, w: 22, h: 14)
+      rect = Layout.rect(row: -1, col: 1, w: 22, h: 14)
       background = {
         x: rect[:x],
         y: rect[:y],
         w: rect[:w],
         h: rect[:h],
-        a: 100,
-        path: "sprites/background_frames/woods/woods_bg#{bg_tile_index + 1}.png" # "sprites/background_frames/woods/woods_bg#{bg_tile_index + 1}.png"
+        a: 180,
+        path: "sprites/background_frames/dungeon/dungeon_bg#{bg_tile_index + 1}.png"
       }
 
       l0 << [background_solid, background]
