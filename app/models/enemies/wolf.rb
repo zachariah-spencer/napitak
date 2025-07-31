@@ -16,7 +16,7 @@ class Wolf < Enemy
     $enemy = self
     @combat_stats =
       CombatStatsComponent.new(
-        hp: 10,
+        hp: 200,
         focus: 0,
         x: GTK.args.grid.w / 2,
         y: GTK.args.grid.h - 270,
@@ -34,7 +34,9 @@ class Wolf < Enemy
               amount: 1,
               type: $DAMAGE_TYPES[:force]
             }
-          }
+          },
+          { $CARD_TRAITS[:ward] => 10 },
+          { $CARD_TRAITS[:restoration] => 10 }
         ]
       },
       20 => {
@@ -64,49 +66,51 @@ class Wolf < Enemy
     }
 
     def prefab
-    sprite_frame = 0.frame_index(
-                      count: 3,
-                      hold_for: 30,
-                      repeat: true,
-                      repeat_index: 0,
-                      tick_count_override: Kernel.tick_count)
-    enemy_sprite ||= {
-      x: @x,
-      y: @y,
-      angle: @ang,
-      w: @w,
-      h: @h,
-      r: @r,
-      path: @sprite,
-      tile_x: (sprite_frame * 128),
-      tile_y: 0,
-      tile_w: 128,
-      tile_h: 128,
-      primitive_marker: :sprite
-    }
+      sprite_frame =
+        0.frame_index(
+          count: 3,
+          hold_for: 30,
+          repeat: true,
+          repeat_index: 0,
+          tick_count_override: Kernel.tick_count
+        )
+      enemy_sprite ||= {
+        x: @x,
+        y: @y,
+        angle: @ang,
+        w: @w,
+        h: @h,
+        r: @r,
+        path: @sprite,
+        tile_x: (sprite_frame * 128),
+        tile_y: 0,
+        tile_w: 128,
+        tile_h: 128,
+        primitive_marker: :sprite
+      }
 
-    enemy_hp_label ||= {
-      x: GTK.args.grid.w / 2,
-      y: GTK.args.grid.h - 270,
-      alignment_enum: 1,
-      size_px: 20,
-      r: 150,
-      g: 0,
-      b: 0,
-      text: "#{@combat_stats.hp} / #{@combat_stats.max_hp}",
-      font: "fonts/eaglelake.ttf",
-      primitive_marker: :label
-    }
+      enemy_hp_label ||= {
+        x: GTK.args.grid.w / 2,
+        y: GTK.args.grid.h - 270,
+        alignment_enum: 1,
+        size_px: 20,
+        r: 150,
+        g: 0,
+        b: 0,
+        text: "#{@combat_stats.hp} / #{@combat_stats.max_hp}",
+        font: "fonts/eaglelake.ttf",
+        primitive_marker: :label
+      }
 
-    if !@combat_stats.dead && @shout_component.prefab
-      enemy_shout = @shout_component.prefab
-    else
-      enemy_shout = nil
+      if !@combat_stats.dead && @shout_component.prefab
+        enemy_shout = @shout_component.prefab
+      else
+        enemy_shout = nil
+      end
+
+      array = [enemy_sprite, enemy_hp_label, @combat_stats.prefab]
+      array << enemy_shout if enemy_shout
+      array
     end
-
-    array = [enemy_sprite, enemy_hp_label]
-    array << enemy_shout if enemy_shout
-    array
-  end
   end
 end

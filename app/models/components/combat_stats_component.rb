@@ -77,7 +77,8 @@ class CombatStatsComponent
     @max_focus = max_focus
   end
 
-  def tick; end
+  def tick
+  end
 
   def reset!(max_hp, max_foc)
     validate_upgrades(max_hp, max_foc)
@@ -96,7 +97,6 @@ class CombatStatsComponent
   def dead?
     @hp <= 0
   end
-
 
   # If is_turn is false then it is the end of round calc
   # TAKES A STRING
@@ -144,6 +144,9 @@ class CombatStatsComponent
   # type: String || stacks: int
   # Applies stacks of a certain status type.
   def apply_status(type:, stacks:)
+    if type == :WARD
+      puts "WARD"
+    end
     calc_status_tutorial(type: type)
     @statuses[$STATUS_TYPES[type]] += stacks
     color = status_color?($STATUS_TYPES[type])
@@ -166,18 +169,10 @@ class CombatStatsComponent
         puts "PLAY TUTORIAL FOR FROST"
         $TUTORIAL_INDEX = 30
         id, text = GameUtils.tutorial_string?($TUTORIAL_INDEX)
-        GameUtils.announce(
-          text: text,
-          duration: 6.5.seconds,
-          tutorial_id: id,
-        )
+        GameUtils.announce(text: text, duration: 6.5.seconds, tutorial_id: id)
         $TUTORIAL_INDEX = 31
         id, text = GameUtils.tutorial_string?($TUTORIAL_INDEX)
-        GameUtils.announce(
-          text: text,
-          duration: 6.5.seconds,
-          tutorial_id: id,
-        )
+        GameUtils.announce(text: text, duration: 6.5.seconds, tutorial_id: id)
       end
     when :BLIGHT
       if !$files.save_data["tutorials"]["blight"]
@@ -185,11 +180,7 @@ class CombatStatsComponent
         puts "PLAY TUTORIAL FOR BLIGHT"
         $TUTORIAL_INDEX = 32
         id, text = GameUtils.tutorial_string?($TUTORIAL_INDEX)
-        GameUtils.announce(
-          text: text,
-          duration: 6.5.seconds,
-          tutorial_id: id,
-        )
+        GameUtils.announce(text: text, duration: 6.5.seconds, tutorial_id: id)
         # $TUTORIAL_INDEX = 33
         # id, text = GameUtils.tutorial_string?($TUTORIAL_INDEX)
         # GameUtils.announce(
@@ -204,18 +195,10 @@ class CombatStatsComponent
         puts "PLAY TUTORIAL FOR WARD"
         $TUTORIAL_INDEX = 34
         id, text = GameUtils.tutorial_string?($TUTORIAL_INDEX)
-        GameUtils.announce(
-          text: text,
-          duration: 6.5.seconds,
-          tutorial_id: id,
-        )
+        GameUtils.announce(text: text, duration: 6.5.seconds, tutorial_id: id)
         $TUTORIAL_INDEX = 35
         id, text = GameUtils.tutorial_string?($TUTORIAL_INDEX)
-        GameUtils.announce(
-          text: text,
-          duration: 6.5.seconds,
-          tutorial_id: id,
-        )
+        GameUtils.announce(text: text, duration: 6.5.seconds, tutorial_id: id)
       end
     when :RESTORATION
       if !$files.save_data["tutorials"]["restoration"]
@@ -223,18 +206,10 @@ class CombatStatsComponent
         puts "PLAY TUTORIAL FOR RESTORATION"
         $TUTORIAL_INDEX = 36
         id, text = GameUtils.tutorial_string?($TUTORIAL_INDEX)
-        GameUtils.announce(
-          text: text,
-          duration: 6.5.seconds,
-          tutorial_id: id,
-        )
+        GameUtils.announce(text: text, duration: 6.5.seconds, tutorial_id: id)
         $TUTORIAL_INDEX = 37
         id, text = GameUtils.tutorial_string?($TUTORIAL_INDEX)
-        GameUtils.announce(
-          text: text,
-          duration: 6.5.seconds,
-          tutorial_id: id,
-        )
+        GameUtils.announce(text: text, duration: 6.5.seconds, tutorial_id: id)
       end
     end
 
@@ -248,52 +223,73 @@ class CombatStatsComponent
 
   def prefab()
     rt_paths = []
+    stack_sprites = []
     @statuses.each do |type, stacks|
-      if stacks > 0 and type != $STATUS_TYPES[:WARD]
-        path = "c_stat_#{@entity_id}_#{type}".to_s
-        GTK.args.outputs[path].w = 50
-        GTK.args.outputs[path].h = 50
+      path = "c_stat_#{@entity_id}_#{type}".to_s
+      if stacks > 0
+        GTK.args.outputs[path].w = 32
+        GTK.args.outputs[path].h = 32
+        if type != $STATUS_TYPES[:WARD]
 
-        color = status_color?(type)
-        GTK.args.outputs[path] << {
-          x: 0,
-          y: 0,
-          w: 50,
-          h: 50,
-          r: color[0],
-          g: color[1],
-          b: color[2],
-          path: "sprites/circle/white.png",
-          primitive_marker: :sprite
-        }
+          color = status_color?(type)
+          GTK.args.outputs[path] << {
+            x: 0,
+            y: 0,
+            w: 32,
+            h: 32,
+            r: color[0],
+            g: color[1],
+            b: color[2],
+            path: "sprites/circle/white.png",
+            primitive_marker: :sprite
+          }
 
-        GTK.args.outputs[path] << {
-          x: 25,
-          y: 25,
-          anchor_x: 0.5,
-          anchor_y: 0.5,
-          text: "#{stacks}",
-          size_enum: 8,
-          alignment_enum: 0,
-          r: 0,
-          g: 0,
-          b: 0,
-          a: 255,
-          primitive_marker: :label
-        }
-
-        rt_paths << path
+          GTK.args.outputs[path] << {
+            x: 16,
+            y: 16,
+            anchor_x: 0.5,
+            anchor_y: 0.5,
+            text: "#{stacks}",
+            size_px: 18,
+            font: "fonts/eaglelake.ttf",
+            alignment_enum: 0,
+            r: 0,
+            g: 0,
+            b: 0,
+            a: 255,
+            primitive_marker: :label
+          }
+          rt_paths << path
+        elsif stacks > 0 && type == $STATUS_TYPES[:WARD]
+          stack_sprites << {
+              x: @x,
+              y: @y - 32,
+              anchor_x: 0.5,
+              anchor_y: 0.5,
+              text: "#{stacks}",
+              size_px: 18,
+              font: "fonts/eaglelake.ttf",
+              alignment_enum: 0,
+              r: $STATUS_EFFECT_COLORS[$STATUS_TYPES[:WARD]][:r],
+              g: $STATUS_EFFECT_COLORS[$STATUS_TYPES[:WARD]][:g],
+              b: $STATUS_EFFECT_COLORS[$STATUS_TYPES[:WARD]][:b],
+              a: 255,
+              primitive_marker: :label
+          }
+        end
       end
     end
 
-    stack_sprites = []
-    start_x = @x - (rt_paths.size * 75 / 2)
+    # total width of the whole row:
+    total_width = rt_paths.size * 32 + (rt_paths.size - 1) * 8
+    # x of the very first icon so that row is centered on @x:
+    start_x = @x - total_width / 2.0
     rt_paths.each_with_index do |path, i|
       stack_sprites << {
-        x: start_x + (i * 30 + 25),
-        y: @y,
-        w: 30,
-        h: 30,
+        x: start_x + i * (32 + 8),
+        y: @y - 80,
+        w: 32,
+        h: 32,
         path: path,
         primitive_marker: :sprite
       }

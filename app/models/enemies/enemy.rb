@@ -289,7 +289,7 @@ class Enemy
       enemy_shout = nil
     end
 
-    array = [enemy_sprite, enemy_hp_label]
+    array = [enemy_sprite, enemy_hp_label, @combat_stats.prefab]
     array << enemy_shout if enemy_shout
     array
   end

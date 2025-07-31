@@ -595,7 +595,7 @@ class CombatTutorial < Scene
         text: "YOUR TURN"
       }
 
-      l4 << @enemy.combat_stats.prefab
+      # l4 << # @enemy.combat_stats.prefab
       l4 << @player.combat_stats.prefab
       l4 << players_turn_label if @player.my_turn?
       l4 << tool_tips

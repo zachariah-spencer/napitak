@@ -207,9 +207,10 @@ class Game
     handle_pause
 
     if !@status_labels_queue.empty? &&
-         @status_label_queue_count.elapsed_time >= 0.75.seconds
+         @status_label_queue_count.elapsed_time >= 0.3.seconds
       new_label = @status_labels_queue.shift
       new_label.created_at = Kernel.tick_count
+      @status_label_queue_count = Kernel.tick_count
       @status_labels << new_label
       @new_status_label_queued = false
     end
