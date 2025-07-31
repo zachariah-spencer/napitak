@@ -47,6 +47,7 @@ require_relative "scenes/combat_tutorial"
 require_relative "scenes/boss_rewards_screen"
 require_relative "scenes/rp_encounter"
 require_relative "scenes/shop"
+require_relative "scenes/collection"
 
 # services and manager classes
 require_relative "services/deck"

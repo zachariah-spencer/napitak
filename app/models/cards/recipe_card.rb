@@ -4,6 +4,7 @@ class RecipeCard < Card
   attr :hovered, :pos, :page
 
   def initialize(x:, y:, w:, h:, id:, page: -1)
+    @anim_seed = Numeric.rand(0..3)
     @entity_id = GameUtils.new_id?
     @floating_seed = Numeric.rand(0.0..100.0)
 
@@ -26,11 +27,7 @@ class RecipeCard < Card
     @hovered_h = h * 1.25
     @normal_w = w
     @normal_h = h
-    @card_back_img = %w[
-      sprites/card_back_1.png
-      sprites/card_back_2.png
-      sprites/card_back_3.png
-    ].sample
+    @card_back_img = "sprites/card_sheet.png"
 
     # Setup for potion data
     if GameUtils.is_potion(@id)
@@ -147,18 +144,7 @@ class RecipeCard < Card
     args.outputs[@card_composite_sprite_ref].w = @w
     args.outputs[@card_composite_sprite_ref].h = @h
 
-    args.outputs[@card_composite_sprite_ref].primitives << {
-      x: 0,
-      y: 0,
-      w: @w,
-      h: @h,
-      angle: 0,
-      r: @r,
-      g: @g,
-      b: @b,
-      path: @card_back_img
-    }
-
+    calc_render_target_background(args)
     args.outputs[@card_composite_sprite_ref].primitives << {
       x: @w / 2 - 40,
       y: @h / 2 - 40,

@@ -1,12 +1,9 @@
-class Journal < Scene
+class Collection < Scene
   attr :sc_id
 
-  def initialize(paused_instance:, title:, collection_array: [])
-    @sc_id = "journal"
+  def initialize(title:, collection_array: [])
+    @sc_id = "collection"
     @title = title
-    @collection_array = collection_array
-    @paused_instance = paused_instance
-    @recipe_ids = $recipe_book.unlocked_recipes
     @recipe_cards = []
     @page = 1
     @total_pages = ($recipe_book.unlocked_recipes.size / 8).ceil
@@ -20,14 +17,14 @@ class Journal < Scene
     spacing = 50
     start_x = -75
 
-    $recipe_book.unlocked_recipes.each do |recipe_id|
+    collection_array.each do |card_id|
       @recipe_cards << RecipeCard.new(
         page: page,
         x: start_x + ((200 + spacing) * col),
         y: (GTK.args.grid.h - 90) - ((285 - spacing) * row),
         w: 185,
         h: 185,
-        id: recipe_id
+        id: card_id
       )
       if col % max_col == 0
         if row == 2
@@ -59,20 +56,34 @@ class Journal < Scene
       card.hovered ? l4 << card.prefab : l3 << card.prefab
     end
 
+    bg_tile_index = 0.frame_index(24, 1.0.seconds, true)
+
     case layer_num
     when 0
-      background ||= {
+      background_solid = {
         x: 0,
         y: 0,
-        w: GTK.args.grid.w,
-        h: GTK.args.grid.h,
-        r: 10,
-        g: 10,
-        b: 20,
+        w: 1280,
+        h: 720,
+        r: 0,
+        g: 0,
+        b: 0,
         primitive_marker: :solid
       }
+      background = {
+        x: 0,
+        y: 0,
+        w: 1280,
+        h: 720,
+        r: 50,
+        g: 50,
+        b: 50,
+        a: 200,
+        path:
+          "sprites/background_frames/sketchybackground#{bg_tile_index + 1}.png"
+      }
 
-      l0 << [background]
+      l0 << [background_solid, background]
 
       l0
     when 1
@@ -107,11 +118,12 @@ class Journal < Scene
         x: GTK.args.grid.w / 2,
         y: GTK.args.grid.h - 50,
         alignment_enum: 1,
-        size_px: Math.sin(Kernel.tick_count * 0.08) * 4 + 40,
+        size_px: 40,
         r: 255,
         g: 255,
         b: 255,
         text: "#{@title}",
+        font: "fonts/eaglelake.ttf",
         primitive_marker: :label
       }
       l2 << [encounter_label]
@@ -259,7 +271,7 @@ class Journal < Scene
     if GTK.args.inputs.mouse.click and
          Geometry.intersect_rect?(GTK.args.inputs.mouse, back_btn)
       cleanup
-      @paused_instance.go_back
+      $game.toggle_collection
     end
 
     @page += 1 if (

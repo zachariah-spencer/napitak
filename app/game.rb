@@ -17,13 +17,20 @@ class Game
     @scene = $files.save_data&.[]("scene")
     @runs_completed = $files.save_data["runs_completed"] ||= 0
     @scene_ref = nil
+    @collection_scene_ref = nil
+    @viewing_collection = false
     @paused_scene_ref = nil
     @paused = false
     @pause_button_pos = 200 + 20
+    @pot_col_btn = { x: GTK.args.grid.w / 2 - 16 + 300, y: GTK.args.grid.h - 48, w: 32, h: 32, anchor_x: 0.5, anchor_y: 0.5, path: "sprites/bottle.png" }
+    @ing_col_btn = { x: GTK.args.grid.w / 2 - 16 - 300, y: GTK.args.grid.h - 48, w: 32, h: 32, anchor_x: 0.5, anchor_y: 0.5, path: "sprites/fire.png" }
+    @pot_btn_label = { x: GTK.args.grid.w / 2 - 16 + 300, y: GTK.args.grid.h - 90, anchor_x: 0.5, anchor_y: 0.5, font: "fonts/eaglelake.ttf", text: "Potions", size_px: 18, r: 255, g: 255, b: 255, a: 255 }
+    @ing_btn_label = { x: GTK.args.grid.w / 2 - 16 - 300, y: GTK.args.grid.h - 90, anchor_x: 0.5, anchor_y: 0.5, font: "fonts/eaglelake.ttf", text: "Ingredients", size_px: 18, r: 255, g: 255, b: 255, a: 255 }
     AnimationManager.new
     AnnouncementManager.new
     EventBus.new
     @transition = nil
+    @mid_run = $files.save_data&.[]("mid_run") || false
 
     # keeps track of whether an entity with a specific entity_id has been created already
     @created_entity_ids = []
@@ -42,11 +49,9 @@ class Game
 
     @player.load_inventory_data
     @player.load_upgrades_data
-
-    is_mid_run = $files.save_data&.[]("mid_run")
     encounters_completed = $files.save_data&.[]("encounters_completed")
 
-    if is_mid_run
+    if @mid_run
       @player.load_feathers_data
       @player.load_run_upgrades_data
       change_scene(prev_sc: "", next_scene: @scene, quick: true)
@@ -182,6 +187,20 @@ class Game
     end
   end
 
+  def toggle_collection(collection_scene_ref: nil, title: "", collection: [])
+    @viewing_collection = !@viewing_collection
+
+    if @viewing_collection
+      @scene = "collection"
+      @collection_scene_ref = collection_scene_ref if collection_scene_ref
+      @scene_ref = Collection.new(title: title, collection_array: collection)
+    else
+      @scene = @collection_scene_ref.sc_id
+      @scene_ref.cleanup
+      @scene_ref = @collection_scene_ref
+    end
+  end
+
   def handle_pause
     if GTK.args.inputs.keyboard.key_down.escape or
          (
@@ -205,6 +224,8 @@ class Game
 
     puts "VAL: #{$player.maximum_hp}" if GTK.args.inputs.keyboard.key_down.o
     handle_pause
+    calc_view_collection_inputs
+    calc_button_inputs
 
     if !@status_labels_queue.empty? &&
          @status_label_queue_count.elapsed_time >= 0.3.seconds
@@ -236,6 +257,7 @@ class Game
     $animation_manager.tick if $animation_manager
     $announcement_manager.tick
     render
+
     calc_particles
 
     # puts $files.save_data to file
@@ -244,6 +266,18 @@ class Game
       puts $files.save_data
       $files.write
       puts "WRITING SAVE DATA TO FILE"
+    end
+  end
+
+  def calc_view_collection_inputs()
+    if GTK.args.inputs.keyboard.key_down.tab || GTK.args.inputs.mouse.click && GTK.args.inputs.mouse.intersect_rect?(@ing_col_btn) && !@viewing_collection
+      ing_ids = []
+      $player.ingredients.all_cards.each { |c| ing_ids << c.id }
+      toggle_collection(collection_scene_ref: @scene_ref, title: "Ingredients", collection: ing_ids)
+    elsif GTK.args.inputs.keyboard.key_down.shift_left || GTK.args.inputs.mouse.click && GTK.args.inputs.mouse.intersect_rect?(@pot_col_btn) && !@viewing_collection
+      pot_ids = []
+      $player.potions.all_cards.each { |c| pot_ids << c.id }
+      toggle_collection(collection_scene_ref: @scene_ref, title: "Potions", collection: pot_ids)
     end
   end
 
@@ -275,6 +309,7 @@ class Game
 
     # render pause button
     outputs.primitives << pause_btn(x: @pause_button_pos) if not @paused
+    outputs.primitives << [@pot_btn_label, @pot_col_btn, @ing_btn_label, @ing_col_btn] if not @viewing_collection
 
     # render scene transition overlay
     outputs.primitives << @transition.prefab if @transition
@@ -284,6 +319,30 @@ class Game
       #   primitive.merge(r: 255, g: 255, b: 255)
       # end
       # args.outputs.static_primitives << Layout.debug_primitives
+    end
+  end
+
+  def calc_button_inputs
+    pot_hovered = GTK.args.inputs.mouse.intersect_rect?(@pot_col_btn)
+    if pot_hovered
+      @pot_col_btn[:w] = @pot_col_btn[:w].lerp(64, 0.2)
+      @pot_col_btn[:h] = @pot_col_btn[:h].lerp(64, 0.2)
+      @pot_btn_label[:a] = @pot_btn_label[:a].lerp(255, 0.2)
+    else
+      @pot_col_btn[:w] = @pot_col_btn[:w].lerp(32, 0.2)
+      @pot_col_btn[:h] = @pot_col_btn[:h].lerp(32, 0.2)
+      @pot_btn_label[:a] = @pot_btn_label[:a].lerp(0, 0.2)
+    end
+
+    ing_hovered = GTK.args.inputs.mouse.intersect_rect?(@ing_col_btn)
+    if ing_hovered
+      @ing_col_btn[:w] = @ing_col_btn[:w].lerp(64, 0.2)
+      @ing_col_btn[:h] = @ing_col_btn[:h].lerp(64, 0.2)
+      @ing_btn_label[:a] = @ing_btn_label[:a].lerp(255, 0.2)
+    else
+      @ing_col_btn[:w] = @ing_col_btn[:w].lerp(32, 0.2)
+      @ing_col_btn[:h] = @ing_col_btn[:h].lerp(32, 0.2)
+      @ing_btn_label[:a] = @ing_btn_label[:a].lerp(0, 0.2)
     end
   end
 

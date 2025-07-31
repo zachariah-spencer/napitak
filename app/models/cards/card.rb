@@ -161,24 +161,15 @@ class Card
     calc_render_target(GTK.args)
   end
 
-  def calc_render_target(args)
-    # start_looping_at = Numeric.rand(0..3)
+  def calc_render_target_background(args, prefab_alpha = 255)
     card_sprite_frame = 0.frame_index(
                         count: 4,
                         hold_for: 30,
                         repeat: true,
                         repeat_index: 0,
                         tick_count_override: Kernel.tick_count)
-
     card_sprite_frame += @anim_seed
     card_sprite_frame -= 4 if card_sprite_frame > 3
-    # define the dimensions of the combined sprite
-    # the name of the combined sprite is :card_combo
-    args.outputs[@card_composite_sprite_ref].w = @w
-    args.outputs[@card_composite_sprite_ref].h = @h
-
-    prefab_alpha = 255
-    prefab_alpha = (@uses_left > 0) ? 255 : 150 if GameUtils.is_potion(self.id)
 
     args.outputs[@card_composite_sprite_ref].primitives << {
       x: 0,
@@ -196,6 +187,17 @@ class Card
       tile_w: 128,
       tile_h: 128
     }
+  end
+
+  def calc_render_target(args)
+    # define the dimensions of the combined sprite
+    # the name of the combined sprite is :card_composite_sprite_ref
+    args.outputs[@card_composite_sprite_ref].w = @w
+    args.outputs[@card_composite_sprite_ref].h = @h
+    prefab_alpha = 255
+    prefab_alpha = (@uses_left > 0) ? 255 : 150 if GameUtils.is_potion(self.id)
+
+    calc_render_target_background(args, prefab_alpha)
     
     args.outputs[@card_composite_sprite_ref].primitives << {
       x: @w / 4,
