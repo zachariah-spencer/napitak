@@ -21,11 +21,50 @@ class Game
     @viewing_collection = false
     @paused_scene_ref = nil
     @paused = false
-    @pause_button_pos = 200 + 20
-    @pot_col_btn = { x: GTK.args.grid.w / 2 - 16 + 300, y: GTK.args.grid.h - 48, w: 32, h: 32, anchor_x: 0.5, anchor_y: 0.5, path: "sprites/bottle.png" }
-    @ing_col_btn = { x: GTK.args.grid.w / 2 - 16 - 300, y: GTK.args.grid.h - 48, w: 32, h: 32, anchor_x: 0.5, anchor_y: 0.5, path: "sprites/fire.png" }
-    @pot_btn_label = { x: GTK.args.grid.w / 2 - 16 + 300, y: GTK.args.grid.h - 90, anchor_x: 0.5, anchor_y: 0.5, font: "fonts/eaglelake.ttf", text: "Potions", size_px: 18, r: 255, g: 255, b: 255, a: 255 }
-    @ing_btn_label = { x: GTK.args.grid.w / 2 - 16 - 300, y: GTK.args.grid.h - 90, anchor_x: 0.5, anchor_y: 0.5, font: "fonts/eaglelake.ttf", text: "Ingredients", size_px: 18, r: 255, g: 255, b: 255, a: 255 }
+    @pot_col_btn = {
+      x: GTK.args.grid.w / 2 - 16 + 300,
+      y: GTK.args.grid.h - 32,
+      w: 32,
+      h: 32,
+      anchor_x: 0.5,
+      anchor_y: 0.5,
+      path: "sprites/bottle.png"
+    }
+    @ing_col_btn = {
+      x: GTK.args.grid.w / 2 - 16 - 300,
+      y: GTK.args.grid.h - 32,
+      w: 32,
+      h: 32,
+      anchor_x: 0.5,
+      anchor_y: 0.5,
+      path: "sprites/fire.png"
+    }
+    @pot_btn_label = {
+      x: GTK.args.grid.w / 2 - 16 + 300,
+      y: GTK.args.grid.h - 80,
+      anchor_x: 0.5,
+      anchor_y: 0.5,
+      font: "fonts/eaglelake.ttf",
+      text: "Potions",
+      size_px: 18,
+      r: 255,
+      g: 255,
+      b: 255,
+      a: 255
+    }
+    @ing_btn_label = {
+      x: GTK.args.grid.w / 2 - 16 - 300,
+      y: GTK.args.grid.h - 80,
+      anchor_x: 0.5,
+      anchor_y: 0.5,
+      font: "fonts/eaglelake.ttf",
+      text: "Ingredients",
+      size_px: 18,
+      r: 255,
+      g: 255,
+      b: 255,
+      a: 255
+    }
     AnimationManager.new
     AnnouncementManager.new
     EventBus.new
@@ -120,12 +159,6 @@ class Game
   def start_scene_change()
     @scene_ref.cleanup if @prev_sc != ""
     @scene = @next_sc
-
-    if @next_sc == "run_summary" || @next_sc == "meta_shop"
-      @pause_button_pos = 15
-    else
-      @pause_button_pos = 200 + 15
-    end
   end
 
   def finish_scene_change()
@@ -202,13 +235,14 @@ class Game
   end
 
   def handle_pause
-    if GTK.args.inputs.keyboard.key_down.escape or
+    if (
+         GTK.args.inputs.keyboard.key_down.escape &&
+           @scene_ref.sc_id != "collection"
+       ) ||
          (
-           GTK.args.inputs.mouse.click and
-             Geometry.intersect_rect?(
-               GTK.args.inputs.mouse,
-               pause_btn(x: @pause_button_pos)
-             )
+           GTK.args.inputs.mouse.click &&
+             Geometry.intersect_rect?(GTK.args.inputs.mouse, pause_btn) &&
+             @scene_ref.sc_id != "collection"
          )
       toggle_pause(paused_scene_ref: @scene_ref)
     end
@@ -221,7 +255,6 @@ class Game
   end
 
   def tick
-
     puts "VAL: #{$player.maximum_hp}" if GTK.args.inputs.keyboard.key_down.o
     handle_pause
     calc_view_collection_inputs
@@ -270,14 +303,33 @@ class Game
   end
 
   def calc_view_collection_inputs()
-    if GTK.args.inputs.keyboard.key_down.tab || GTK.args.inputs.mouse.click && GTK.args.inputs.mouse.intersect_rect?(@ing_col_btn) && !@viewing_collection
-      ing_ids = []
-      $player.ingredients.all_cards.each { |c| ing_ids << c.id }
-      toggle_collection(collection_scene_ref: @scene_ref, title: "Ingredients", collection: ing_ids)
-    elsif GTK.args.inputs.keyboard.key_down.shift_left || GTK.args.inputs.mouse.click && GTK.args.inputs.mouse.intersect_rect?(@pot_col_btn) && !@viewing_collection
-      pot_ids = []
-      $player.potions.all_cards.each { |c| pot_ids << c.id }
-      toggle_collection(collection_scene_ref: @scene_ref, title: "Potions", collection: pot_ids)
+    if !@paused
+      if GTK.args.inputs.keyboard.key_down.tab ||
+           GTK.args.inputs.mouse.click &&
+             GTK.args.inputs.mouse.intersect_rect?(@ing_col_btn) &&
+             !@viewing_collection
+        ing_ids = []
+        $player.ingredients.all_cards.each { |c| ing_ids << c.id }
+        toggle_collection(
+          collection_scene_ref: @scene_ref,
+          title: "Ingredients",
+          collection: ing_ids
+        )
+      elsif GTK.args.inputs.keyboard.key_down.shift_left ||
+            GTK.args.inputs.mouse.click &&
+              GTK.args.inputs.mouse.intersect_rect?(@pot_col_btn) &&
+              !@viewing_collection
+        pot_ids = []
+        $player.potions.all_cards.each { |c| pot_ids << c.id }
+        if @scene_ref.sc_id == "combat"
+          @scene_ref.hand_manager.hand.each { |id, c| pot_ids << c.id }
+        end
+        toggle_collection(
+          collection_scene_ref: @scene_ref,
+          title: "Potions",
+          collection: pot_ids
+        )
+      end
     end
   end
 
@@ -308,8 +360,15 @@ class Game
     outputs.primitives << [l0, l1, l2, l3, l4]
 
     # render pause button
-    outputs.primitives << pause_btn(x: @pause_button_pos) if not @paused
-    outputs.primitives << [@pot_btn_label, @pot_col_btn, @ing_btn_label, @ing_col_btn] if not @viewing_collection
+    outputs.primitives << pause_btn if @scene_ref.sc_id != "collection"
+    if !@viewing_collection && !@paused
+      outputs.primitives << [
+        @pot_btn_label,
+        @pot_col_btn,
+        @ing_btn_label,
+        @ing_col_btn
+      ]
+    end
 
     # render scene transition overlay
     outputs.primitives << @transition.prefab if @transition
@@ -346,8 +405,20 @@ class Game
     end
   end
 
-  def pause_btn(x: 195, y: GTK.args.grid.h - 45, w: 32, h: 32)
-    { x: x, y: y, w: w, h: h, angle: 0, path: "sprites/pause_button.png" }
+  def pause_btn
+    f_i = 0.frame_index(count: 4, hold_for: 15, repeat: true)
+    {
+      x: 128 + 16,
+      y: GTK.args.grid.h - 16 - 32,
+      w: 32,
+      h: 32,
+      path: "sprites/pause_button-sheet-4.png",
+      tile_x: 32 * f_i,
+      tile_y: 0,
+      tile_w: 32,
+      tile_h: 32,
+      angle: 0
+    }
   end
 
   def calc_particles

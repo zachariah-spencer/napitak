@@ -1,10 +1,31 @@
 class PauseMenu < Scene
-  
   def initialize()
     puts "PAUSED GAME"
     @pause_screen = "main"
     @journal_instance = nil
     @combat_instance = nil
+    @journal_btn = Button.new(
+         x: GTK.args.grid.w / 2 - 48,
+         y: (GTK.args.grid.h - 100) / 1.5,
+         w: 96,
+         h: 48,
+         text: "Journal"
+       )
+    @settings_btn = Button.new(
+         x: GTK.args.grid.w / 2 - 48,
+         y: (GTK.args.grid.h - 100) / 1.88,
+         w: 96,
+         h: 48,
+         text: "Settings"
+       )
+    @restart_run_btn = nil
+    @quit_btn = Button.new(
+         x: GTK.args.grid.w / 2 - 48,
+         y: (GTK.args.grid.h - 100) / 2.5,
+         w: 96,
+         h: 48,
+         text: "Quit"
+       )
 
     @l0 = []
     @l1 = []
@@ -30,44 +51,16 @@ class PauseMenu < Scene
   end
 
   def calc_main
-    if Button.new(
-         x: GTK.args.grid.w / 2 - 75,
-         y: (GTK.args.grid.h - 100) / 1.25,
-         w: 150,
-         h: 75,
-         text: "Resume"
-       ).clicked?
-      $game.toggle_pause
-    end
-
-    if Button.new(
-         x: GTK.args.grid.w / 2 - 75,
-         y: (GTK.args.grid.h - 100) / 1.5,
-         w: 150,
-         h: 75,
-         text: "Journal"
-       ).clicked?
+    if @journal_btn.clicked?
       @journal_instance = Journal.new(pause_menu_instance: self)
       @pause_screen = "journal"
     end
 
-    if Button.new(
-         x: GTK.args.grid.w / 2 - 75,
-         y: (GTK.args.grid.h - 100) / 1.88,
-         w: 150,
-         h: 75,
-         text: "Settings"
-       ).clicked?
+    if @settings_btn.clicked?
       @pause_screen = "settings"
     end
 
-    if Button.new(
-         x: GTK.args.grid.w / 2 - 75,
-         y: (GTK.args.grid.h - 100) / 2.5,
-         w: 150,
-         h: 75,
-         text: "Quit"
-       ).clicked?
+    if @quit_btn.clicked?
       GTK.request_quit
     end
   end
@@ -100,55 +93,50 @@ class PauseMenu < Scene
     @l4.clear
 
     # Universal pause menu sprites
-    background ||= {
+    bg_tile_index = 0.frame_index(24, 1.0.seconds, true)
+    background_solid = {
       x: 0,
       y: 0,
-      w: GTK.args.grid.w,
-      h: GTK.args.grid.h,
-      r: 80,
-      g: 80,
-      b: 120,
+      w: 1280,
+      h: 720,
+      r: 0,
+      g: 0,
+      b: 0,
       primitive_marker: :solid
+    }
+    background = {
+      x: 0,
+      y: 0,
+      w: 1280,
+      h: 720,
+      r: 50,
+      g: 50,
+      b: 50,
+      a: 200,
+      path:
+        "sprites/background_frames/sketchybackground#{bg_tile_index + 1}.png"
     }
 
     encounter_label ||= {
       x: GTK.args.grid.w / 2,
       y: GTK.args.grid.h - 50,
       alignment_enum: 1,
-      size_enum: 8,
+      size_px: 40,
       r: 255,
       g: 255,
       b: 255,
-      text: "Paused",
+      text: "PAUSED",
+      font: "fonts/eaglelake.ttf",
       primitive_marker: :label
-    }
-
-    coming_soon_label ||= {
-      x: GTK.args.grid.w / 2,
-      y: (GTK.args.grid.h - 100) / 1.5 + 15,
-      text: "(coming soon...)",
-      anchor_x: 0.5,
-      anchor_y: 0.5,
-      r: 150,
-      g: 150,
-      b: 150,
-      a: 150,
-      size_enum: -1
     }
 
     case screen
     when "main"
-      @l0 << [background]
+      @l0 << [background_solid, background]
       @l4 << [encounter_label]
-      @l3 << [
-        resume_btn,
-        journal_btn,
-        coming_soon_label,
-        settings_btn,
-        exit_btn
-      ]
+      @l3 << [@journal_btn.prefab, @settings_btn.prefab, @quit_btn.prefab]
     when "settings"
-      @l0 << [background]
+      @l0 << [background_solid, background]
       @l4 << [encounter_label]
       @l3 << [back_btn]
     when "journal"
@@ -162,12 +150,17 @@ class PauseMenu < Scene
   end
 
   def back_btn
+    f_i = 0.frame_index(count: 4, hold_for: 15, repeat: true)
     {
-      x: GTK.args.grid.w / 2 - 150,
-      y: GTK.args.grid.h - 150,
+      x: 48,
+      y: GTK.args.grid.h - 16 - 32,
       w: 32,
       h: 32,
-      path: "sprites/back_button.png",
+      path: "sprites/back_button-sheet-4.png",
+      tile_x: 32 * f_i,
+      tile_y: 0,
+      tile_w: 32,
+      tile_h: 32,
       angle: 0
     }
   end
@@ -176,52 +169,34 @@ class PauseMenu < Scene
     @pause_screen = "main"
   end
 
-  def resume_btn
-    Button
-      .new(
-        x: GTK.args.grid.w / 2 - 75,
-        y: (GTK.args.grid.h - 100) / 1.25,
-        w: 150,
-        h: 75,
-        text: "Resume"
-      )
-      .prefab
-  end
-
   def journal_btn
-    Button
-      .new(
-        x: GTK.args.grid.w / 2 - 75,
-        y: (GTK.args.grid.h - 100) / 1.5,
-        w: 150,
-        h: 75,
-        text: "Journal"
-      )
-      .prefab
+    Button.new(
+      x: GTK.args.grid.w / 2 - 75,
+      y: (GTK.args.grid.h - 100) / 1.5,
+      w: 150,
+      h: 75,
+      text: "Journal"
+    ).prefab
   end
 
   def settings_btn
-    Button
-      .new(
-        x: GTK.args.grid.w / 2 - 75,
-        y: (GTK.args.grid.h - 100) / 1.88,
-        w: 150,
-        h: 75,
-        text: "Settings"
-      )
-      .prefab
+    Button.new(
+      x: GTK.args.grid.w / 2 - 75,
+      y: (GTK.args.grid.h - 100) / 1.88,
+      w: 150,
+      h: 75,
+      text: "Settings"
+    ).prefab
   end
 
   def exit_btn
-    Button
-      .new(
-        x: GTK.args.grid.w / 2 - 75,
-        y: (GTK.args.grid.h - 100) / 2.5,
-        w: 150,
-        h: 75,
-        text: "Quit"
-      )
-      .prefab
+    Button.new(
+      x: GTK.args.grid.w / 2 - 75,
+      y: (GTK.args.grid.h - 100) / 2.5,
+      w: 150,
+      h: 75,
+      text: "Quit"
+    ).prefab
   end
 
   def render(layer_num)

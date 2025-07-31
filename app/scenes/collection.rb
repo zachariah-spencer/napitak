@@ -1,6 +1,4 @@
 class Collection < Scene
-  attr :sc_id
-
   def initialize(title:, collection_array: [])
     @sc_id = "collection"
     @title = title
@@ -257,12 +255,17 @@ class Collection < Scene
   end
 
   def back_btn
+    f_i = 0.frame_index(count: 4, hold_for: 15, repeat: true)
     {
-      x: 5,
-      y: GTK.args.grid.h - 10 - 35,
-      w: 35,
-      h: 35,
-      path: "sprites/back_button.png",
+      x: 48,
+      y: GTK.args.grid.h - 16 - 32,
+      w: 32,
+      h: 32,
+      path: "sprites/back_button-sheet-4.png",
+      tile_x: 32 * f_i,
+      tile_y: 0,
+      tile_w: 32,
+      tile_h: 32,
       angle: 0
     }
   end

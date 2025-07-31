@@ -57,20 +57,34 @@ class Journal < Scene
       card.hovered ? l4 << card.prefab : l3 << card.prefab
     end
 
+    bg_tile_index = 0.frame_index(24, 1.0.seconds, true)
+
     case layer_num
     when 0
-      background ||= {
+      background_solid = {
         x: 0,
         y: 0,
-        w: GTK.args.grid.w,
-        h: GTK.args.grid.h,
-        r: 10,
-        g: 10,
-        b: 20,
+        w: 1280,
+        h: 720,
+        r: 0,
+        g: 0,
+        b: 0,
         primitive_marker: :solid
       }
+      background = {
+        x: 0,
+        y: 0,
+        w: 1280,
+        h: 720,
+        r: 50,
+        g: 50,
+        b: 50,
+        a: 200,
+        path:
+          "sprites/background_frames/sketchybackground#{bg_tile_index + 1}.png"
+      }
 
-      l0 << [background]
+      l0 << [background_solid, background]
 
       l0
     when 1
@@ -105,11 +119,12 @@ class Journal < Scene
         x: GTK.args.grid.w / 2,
         y: GTK.args.grid.h - 50,
         alignment_enum: 1,
-        size_px: Math.sin(Kernel.tick_count * 0.08) * 4 + 40,
+        size_px: 40,
         r: 255,
         g: 255,
         b: 255,
         text: "Journal",
+        font: "fonts/eaglelake.ttf",
         primitive_marker: :label
       }
       l2 << [encounter_label]
@@ -243,12 +258,17 @@ class Journal < Scene
   end
 
   def back_btn
+    f_i = 0.frame_index(count: 4, hold_for: 15, repeat: true)
     {
-      x: 5,
-      y: GTK.args.grid.h - 10 - 35,
-      w: 35,
-      h: 35,
-      path: "sprites/back_button.png",
+      x: 48,
+      y: GTK.args.grid.h - 16 - 32,
+      w: 32,
+      h: 32,
+      path: "sprites/back_button-sheet-4.png",
+      tile_x: 32 * f_i,
+      tile_y: 0,
+      tile_w: 32,
+      tile_h: 32,
       angle: 0
     }
   end

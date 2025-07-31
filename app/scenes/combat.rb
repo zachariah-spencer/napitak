@@ -1,5 +1,5 @@
 class Combat < Scene
-  attr :sc_id
+  attr :sc_id, :hand_manager
 
   def initialize(enemy = nil)
     @sc_id = "combat"
@@ -29,12 +29,16 @@ class Combat < Scene
     @flee_banner_timer = nil
     @fled = false
     @flee_btn_alpha = 0
+    @pass_btn_alpha = 0
     @flee_attempts = 0
     @pre_deal_tick = Kernel.tick_count
     @pre_deal_time = 1.seconds
     @dealing_tick = nil
     @dealing_time = 1.seconds
-    GTK.args.audio[:shuffle] = { input: "sounds/sfx/card/SFX_Shuffle2.wav", gain: 0.7 }
+    GTK.args.audio[:shuffle] = {
+      input: "sounds/sfx/card/SFX_Shuffle2.wav",
+      gain: 0.7
+    }
     puts @hand_manager.hand
   end
 
@@ -86,7 +90,8 @@ class Combat < Scene
   def calc_enemy_turn_ended
     if @player.combat_stats.dead
       @defeat_banner_timer = Kernel.tick_count
-    elsif !combat_ended? && !@enemy.combat_stats.dead && !@player.combat_stats.dead
+    elsif !combat_ended? && !@enemy.combat_stats.dead &&
+          !@player.combat_stats.dead
       begin_turn_stage @turn_stages[:drawing_cards]
     end
   end
@@ -145,7 +150,10 @@ class Combat < Scene
   end
 
   def check_enemy_death
-    return unless @enemy.combat_stats.dead && @enemy.turn_over? && !@victory_banner_timer
+    unless @enemy.combat_stats.dead && @enemy.turn_over? &&
+             !@victory_banner_timer
+      return
+    end
 
     puts "ENEMY_DIED_COMBAT_ENDED\n\n"
     end_combat
@@ -207,7 +215,8 @@ class Combat < Scene
         w: rect[:w],
         h: rect[:h],
         a: 180,
-        path: "sprites/background_frames/dungeon/dungeon_bg#{bg_tile_index + 1}.png"
+        path:
+          "sprites/background_frames/dungeon/dungeon_bg#{bg_tile_index + 1}.png"
       }
 
       l0 << [background_solid, background]
@@ -335,15 +344,15 @@ class Combat < Scene
       ]
 
       flee_percentage_label = {
-        x: flee_btn[:x] + 32,
-        y: flee_btn[:y] + 64,
+        x: flee_btn[:x] + 38,
+        y: flee_btn[:y] + 52,
         anchor_x: 0.5,
-        size_px: 20,
+        size_px: 14,
         r: 255,
         g: 255,
         b: 255,
         a: @flee_btn_alpha,
-        text: "#{flee_success_rate?.to_i}% Chance",
+        text: "#{flee_success_rate?.to_i}% CHANCE",
         font: "fonts/eaglelake.ttf",
         primitive_marker: :label
       }
@@ -392,30 +401,41 @@ class Combat < Scene
         primitive_marker: :solid
       }
 
-      pass_btn_rect = Layout.rect(col: 0.2, row: 0, w: 1.5, h: 0.75)
-
-      pass_button =
-        pass_btn_rect.merge(r: 40, g: 40, b: 40, primitive_marker: :solid)
-
       if @player.combat_stats.focus == @player.combat_stats.mod_max_focus
         pass_btn_text = "PASS"
-        pass_btn_size = 20
+        rgb = [0, 255, 255]
       else
-        pass_btn_text = "NEXT"
-        pass_btn_size = 20
+        pass_btn_text = "PASS"
+        rgb = [255, 255, 255]
       end
+      pass_btn_rect = Layout.rect(col: 0.2, row: 0, w: 1.5, h: 0.75)
+      pass_btn_f_i = 0.frame_index(4, 0.5.seconds, true)
+      pass_button =
+        pass_btn_rect.merge(
+          r: rgb[0],
+          g: rgb[1],
+          b: rgb[2],
+          a: @pass_btn_alpha,
+          tile_x: 96 * pass_btn_f_i,
+          tile_y: 0,
+          tile_w: 96,
+          tile_h: 48,
+          path: "sprites/wide_button_frame-sheet-6.png",
+          primitive_marker: :sprite
+        )
 
       pass_button_label =
         pass_btn_rect.center.merge(
           text: "#{pass_btn_text}",
           font: "fonts/eaglelake.ttf",
-          size_px: pass_btn_size,
+          size_px: 20,
           alignment_enum: 1,
           anchor_x: 0.5,
           anchor_y: 0.5,
           r: 255,
           g: 255,
           b: 255,
+          a: @pass_btn_alpha,
           primitive_marker: :label
         )
 
@@ -551,39 +571,44 @@ class Combat < Scene
   end
 
   def flee_btn
-    flee_btn_frames = 0.frame_index(3, 0.5.seconds, true)
+    flee_btn_frames = 0.frame_index(4, 0.5.seconds, true)
     flee_btn_rect =
       Layout.rect(
-        col: Layout.col_count - 1.625,
-        row: Layout.row_count - 0.5,
+        col: Layout.col_count - 1.685,
+        row: Layout.row_count - 0.325,
+        w: 1.5,
+        h: 0.75
       )
 
-    GTK.args.outputs[:flee_btn].w = 64
-    GTK.args.outputs[:flee_btn].h = 32
+    GTK.args.outputs[:flee_btn].w = 96
+    GTK.args.outputs[:flee_btn].h = 48
     btn_color = { r: 150, g: 150, b: 150 }
     if @player.my_turn?
       @flee_btn_alpha = @flee_btn_alpha.lerp(255, 0.1)
+      @pass_btn_alpha = @pass_btn_alpha.lerp(255, 0.1)
     else
       @flee_btn_alpha = @flee_btn_alpha.lerp(0, 0.1)
+      @pass_btn_alpha = @pass_btn_alpha.lerp(0, 0.1)
     end
 
     GTK.args.outputs[:flee_btn].primitives << flee_btn_rect.merge(
       x: 0,
       y: 0,
-      w: 64,
-      h: 32,
       angle: 0,
-      path: "sprites/button-64x32-sheet-3.png",
-      tile_x: 64 * flee_btn_frames,
+      path: "sprites/wide_button_frame-sheet-6.png",
+      tile_x: 96 * flee_btn_frames,
       tile_y: 0,
-      tile_w: 64,
-      tile_h: 32,
+      tile_w: 96,
+      tile_h: 48,
+      r: 255,
+      g: 0,
+      b: 0,
       primitive_marker: :sprite
     )
 
     GTK.args.outputs[:flee_btn].primitives << {
-      x: 64 / 2,
-      y: 32 / 2,
+      x: flee_btn_rect[:w] / 2,
+      y: flee_btn_rect[:h] / 2,
       text: "FLEE",
       font: "fonts/eaglelake.ttf",
       anchor_x: 0.5,
@@ -594,7 +619,13 @@ class Combat < Scene
       size_px: 22
     }
 
-    flee_btn_rect.merge(w: 64, h: 32, path: :flee_btn, primitive_marker: :sprite, a: @flee_btn_alpha,)
+    flee_btn_rect.merge(
+      w: 96,
+      h: 48,
+      path: :flee_btn,
+      primitive_marker: :sprite,
+      a: @flee_btn_alpha
+    )
   end
 
   def cleanup
