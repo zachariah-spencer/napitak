@@ -14,7 +14,7 @@ class CombatStatsComponent
        :dead_tick,
        :resistances,
        :vulnerabilities
-  def initialize(x:, y:, hp: 1, focus: 0, resistances: [], vulnerabilities: [])
+  def initialize(x:, y:, hp: 1, focus: 0, resistances: [], vulnerabilities: [], columns: 8)
     @statuses = {
       $STATUS_TYPES[:SCORCH] => 0,
       $STATUS_TYPES[:BLIGHT] => 0,
@@ -27,6 +27,7 @@ class CombatStatsComponent
     @vulnerabilities = vulnerabilities
     @x = x
     @y = y
+    @columns = columns
     @entity_id = GameUtils.new_id?
     @hp = hp
     @max_hp = hp
@@ -41,7 +42,7 @@ class CombatStatsComponent
   def heal(amt)
     @hp += amt
     @hp = @max_hp if @hp > @max_hp
-    GameUtils.status_label(@x, @y, "#{amt}", 0, 255, 0, 100)
+    GameUtils.status_label(GTK.args.grid.w / 2, @y, "#{amt}", 0, 255, 0, 100)
   end
 
   def hurt(amt, type)
@@ -63,11 +64,11 @@ class CombatStatsComponent
       @hp = 0 if @hp < 0
     end
 
-    GameUtils.status_label(@x, @y, "#{mod_amt}", 255, 0, 0, 100)
+    GameUtils.status_label(GTK.args.grid.w / 2, @y, "#{mod_amt}", 255, 0, 0, 100)
     if vulnerable
-      GameUtils.status_label(@x, @y, "VULNERABLE", 255, 255, 255, 100)
+      GameUtils.status_label(GTK.args.grid.w / 2, @y, "VULNERABLE", 255, 255, 255, 100)
     end
-    GameUtils.status_label(@x, @y, "RESISTANT", 255, 255, 255, 100) if resistant
+    GameUtils.status_label(GTK.args.grid.w / 2, @y, "RESISTANT", 255, 255, 255, 100) if resistant
     @dead = true if dead?
     @dead_tick = Kernel.tick_count if @dead
   end
@@ -111,8 +112,8 @@ class CombatStatsComponent
         hurt(stacks, $DAMAGE_TYPES[:heat])
         @statuses[$STATUS_TYPES[:SCORCH]] -= 1
         GameUtils.status_label(
-          @x,
-          @y - 100,
+          GTK.args.grid.w / 2,
+          @y,
           "-1",
           color[0],
           color[1],
@@ -125,13 +126,13 @@ class CombatStatsComponent
     when $STATUS_TYPES[:FROST]
       if stacks > 0
         @statuses[$STATUS_TYPES[:FROST]] -= 1
-        GameUtils.status_label(@x, @y, "-1", color[0], color[1], color[2], 80)
+        GameUtils.status_label(GTK.args.grid.w / 2, @y, "-1", color[0], color[1], color[2], 80)
       end
     when $STATUS_TYPES[:RESTORATION]
       if stacks > 0
         heal(stacks)
         @statuses[$STATUS_TYPES[:RESTORATION]] -= 1
-        GameUtils.status_label(@x, @y, "-1", color[0], color[1], color[2], 80)
+        GameUtils.status_label(GTK.args.grid.w / 2, @y, "-1", color[0], color[1], color[2], 80)
       end
     end
 
@@ -151,7 +152,7 @@ class CombatStatsComponent
     @statuses[$STATUS_TYPES[type]] += stacks
     color = status_color?($STATUS_TYPES[type])
     GameUtils.status_label(
-      @x,
+      GTK.args.grid.w / 2,
       @y - 100,
       "#{$STATUS_EFFECT_COLORS[$STATUS_TYPES[type]][:message]} +#{stacks}",
       color[0],
@@ -281,13 +282,17 @@ class CombatStatsComponent
     end
 
     # total width of the whole row:
-    total_width = rt_paths.size * 32 + (rt_paths.size - 1) * 8
+    if rt_paths.size > 2
+      total_width = 2 * 32 + (2 - 1) * 8
+    else
+      total_width = rt_paths.size * 32 + (rt_paths.size - 1) * 8
+    end
     # x of the very first icon so that row is centered on @x:
     start_x = @x - total_width / 2.0
     rt_paths.each_with_index do |path, i|
       stack_sprites << {
-        x: start_x + i * (32 + 8),
-        y: @y - 80,
+        x: start_x + i % 2 * (32 + 8),
+        y: @y - 80 - ((i / 2).floor * (32 + 8)),
         w: 32,
         h: 32,
         path: path,

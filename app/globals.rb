@@ -128,8 +128,8 @@ module GameData
         { CARD_TRAITS[:damage] => { amount: 1, type: DAMAGE_TYPES[:heat] } },
         { CARD_TRAITS[:ward] => 10 },
         { CARD_TRAITS[:blight] => 3 },
-        { CARD_TRAITS[:frost] => 3 },
-        { CARD_TRAITS[:scorch] => 3 }
+        { CARD_TRAITS[:scorch] => 3 },
+        { CARD_TRAITS[:restoration] => 3 }
       ]
     },
     "p002" => {

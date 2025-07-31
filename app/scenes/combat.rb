@@ -256,8 +256,8 @@ class Combat < Scene
         tile_h: GTK.args.grid.h,
         primitive_marker: :sprite
       }
-      hp_label_rect = Layout.rect(col: 0.4, row: 0.5, w: 1, h: 1)
-      hp_label_num_rect = Layout.rect(col: 0.4, row: 0.9, w: 1, h: 1)
+      hp_label_rect = Layout.rect(col: 0.4, row: 7, w: 1, h: 1)
+      hp_label_num_rect = Layout.rect(col: 0.4, row: 7.4, w: 1, h: 1)
 
       player_hp_label_header =
         hp_label_rect.center.merge(
@@ -296,8 +296,8 @@ class Combat < Scene
         primitive_marker: :label
       }
 
-      focus_label_rect = Layout.rect(col: 0.4, row: 1.5, w: 1, h: 1)
-      focus_label_num_rect = Layout.rect(col: 0.4, row: 1.9, w: 1, h: 1)
+      focus_label_rect = Layout.rect(col: 0.4, row: 6, w: 1, h: 1)
+      focus_label_num_rect = Layout.rect(col: 0.4, row: 6.4, w: 1, h: 1)
 
       player_focus_label_header =
         focus_label_rect.center.merge(
@@ -350,9 +350,9 @@ class Combat < Scene
 
       l1 << flee_percentage_label
 
-      if @player.combat_stats.statuses[$STATUS_TYPES[:WARD]] > 0
-        l1 << player_ward_label
-      end
+      # if @player.combat_stats.statuses[$STATUS_TYPES[:WARD]] > 0
+      #   l1 << player_ward_label
+      # end
       return l1
     when 2
       deck_frame = 0.frame_index(3, 0.18.seconds, true)

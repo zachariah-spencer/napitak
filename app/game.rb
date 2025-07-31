@@ -295,8 +295,8 @@ class Game
     # process each particle setting their alpha
     # make them spin, and set their y value
     @status_labels.each do |particle|
-      particle.a -= 5
-      particle.angle += 0.5 # / (particle.scale * 0.2)
+      particle.a -= 2
+      particle.angle += particle.angle_mod # / (particle.scale * 0.2)
       particle.y += 3
     end
 
@@ -324,7 +324,8 @@ class Game
       g: g,
       b: b,
       angle_anchor_x: 0.5,
-      angle_anchor_y: 0.5
+      angle_anchor_y: 0.5,
+      angle_mod: Numeric.rand(-0.2..0.2)
     }
   end
 

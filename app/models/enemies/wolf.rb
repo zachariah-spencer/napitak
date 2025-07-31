@@ -36,7 +36,10 @@ class Wolf < Enemy
             }
           },
           { $CARD_TRAITS[:ward] => 10 },
-          { $CARD_TRAITS[:restoration] => 10 }
+          { $CARD_TRAITS[:restoration] => 2 },
+          { $CARD_TRAITS[:scorch] => 2 },
+          { $CARD_TRAITS[:frost] => 2 },
+          { $CARD_TRAITS[:blight] => 2 },
         ]
       },
       20 => {
