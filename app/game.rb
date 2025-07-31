@@ -303,31 +303,33 @@ class Game
   end
 
   def calc_view_collection_inputs()
-    if GTK.args.inputs.keyboard.key_down.tab ||
-         GTK.args.inputs.mouse.click &&
-           GTK.args.inputs.mouse.intersect_rect?(@ing_col_btn) &&
-           !@viewing_collection
-      ing_ids = []
-      $player.ingredients.all_cards.each { |c| ing_ids << c.id }
-      toggle_collection(
-        collection_scene_ref: @scene_ref,
-        title: "Ingredients",
-        collection: ing_ids
-      )
-    elsif GTK.args.inputs.keyboard.key_down.shift_left ||
-          GTK.args.inputs.mouse.click &&
-            GTK.args.inputs.mouse.intersect_rect?(@pot_col_btn) &&
-            !@viewing_collection
-      pot_ids = []
-      $player.potions.all_cards.each { |c| pot_ids << c.id }
-      if @scene_ref.sc_id == "combat"
-        @scene_ref.hand_manager.hand.each { |id, c| pot_ids << c.id }
+    if !@paused
+      if GTK.args.inputs.keyboard.key_down.tab ||
+           GTK.args.inputs.mouse.click &&
+             GTK.args.inputs.mouse.intersect_rect?(@ing_col_btn) &&
+             !@viewing_collection
+        ing_ids = []
+        $player.ingredients.all_cards.each { |c| ing_ids << c.id }
+        toggle_collection(
+          collection_scene_ref: @scene_ref,
+          title: "Ingredients",
+          collection: ing_ids
+        )
+      elsif GTK.args.inputs.keyboard.key_down.shift_left ||
+            GTK.args.inputs.mouse.click &&
+              GTK.args.inputs.mouse.intersect_rect?(@pot_col_btn) &&
+              !@viewing_collection
+        pot_ids = []
+        $player.potions.all_cards.each { |c| pot_ids << c.id }
+        if @scene_ref.sc_id == "combat"
+          @scene_ref.hand_manager.hand.each { |id, c| pot_ids << c.id }
+        end
+        toggle_collection(
+          collection_scene_ref: @scene_ref,
+          title: "Potions",
+          collection: pot_ids
+        )
       end
-      toggle_collection(
-        collection_scene_ref: @scene_ref,
-        title: "Potions",
-        collection: pot_ids
-      )
     end
   end
 
@@ -359,7 +361,7 @@ class Game
 
     # render pause button
     outputs.primitives << pause_btn if @scene_ref.sc_id != "collection"
-    if not @viewing_collection
+    if !@viewing_collection && !@paused
       outputs.primitives << [
         @pot_btn_label,
         @pot_col_btn,

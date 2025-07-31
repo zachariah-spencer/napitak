@@ -344,10 +344,10 @@ class Combat < Scene
       ]
 
       flee_percentage_label = {
-        x: flee_btn[:x] + 48,
-        y: flee_btn[:y] + 70,
+        x: flee_btn[:x] + 38,
+        y: flee_btn[:y] + 52,
         anchor_x: 0.5,
-        size_px: 18,
+        size_px: 14,
         r: 255,
         g: 255,
         b: 255,
@@ -573,7 +573,12 @@ class Combat < Scene
   def flee_btn
     flee_btn_frames = 0.frame_index(4, 0.5.seconds, true)
     flee_btn_rect =
-      Layout.rect(col: Layout.col_count - 1.925, row: Layout.row_count - 0.5)
+      Layout.rect(
+        col: Layout.col_count - 1.685,
+        row: Layout.row_count - 0.325,
+        w: 1.5,
+        h: 0.75
+      )
 
     GTK.args.outputs[:flee_btn].w = 96
     GTK.args.outputs[:flee_btn].h = 48
@@ -589,20 +594,21 @@ class Combat < Scene
     GTK.args.outputs[:flee_btn].primitives << flee_btn_rect.merge(
       x: 0,
       y: 0,
-      w: 96,
-      h: 48,
       angle: 0,
       path: "sprites/wide_button_frame-sheet-6.png",
       tile_x: 96 * flee_btn_frames,
       tile_y: 0,
       tile_w: 96,
       tile_h: 48,
+      r: 255,
+      g: 0,
+      b: 0,
       primitive_marker: :sprite
     )
 
     GTK.args.outputs[:flee_btn].primitives << {
-      x: 96 / 2,
-      y: 48 / 2,
+      x: flee_btn_rect[:w] / 2,
+      y: flee_btn_rect[:h] / 2,
       text: "FLEE",
       font: "fonts/eaglelake.ttf",
       anchor_x: 0.5,
