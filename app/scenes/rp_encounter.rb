@@ -19,12 +19,24 @@ class RoleplayEncounter < Scene
 
   # await a left click to leave encounter
 
+  # possible effects
+  # initiate_combat wolf
+  # initiate_combat bat
+  # modify_max_hp int
+  # modify_max_focus int
+  # vulnerable
+  # modify_feathers int
+  # add_random_ingredients array_of_ing_ids
+  # vulnerable_cold
+  # resist_poison
+
   def initialize()
     puts "init Roleplay Encounter"
     @sc_id = "rp_encounter_generic"
 
     @OUTCOMES = { undetermined: 0, bad: 1, neutral: 2, good: 3 }
     @outcome = @OUTCOMES[:undetermined]
+    @consequence_effect = ""
 
     @options
     @options_alpha = 0
