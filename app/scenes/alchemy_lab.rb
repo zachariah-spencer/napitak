@@ -215,6 +215,10 @@ class AlchemyLab < Scene
 
     new_pots.each do |c|
       c.free_floating = false
+      c.marked_for_removal = false
+      c.needs_removed = false
+      c.fw = 160
+      c.fh = 160
     end
 
     @player.ingredients = Inventory.new(new_ings)
