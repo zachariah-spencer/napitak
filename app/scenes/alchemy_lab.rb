@@ -302,7 +302,7 @@ class AlchemyLab < Scene
 
     all_moveable_cards.each do |id, c|
       c.calc_position(0, 0)
-      if out_of_bounds?(c)
+      if out_of_bounds?(c) && !$game.input_locked
         c.mark_for_removal 
         unselect_cards(c)
       end
