@@ -18,6 +18,7 @@ class CardHandManager
     end
     if @player.potions.all_cards.size > 0 && @hand.size < @max_hand_size
       card = @player.potions.draw(true)
+      card.instant_set_position(x: 64, y: 64)
       @hand[card.entity_id] = card
     end
   end

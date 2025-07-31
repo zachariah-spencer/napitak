@@ -34,7 +34,7 @@ class Combat < Scene
     @pre_deal_time = 1.seconds
     @dealing_tick = nil
     @dealing_time = 1.seconds
-    GTK.args.audio[:shuffle] = { input: "sounds/sfx/card/SFX_Shuffle2.wav" }
+    GTK.args.audio[:shuffle] = { input: "sounds/sfx/card/SFX_Shuffle2.wav", gain: 0.7 }
     puts @hand_manager.hand
   end
 

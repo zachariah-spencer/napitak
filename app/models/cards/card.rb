@@ -3,6 +3,7 @@
 class Card
   attr_accessor :grabbed,
                 :needs_removed,
+                :marked_for_removal,
                 :pos,
                 :f_pos,
                 :entity_id,
@@ -45,6 +46,7 @@ class Card
     @floating_seed = Numeric.rand(0.0..100.0)
     @anim_seed = Numeric.rand(0..3)
     @anchored = anchored
+    @marked_for_removal = false
 
     @w = 160
     @h = 160
@@ -92,10 +94,19 @@ class Card
     @w = 0
     @h = 0
   end
+  
+  def mark_for_removal
+    @marked_for_removal = true
+  end
 
   def tick()
     calc_hover
     calc_render_target(GTK.args)
+
+    if @marked_for_removal
+      @fw = 0
+      @fh = 0
+    end
   end
 
   def save_data?
@@ -130,8 +141,8 @@ class Card
   end
 
   def calc_hover_audio(was_hovered)
-    GTK.args.audio[:hovering_on] = { input: "sounds/sfx/card/SFX_Card5.wav", gain: 0.5 } if was_hovered != @hovered && @hovered && !@grabbed
-    GTK.args.audio[:hovering_off] = { input: "sounds/sfx/card/SFX_Card5.wav", gain: 0.2, pitch: 0.9 } if was_hovered != @hovered && !@hovered && !@grabbed
+    GTK.args.audio[:hovering_on] = { input: "sounds/sfx/card/SFX_Card5.wav", gain: 0.2 } if was_hovered != @hovered && @hovered && !@grabbed
+    GTK.args.audio[:hovering_off] = { input: "sounds/sfx/card/SFX_Card5.wav", gain: 0.08, pitch: 0.9 } if was_hovered != @hovered && !@hovered && !@grabbed
   end
 
   def prefab
