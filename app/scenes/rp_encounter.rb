@@ -51,9 +51,14 @@ class RoleplayEncounter < Scene
   def ready
   end
 
-  def play_message(message)
+  def play_message(message, is_outcome: false)
     @message_displaying_tick = Kernel.tick_count
-    @message = message
+
+    if is_outcome
+      @message = message["flavor"] + " " + message["consequence"]
+    else
+      @message = message
+    end
   end
 
   def incremented_text?()
@@ -98,14 +103,14 @@ class RoleplayEncounter < Scene
     dc = option["dc"]
     if roll >= dc
       @outcome = @OUTCOMES[:good]
-      play_message(option["outcome_messages"]["GOOD"])
+      play_message(option["outcome_messages"]["GOOD"], is_outcome: true)
     elsif roll < dc && dc - roll <= 5
       @outcome = @OUTCOMES[:neutral]
-      play_message(option["outcome_messages"]["NEUTRAL"])
+      play_message(option["outcome_messages"]["NEUTRAL"], is_outcome: true)
     else
       roll < dc && dc - roll > 5
       @outcome = @OUTCOMES[:bad]
-      play_message(option["outcome_messages"]["BAD"])
+      play_message(option["outcome_messages"]["BAD"], is_outcome: true)
     end
 
     @options.each { |o| o["rect"] = nil }

@@ -435,7 +435,7 @@ module GameData
       name: "Event",
       path: "sprites/square/indigo.png",
       is_combat: false,
-      chance: 2
+      chance: 100
     },
     "shop" => {
       name: "Trader",
