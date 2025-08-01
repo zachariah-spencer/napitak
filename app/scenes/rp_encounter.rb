@@ -169,6 +169,7 @@ class RoleplayEncounter < Scene
       puts "ADD RANDOM INGREDIENTS TO SATCHEL"
 
     else
+      puts "MAKING STATUS EFFECT WITH A DURATION OF: #{duration}"
       $player.status_effects << StatusEffect.new(effect: effect, value: value, duration: duration)
       puts $player.status_effects
     end

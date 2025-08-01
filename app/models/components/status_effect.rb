@@ -7,9 +7,6 @@ class StatusEffect
     @effect = effect
     @value = value
     @duration = duration
-    if @duration != "instant" || @duration != "run"
-      @duration = @duration.to_i
-    end
 
     apply
   end
@@ -66,10 +63,10 @@ class StatusEffect
   end
 
   def stop
-    puts "STOPPING EFFECT \n\n\n\n\n\n\n"
+    puts "STOPPING EFFECT \n\n"
     case @effect
       when "modify_max_hp"
-      puts "MODIFY MAX HP"
+      puts "MODIFY MAX HP STOPPED"
       $player.maximum_hp -= @value.to_i
       puts $player.maximum_hp
     when "modify_max_focus"
@@ -87,7 +84,7 @@ class StatusEffect
   end
 
   def calc_duration
-    if @duration != "instant" || @duration != "run"
+    if !@duration.is_a?(String)
       @duration -= 1
       puts "DURATION UPDATE: #{@duration}"
       stop if @duration <= 0
