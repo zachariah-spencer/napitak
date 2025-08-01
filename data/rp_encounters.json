@@ -35,7 +35,7 @@
                     },
                     {
                         "text": "Inspect the cluster of bioluminescent mushrooms",
-                        "dc": -10,
+                        "dc": 14,
                         "outcome_messages": {
                             "GOOD": {
                                 "flavor": "One mushroom crumbles easily in your hand, revealing a sweet, restorative sap. You feel invigorated.",
@@ -101,7 +101,7 @@
         "options": [
                     {
                         "text": "Examine the shimmering crystals embedded in the wall",
-                        "dc": 30,
+                        "dc": 12,
                         "outcome_messages": {
                             "GOOD": {
                                 "flavor": "The crystals pulse with faint energy. You touch one and feel your senses sharpen.",
