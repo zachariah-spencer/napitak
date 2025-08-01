@@ -94,6 +94,7 @@ class Game
       @player.load_feathers_data
       @player.load_run_upgrades_data
       change_scene(prev_sc: "", next_scene: @scene, quick: true)
+      $player.status_effects << StatusEffect.new(effect: "modify_max_hp", value: "20", duration: "3")
     else
       new_run
     end
@@ -255,6 +256,7 @@ class Game
   end
 
   def tick
+    # puts $player.maximum_hp
     puts "VAL: #{$player.maximum_hp}" if GTK.args.inputs.keyboard.key_down.o
     handle_pause
     calc_view_collection_inputs

@@ -55,7 +55,7 @@ class RoleplayEncounter < Scene
   def play_message(message, is_outcome: false)
     @message_displaying_tick = Kernel.tick_count
 
-    if is_outcome
+    if is_outcome && @consequence && @consequence["effect"] != "add_random_ingredients"
       @message = message["flavor"] + " " + message["consequence"]
     else
       @message = message
@@ -74,6 +74,7 @@ class RoleplayEncounter < Scene
   end
 
   def cleanup
+    super
   end
 
   def leave
@@ -104,18 +105,29 @@ class RoleplayEncounter < Scene
   def determine_outcome(option)
     roll = Numeric.rand(0..20)
     dc = option["dc"]
+
     if roll >= dc
       @outcome = @OUTCOMES[:good]
-      play_message(option["outcome_messages"]["GOOD"], is_outcome: true)
       @consequence = option["outcomes"]["GOOD"]
+      msg = option["outcome_messages"]["GOOD"]["flavor"] + option["outcome_messages"]["GOOD"]["consequence"]
+      if @consequence["effect"] == "add_random_ingredients"
+        ings = []
+        2.times do
+          ings << IngredientCard.new($IIDS.keys.sample)
+        end
+        msg << "#{ings[0].name} and #{ings[1].name}]"
+
+        ings.each { |i| $player.ingredients.add(i) }
+      end
+      play_message(msg, is_outcome: true)
     elsif roll < dc && dc - roll <= 5
       @outcome = @OUTCOMES[:neutral]
       play_message(option["outcome_messages"]["NEUTRAL"], is_outcome: true)
     else
       roll < dc && dc - roll > 5
       @outcome = @OUTCOMES[:bad]
-      play_message(option["outcome_messages"]["BAD"], is_outcome: true)
       @consequence = option["outcomes"]["BAD"]
+      play_message(option["outcome_messages"]["BAD"], is_outcome: true)
     end
 
     @options.each { |o| o["rect"] = nil }
@@ -154,20 +166,11 @@ class RoleplayEncounter < Scene
         puts "START BAT FIGHT"
         # Insert bat fight here when it exists
       end
-    when "modify_max_hp"
-      puts "MODIFY MAX HP"
-    when "modify_max_focus"
-      puts "MODIFY MAX FOCUS"
-    when "vulnerable"
-      puts "VULNERABLE"
-    when "modify_feathers"
-      puts "MODIFY FEATHER COUNT"
     when "add_random_ingredients"
       puts "ADD RANDOM INGREDIENTS TO SATCHEL"
-    when "vulnerable_cold"
-      puts "VULNERABLE TO COLD"
-    when "resist_poison"
-      puts "RESISTANT TO POISON"
+
+    else
+      $player.status_effects << StatusEffect.new(effect: effect, value: value, duration: duration)
     end
   end
 

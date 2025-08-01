@@ -24,7 +24,8 @@ class Player
        :reward_picks,
        :prev_loadout_ingredients,
        :prev_loadout_potions,
-       :feathers
+       :feathers,
+       :status_effects
 
   def initialize
     $player = self
@@ -42,12 +43,12 @@ class Player
 
     @my_turn = true
     @combat_stats = CombatStatsComponent.new(hp: 20, focus: 4, x: 64, y: 262, columns: 2)
+    @status_effects = []
     @stunned_turns = 0
     @hovered_cards = []
     @died = false
     @feathers = load_feathers_data || 0
     save_feathers_data
-        @status_effects = [StatusEffect.new(effect: "modify_max_hp", value: "20", duration: "2")]
 
     @ingredients = Inventory.new()
     @potions = Inventory.new()

@@ -630,6 +630,7 @@ class Combat < Scene
 
   def cleanup
     puts "cleanup combat.rb"
+    super
     state.currently_dragging_card_id = nil
     state.mouse_point_inside_square = nil
     @hand_manager.cleanup

@@ -24,7 +24,7 @@ class Button
 
   def prefab
     f_i = @rand_seed.frame_index(start_at: @rand_seed,
-                              frame_count: 4,
+                              frame_count: 3,
                               hold_for: 0.5.seconds,
                               repeat: true)
     GTK.args.outputs[@id.to_s].w = @w

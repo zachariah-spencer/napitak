@@ -12,5 +12,6 @@ class Scene
   end
 
   def cleanup
+    $encounter_manager.inc_encounters_completed
   end
 end

@@ -131,11 +131,11 @@
                     },
                     {
                         "text": "Venture down the narrow, water-slick passage",
-                        "dc": 14,
+                        "dc": 2,
                         "outcome_messages": {
                             "GOOD": {
                                 "flavor": "You navigate the slick floor expertly and find a hidden alcove filled with discarded gear: tinder, rations, and some leftover ingredients.",
-                                "consequence": "[Loot 2 Random Ingredients]"
+                                "consequence": "[Loot 2 Random Ingredients   >   "
                             },
                             "NEUTRAL": {
                                 "flavor": "The tunnel twists and turns but leads you back to the main cavern, neither safer nor more dangerous.",

@@ -89,6 +89,7 @@ class AlchemyLab < Scene
 
   def cleanup
     puts "cleanup alchemy_lab.rb"
+    super
     state.currently_dragging_card_id = nil
     state.mouse_point_inside_square = nil
 
@@ -224,7 +225,6 @@ class AlchemyLab < Scene
     @player.ingredients = Inventory.new(new_ings)
     @player.potions = Inventory.new(new_pots)
 
-    $encounter_manager.inc_encounters_completed
     $files.save_data["tutorials"]["alchemy_lab_tutorial"] = true
 
     $game.change_scene(prev_sc: @sc_id, next_scene: "map")

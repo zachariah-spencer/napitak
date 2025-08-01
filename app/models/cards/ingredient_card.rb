@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class IngredientCard < Card
-  def initialize(id, new_ent_id, name, fc, path)
+  def initialize(id, new_ent_id = GameUtils.new_id?, name = $IIDS[id][:name], fc = -1, path = $IIDS[id][:path])
     super
     @w = 120
     @h = 120

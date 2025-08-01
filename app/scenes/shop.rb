@@ -43,6 +43,7 @@ class Shop < Scene
   end
 
   def cleanup
+    super
     $player.save_feathers_data
     $player.save_run_upgrades_data
     $player.save_inventory_data
