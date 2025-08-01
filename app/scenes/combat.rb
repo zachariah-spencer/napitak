@@ -122,9 +122,7 @@ class Combat < Scene
         $game.change_scene(prev_sc: @sc_id, next_scene: "rewards_screen")
       end
     when :defeat
-      $player.anodyne += $encounter_manager.calc_anodyne_earnings
-      $player.save_upgrades_data
-      $game.change_scene(prev_sc: @sc_id, next_scene: "run_summary")
+      $game.end_run
     when :flee
       $game.change_scene(prev_sc: @sc_id, next_scene: "map")
     end

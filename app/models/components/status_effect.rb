@@ -37,11 +37,18 @@ class StatusEffect
     when "modify_max_hp"
       puts "MODIFY MAX HP: #{@value.to_i} || PLAYERS MAX HP: #{$player.maximum_hp}"
       $player.maximum_hp += @value.to_i
+      $player.maximum_hp = 0 if $player.maximum_hp < 0
+      $player.combat_stats.reset!($player.maximum_hp, $player.maximum_focus)
+      $player.combat_stats.dead = true if $player.combat_stats.dead?
+      puts "PLAYER IS DEAD? :: #{$player.combat_stats.dead}"
+      $player.combat_stats.dead_tick = Kernel.tick_count if $player.combat_stats.dead
+      #$game.end_run if $player.maximum_hp <= 0
       puts "PLAYERS MAX HP AFTER MOD: #{$player.maximum_hp}"
 
     when "modify_max_focus"
       puts "MODIFY MAX FOCUS"
       $player.maximum_focus += @value.to_i
+      $player.maximum_focus = 0 if $player.maximum_focus < 0
 
     when "vulnerable"
       puts "VULNERABLE"

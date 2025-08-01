@@ -80,11 +80,11 @@ class RoleplayEncounter < Scene
   def leave
     calc_outcome if @outcome != @OUTCOMES[:neutral]
 
-    $game.change_scene(prev_sc: @sc_id, next_scene: "map") if !$game.transitioning_scenes
+    $game.change_scene(prev_sc: @sc_id, next_scene: "map") if !$game.transitioning_scenes && !$player.combat_stats.dead
   end
 
   def tick
-    if GTK.args.inputs.mouse.click
+    if GTK.args.inputs.mouse.click && !$game.input_locked
       @options.each_with_index do |o, i|
         if o["rect"] && GTK.args.inputs.mouse.inside_rect?(o["rect"])
           puts "ROLLING PROBABILITY MATH FOR #{o["text"]}"

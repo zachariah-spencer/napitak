@@ -11,7 +11,7 @@ class Game
     @next_scene_instance
     @scene_args
     @transitioning_scenes = false
-
+    @defeat_banner_alpha = 0
     @autosaved = false
     @input_locked = false
     @scene = $files.save_data&.[]("scene")
@@ -254,27 +254,7 @@ class Game
     $files.write
   end
 
-  def tick
-    # puts $player.maximum_hp
-    puts "VAL: #{$player.maximum_hp}" if GTK.args.inputs.keyboard.key_down.o
-    handle_pause
-    calc_view_collection_inputs
-    calc_button_inputs
-
-    if !@status_labels_queue.empty? &&
-         @status_label_queue_count.elapsed_time >= 0.3.seconds
-      new_label = @status_labels_queue.shift
-      new_label.created_at = Kernel.tick_count
-      @status_label_queue_count = Kernel.tick_count
-      @status_labels << new_label
-      @new_status_label_queued = false
-    end
-
-    if @scene_ref
-      @scene_ref.args = args
-      @scene_ref.tick
-    end
-
+  def calc_transitions
     if @transition
       @transition.tick
       if @transitioning_scenes && @transition.past_midway?
@@ -286,6 +266,37 @@ class Game
         @input_locked = false
         @scene_ref.ready if @scene_ref.respond_to?(:ready)
       end
+    end
+  end
+
+  def tick
+    # puts $player.maximum_hp
+    puts "VAL: #{$player.maximum_hp}" if GTK.args.inputs.keyboard.key_down.o
+    handle_pause
+    calc_view_collection_inputs
+    calc_button_inputs
+
+    if $player.combat_stats.dead && $player.combat_stats.dead_tick.elapsed_time >= 3.0.seconds && @mid_run
+      end_run
+    elsif $player.combat_stats.dead && $player.combat_stats.dead_tick.elapsed_time < 3.0.seconds
+      $game.input_locked = true
+      @defeat_banner_alpha = @defeat_banner_alpha.lerp(255, 0.04)
+    end
+
+    if !@status_labels_queue.empty? &&
+         @status_label_queue_count.elapsed_time >= 0.3.seconds
+      new_label = @status_labels_queue.shift
+      new_label.created_at = Kernel.tick_count
+      @status_label_queue_count = Kernel.tick_count
+      @status_labels << new_label
+      @new_status_label_queued = false
+    end
+
+    calc_transitions
+
+    if @scene_ref
+      @scene_ref.args = args
+      @scene_ref.tick
     end
 
     $animation_manager.tick if $animation_manager
@@ -356,6 +367,39 @@ class Game
     # for each particle, construct a prefab
     l4 << @status_labels.map { |particle| status_label_prefab particle }
     l4 << $announcement_manager&.prefab
+
+    if $player.combat_stats.dead_tick && @mid_run
+      defeat_banner_label ||= {
+        x: GTK.args.grid.w / 2,
+        y: GTK.args.grid.h / 2,
+        alignment_enum: 1,
+        anchor_x: 0.5,
+        anchor_y: 0.5,
+        size_px: 32,
+        r: 255,
+        g: 255,
+        b: 255,
+        a: @defeat_banner_alpha,
+        font: "fonts/eaglelake.ttf",
+        text: "DEFEAT",
+        primitive_marker: :label
+      }
+
+      defeat_banner ||= {
+        x: 0,
+        y: GTK.args.grid.h / 2 - 50,
+        w: GTK.args.grid.w,
+        h: 100,
+        r: 150,
+        g: 0,
+        b: 0,
+        a: @defeat_banner_alpha,
+        primitive_marker: :solid
+      }
+
+      l4 << [defeat_banner, defeat_banner_label]
+    end
+
 
     # render scene pipeline layers
     outputs.primitives << [l0, l1, l2, l3, l4]
@@ -509,6 +553,13 @@ class Game
       tile_h: 32,
       angle: 0
     }
+  end
+
+  def end_run
+    @mid_run = false
+    $player.anodyne += $encounter_manager.calc_anodyne_earnings
+    $player.save_upgrades_data
+    $game.change_scene(prev_sc: @sc_id, next_scene: "run_summary")
   end
 
   def calc_particles
