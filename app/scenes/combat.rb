@@ -13,6 +13,7 @@ class Combat < Scene
       enemy_turn: 3
     }
     @player = $player
+    puts "#{@player.maximum_hp} HELP #{@player.maximum_focus}"
     @player.combat_stats.reset!(@player.maximum_hp, @player.maximum_focus)
     @enemy = Object.const_get($files.save_data["current_enemy"].capitalize).new
     @hand_manager = CardHandManager.new(player: @player, enemy: @enemy)

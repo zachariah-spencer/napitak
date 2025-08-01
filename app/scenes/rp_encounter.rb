@@ -84,8 +84,6 @@ class RoleplayEncounter < Scene
   end
 
   def tick
-    @outcome += 1 if GTK.args.inputs.keyboard.key_down.j
-
     if GTK.args.inputs.mouse.click
       @options.each_with_index do |o, i|
         if o["rect"] && GTK.args.inputs.mouse.inside_rect?(o["rect"])
@@ -122,7 +120,7 @@ class RoleplayEncounter < Scene
       play_message(msg, is_outcome: true)
     elsif roll < dc && dc - roll <= 5
       @outcome = @OUTCOMES[:neutral]
-      play_message(option["outcome_messages"]["NEUTRAL"], is_outcome: true)
+      play_message(option["outcome_messages"]["NEUTRAL"]["flavor"], is_outcome: true)
     else
       roll < dc && dc - roll > 5
       @outcome = @OUTCOMES[:bad]
@@ -172,6 +170,7 @@ class RoleplayEncounter < Scene
 
     else
       $player.status_effects << StatusEffect.new(effect: effect, value: value, duration: duration)
+      puts $player.status_effects
     end
   end
 

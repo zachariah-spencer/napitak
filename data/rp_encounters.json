@@ -23,7 +23,7 @@
                         "outcomes": {
                             "GOOD": {
                                 "effect": "modify_max_focus",
-                                "value": "2",
+                                "value": 2,
                                 "duration": "2"
                             },
                             "BAD": {
@@ -53,12 +53,12 @@
                         "outcomes": {
                             "GOOD": {
                                 "effect": "modify_max_hp",
-                                "value": "10",
+                                "value": 10,
                                 "duration": "5"
                             },
                             "BAD": {
                                 "effect": "modify_max_focus",
-                                "value": "-2",
+                                "value": -2,
                                 "duration": "2"
                             }
                         }
@@ -83,7 +83,7 @@
                         "outcomes": {
                             "GOOD": {
                                 "effect": "modify_feathers",
-                                "value": "4",
+                                "value": 4,
                                 "duration": "instant"
                             },
                             "BAD": {
@@ -101,7 +101,7 @@
         "options": [
                     {
                         "text": "Examine the shimmering crystals embedded in the wall",
-                        "dc": 12,
+                        "dc": 30,
                         "outcome_messages": {
                             "GOOD": {
                                 "flavor": "The crystals pulse with faint energy. You touch one and feel your senses sharpen.",
@@ -119,19 +119,19 @@
                         "outcomes": {
                             "GOOD": {
                                 "effect": "modify_max_focus",
-                                "value": "2",
+                                "value": 2,
                                 "duration": "run"
                             },
                             "BAD": {
                                 "effect": "modify_max_hp",
-                                "value": "-10",
+                                "value": -10,
                                 "duration": "run"
                             }
                         }
                     },
                     {
                         "text": "Venture down the narrow, water-slick passage",
-                        "dc": 2,
+                        "dc": 14,
                         "outcome_messages": {
                             "GOOD": {
                                 "flavor": "You navigate the slick floor expertly and find a hidden alcove filled with discarded gear: tinder, rations, and some leftover ingredients.",

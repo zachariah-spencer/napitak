@@ -38,9 +38,9 @@ class StatusEffect
   def apply
     case @effect
     when "modify_max_hp"
-      puts "MODIFY MAX HP"
+      puts "MODIFY MAX HP: #{@value.to_i} || PLAYERS MAX HP: #{$player.maximum_hp}"
       $player.maximum_hp += @value.to_i
-      puts $player.maximum_hp
+      puts "PLAYERS MAX HP AFTER MOD: #{$player.maximum_hp}"
 
     when "modify_max_focus"
       puts "MODIFY MAX FOCUS"
