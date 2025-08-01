@@ -421,6 +421,22 @@ class Game
     }
   end
 
+  def misc_btn
+    f_i = 0.frame_index(count: 4, hold_for: 15, repeat: true)
+    {
+      x: 128 + 16 + 32 + 8,
+      y: GTK.args.grid.h - 16 - 32,
+      w: 32,
+      h: 32,
+      path: "sprites/misc_button-sheet-4.png",
+      tile_x: 32 * f_i,
+      tile_y: 0,
+      tile_w: 32,
+      tile_h: 32,
+      angle: 0
+    }
+  end
+
   def calc_particles
     # process each particle setting their alpha
     # make them spin, and set their y value

@@ -19,24 +19,13 @@ class RoleplayEncounter < Scene
 
   # await a left click to leave encounter
 
-  # possible effects
-  # initiate_combat wolf
-  # initiate_combat bat
-  # modify_max_hp int
-  # modify_max_focus int
-  # vulnerable
-  # modify_feathers int
-  # add_random_ingredients array_of_ing_ids
-  # vulnerable_cold
-  # resist_poison
-
   def initialize()
     puts "init Roleplay Encounter"
     @sc_id = "rp_encounter_generic"
 
     @OUTCOMES = { undetermined: 0, bad: 1, neutral: 2, good: 3 }
     @outcome = @OUTCOMES[:undetermined]
-    @consequence_effect = ""
+    @consequence = {}
 
     @options
     @options_alpha = 0
@@ -88,7 +77,9 @@ class RoleplayEncounter < Scene
   end
 
   def leave
-    $game.change_scene(prev_sc: @sc_id, next_scene: "map")
+    calc_outcome
+
+    $game.change_scene(prev_sc: @sc_id, next_scene: "map") if !$game.transitioning_scenes
   end
 
   def tick
@@ -116,6 +107,7 @@ class RoleplayEncounter < Scene
     if roll >= dc
       @outcome = @OUTCOMES[:good]
       play_message(option["outcome_messages"]["GOOD"], is_outcome: true)
+      @consequence = option["outcomes"]["GOOD"]
     elsif roll < dc && dc - roll <= 5
       @outcome = @OUTCOMES[:neutral]
       play_message(option["outcome_messages"]["NEUTRAL"], is_outcome: true)
@@ -123,6 +115,7 @@ class RoleplayEncounter < Scene
       roll < dc && dc - roll > 5
       @outcome = @OUTCOMES[:bad]
       play_message(option["outcome_messages"]["BAD"], is_outcome: true)
+      @consequence = option["outcomes"]["BAD"]
     end
 
     @options.each { |o| o["rect"] = nil }
@@ -131,10 +124,50 @@ class RoleplayEncounter < Scene
 
   def calc_outcome
     # find a way to make blessings or penalties for the player when specific scenarios play out
-    case @outcome
-    when @OUTCOMES[:good]
-    when @OUTCOMES[:neutral]
-    when @OUTCOMES[:bad]
+    # 
+    # possible effects
+      # initiate_combat wolf DONE
+      # initiate_combat bat BASICALLY DONE (NEED BAT ENCOUNTER)
+      # modify_max_hp int
+      # modify_max_focus int
+      # vulnerable
+      # modify_feathers int
+      # add_random_ingredients array_of_ing_ids
+      # vulnerable_cold
+      # resist_poison
+    effect = @consequence["effect"]
+    value = @consequence["value"]
+    duration = @consequence["duration"]
+
+    puts "EFFECT: #{effect}\nVALUE: #{value}\nDURATION: #{duration}"
+    case effect
+    when "initiate_combat"
+      case value
+      when "wolf"
+        puts "START WOLF FIGHT"
+        $game.change_scene(
+            prev_sc: @sc_id,
+            next_scene: "combat",
+            args: ["wolf"]
+          )
+      when "bat"
+        puts "START BAT FIGHT"
+        # Insert bat fight here when it exists
+      end
+    when "modify_max_hp"
+      puts "MODIFY MAX HP"
+    when "modify_max_focus"
+      puts "MODIFY MAX FOCUS"
+    when "vulnerable"
+      puts "VULNERABLE"
+    when "modify_feathers"
+      puts "MODIFY FEATHER COUNT"
+    when "add_random_ingredients"
+      puts "ADD RANDOM INGREDIENTS TO SATCHEL"
+    when "vulnerable_cold"
+      puts "VULNERABLE TO COLD"
+    when "resist_poison"
+      puts "RESISTANT TO POISON"
     end
   end
 

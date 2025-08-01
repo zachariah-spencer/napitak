@@ -10,6 +10,7 @@ require_relative "models/player"
 # components
 require_relative "models/components/combat_stats_component"
 require_relative "models/components/shout_component"
+require_relative "models/components/status_effect"
 
 # enemies
 require_relative "models/enemies/enemy"

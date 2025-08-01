@@ -19,11 +19,14 @@ class Button
     @text = text
     @background_color = background_color
     @font_color = font_color
-    @rand_seed = Numeric.rand(0..3)
+    @rand_seed = Numeric.rand(0..4)
   end
 
   def prefab
-    f_i = @rand_seed.frame_index(4, 0.5.seconds, true)
+    f_i = @rand_seed.frame_index(start_at: @rand_seed,
+                              frame_count: 4,
+                              hold_for: 0.5.seconds,
+                              repeat: true)
     GTK.args.outputs[@id.to_s].w = @w
     GTK.args.outputs[@id.to_s].h = @h
 

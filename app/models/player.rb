@@ -47,6 +47,7 @@ class Player
     @died = false
     @feathers = load_feathers_data || 0
     save_feathers_data
+        @status_effects = [StatusEffect.new(effect: "modify_max_hp", value: "20", duration: "2")]
 
     @ingredients = Inventory.new()
     @potions = Inventory.new()
@@ -73,6 +74,7 @@ class Player
     @died = false
     @my_turn = true
     @feathers = 0
+    @status_effects = []
 
     save_feathers_data
     save_upgrades_data
@@ -84,6 +86,15 @@ class Player
     potions_save_data, ingredients_save_data = get_inventory_save_data
     $files.save_data["player"]["potions"] = potions_save_data
     $files.save_data["player"]["ingredients"] = ingredients_save_data
+  end
+
+  # FIXME: Needs work
+  def save_status_effects_data
+    $files.save_data["player"]["status_effects"] = @status_effects
+  end
+
+  def load_status_effects_data
+    @status_effects = $files.save_data["player"]["status_effects"]
   end
 
   def save_feathers_data
