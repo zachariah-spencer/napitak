@@ -21,6 +21,7 @@ class Game
     @viewing_collection = false
     @paused_scene_ref = nil
     @paused = false
+    @status_effect_list_widget = StatusEffectListWidget.new(x: misc_btn[:x] - 128 + 16, y: GTK.args.grid.h - 64, hover_rect: misc_btn)
     @pot_col_btn = {
       x: GTK.args.grid.w / 2 - 16 + 300,
       y: GTK.args.grid.h - 32,
@@ -275,10 +276,13 @@ class Game
     handle_pause
     calc_view_collection_inputs
     calc_button_inputs
+    @status_effect_list_widget.tick
 
-    if $player.combat_stats.dead && $player.combat_stats.dead_tick.elapsed_time >= 3.0.seconds && @mid_run
+    if $player.combat_stats.dead &&
+         $player.combat_stats.dead_tick.elapsed_time >= 3.0.seconds && @mid_run
       end_run
-    elsif $player.combat_stats.dead && $player.combat_stats.dead_tick.elapsed_time < 3.0.seconds
+    elsif $player.combat_stats.dead &&
+          $player.combat_stats.dead_tick.elapsed_time < 3.0.seconds
       $game.input_locked = true
       @defeat_banner_alpha = @defeat_banner_alpha.lerp(255, 0.04)
     end
@@ -400,7 +404,6 @@ class Game
       l4 << [defeat_banner, defeat_banner_label]
     end
 
-
     # render scene pipeline layers
     outputs.primitives << [l0, l1, l2, l3, l4]
 
@@ -415,8 +418,17 @@ class Game
         hp_label[:icon],
         hp_label[:label],
         focus_label[:icon],
-        focus_label[:label]
+        focus_label[:label],
       ]
+
+      if !$player.status_effects.empty?
+        outputs.primitives << [
+          misc_btn,
+          @status_effect_list_widget.prefab[:background],
+          @status_effect_list_widget.prefab[:label],
+          @status_effect_list_widget.prefab[:list]
+        ]
+      end
     end
 
     # render scene transition overlay
@@ -454,6 +466,23 @@ class Game
     end
   end
 
+  def misc_btn
+    f_i = 0.frame_index(count: 4, hold_for: 15, repeat: true)
+    {
+      x: GTK.args.grid.w - 128 - 32 - 16,
+      y: GTK.args.grid.h - 16 - 32,
+      w: 32,
+      h: 32,
+      path: "sprites/misc_button-sheet-4.png",
+      tile_x: 32 * f_i,
+      tile_y: 0,
+      tile_w: 32,
+      tile_h: 32,
+      angle: 0,
+      primitive_marker: :sprite
+    }
+  end
+
   def pause_btn
     f_i = 0.frame_index(count: 4, hold_for: 15, repeat: true)
     {
@@ -467,7 +496,7 @@ class Game
       tile_w: 32,
       tile_h: 32,
       angle: 0,
-      primitive_marker: :sprite,
+      primitive_marker: :sprite
     }
   end
 
@@ -485,10 +514,10 @@ class Game
       tile_h: 32,
       a: 200,
       angle: 0,
-      primitive_marker: :sprite,
+      primitive_marker: :sprite
     }
 
-  label = {
+    label = {
       x: GTK.args.grid.w / 2 - 32 - 80,
       y: GTK.args.grid.h - 32,
       size_px: 22,
@@ -499,10 +528,10 @@ class Game
       r: 255,
       g: 255,
       b: 255,
-      primitive_marker: :label,
+      primitive_marker: :label
     }
 
-    {icon: icon, label: label}
+    { icon: icon, label: label }
   end
 
   def focus_label
@@ -519,10 +548,10 @@ class Game
       tile_h: 32,
       a: 255,
       angle: 0,
-      primitive_marker: :sprite,
+      primitive_marker: :sprite
     }
 
-  label = {
+    label = {
       x: GTK.args.grid.w / 2 + 32 + 48,
       y: GTK.args.grid.h - 32,
       size_px: 18,
@@ -533,26 +562,10 @@ class Game
       r: 255,
       g: 255,
       b: 255,
-      primitive_marker: :label,
+      primitive_marker: :label
     }
 
-    {icon: icon, label: label}
-  end
-
-  def misc_btn
-    f_i = 0.frame_index(count: 4, hold_for: 15, repeat: true)
-    {
-      x: 128 + 16 + 32 + 8,
-      y: GTK.args.grid.h - 16 - 32,
-      w: 32,
-      h: 32,
-      path: "sprites/misc_button-sheet-4.png",
-      tile_x: 32 * f_i,
-      tile_y: 0,
-      tile_w: 32,
-      tile_h: 32,
-      angle: 0
-    }
+    { icon: icon, label: label }
   end
 
   def end_run

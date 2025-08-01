@@ -7,29 +7,38 @@ class StatusEffect
     @effect = effect
     @value = value
     @duration = duration
+    @hold_duration = true
 
     apply
   end
 
   def label?
+    text = ""
     case @effect
     when "modify_max_hp"
       sign = (@value > -1) ? "+" : "-"
-      "Max HP | #{sign}#{@value}"
+      text << "Max HP       #{sign}#{@value}"
+      text << "        #{@duration} Encounters" if !@duration.is_a?(String)
 
     when "modify_max_focus"
       sign = (@value > -1) ? "+" : "-"
-      "Max Focus | #{sign}#{@value}"
+      text << "Max Focus        #{sign}#{@value}"
+      text << "        #{@duration} Encounters" if !@duration.is_a?(String)
 
     when "vulnerable"
-      "Vulnerable to All Damage"
+      text << "Vulnerable to All Damage"
+      text << "        #{@duration} Encounters" if !@duration.is_a?(String)
 
     when "vulnerable_cold"
-      "Vulnerable to Cold"
+      text << "Vulnerable to Cold"
+      text << "        #{@duration} Encounters" if !@duration.is_a?(String)
 
     when "resist_poison"
-      "Resistant to Poison"
+      text << "Resistant to Poison"
+      text << "        #{@duration} Encounters" if !@duration.is_a?(String)
     end
+
+    text
   end
 
   def apply
@@ -88,9 +97,15 @@ class StatusEffect
     when "resist_poison"
       puts "RESISTANT TO POISON"
     end
+
+    $player.status_effects.reject!(self)
   end
 
   def calc_duration
+    if @hold_duration
+      @hold_duration = false
+      return
+    end
     if !@duration.is_a?(String)
       @duration -= 1
       puts "DURATION UPDATE: #{@duration}"
