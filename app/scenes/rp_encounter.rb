@@ -273,6 +273,7 @@ class RoleplayEncounter < Scene
         g: 255,
         b: 255,
         text: "Event",
+        font: "fonts/eaglelake.ttf",
         primitive_marker: :label
       }
 
