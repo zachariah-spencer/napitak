@@ -56,7 +56,7 @@ class RoleplayEncounter < Scene
     @message_displaying_tick = Kernel.tick_count
 
     if is_outcome && @consequence && @consequence["effect"] != "add_random_ingredients"
-      @message = message["flavor"] + " " + message["consequence"]
+      @message = message
     else
       @message = message
     end
@@ -127,7 +127,8 @@ class RoleplayEncounter < Scene
       roll < dc && dc - roll > 5
       @outcome = @OUTCOMES[:bad]
       @consequence = option["outcomes"]["BAD"]
-      play_message(option["outcome_messages"]["BAD"], is_outcome: true)
+      msg = option["outcome_messages"]["BAD"]["flavor"] + " " + option["outcome_messages"]["BAD"]["consequence"]
+      play_message(msg, is_outcome: true)
     end
 
     @options.each { |o| o["rect"] = nil }
