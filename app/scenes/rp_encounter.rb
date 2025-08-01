@@ -78,7 +78,7 @@ class RoleplayEncounter < Scene
   end
 
   def leave
-    calc_outcome
+    calc_outcome if @outcome != @OUTCOMES[:neutral]
 
     $game.change_scene(prev_sc: @sc_id, next_scene: "map") if !$game.transitioning_scenes
   end

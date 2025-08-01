@@ -367,7 +367,11 @@ class Game
         @pot_btn_label,
         @pot_col_btn,
         @ing_btn_label,
-        @ing_col_btn
+        @ing_col_btn,
+        hp_label[:icon],
+        hp_label[:label],
+        focus_label[:icon],
+        focus_label[:label]
       ]
     end
 
@@ -418,8 +422,77 @@ class Game
       tile_y: 0,
       tile_w: 32,
       tile_h: 32,
-      angle: 0
+      angle: 0,
+      primitive_marker: :sprite,
     }
+  end
+
+  def hp_label
+    f_i = 0.frame_index(count: 4, hold_for: 15, repeat: true)
+    icon = {
+      x: GTK.args.grid.w / 2 - 32 - 96,
+      y: GTK.args.grid.h - 16 - 32,
+      w: 32,
+      h: 32,
+      path: "sprites/hp_icon-sheet-4.png",
+      tile_x: 32 * f_i,
+      tile_y: 0,
+      tile_w: 32,
+      tile_h: 32,
+      a: 200,
+      angle: 0,
+      primitive_marker: :sprite,
+    }
+
+  label = {
+      x: GTK.args.grid.w / 2 - 32 - 80,
+      y: GTK.args.grid.h - 32,
+      size_px: 22,
+      font: "fonts/eaglelake.ttf",
+      text: "#{$player.maximum_hp}",
+      anchor_x: 0.5,
+      anchor_y: 0.5,
+      r: 255,
+      g: 255,
+      b: 255,
+      primitive_marker: :label,
+    }
+
+    {icon: icon, label: label}
+  end
+
+  def focus_label
+    f_i = 0.frame_index(count: 4, hold_for: 15, repeat: true)
+    icon = {
+      x: GTK.args.grid.w / 2 - 32 + 96,
+      y: GTK.args.grid.h - 16 - 32,
+      w: 32,
+      h: 32,
+      path: "sprites/focus_icon-sheet-4.png",
+      tile_x: 32 * f_i,
+      tile_y: 0,
+      tile_w: 32,
+      tile_h: 32,
+      a: 255,
+      angle: 0,
+      primitive_marker: :sprite,
+    }
+
+  label = {
+      x: GTK.args.grid.w / 2 + 32 + 48,
+      y: GTK.args.grid.h - 32,
+      size_px: 18,
+      font: "fonts/eaglelake.ttf",
+      text: "#{$player.maximum_focus}",
+      anchor_x: 0.5,
+      anchor_y: 0.5,
+      r: 255,
+      g: 255,
+      b: 255,
+      primitive_marker: :label,
+    }
+
+    {icon: icon, label: label}
   end
 
   def misc_btn
