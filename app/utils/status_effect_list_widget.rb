@@ -26,7 +26,7 @@ class StatusEffectListWidget
   end
 
   def prefab
-    widget_h = 32 + (list_size? * 32)
+    widget_h = 32 + (list_size? * 24)
     widget_y = @y - widget_h
     background = {
       x: @x,
@@ -57,7 +57,7 @@ class StatusEffectListWidget
     $player.status_effects.each_with_index do |effect, i|
       list << {
         x: @x + 128,
-        y: widget_y + widget_h - 42 - (i * 20),
+        y: widget_y + widget_h - 42 - (i * 24),
         anchor_x: 0.5,
         alignment_enum: 0,
         anchor_y: 0.5,

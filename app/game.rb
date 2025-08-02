@@ -102,6 +102,7 @@ class Game
 
   # reset vars for new run
   def new_run
+    @mid_run = true
     $files.save_data["mid_run"] = true
     $encounter_manager.reset!
     @player.reset!
@@ -570,6 +571,7 @@ class Game
 
   def end_run
     @mid_run = false
+    $files.save_data["mid_run"] = false
     $player.anodyne += $encounter_manager.calc_anodyne_earnings
     $player.save_upgrades_data
     $game.change_scene(prev_sc: @sc_id, next_scene: "run_summary")

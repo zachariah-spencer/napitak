@@ -40,7 +40,10 @@ class EncounterManager
   end
 
   def inc_encounters_completed
-    $player.status_effects.each { |e| e.calc_duration }
+    $player.status_effects.each do |e|
+      e.calc_duration
+      $player.save_status_effects_data
+    end
     @encounters_completed += 1
     $files.save_data["encounters_completed"] = @encounters_completed
   end

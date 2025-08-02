@@ -43,7 +43,7 @@ class Player
 
     @my_turn = true
     @combat_stats = CombatStatsComponent.new(hp: 20, focus: 4, x: 64, y: 262, columns: 2)
-    @status_effects = []
+    @status_effects = load_status_effects_data || []
     @stunned_turns = 0
     @hovered_cards = []
     @died = false
@@ -89,13 +89,16 @@ class Player
     $files.save_data["player"]["ingredients"] = ingredients_save_data
   end
 
-  # FIXME: Needs work
   def save_status_effects_data
-    $files.save_data["player"]["status_effects"] = @status_effects
+    $files.save_data["player"]["status_effects"].clear
+    @status_effects.each { |effect| $files.save_data["player"]["status_effects"] << effect.save_data? }
   end
 
   def load_status_effects_data
-    @status_effects = $files.save_data["player"]["status_effects"]
+    effects = []
+    $files.save_data["player"]["status_effects"].each { |effect| effects << StatusEffect.new(effect: effect["effect"], value: effect["value"], duration: effect["duration"], encounters_since_started: effect["encounters_since_started"]) }
+    puts effects
+    effects
   end
 
   def save_feathers_data

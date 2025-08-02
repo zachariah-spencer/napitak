@@ -3,11 +3,11 @@ class StatusEffect
   attr
 
   # can take RP encounter effects and apply them, track their duration, and end them
-  def initialize(effect:, value:, duration:)
+  def initialize(effect:, value:, duration:, encounters_since_started: 0)
     @effect = effect
     @value = value
     @duration = duration
-    @hold_duration = true
+    @encounters_since_started = encounters_since_started
 
     apply
   end
@@ -16,17 +16,17 @@ class StatusEffect
     text = ""
     case @effect
     when "modify_max_hp"
-      sign = (@value > -1) ? "+" : "-"
+      sign = (@value > -1) ? "+" : ""
       text << "Max HP       #{sign}#{@value}"
       text << "        #{@duration} Encounters" if !@duration.is_a?(String)
 
     when "modify_max_focus"
-      sign = (@value > -1) ? "+" : "-"
+      sign = (@value > -1) ? "+" : ""
       text << "Max Focus        #{sign}#{@value}"
       text << "        #{@duration} Encounters" if !@duration.is_a?(String)
 
     when "vulnerable"
-      text << "Vulnerable to All Damage"
+      text << "Vulnerable to All"
       text << "        #{@duration} Encounters" if !@duration.is_a?(String)
 
     when "vulnerable_cold"
@@ -39,6 +39,15 @@ class StatusEffect
     end
 
     text
+  end
+
+  def save_data?
+    {
+      "effect": @effect,
+      "value": @value,
+      "duration": @duration,
+      "encounters_since_started": @encounters_since_started
+    }
   end
 
   def apply
@@ -98,12 +107,13 @@ class StatusEffect
       puts "RESISTANT TO POISON"
     end
 
-    $player.status_effects.reject!(self)
+    $player.status_effects.reject! { |effect| effect == self}
   end
 
   def calc_duration
-    if @hold_duration
-      @hold_duration = false
+    if @encounters_since_started <= 0
+      @encounters_since_started += 1
+      puts @encounters_since_started
       return
     end
     if !@duration.is_a?(String)
