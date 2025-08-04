@@ -126,7 +126,8 @@ module GameData
         "i003" => 2
       },
       traits: [
-        { CARD_TRAITS[:damage] => { amount: 1, type: DAMAGE_TYPES[:heat] } }
+        { CARD_TRAITS[:damage] => { amount: 1, type: DAMAGE_TYPES[:heat] } },
+        { CARD_TRAITS[:channel] => 3 }
       ]
     },
     "p002" => {

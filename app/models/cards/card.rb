@@ -94,7 +94,7 @@ class Card
     @w = 0
     @h = 0
   end
-  
+
   def mark_for_removal
     @marked_for_removal = true
   end
@@ -129,7 +129,9 @@ class Card
       @hovered = false
     end
 
-    calc_hover_audio(was_hovered) if @activation_time.elapsed_time >= 0.2.seconds
+    if @activation_time.elapsed_time >= 0.2.seconds
+      calc_hover_audio(was_hovered)
+    end
 
     if @hovered and not @grabbed
       @tt_f_a = 255
@@ -141,8 +143,15 @@ class Card
   end
 
   def calc_hover_audio(was_hovered)
-    GTK.args.audio[:hovering_on] = { input: "sounds/sfx/card/SFX_Card5.wav", gain: 0.2 } if was_hovered != @hovered && @hovered && !@grabbed
-    GTK.args.audio[:hovering_off] = { input: "sounds/sfx/card/SFX_Card5.wav", gain: 0.08, pitch: 0.9 } if was_hovered != @hovered && !@hovered && !@grabbed
+    GTK.args.audio[:hovering_on] = {
+      input: "sounds/sfx/card/SFX_Card5.wav",
+      gain: 0.2
+    } if was_hovered != @hovered && @hovered && !@grabbed
+    GTK.args.audio[:hovering_off] = {
+      input: "sounds/sfx/card/SFX_Card5.wav",
+      gain: 0.08,
+      pitch: 0.9
+    } if was_hovered != @hovered && !@hovered && !@grabbed
   end
 
   def prefab
@@ -173,12 +182,14 @@ class Card
   end
 
   def calc_render_target_background(args, prefab_alpha = 255)
-    card_sprite_frame = 0.frame_index(
-                        count: 4,
-                        hold_for: 30,
-                        repeat: true,
-                        repeat_index: 0,
-                        tick_count_override: Kernel.tick_count)
+    card_sprite_frame =
+      0.frame_index(
+        count: 4,
+        hold_for: 30,
+        repeat: true,
+        repeat_index: 0,
+        tick_count_override: Kernel.tick_count
+      )
     card_sprite_frame += @anim_seed
     card_sprite_frame -= 4 if card_sprite_frame > 3
 
@@ -209,7 +220,7 @@ class Card
     prefab_alpha = (@uses_left > 0) ? 255 : 150 if GameUtils.is_potion(self.id)
 
     calc_render_target_background(args, prefab_alpha)
-    
+
     args.outputs[@card_composite_sprite_ref].primitives << {
       x: @w / 4,
       y: @h / 4,
@@ -217,9 +228,8 @@ class Card
       h: @h / 2,
       angle: 0,
       a: prefab_alpha,
-      path: @img,
+      path: @img
     }
-    
 
     # add a label in the center of the render target
     args.outputs[@card_composite_sprite_ref].primitives << {
@@ -509,6 +519,8 @@ class Card
       { r: 255, g: 255, b: 0 }
     when $CARD_TRAITS[:mend]
       { r: 0, g: 150, b: 0 }
+    when $CARD_TRAITS[:channel]
+      { r: 0, g: 150, b: 150 }
     end
   end
 
