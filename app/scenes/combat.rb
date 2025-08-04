@@ -339,8 +339,26 @@ class Combat < Scene
         player_hp_label_header,
         player_hp_label,
         player_focus_label_header,
-        player_focus_label
+        player_focus_label,
       ]
+
+      if @player.combat_stats.bonus_focus > 0
+        player_bonus_focus_label = {
+          x: focus_label_num_rect.x - 12,
+          y: focus_label_num_rect.y + 24,
+          size_px: 18,
+          anchor_x: 0.5,
+          r: 0,
+          g: 225,
+          b: 225,
+          text:
+            "+#{@player.combat_stats.bonus_focus}",
+          font: "fonts/eaglelake.ttf",
+          primitive_marker: :label
+        }
+        puts "HERE"
+        l1 << player_bonus_focus_label
+      end
 
       flee_percentage_label = {
         x: flee_btn[:x] + 38,

@@ -9,12 +9,21 @@ class CombatStatsComponent
        :status_types,
        :focus,
        :max_focus,
+       :bonus_focus,
        :mod_max_focus,
        :ward,
        :dead_tick,
        :resistances,
        :vulnerabilities
-  def initialize(x:, y:, hp: 1, focus: 0, resistances: [], vulnerabilities: [], columns: 8)
+  def initialize(
+    x:,
+    y:,
+    hp: 1,
+    focus: 0,
+    resistances: [],
+    vulnerabilities: [],
+    columns: 8
+  )
     @statuses = {
       $STATUS_TYPES[:SCORCH] => 0,
       $STATUS_TYPES[:BLIGHT] => 0,
@@ -34,6 +43,7 @@ class CombatStatsComponent
     @focus = focus
     @max_focus = focus
     @mod_max_focus = focus
+    @bonus_focus = 0
     @ward = 0
     @dead = false
     @dead_tick = nil
@@ -43,6 +53,17 @@ class CombatStatsComponent
     @hp += amt
     @hp = @max_hp if @hp > @max_hp
     GameUtils.status_label(GTK.args.grid.w / 2, @y, "#{amt}", 0, 255, 0, 100)
+  end
+
+  def channel(amt)
+    @bonus_focus += amt
+    GameUtils.status_label(GTK.args.grid.w / 2, @y, "#{amt}", 0, 150, 150, 100)
+  end
+
+  def consume_bonus_focus
+    consumed_focus = @bonus_focus
+    @bonus_focus = 0
+    consumed_focus
   end
 
   def hurt(amt, type)
@@ -64,11 +85,37 @@ class CombatStatsComponent
       @hp = 0 if @hp < 0
     end
 
-    GameUtils.status_label(GTK.args.grid.w / 2, @y, "#{mod_amt}", 255, 0, 0, 100)
+    GameUtils.status_label(
+      GTK.args.grid.w / 2,
+      @y,
+      "#{mod_amt}",
+      255,
+      0,
+      0,
+      100
+    )
     if vulnerable
-      GameUtils.status_label(GTK.args.grid.w / 2, @y, "VULNERABLE", 255, 255, 255, 100)
+      GameUtils.status_label(
+        GTK.args.grid.w / 2,
+        @y,
+        "VULNERABLE",
+        255,
+        255,
+        255,
+        100
+      )
     end
-    GameUtils.status_label(GTK.args.grid.w / 2, @y, "RESISTANT", 255, 255, 255, 100) if resistant
+    if resistant
+      GameUtils.status_label(
+        GTK.args.grid.w / 2,
+        @y,
+        "RESISTANT",
+        255,
+        255,
+        255,
+        100
+      )
+    end
     @dead = true if dead?
     @dead_tick = Kernel.tick_count if @dead
   end
@@ -127,13 +174,29 @@ class CombatStatsComponent
     when $STATUS_TYPES[:FROST]
       if stacks > 0
         @statuses[$STATUS_TYPES[:FROST]] -= 1
-        GameUtils.status_label(GTK.args.grid.w / 2, @y, "-1", color[0], color[1], color[2], 80)
+        GameUtils.status_label(
+          GTK.args.grid.w / 2,
+          @y,
+          "-1",
+          color[0],
+          color[1],
+          color[2],
+          80
+        )
       end
     when $STATUS_TYPES[:RESTORATION]
       if stacks > 0
         heal(stacks)
         @statuses[$STATUS_TYPES[:RESTORATION]] -= 1
-        GameUtils.status_label(GTK.args.grid.w / 2, @y, "-1", color[0], color[1], color[2], 80)
+        GameUtils.status_label(
+          GTK.args.grid.w / 2,
+          @y,
+          "-1",
+          color[0],
+          color[1],
+          color[2],
+          80
+        )
       end
     end
 
@@ -146,9 +209,7 @@ class CombatStatsComponent
   # type: String || stacks: int
   # Applies stacks of a certain status type.
   def apply_status(type:, stacks:)
-    if type == :WARD
-      puts "WARD"
-    end
+    puts "WARD" if type == :WARD
     calc_status_tutorial(type: type)
     @statuses[$STATUS_TYPES[type]] += stacks
     color = status_color?($STATUS_TYPES[type])
@@ -232,7 +293,6 @@ class CombatStatsComponent
         GTK.args.outputs[path].w = 32
         GTK.args.outputs[path].h = 32
         if type != $STATUS_TYPES[:WARD]
-
           color = status_color?(type)
           GTK.args.outputs[path] << {
             x: 0,
@@ -264,19 +324,19 @@ class CombatStatsComponent
           rt_paths << path
         elsif stacks > 0 && type == $STATUS_TYPES[:WARD]
           stack_sprites << {
-              x: @x,
-              y: @y - 32,
-              anchor_x: 0.5,
-              anchor_y: 0.5,
-              text: "#{stacks}",
-              size_px: 18,
-              font: "fonts/eaglelake.ttf",
-              alignment_enum: 0,
-              r: $STATUS_EFFECT_COLORS[$STATUS_TYPES[:WARD]][:r],
-              g: $STATUS_EFFECT_COLORS[$STATUS_TYPES[:WARD]][:g],
-              b: $STATUS_EFFECT_COLORS[$STATUS_TYPES[:WARD]][:b],
-              a: 255,
-              primitive_marker: :label
+            x: @x,
+            y: @y - 32,
+            anchor_x: 0.5,
+            anchor_y: 0.5,
+            text: "#{stacks}",
+            size_px: 18,
+            font: "fonts/eaglelake.ttf",
+            alignment_enum: 0,
+            r: $STATUS_EFFECT_COLORS[$STATUS_TYPES[:WARD]][:r],
+            g: $STATUS_EFFECT_COLORS[$STATUS_TYPES[:WARD]][:g],
+            b: $STATUS_EFFECT_COLORS[$STATUS_TYPES[:WARD]][:b],
+            a: 255,
+            primitive_marker: :label
           }
         end
       end

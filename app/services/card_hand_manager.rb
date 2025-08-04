@@ -56,25 +56,35 @@ class CardHandManager
       @player.potions.discard card
       @hand.delete card.entity_id
 
-      damage_trait = potion_info.traits.find { |h| h.key?($CARD_TRAITS[:damage]) }
+      damage_trait =
+        potion_info.traits.find { |h| h.key?($CARD_TRAITS[:damage]) }
       damage_trait &&= damage_trait[$CARD_TRAITS[:damage]]
       mend_trait = potion_info.traits.find { |h| h.key?($CARD_TRAITS[:mend]) }
       mend_trait &&= mend_trait[$CARD_TRAITS[:mend]]
-      restoration_trait = potion_info.traits.find { |h| h.key?($CARD_TRAITS[:restoration]) }
+      restoration_trait =
+        potion_info.traits.find { |h| h.key?($CARD_TRAITS[:restoration]) }
       restoration_trait &&= restoration_trait[$CARD_TRAITS[:restoration]]
-      scorch_trait = potion_info.traits.find { |h| h.key?($CARD_TRAITS[:scorch]) }
+      scorch_trait =
+        potion_info.traits.find { |h| h.key?($CARD_TRAITS[:scorch]) }
       scorch_trait &&= scorch_trait[$CARD_TRAITS[:scorch]]
-      blight_trait = potion_info.traits.find { |h| h.key?($CARD_TRAITS[:blight]) }
+      blight_trait =
+        potion_info.traits.find { |h| h.key?($CARD_TRAITS[:blight]) }
       blight_trait &&= blight_trait[$CARD_TRAITS[:blight]]
       frost_trait = potion_info.traits.find { |h| h.key?($CARD_TRAITS[:frost]) }
       frost_trait &&= frost_trait[$CARD_TRAITS[:frost]]
       ward_trait = potion_info.traits.find { |h| h.key?($CARD_TRAITS[:ward]) }
       ward_trait &&= ward_trait[$CARD_TRAITS[:ward]]
+      channel_trait =
+        potion_info.traits.find { |h| h.key?($CARD_TRAITS[:channel]) }
+      channel_trait &&= channel_trait[$CARD_TRAITS[:channel]]
 
       @enemy.hurt(damage_trait[:amount], damage_trait[:type]) if damage_trait
       @player.combat_stats.heal(mend_trait) if mend_trait
       if restoration_trait
-        @player.combat_stats.apply_status(type: :RESTORATION, stacks: restoration_trait)
+        @player.combat_stats.apply_status(
+          type: :RESTORATION,
+          stacks: restoration_trait
+        )
       end
       if scorch_trait
         @enemy.combat_stats.apply_status(type: :SCORCH, stacks: scorch_trait)
@@ -88,6 +98,7 @@ class CardHandManager
       if ward_trait
         @player.combat_stats.apply_status(type: :WARD, stacks: ward_trait)
       end
+      @player.combat_stats.channel(channel_trait) if channel_trait
     end
   end
 end
