@@ -8,7 +8,8 @@ module GameData
     scorch: 3,
     frost: 4,
     ward: 5,
-    mend: 6
+    mend: 6,
+    channel: 7
   }.freeze
   STATUS_TYPES = {
     SCORCH: 1,
@@ -125,11 +126,7 @@ module GameData
         "i003" => 2
       },
       traits: [
-        { CARD_TRAITS[:damage] => { amount: 1, type: DAMAGE_TYPES[:heat] } },
-        { CARD_TRAITS[:ward] => 10 },
-        { CARD_TRAITS[:blight] => 3 },
-        { CARD_TRAITS[:scorch] => 3 },
-        { CARD_TRAITS[:restoration] => 3 }
+        { CARD_TRAITS[:damage] => { amount: 1, type: DAMAGE_TYPES[:heat] } }
       ]
     },
     "p002" => {
@@ -435,7 +432,7 @@ module GameData
       name: "Event",
       path: "sprites/square/indigo.png",
       is_combat: false,
-      chance: 100
+      chance: 4
     },
     "shop" => {
       name: "Trader",
@@ -448,7 +445,7 @@ module GameData
       name: "Wolf",
       path: "sprites/wolf-sheet-3.png",
       is_combat: true,
-      chance: 10
+      chance: 200
     },
     # frost guy
     "wraith" => {

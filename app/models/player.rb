@@ -42,7 +42,8 @@ class Player
     @reward_picks = 2
 
     @my_turn = true
-    @combat_stats = CombatStatsComponent.new(hp: 20, focus: 4, x: 64, y: 262, columns: 2)
+    @combat_stats =
+      CombatStatsComponent.new(hp: 20, focus: 4, x: 64, y: 262, columns: 2)
     @status_effects = load_status_effects_data || []
     @stunned_turns = 0
     @hovered_cards = []
@@ -58,9 +59,7 @@ class Player
     $event_bus.subscribe(:player_hurt, self) do |data|
       @combat_stats.hurt(data[:amount], data[:type])
     end
-    $event_bus.subscribe(:player_heal, self) do |amt|
-      @combat_stats.heal(amt)
-    end
+    $event_bus.subscribe(:player_heal, self) { |amt| @combat_stats.heal(amt) }
     $event_bus.subscribe(:player_apply_status, self) do |data|
       @combat_stats.apply_status(type: data[:type], stacks: data[:stacks])
     end
@@ -91,12 +90,21 @@ class Player
 
   def save_status_effects_data
     $files.save_data["player"]["status_effects"].clear
-    @status_effects.each { |effect| $files.save_data["player"]["status_effects"] << effect.save_data? }
+    @status_effects.each do |effect|
+      $files.save_data["player"]["status_effects"] << effect.save_data?
+    end
   end
 
   def load_status_effects_data
     effects = []
-    $files.save_data["player"]["status_effects"].each { |effect| effects << StatusEffect.new(effect: effect["effect"], value: effect["value"], duration: effect["duration"], encounters_since_started: effect["encounters_since_started"]) }
+    $files.save_data["player"]["status_effects"].each do |effect|
+      effects << StatusEffect.new(
+        effect: effect["effect"],
+        value: effect["value"],
+        duration: effect["duration"],
+        encounters_since_started: effect["encounters_since_started"]
+      )
+    end
     puts effects
     effects
   end
@@ -107,7 +115,7 @@ class Player
 
   def load_feathers_data
     if $files.save_data["player"]["feathers"]
-      return @feathers = $files.save_data["player"]["feathers"] 
+      return @feathers = $files.save_data["player"]["feathers"]
     else
       return nil
     end
@@ -186,8 +194,12 @@ class Player
     $files.save_data["player"]["upgrades"][
       "starting_inventory_size"
     ] = @starting_inventory_size
-    $files.save_data["player"]["upgrades"]["start_maximum_focus"] = @start_maximum_focus
-    $files.save_data["player"]["upgrades"]["start_maximum_hp"] = @start_maximum_hp
+    $files.save_data["player"]["upgrades"][
+      "start_maximum_focus"
+    ] = @start_maximum_focus
+    $files.save_data["player"]["upgrades"][
+      "start_maximum_hp"
+    ] = @start_maximum_hp
     $files.save_data["player"]["upgrades"][
       "alchemy_table_uses"
     ] = @alchemy_table_uses
@@ -267,8 +279,10 @@ class Player
       @anodyne = $files.save_data["player"]["upgrades"]["anodyne"]
       @starting_inventory_size =
         $files.save_data["player"]["upgrades"]["starting_inventory_size"]
-      @start_maximum_focus = $files.save_data["player"]["upgrades"]["start_maximum_focus"]
-      @start_maximum_hp = $files.save_data["player"]["upgrades"]["start_maximum_hp"]
+      @start_maximum_focus =
+        $files.save_data["player"]["upgrades"]["start_maximum_focus"]
+      @start_maximum_hp =
+        $files.save_data["player"]["upgrades"]["start_maximum_hp"]
       @alchemy_table_uses =
         $files.save_data["player"]["upgrades"]["alchemy_table_uses"]
       @shop_discount = $files.save_data["player"]["upgrades"]["shop_discount"]

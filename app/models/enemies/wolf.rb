@@ -16,7 +16,7 @@ class Wolf < Enemy
     $enemy = self
     @combat_stats =
       CombatStatsComponent.new(
-        hp: 200,
+        hp: 50,
         focus: 0,
         x: GTK.args.grid.w / 2,
         y: GTK.args.grid.h - 270,
@@ -34,12 +34,7 @@ class Wolf < Enemy
               amount: 1,
               type: $DAMAGE_TYPES[:force]
             }
-          },
-          { $CARD_TRAITS[:ward] => 10 },
-          { $CARD_TRAITS[:restoration] => 2 },
-          { $CARD_TRAITS[:scorch] => 2 },
-          { $CARD_TRAITS[:frost] => 2 },
-          { $CARD_TRAITS[:blight] => 2 },
+          }
         ]
       },
       20 => {
