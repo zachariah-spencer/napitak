@@ -1,11 +1,13 @@
 class ComboManager
-  attr :current_sequence, :combo_completed, :current_combo_sequence_path, :next_combo_ingredient
+  attr :current_sequence, :combo_completion_tick, :current_combo_sequence_path, :next_combo_ingredient
 
   def initialize
     @current_sequence = []
     @current_combo_sequence_path = {}
+    @current_combo_images = []
     @next_combo_ingredient = ""
-    @combo_completed = false
+    @da = 0
+    @a = 0
     @combo_completion_tick = nil
     @possible_sequences = [
       # two fire sequences
@@ -34,6 +36,8 @@ class ComboManager
   end
 
   def tick(hand)
+    reset_sequence(true) if @combo_completion_tick && @combo_completion_tick.elapsed_time >= 1.5.seconds
+
     find_matching_combo
 
     (hand.values + $player.potions.all_cards).each do |card|
@@ -74,15 +78,37 @@ class ComboManager
   end
 
   def update_sequence_state(matched_combo_sequence)
-    @combo_completed = combo_completed?(@current_sequence, matched_combo_sequence[:sequence])
+    @combo_completion_tick = Kernel.tick_count if combo_completed?(@current_sequence, matched_combo_sequence[:sequence]) && !@combo_completion_tick
+    is_new_path = @current_combo_sequence_path != matched_combo_sequence
     @current_combo_sequence_path = matched_combo_sequence
+
+    if current_combo_path_valid? && is_new_path
+      @current_combo_images.clear
+      screen_width = 1280
+      icon_w = 64
+      icons = @current_combo_sequence_path[:sequence]
+      total_w = icons.length * icon_w
+      start_x = (screen_width - total_w) / 2
+
+      @current_combo_sequence_path[:sequence].each_with_index do |ing_id, i|
+        @current_combo_images << {
+          x: start_x + i * icon_w,
+          y: 256 - 16,
+          w: 64,
+          h: 64,
+          path: ing_image?(ing_id),
+          primitive_marker: :sprite
+        }
+      end
+    end
     next_index = @current_sequence.length || 0
     @next_combo_ingredient = @current_combo_sequence_path[:sequence][next_index]
   end
 
   def reset_sequence(end_of_combo = false)
+    $game.input_locked = false
     @current_combo_sequence_path = {}
-    @combo_completed = false
+    @combo_completion_tick = nil
     last_value = @current_sequence.last
     @current_sequence.clear
     @current_sequence << last_value if !end_of_combo
@@ -92,31 +118,31 @@ class ComboManager
     $IIDS[ing_id].path
   end
 
+  def current_combo_path_valid?
+    (@current_combo_sequence_path && @current_combo_sequence_path != {})
+  end
+
   def prefab
-    if @current_combo_sequence_path && @current_combo_sequence_path != {}
+    if ((@current_combo_sequence_path && @current_combo_sequence_path != {}) && !@combo_completion_tick) || @combo_completion_tick && @combo_completion_tick.elapsed_time < 0.5.seconds
+      @da = 255
+    elsif @combo_completion_tick && @combo_completion_tick.elapsed_time >= 0.5.seconds
+      @da = 0
+    else
+      @da = 0
+    end
 
+    @a = @a.lerp(@da, 0.075)
 
-      screen_width = 1280
-      icon_w      = 64
-      icons       = @current_combo_sequence_path[:sequence]
-      total_w = icons.size * icon_w
-      start_x = (screen_width - total_w) / 2
-
-      combo_icons = []
-      @current_combo_sequence_path[:sequence].each_with_index do |ing_id, i|
-        alpha = (i < @current_sequence.length) ? 255 : 100
-        combo_icons << {
-          x: start_x + i * icon_w,
-          y: 256 - 16,
-          w: 64,
-          h: 64,
-          path: ing_image?(ing_id),
-          a: alpha,
-          primitive_marker: :sprite
-        }
+    @current_combo_images.each_with_index do |sprite, i|
+      if @combo_completion_tick
+        alpha = @a
+      else
+        alpha = (@current_sequence.length > i) ? @a : (@a / 4)
       end
 
-      [combo_icons]
+      sprite.merge!(a: alpha)
     end
+
+    [@current_combo_images]
   end
 end

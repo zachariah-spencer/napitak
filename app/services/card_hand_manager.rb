@@ -109,20 +109,19 @@ class CardHandManager
       end
     end
 
-    if @combo_manager.combo_completed
+    if @combo_manager.combo_completion_tick
+      $game.input_locked = true
       combo_effect = @combo_manager.current_combo_sequence_path[:effect]
-      @combo_manager.reset_sequence(true)
 
+      GameUtils.status_label(1280 / 2, 256, "COMBO COMPLETED", 255, 0, 255, 32)
       # DO COMBO STUFF
       @player.combat_stats.focus = @player.combat_stats.max_focus
       
 
       case combo_effect
       when "scorch_doubles"
-        puts "HOLY FUCK YOU HIT A FIRE COMBO"
         @enemy.combat_stats.hurt(20, $DAMAGE_TYPES[:force])
       else
-        puts "No Combo Specific Implementation But you Did Something!"
       end
     end
   end

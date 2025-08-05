@@ -289,7 +289,7 @@ class Game
     end
 
     if !@status_labels_queue.empty? &&
-         @status_label_queue_count.elapsed_time >= 0.3.seconds
+         @status_label_queue_count.elapsed_time >= 0.2.seconds
       new_label = @status_labels_queue.shift
       new_label.created_at = Kernel.tick_count
       @status_label_queue_count = Kernel.tick_count
@@ -581,9 +581,9 @@ class Game
     # process each particle setting their alpha
     # make them spin, and set their y value
     @status_labels.each do |particle|
-      particle.a -= 2
+      particle.a -= 4
       particle.angle += particle.angle_mod # / (particle.scale * 0.2)
-      particle.y += 3
+      particle.y += 1.5
     end
 
     # reject all particles with an alpha less than equal to 0
@@ -609,6 +609,7 @@ class Game
       r: r,
       g: g,
       b: b,
+      font: "fonts/eaglelake.ttf",
       angle_anchor_x: 0.5,
       angle_anchor_y: 0.5,
       angle_mod: Numeric.rand(-0.2..0.2)
@@ -681,6 +682,7 @@ class Game
         g: s_l.g,
         b: s_l.b,
         a: s_l.a,
+        font: "fonts/eaglelake.ttf",
         angle: s_l.angle
       }
     end
