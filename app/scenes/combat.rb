@@ -16,7 +16,8 @@ class Combat < Scene
     puts "#{@player.maximum_hp} HELP #{@player.maximum_focus}"
     @player.combat_stats.reset!(@player.maximum_hp, @player.maximum_focus)
     @enemy = Object.const_get($files.save_data["current_enemy"].capitalize).new
-    @hand_manager = CardHandManager.new(player: @player, enemy: @enemy)
+    @combo_manager = ComboManager.new
+    @hand_manager = CardHandManager.new(player: @player, enemy: @enemy, combo_manager: @combo_manager)
     @enemy_ai = EnemyAI.new(@enemy, on_turn_end: method(:calc_enemy_turn_ended))
     @tutorial_service =
       TutorialService.new(
@@ -48,6 +49,7 @@ class Combat < Scene
   end
 
   def tick
+    @combo_manager.tick
     begin_combat if ready_for_combat?
     calc
 
@@ -689,6 +691,11 @@ class Combat < Scene
     @fled = true
   end
 
+  def card_usable?(card)
+    potion_info = $PIDS[card.id]
+    @player.combat_stats.focus >= potion_info.fc && card.uses_left > 0
+  end
+
   def calc_mouse_inputs
     return if $animation_manager&.input_locked? || $game.input_locked
 
@@ -745,7 +752,8 @@ class Combat < Scene
 
         if state.click_hold_time.elapsed_time < 20 &&
              (Geometry.distance c_ref.pos, c_ref.f_pos) < 20
-          @hand_manager.use_card c_ref
+          @combo_manager.add_to_sequence(c_ref.primary_base_ingredient_id?) if card_usable?(c_ref)
+          @hand_manager.use_card(c_ref)
           end_combat if @enemy.combat_stats.dead
           unless @hand_manager.actions_available?
             begin_turn_stage(@turn_stages[:cleanup])

@@ -2,9 +2,10 @@ class CardHandManager
   attr_gtk
   attr_reader :hand
 
-  def initialize(player:, enemy:, max_hand_size: 5)
+  def initialize(player:, enemy:, combo_manager:, max_hand_size: 5)
     @player = player
     @enemy = enemy
+    @combo_manager = combo_manager
     @max_hand_size = max_hand_size
     @hand = {}
   end
@@ -103,6 +104,21 @@ class CardHandManager
       @player.combat_stats.channel(channel_trait) if channel_trait
       if blind_trait
         @enemy.combat_stats.apply_status(type: :BLIND, stacks: blind_trait)
+      end
+    end
+
+    if @combo_manager.combo_completed
+      combo_effect = @combo_manager.current_combo_sequence_path[:effect]
+      @combo_manager.reset_sequence(true)
+
+      # DO COMBO STUFF
+
+      case combo_effect
+      when "scorch_doubles"
+        puts "HOLY FUCK YOU HIT A FIRE COMBO"
+        @enemy.combat_stats.hurt(20, $DAMAGE_TYPES[:force])
+      else
+        puts "No Combo Specific Implementation But you Did Something!"
       end
     end
   end

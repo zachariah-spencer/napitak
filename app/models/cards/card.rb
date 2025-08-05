@@ -231,7 +231,6 @@ class Card
       path: @img
     }
 
-    # add a label in the center of the render target
     args.outputs[@card_composite_sprite_ref].primitives << {
       x: @w / 2,
       y: @h / 1.25,
@@ -247,9 +246,21 @@ class Card
     }
 
     if GameUtils.is_potion(self.id)
+    args.outputs[@card_composite_sprite_ref].primitives << {
+      x: @w / 2 - 8,
+      y: 12 + 8,
+      w: 16,
+      h: 16,
+      angle: 0,
+      a: prefab_alpha,
+      path: $IIDS[$PIDS[self.id][:primary_base_ingredient_id]][:path]
+    }
+
+    # add a label in the center of the render target
+
       args.outputs[@card_composite_sprite_ref].primitives << {
-        x: @w / 5,
-        y: @h / 5,
+        x: 24,
+        y: 28,
         text: "#{@fc}",
         anchor_x: 0.5,
         anchor_y: 0.5,
@@ -262,9 +273,9 @@ class Card
       }
 
       args.outputs[@card_composite_sprite_ref].primitives << {
-        x: @w / 1.3,
-        y: @h / 5,
-        text: "#{@uses_left} / #{@max_uses}",
+        x: @w - 16 - 12,
+        y: 28,
+        text: "#{@uses_left}/#{@max_uses}",
         anchor_x: 0.5,
         anchor_y: 0.5,
         r: 200,
@@ -524,6 +535,10 @@ class Card
     when $CARD_TRAITS[:blind]
       { r: 150, g: 150, b: 150 }
     end
+  end
+
+  def primary_base_ingredient_id?
+    $PIDS[self.id][:primary_base_ingredient_id]
   end
 
   def front_card?

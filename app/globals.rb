@@ -128,6 +128,7 @@ module GameData
       desc: "Flames leap from the bottle at foes.",
       fc: 1,
       max_uses: 5,
+      primary_base_ingredient_id: "i003",
       path: "sprites/flamelickbottle.png",
       ingredients: {
         "i001" => 1,
@@ -135,13 +136,14 @@ module GameData
       },
       traits: [
         { CARD_TRAITS[:damage] => { amount: 1, type: DAMAGE_TYPES[:heat] } },
-      ]
+      ],
     },
     "p002" => {
       name: "Combustible Potion",
       desc: "Explodes upon throwing causing destruction to nearby creatures.",
       fc: 2,
       max_uses: 2,
+      primary_base_ingredient_id: "i003",
       path: "sprites/circle/orange.png",
       ingredients: {
         "i001" => 1,
@@ -150,13 +152,14 @@ module GameData
       },
       traits: [
         { CARD_TRAITS[:damage] => { amount: 5, type: DAMAGE_TYPES[:heat] } }
-      ]
+      ],
     },
     "p003" => {
       name: "Waterbeam Potion",
       desc: "Sprays water at high pressure at foes.",
       fc: 2,
       max_uses: 5,
+      primary_base_ingredient_id: "i002",
       path: "sprites/waterbeambottle.png",
       ingredients: {
         "i001" => 1,
@@ -171,6 +174,7 @@ module GameData
       desc: "A sip of the clouds lifts ones' spirits and heals them.",
       fc: 2,
       max_uses: 3,
+      primary_base_ingredient_id: "i002",
       path: "sprites/circle/blue.png",
       ingredients: {
         "i001" => 1,
@@ -184,6 +188,7 @@ module GameData
       desc: "A hot blast of steam projects towards foes.",
       fc: 2,
       max_uses: 2,
+      primary_base_ingredient_id: "i002",
       path: "sprites/circle/indigo.png",
       ingredients: {
         "i001" => 1,
@@ -197,6 +202,7 @@ module GameData
         "Liquid solidifies as it is thrown out of the bottle, slamming into foes.",
       fc: 0,
       max_uses: 5,
+      primary_base_ingredient_id: "i004",
       path: "sprites/circle/green.png",
       ingredients: {
         "i001" => 1,
@@ -211,6 +217,7 @@ module GameData
       desc: "A gust of wind bursts out of the bottle at foes.",
       fc: 2,
       max_uses: 3,
+      primary_base_ingredient_id: "i005",
       path: "sprites/circle/white.png",
       ingredients: {
         "i001" => 1,
@@ -227,6 +234,7 @@ module GameData
         "Reinforced dust globs out of the bottle forming a wall betwixt you and foes.",
       fc: 3,
       max_uses: 3,
+      primary_base_ingredient_id: "i004",
       path: "sprites/circle/yellow.png",
       ingredients: {
         "i001" => 1,
@@ -241,10 +249,11 @@ module GameData
         "Sand gusts out of the bottle creating a vortex of sand that swirls towards foes.",
       fc: 5,
       max_uses: 4,
+      primary_base_ingredient_id: "i005",
       path: "sprites/circle/yellow.png",
       ingredients: {
         "i001" => 1,
-        "i004" => 1,
+        "i005" => 1,
         "i007" => 1
       },
       traits: [
@@ -255,9 +264,10 @@ module GameData
     "p011" => {
       name: "Dune Potion",
       desc:
-        "Sand gusts out of the bottle creating a vortex of sand that swirls towards foes.",
+        "A desert dune blossoms from the bottle enveloping foes.",
       fc: 4,
       max_uses: 1,
+      primary_base_ingredient_id: "i004",
       path: "sprites/circle/yellow.png",
       ingredients: {
         "i001" => 1,
@@ -274,6 +284,7 @@ module GameData
       desc: "Creates a puddle of quicksand below enemies that envelop them.",
       fc: 1,
       max_uses: 6,
+      primary_base_ingredient_id: "i004",
       path: "sprites/circle/yellow.png",
       ingredients: {
         "i001" => 1,
@@ -289,6 +300,7 @@ module GameData
       desc: "Creates a brickwall betwixt you and foes.",
       fc: 3,
       max_uses: 4,
+      primary_base_ingredient_id: "i004",
       path: "sprites/circle/red.png",
       ingredients: {
         "i001" => 1,
@@ -301,6 +313,7 @@ module GameData
       desc: "Strikes an arc of lightning at foes.",
       fc: 2,
       max_uses: 5,
+      primary_base_ingredient_id: "i005",
       path: "sprites/circle/yellow.png",
       ingredients: {
         "i001" => 1,

@@ -33,17 +33,17 @@ class Player
     # meta-progression upgrades and currency vars
     @anodyne = 0
     @starting_inventory_size = 5
-    @maximum_focus = 2
-    @maximum_hp = 10
-    @start_maximum_hp = 10
-    @start_maximum_focus = 2
+    @maximum_focus = 4
+    @maximum_hp = 100
+    @start_maximum_hp = 100
+    @start_maximum_focus = 4
     @alchemy_table_uses = 1
     @shop_discount = 0 # out of 100 (integer percentile) (CURRENTLY UNUSED)
     @reward_picks = 2
 
     @my_turn = true
     @combat_stats =
-      CombatStatsComponent.new(hp: 20, focus: 4, x: 64, y: 262, columns: 2)
+      CombatStatsComponent.new(hp: 100, focus: 4, x: 64, y: 262, columns: 2)
     @status_effects = load_status_effects_data || []
     @stunned_turns = 0
     @hovered_cards = []
