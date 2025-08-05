@@ -22,7 +22,8 @@ class Card
                 :uses_left,
                 :hovered,
                 :vx,
-                :vy
+                :vy,
+                :focus_mod
 
   def initialize(
     id,
@@ -71,6 +72,7 @@ class Card
     @img = img
     @max_uses = max_uses
     @uses_left = uses_left || max_uses
+    @focus_mod = 0
     @card_composite_sprite_ref = :"card_composite_#{entity_id}"
     @card_composite_tooltip_ref = :"card_composite_tooltip_#{entity_id}"
 
@@ -246,31 +248,45 @@ class Card
     }
 
     if GameUtils.is_potion(self.id)
-    args.outputs[@card_composite_sprite_ref].primitives << {
-      x: @w / 2 - 8,
-      y: 12 + 8,
-      w: 16,
-      h: 16,
-      angle: 0,
-      a: prefab_alpha,
-      path: $IIDS[$PIDS[self.id][:primary_base_ingredient_id]][:path]
-    }
-
-    # add a label in the center of the render target
-
       args.outputs[@card_composite_sprite_ref].primitives << {
-        x: 24,
-        y: 28,
-        text: "#{@fc}",
-        anchor_x: 0.5,
-        anchor_y: 0.5,
-        r: 0,
-        g: 150,
-        b: 150,
-        size_px: 26,
+        x: @w / 2 - 8,
+        y: 12 + 8,
+        w: 16,
+        h: 16,
+        angle: 0,
         a: prefab_alpha,
-        font: "fonts/eaglelake.ttf"
+        path: $IIDS[$PIDS[self.id][:primary_base_ingredient_id]][:path]
       }
+
+      if @focus_mod == 0
+        args.outputs[@card_composite_sprite_ref].primitives << {
+          x: 24,
+          y: 28,
+          text: "#{@fc}",
+          anchor_x: 0.5,
+          anchor_y: 0.5,
+          r: 0,
+          g: 150,
+          b: 150,
+          size_px: 26,
+          a: prefab_alpha,
+          font: "fonts/eaglelake.ttf"
+        }
+      else
+        args.outputs[@card_composite_sprite_ref].primitives << {
+          x: 24,
+          y: 28,
+          text: "#{@fc + @focus_mod}",
+          anchor_x: 0.5,
+          anchor_y: 0.5,
+          r: 0,
+          g: 255,
+          b: 130,
+          size_px: 26,
+          a: prefab_alpha,
+          font: "fonts/eaglelake.ttf"
+        }
+      end
 
       args.outputs[@card_composite_sprite_ref].primitives << {
         x: @w - 16 - 12,

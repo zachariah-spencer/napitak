@@ -50,8 +50,10 @@ class CardHandManager
 
   def use_card(card)
     potion_info = $PIDS[card.id]
-    if @player.combat_stats.focus >= potion_info.fc && card.uses_left > 0
-      @player.combat_stats.focus -= potion_info.fc
+    puts potion_info
+    applied_fc = (potion_info.fc + card.focus_mod)
+    if @player.combat_stats.focus >= applied_fc && card.uses_left > 0
+      @player.combat_stats.focus -= applied_fc
       card.uses_left -= 1
       card.update_sprite
       @player.potions.discard card
@@ -112,6 +114,8 @@ class CardHandManager
       @combo_manager.reset_sequence(true)
 
       # DO COMBO STUFF
+      @player.combat_stats.focus = @player.combat_stats.max_focus
+      
 
       case combo_effect
       when "scorch_doubles"

@@ -49,7 +49,7 @@ class Combat < Scene
   end
 
   def tick
-    @combo_manager.tick
+    @combo_manager.tick(@hand_manager.hand)
     begin_combat if ready_for_combat?
     calc
 
@@ -463,6 +463,7 @@ class Combat < Scene
         deck_card_count_label,
         pass_button,
         pass_button_label,
+        @combo_manager.prefab,
         cards,
         flee_btn
       ]
@@ -471,6 +472,7 @@ class Combat < Scene
       l3 << [front_card]
       return l3
     when 4
+
       if @defeat_banner_timer
         defeat_banner_label ||= {
           x: GTK.args.grid.w / 2,
@@ -752,8 +754,10 @@ class Combat < Scene
 
         if state.click_hold_time.elapsed_time < 20 &&
              (Geometry.distance c_ref.pos, c_ref.f_pos) < 20
-          @combo_manager.add_to_sequence(c_ref.primary_base_ingredient_id?) if card_usable?(c_ref)
-          @hand_manager.use_card(c_ref)
+          if card_usable?(c_ref)
+            @combo_manager.add_to_sequence(c_ref.primary_base_ingredient_id?)
+            @hand_manager.use_card(c_ref)
+          end
           end_combat if @enemy.combat_stats.dead
           unless @hand_manager.actions_available?
             begin_turn_stage(@turn_stages[:cleanup])

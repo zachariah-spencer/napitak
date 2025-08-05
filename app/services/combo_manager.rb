@@ -1,10 +1,12 @@
 class ComboManager
-  attr :current_sequence, :combo_completed, :current_combo_sequence_path
+  attr :current_sequence, :combo_completed, :current_combo_sequence_path, :next_combo_ingredient
 
   def initialize
     @current_sequence = []
-    @current_combo_sequence_path = nil
+    @current_combo_sequence_path = {}
+    @next_combo_ingredient = ""
     @combo_completed = false
+    @combo_completion_tick = nil
     @possible_sequences = [
       # two fire sequences
       {
@@ -31,15 +33,18 @@ class ComboManager
     ]
   end
 
-  def tick
+  def tick(hand)
     find_matching_combo
+
+    (hand.values + $player.potions.all_cards).each do |card|
+      card.focus_mod = 0
+      card.focus_mod = -1 if (card.primary_base_ingredient_id? == @next_combo_ingredient) && @next_combo_ingredient != ""
+    end
   end
 
   def current_sequence_combo?(current_sequence, valid_combo_sequence)
     return false if current_sequence.empty?
     valid_combo_sequence.take(current_sequence.size) == current_sequence
-    #enumerator = valid_combo_sequence.each
-    #current_sequence.all? { |potion_combo_ing_id| enumerator.any? { |possible_combo_ing_id| possible_combo_ing_id == potion_combo_ing_id }}
   end
 
   def combo_completed?(current_combo_sequence, valid_matching_combo_sequence)
@@ -71,15 +76,47 @@ class ComboManager
   def update_sequence_state(matched_combo_sequence)
     @combo_completed = combo_completed?(@current_sequence, matched_combo_sequence[:sequence])
     @current_combo_sequence_path = matched_combo_sequence
+    next_index = @current_sequence.length || 0
+    @next_combo_ingredient = @current_combo_sequence_path[:sequence][next_index]
   end
 
   def reset_sequence(end_of_combo = false)
-    @current_combo_sequence_path = nil
+    @current_combo_sequence_path = {}
     @combo_completed = false
     last_value = @current_sequence.last
     @current_sequence.clear
     @current_sequence << last_value if !end_of_combo
   end
 
-  def prefab; end
+  def ing_image?(ing_id)
+    $IIDS[ing_id].path
+  end
+
+  def prefab
+    if @current_combo_sequence_path && @current_combo_sequence_path != {}
+
+
+      screen_width = 1280
+      icon_w      = 64
+      icons       = @current_combo_sequence_path[:sequence]
+      total_w = icons.size * icon_w
+      start_x = (screen_width - total_w) / 2
+
+      combo_icons = []
+      @current_combo_sequence_path[:sequence].each_with_index do |ing_id, i|
+        alpha = (i < @current_sequence.length) ? 255 : 100
+        combo_icons << {
+          x: start_x + i * icon_w,
+          y: 256 - 16,
+          w: 64,
+          h: 64,
+          path: ing_image?(ing_id),
+          a: alpha,
+          primitive_marker: :sprite
+        }
+      end
+
+      [combo_icons]
+    end
+  end
 end
