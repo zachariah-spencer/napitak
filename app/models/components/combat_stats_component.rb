@@ -14,7 +14,8 @@ class CombatStatsComponent
        :ward,
        :dead_tick,
        :resistances,
-       :vulnerabilities
+       :vulnerabilities,
+       :accuracy_mod
   def initialize(
     x:,
     y:,
@@ -29,7 +30,8 @@ class CombatStatsComponent
       $STATUS_TYPES[:BLIGHT] => 0,
       $STATUS_TYPES[:FROST] => 0,
       $STATUS_TYPES[:WARD] => 0,
-      $STATUS_TYPES[:RESTORATION] => 0
+      $STATUS_TYPES[:RESTORATION] => 0,
+      $STATUS_TYPES[:BLIND] => 0
     }
 
     @resistances = resistances
@@ -44,6 +46,7 @@ class CombatStatsComponent
     @max_focus = focus
     @mod_max_focus = focus
     @bonus_focus = 0
+    @accuracy_mod = 0.0
     @ward = 0
     @dead = false
     @dead_tick = nil
@@ -134,12 +137,14 @@ class CombatStatsComponent
     @focus = @max_focus
     @dead = false
     @dead_tick = nil
+    @accuracy_mod = 0.0
     @statuses = {
       $STATUS_TYPES[:SCORCH] => 0,
       $STATUS_TYPES[:BLIGHT] => 0,
       $STATUS_TYPES[:FROST] => 0,
       $STATUS_TYPES[:WARD] => 0,
-      $STATUS_TYPES[:RESTORATION] => 0
+      $STATUS_TYPES[:RESTORATION] => 0,
+      $STATUS_TYPES[:BLIND] => 0,
     }
   end
 
@@ -198,18 +203,29 @@ class CombatStatsComponent
           80
         )
       end
+    when $STATUS_TYPES[:BLIND]
+      if stacks > 0
+        @accuracy_mod = -stacks
+        @statuses[$STATUS_TYPES[:BLIND]] -= 5
+        GameUtils.status_label(
+          GTK.args.grid.w / 2,
+          @y,
+          "-5",
+          color[0],
+          color[1],
+          color[2],
+          80
+        )
+      end
     end
 
     @dead = true if dead?
     @dead_tick = Kernel.tick_count if @dead
-
-    # puts @statuses
   end
 
   # type: String || stacks: int
   # Applies stacks of a certain status type.
   def apply_status(type:, stacks:)
-    puts "WARD" if type == :WARD
     calc_status_tutorial(type: type)
     @statuses[$STATUS_TYPES[type]] += stacks
     color = status_color?($STATUS_TYPES[type])
@@ -222,6 +238,8 @@ class CombatStatsComponent
       color[2],
       80
     )
+
+    @accuracy_mod = -@statuses[$STATUS_TYPES[:BLIND]] if type == :BLIND
   end
 
   def calc_status_tutorial(type:)
@@ -287,6 +305,7 @@ class CombatStatsComponent
   def prefab()
     rt_paths = []
     stack_sprites = []
+    
     @statuses.each do |type, stacks|
       path = "c_stat_#{@entity_id}_#{type}".to_s
       if stacks > 0

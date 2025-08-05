@@ -521,6 +521,8 @@ class Card
       { r: 0, g: 150, b: 0 }
     when $CARD_TRAITS[:channel]
       { r: 0, g: 150, b: 150 }
+    when $CARD_TRAITS[:blind]
+      { r: 150, g: 150, b: 150 }
     end
   end
 

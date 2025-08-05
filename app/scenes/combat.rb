@@ -806,6 +806,7 @@ class Combat < Scene
       end
       @player.begin_turn
       calc_status_effects(type: :BLIGHT)
+      calc_status_effects(type: :BLIND)
       @hand_manager.draw_card
       begin_turn_stage @turn_stages[:playing_cards]
     elsif new_stage == @turn_stages[:playing_cards]

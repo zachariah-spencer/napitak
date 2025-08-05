@@ -9,14 +9,16 @@ module GameData
     frost: 4,
     ward: 5,
     mend: 6,
-    channel: 7
+    channel: 7,
+    blind: 8
   }.freeze
   STATUS_TYPES = {
     SCORCH: 1,
     BLIGHT: 2,
     FROST: 3,
     WARD: 4,
-    RESTORATION: 5
+    RESTORATION: 5,
+    BLIND: 6
   }.freeze
   DAMAGE_TYPES = {
     force: 0,
@@ -66,6 +68,12 @@ module GameData
       g: 255,
       b: 0,
       message: "RESTORED"
+    },
+    STATUS_TYPES[:BLIND] => {
+      r: 150,
+      g: 150,
+      b: 150,
+      message: "BLINDED"
     }
   }.freeze
   DAMAGE_TYPE_COLORS = {

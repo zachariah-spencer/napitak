@@ -77,6 +77,8 @@ class CardHandManager
       channel_trait =
         potion_info.traits.find { |h| h.key?($CARD_TRAITS[:channel]) }
       channel_trait &&= channel_trait[$CARD_TRAITS[:channel]]
+      blind_trait = potion_info.traits.find { |h| h.key?($CARD_TRAITS[:blind]) }
+      blind_trait &&= blind_trait[$CARD_TRAITS[:blind]]
 
       @enemy.hurt(damage_trait[:amount], damage_trait[:type]) if damage_trait
       @player.combat_stats.heal(mend_trait) if mend_trait
@@ -99,6 +101,9 @@ class CardHandManager
         @player.combat_stats.apply_status(type: :WARD, stacks: ward_trait)
       end
       @player.combat_stats.channel(channel_trait) if channel_trait
+      if blind_trait
+        @enemy.combat_stats.apply_status(type: :BLIND, stacks: blind_trait)
+      end
     end
   end
 end
