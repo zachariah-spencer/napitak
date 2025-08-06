@@ -134,6 +134,7 @@ module GameData
         "i001" => 1,
         "i003" => 2
       },
+      finisher_trait: { CARD_TRAITS[:ward] => 10 },
       traits: [
         { CARD_TRAITS[:damage] => { amount: 1, type: DAMAGE_TYPES[:heat] } },
       ],
