@@ -87,6 +87,8 @@ class Game
     @recipe_book = RecipeBook.new()
     EncounterManager.new()
 
+    @tutorial_completed = $files.save_data["tutorials"]["alchemy_lab_tutorial"] || false if $files.save_data["tutorials"]["alchemy_lab_tutorial"]
+
     @player.load_inventory_data
     @player.load_upgrades_data
     encounters_completed = $files.save_data&.[]("encounters_completed")
@@ -102,16 +104,17 @@ class Game
 
   # reset vars for new run
   def new_run
+    @paused = false
     @mid_run = true
     $files.save_data["mid_run"] = true
     $encounter_manager.reset!
     @player.reset!
 
     # if it is not the players first time playing
-    if @runs_completed && @runs_completed > 0
+    if @runs_completed && @runs_completed > 0 || @tutorial_completed
       change_scene(prev_sc: "", next_scene: "map", quick: true)
 
-      #sStart of first run for new player (scripted intro then scripted combat encounter before natural gameplay)
+      #Start of first run for new player (scripted intro then scripted combat encounter before natural gameplay)
     else
       @input_locked = true
       change_scene(prev_sc: "", next_scene: "intro", quick: true)

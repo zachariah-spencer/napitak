@@ -18,7 +18,13 @@ class PauseMenu < Scene
          h: 48,
          text: "Settings"
        )
-    @restart_run_btn = nil
+    @restart_run_btn = Button.new(
+         x: GTK.args.grid.w / 2 - 48,
+         y: (GTK.args.grid.h - 100) / 1.25,
+         w: 96,
+         h: 48,
+         text: "New Run"
+       )
     @quit_btn = Button.new(
          x: GTK.args.grid.w / 2 - 48,
          y: (GTK.args.grid.h - 100) / 2.5,
@@ -51,6 +57,10 @@ class PauseMenu < Scene
   end
 
   def calc_main
+    if @restart_run_btn.clicked?
+      $game.new_run
+    end
+
     if @journal_btn.clicked?
       @journal_instance = Journal.new(pause_menu_instance: self)
       @pause_screen = "journal"
@@ -134,7 +144,7 @@ class PauseMenu < Scene
     when "main"
       @l0 << [background_solid, background]
       @l4 << [encounter_label]
-      @l3 << [@journal_btn.prefab, @settings_btn.prefab, @quit_btn.prefab]
+      @l3 << [@journal_btn.prefab, @settings_btn.prefab, @quit_btn.prefab, @restart_run_btn.prefab]
     when "settings"
       @l0 << [background_solid, background]
       @l4 << [encounter_label]
