@@ -41,6 +41,7 @@ class AnnouncementManager
   end
 
   def display_next_announcement
+    @current_announcement&.dispose
     if @announcements.empty?
       @current_announcement = nil
       $game.input_locked = false
