@@ -371,7 +371,6 @@ class Game
 
     # for each particle, construct a prefab
     l4 << @status_labels.map { |particle| status_label_prefab particle }
-    l4 << $announcement_manager&.prefab
 
     if $player.combat_stats.dead_tick && @mid_run
       defeat_banner_label ||= {
@@ -404,7 +403,6 @@ class Game
 
       l4 << [defeat_banner, defeat_banner_label]
     end
-
     # render scene pipeline layers
     outputs.primitives << [l0, l1, l2, l3, l4]
 
@@ -432,15 +430,10 @@ class Game
       end
     end
 
+    outputs.primitives << $announcement_manager&.prefab
     # render scene transition overlay
     outputs.primitives << @transition.prefab if @transition
 
-    if Kernel.tick_count == 0
-      # args.outputs.static_primitives << Layout.debug_primitives.map do |primitive|
-      #   primitive.merge(r: 255, g: 255, b: 255)
-      # end
-      # args.outputs.static_primitives << Layout.debug_primitives
-    end
   end
 
   def calc_button_inputs

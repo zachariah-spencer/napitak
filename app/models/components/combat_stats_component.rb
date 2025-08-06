@@ -262,13 +262,6 @@ class CombatStatsComponent
         $TUTORIAL_INDEX = 32
         id, text = GameUtils.tutorial_string?($TUTORIAL_INDEX)
         GameUtils.announce(text: text, duration: 6.5.seconds, tutorial_id: id)
-        # $TUTORIAL_INDEX = 33
-        # id, text = GameUtils.tutorial_string?($TUTORIAL_INDEX)
-        # GameUtils.announce(
-        #   text: text,
-        #   duration: 6.5.seconds,
-        #   tutorial_id: id,
-        # )
       end
     when :WARD
       if !$files.save_data["tutorials"]["ward"]
@@ -289,6 +282,17 @@ class CombatStatsComponent
         id, text = GameUtils.tutorial_string?($TUTORIAL_INDEX)
         GameUtils.announce(text: text, duration: 6.5.seconds, tutorial_id: id)
         $TUTORIAL_INDEX = 37
+        id, text = GameUtils.tutorial_string?($TUTORIAL_INDEX)
+        GameUtils.announce(text: text, duration: 6.5.seconds, tutorial_id: id)
+      end
+    when :BLIND
+      if !$files.save_data["tutorials"]["blind"]
+        $files.save_data["tutorials"]["blind"] = true
+        puts "PLAY TUTORIAL FOR BLIND"
+        $TUTORIAL_INDEX = 38
+        id, text = GameUtils.tutorial_string?($TUTORIAL_INDEX)
+        GameUtils.announce(text: text, duration: 6.5.seconds, tutorial_id: id)
+        $TUTORIAL_INDEX = 39
         id, text = GameUtils.tutorial_string?($TUTORIAL_INDEX)
         GameUtils.announce(text: text, duration: 6.5.seconds, tutorial_id: id)
       end

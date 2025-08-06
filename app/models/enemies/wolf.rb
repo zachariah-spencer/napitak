@@ -34,7 +34,8 @@ class Wolf < Enemy
               amount: 1,
               type: $DAMAGE_TYPES[:force]
             }
-          }
+          },
+          { $CARD_TRAITS[:blind] => 10 }
         ]
       },
       20 => {

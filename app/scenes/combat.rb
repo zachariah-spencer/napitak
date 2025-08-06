@@ -13,7 +13,6 @@ class Combat < Scene
       enemy_turn: 3
     }
     @player = $player
-    puts "#{@player.maximum_hp} HELP #{@player.maximum_focus}"
     @player.combat_stats.reset!(@player.maximum_hp, @player.maximum_focus)
     @enemy = Object.const_get($files.save_data["current_enemy"].capitalize).new
     @combo_manager = ComboManager.new
@@ -198,7 +197,6 @@ class Combat < Scene
     x = (Kernel.tick_count * 2) % (2 * range)
     osc_val = range - (x - range).abs
 
-    # bg_tile_index = 0.frame_index(5, 1.0.seconds, true)
     bg_tile_index = 0.frame_index(3, 1.0.seconds, true)
     tile_index = 0.frame_index(6, 0.25.seconds, true)
 
@@ -382,9 +380,6 @@ class Combat < Scene
 
       l1 << flee_percentage_label
 
-      # if @player.combat_stats.statuses[$STATUS_TYPES[:WARD]] > 0
-      #   l1 << player_ward_label
-      # end
       return l1
     when 2
       deck_frame = 0.frame_index(3, 0.18.seconds, true)
@@ -584,7 +579,6 @@ class Combat < Scene
         text: "YOUR TURN"
       }
 
-      # l4 << @enemy.combat_stats.prefab
       l4 << @player.combat_stats.prefab
       l4 << players_turn_label if @player.my_turn?
       l4 << tool_tips
