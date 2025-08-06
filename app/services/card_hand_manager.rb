@@ -48,6 +48,18 @@ class CardHandManager
     @hand.values.map(&:rect)
   end
 
+  def consume_card(card)
+    potion_info = $PIDS[card.id]
+    applied_fc = (potion_info.fc + card.focus_mod)
+    if @player.combat_stats.focus >= applied_fc && card.uses_left > 0
+      @player.combat_stats.focus -= applied_fc
+      card.uses_left -= 1
+      card.update_sprite
+      @player.potions.discard card
+      @hand.delete card.entity_id
+    end
+  end
+
   def use_card(card)
     potion_info = $PIDS[card.id]
     applied_fc = (potion_info.fc + card.focus_mod)
@@ -68,26 +80,22 @@ class CardHandManager
         end
       end
 
-      damage_trait =
-        potion_traits.find { |h| h.key?($CARD_TRAITS[:damage]) }
+      damage_trait = potion_traits.find { |h| h.key?($CARD_TRAITS[:damage]) }
       damage_trait &&= damage_trait[$CARD_TRAITS[:damage]]
       mend_trait = potion_traits.find { |h| h.key?($CARD_TRAITS[:mend]) }
       mend_trait &&= mend_trait[$CARD_TRAITS[:mend]]
       restoration_trait =
         potion_traits.find { |h| h.key?($CARD_TRAITS[:restoration]) }
       restoration_trait &&= restoration_trait[$CARD_TRAITS[:restoration]]
-      scorch_trait =
-        potion_traits.find { |h| h.key?($CARD_TRAITS[:scorch]) }
+      scorch_trait = potion_traits.find { |h| h.key?($CARD_TRAITS[:scorch]) }
       scorch_trait &&= scorch_trait[$CARD_TRAITS[:scorch]]
-      blight_trait =
-        potion_traits.find { |h| h.key?($CARD_TRAITS[:blight]) }
+      blight_trait = potion_traits.find { |h| h.key?($CARD_TRAITS[:blight]) }
       blight_trait &&= blight_trait[$CARD_TRAITS[:blight]]
       frost_trait = potion_traits.find { |h| h.key?($CARD_TRAITS[:frost]) }
       frost_trait &&= frost_trait[$CARD_TRAITS[:frost]]
       ward_trait = potion_traits.find { |h| h.key?($CARD_TRAITS[:ward]) }
       ward_trait &&= ward_trait[$CARD_TRAITS[:ward]]
-      channel_trait =
-        potion_traits.find { |h| h.key?($CARD_TRAITS[:channel]) }
+      channel_trait = potion_traits.find { |h| h.key?($CARD_TRAITS[:channel]) }
       channel_trait &&= channel_trait[$CARD_TRAITS[:channel]]
       blind_trait = potion_traits.find { |h| h.key?($CARD_TRAITS[:blind]) }
       blind_trait &&= blind_trait[$CARD_TRAITS[:blind]]

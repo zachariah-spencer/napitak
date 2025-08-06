@@ -125,6 +125,9 @@ class Enemy
         .find { |h| h.key?($CARD_TRAITS[:ward]) }
         &.[]($CARD_TRAITS[:ward])
 
+    blind_trait = attack.traits.find { |h| h.key?($CARD_TRAITS[:blind]) }
+    blind_trait &&= blind_trait[$CARD_TRAITS[:blind]]
+
     if damage_trait
       $event_bus.publish(
         :player_hurt,
@@ -169,6 +172,14 @@ class Enemy
 
     if ward_trait
       $event_bus.publish(:enemy_apply_status, type: :WARD, stacks: ward_trait)
+    end
+
+    if blind_trait
+      $event_bus.publish(
+        :player_apply_status,
+        type: :BLIND,
+        stacks: blind_trait
+      )
     end
   end
 

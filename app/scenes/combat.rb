@@ -17,7 +17,12 @@ class Combat < Scene
     @player.combat_stats.reset!(@player.maximum_hp, @player.maximum_focus)
     @enemy = Object.const_get($files.save_data["current_enemy"].capitalize).new
     @combo_manager = ComboManager.new
-    @hand_manager = CardHandManager.new(player: @player, enemy: @enemy, combo_manager: @combo_manager)
+    @hand_manager =
+      CardHandManager.new(
+        player: @player,
+        enemy: @enemy,
+        combo_manager: @combo_manager
+      )
     @enemy_ai = EnemyAI.new(@enemy, on_turn_end: method(:calc_enemy_turn_ended))
     @tutorial_service =
       TutorialService.new(
@@ -341,7 +346,7 @@ class Combat < Scene
         player_hp_label_header,
         player_hp_label,
         player_focus_label_header,
-        player_focus_label,
+        player_focus_label
       ]
 
       if @player.combat_stats.bonus_focus > 0
@@ -353,8 +358,7 @@ class Combat < Scene
           r: 0,
           g: 225,
           b: 225,
-          text:
-            "+#{@player.combat_stats.bonus_focus}",
+          text: "+#{@player.combat_stats.bonus_focus}",
           font: "fonts/eaglelake.ttf",
           primitive_marker: :label
         }
@@ -472,7 +476,6 @@ class Combat < Scene
       l3 << [front_card]
       return l3
     when 4
-
       if @defeat_banner_timer
         defeat_banner_label ||= {
           x: GTK.args.grid.w / 2,
@@ -755,8 +758,12 @@ class Combat < Scene
         if state.click_hold_time.elapsed_time < 20 &&
              (Geometry.distance c_ref.pos, c_ref.f_pos) < 20
           if card_usable?(c_ref)
-            @combo_manager.add_to_sequence(c_ref.primary_base_ingredient_id?)
-            @hand_manager.use_card(c_ref)
+            if @player.check_hit?
+              @combo_manager.add_to_sequence(c_ref.primary_base_ingredient_id?)
+              @hand_manager.use_card(c_ref)
+            else
+              @hand_manager.consume_card(c_ref)
+            end
           end
           end_combat if @enemy.combat_stats.dead
           unless @hand_manager.actions_available?

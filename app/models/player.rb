@@ -40,6 +40,7 @@ class Player
     @alchemy_table_uses = 1
     @shop_discount = 0 # out of 100 (integer percentile) (CURRENTLY UNUSED)
     @reward_picks = 2
+    @accuracy = 100.0
 
     @my_turn = true
     @combat_stats =
@@ -273,6 +274,29 @@ class Player
     end
   end
 
+  def modified_accuracy?
+    puts "ACCURACY: #{@accuracy}\n ACCURACY_MODIFIER: #{@combat_stats.accuracy_mod}\nFINAL_CALC: #{@accuracy + @combat_stats.accuracy_mod}\n"
+    @accuracy + @combat_stats.accuracy_mod
+  end
+
+  def check_hit?
+    hit_roll = Numeric.rand(0.0..100.0)
+    if hit_roll <= modified_accuracy?
+      true
+    else
+      GameUtils.status_label(
+        GTK.args.grid.w / 2,
+        GTK.args.grid.h - 500,
+        "MISSED",
+        255,
+        255,
+        255,
+        64
+      )
+      false
+    end
+  end
+
   def load_upgrades_data
     # Always saved and loaded as a group so if "starting_inventory_size" exists then a save file exists as well.
     if $files.save_data["player"]["upgrades"]["anodyne"]
@@ -293,7 +317,8 @@ class Player
   def begin_turn
     @my_turn = true
     @combat_stats.mod_max_focus =
-      @combat_stats.max_focus + @combat_stats.consume_bonus_focus - @combat_stats.statuses[$STATUS_TYPES[:FROST]]
+      @combat_stats.max_focus + @combat_stats.consume_bonus_focus -
+        @combat_stats.statuses[$STATUS_TYPES[:FROST]]
     @combat_stats.mod_max_focus = 0 if @combat_stats.mod_max_focus < 0
     @combat_stats.focus = @combat_stats.mod_max_focus
     @combat_stats.calc_status(type: :RESTORATION)
