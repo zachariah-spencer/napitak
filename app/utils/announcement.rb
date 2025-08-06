@@ -98,4 +98,8 @@ class Announcement
       { x: @x, y: @y, w: @w, h: @h, a: @a, path: "announcement_#{@id}" }
     end
   end
+
+  def dispose
+    GTK.args.outputs.delete("announcement_#{@id}")
+  end
 end
