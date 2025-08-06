@@ -4,6 +4,7 @@ class Combat < Scene
   def initialize(enemy = nil)
     @sc_id = "combat"
 
+    puts "ENEMY: #{enemy}"
     $files.save_data["current_enemy"] = enemy if enemy
 
     @turn_stages = {

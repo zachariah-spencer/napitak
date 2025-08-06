@@ -440,19 +440,19 @@ module GameData
   ENCOUNTERS = {
     "alchemy_lab" => {
       name: "Laboratory",
-      path: "sprites/triangle/equilateral/indigo.png",
+      path: "sprites/square/indigo.png",
       is_combat: false,
       chance: 0
     },
     "alchemy_table" => {
       name: "Alchemy Workbench",
-      path: "sprites/triangle/equilateral/yellow.png",
+      path: "sprites/square/yellow.png",
       is_combat: false,
       chance: 8
     },
     "rp_encounter" => {
       name: "Event",
-      path: "sprites/square/indigo.png",
+      path: "sprites/square/blue.png",
       is_combat: false,
       chance: 4
     },
@@ -460,14 +460,21 @@ module GameData
       name: "Trader",
       path: "sprites/square/white.png",
       is_combat: false,
-      chance: 5
+      chance: 2
     },
     # basic enemy
     "wolf" => {
       name: "Wolf",
       path: "sprites/wolf-sheet-3.png",
       is_combat: true,
-      chance: 200
+      chance: 15
+    },
+    # basic enemy
+    "bat" => {
+      name: "Bat",
+      path: "sprites/isometric/black.png",
+      is_combat: true,
+      chance: 15
     },
     # frost guy
     "wraith" => {
@@ -488,14 +495,14 @@ module GameData
       name: "Ironroot Sentinel",
       path: "sprites/triangle/equilateral/green.png",
       is_combat: true,
-      chance: 1
+      chance: 2
     },
     # fire guy
     "mawfiend" => {
       name: "Abyssal Mawfiend",
       path: "sprites/triangle/equilateral/orange.png",
       is_combat: true,
-      chance: 1
+      chance: 2
     }
   }.freeze
   ANIMATIONS = {

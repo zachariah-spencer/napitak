@@ -31,28 +31,32 @@
             "I wail in the darkness you dared to wound!"
         ]
     },
+    "bat": {
+        "offense": ["..."],
+        "defense": ["..."]
+    },
     "dracolisk": {
         "offense": [
-            ""
+            "..."
         ],
         "defense": [
-            ""
+            "..."
         ]
     },
     "sentinel": {
         "offense": [
-            ""
+            "..."
         ],
         "defense": [
-            ""
+            "..."
         ]
     },
     "mawfiend": {
         "offense": [
-            ""
+            "..."
         ],
         "defense": [
-            ""
+            "..."
         ]
     },
     "abyssal": {

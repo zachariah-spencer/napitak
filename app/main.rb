@@ -14,6 +14,7 @@ require_relative "models/components/status_effect"
 
 # enemies
 require_relative "models/enemies/enemy"
+require_relative "models/enemies/bat"
 require_relative "models/enemies/wolf"
 require_relative "models/enemies/wraith"
 require_relative "models/enemies/dracolisk"
