@@ -18,7 +18,7 @@ class AbyssalTutorial < Enemy
     $enemy = self
     @combat_stats =
       CombatStatsComponent.new(
-        hp: 1,
+        hp: 100,
         focus: 0,
         x: GTK.args.grid.w / 2,
         y: GTK.args.grid.h - 270
@@ -33,7 +33,7 @@ class AbyssalTutorial < Enemy
         traits: [
           {
             $CARD_TRAITS[:damage] => {
-              amount: 3,
+              amount: 2,
               type: $DAMAGE_TYPES[:force]
             }
           }
@@ -45,7 +45,7 @@ class AbyssalTutorial < Enemy
         traits: [
           {
             $CARD_TRAITS[:damage] => {
-              amount: 1,
+              amount: 3,
               type: $DAMAGE_TYPES[:force]
             }
           },
@@ -58,11 +58,10 @@ class AbyssalTutorial < Enemy
         traits: [
           {
             $CARD_TRAITS[:damage] => {
-              amount: 2,
+              amount: 4,
               type: $DAMAGE_TYPES[:force]
             }
           },
-          { $CARD_TRAITS[:scorch] => 1 }
         ]
       },
       3 => {
@@ -71,7 +70,7 @@ class AbyssalTutorial < Enemy
         traits: [
           {
             $CARD_TRAITS[:damage] => {
-              amount: 3,
+              amount: 5,
               type: $DAMAGE_TYPES[:force]
             }
           },
@@ -84,7 +83,7 @@ class AbyssalTutorial < Enemy
         traits: [
           {
             $CARD_TRAITS[:damage] => {
-              amount: 4,
+              amount: 6,
               type: $DAMAGE_TYPES[:force]
             }
           }

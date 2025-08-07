@@ -16,22 +16,23 @@ class Bat < Enemy
     $enemy = self
     @combat_stats =
       CombatStatsComponent.new(
-        hp: 50,
+        hp: 25,
         focus: 0,
         x: GTK.args.grid.w / 2,
         y: GTK.args.grid.h - 270,
-        resistances: []
+        resistances: [],
+        vulnerabilities: [ $DAMAGE_TYPES[:heat] ]
       )
     @sprite = "sprites/isometric/black.png"
     @name = "Bat"
     @attacks = {
-      70 => {
+      50 => {
         name: "Basic Attack",
         attack_id: "a001",
         traits: [
           {
             $CARD_TRAITS[:damage] => {
-              amount: 1,
+              amount: 5,
               type: $DAMAGE_TYPES[:force]
             }
           },
@@ -44,22 +45,24 @@ class Bat < Enemy
         traits: [
           {
             $CARD_TRAITS[:damage] => {
-              amount: 2,
+              amount: 5,
               type: $DAMAGE_TYPES[:force]
             }
-          }
+          },
+          { $CARD_TRAITS[:blind] => 15 }
         ]
       },
-      10 => {
+      30 => {
         name: "Ultimate Attack",
         attack_id: "a003",
         traits: [
           {
             $CARD_TRAITS[:damage] => {
-              amount: 2,
+              amount: 10,
               type: $DAMAGE_TYPES[:force]
             }
-          }
+          },
+          { $CARD_TRAITS[:blind] => 10 }
         ]
       }
     }

@@ -136,13 +136,13 @@ module GameData
       },
       finisher_trait: { CARD_TRAITS[:ward] => 10 },
       traits: [
-        { CARD_TRAITS[:damage] => { amount: 1, type: DAMAGE_TYPES[:heat] } },
+        { CARD_TRAITS[:damage] => { amount: 5, type: DAMAGE_TYPES[:heat] } },
       ],
     },
     "p002" => {
       name: "Combustible Potion",
       desc: "Explodes upon throwing causing destruction to nearby creatures.",
-      fc: 2,
+      fc: 4,
       max_uses: 2,
       primary_base_ingredient_id: "i003",
       path: "sprites/circle/orange.png",
@@ -152,13 +152,13 @@ module GameData
         "i006" => 1
       },
       traits: [
-        { CARD_TRAITS[:damage] => { amount: 5, type: DAMAGE_TYPES[:heat] } }
+        { CARD_TRAITS[:damage] => { amount: 15, type: DAMAGE_TYPES[:heat] } }
       ],
     },
     "p003" => {
       name: "Waterbeam Potion",
       desc: "Sprays water at high pressure at foes.",
-      fc: 2,
+      fc: 0,
       max_uses: 5,
       primary_base_ingredient_id: "i002",
       path: "sprites/waterbeambottle.png",
@@ -182,12 +182,12 @@ module GameData
         "i002" => 1,
         "i006" => 1
       },
-      traits: [{ CARD_TRAITS[:mend] => 3 }]
+      traits: [{ CARD_TRAITS[:mend] => 10 }]
     },
     "p005" => {
       name: "Steamblast Potion",
       desc: "A hot blast of steam projects towards foes.",
-      fc: 2,
+      fc: 3,
       max_uses: 2,
       primary_base_ingredient_id: "i002",
       path: "sprites/circle/indigo.png",
@@ -195,7 +195,10 @@ module GameData
         "i001" => 1,
         "i006" => 2
       },
-      traits: [{ CARD_TRAITS[:scorch] => 3 }]
+      traits: [
+        { CARD_TRAITS[:scorch] => 6 },
+        { CARD_TRAITS[:damage] => { amount: 4, type: DAMAGE_TYPES[:heat] } }
+    ]
     },
     "p006" => {
       name: "Rock Potion",
@@ -210,13 +213,14 @@ module GameData
         "i004" => 2
       },
       traits: [
-        { CARD_TRAITS[:damage] => { amount: 1, type: DAMAGE_TYPES[:force] } }
+        { CARD_TRAITS[:damage] => { amount: 1, type: DAMAGE_TYPES[:force] } },
+        { CARD_TRAITS[:ward] => 1 }
       ]
     },
     "p007" => {
       name: "Wind Potion",
       desc: "A gust of wind bursts out of the bottle at foes.",
-      fc: 2,
+      fc: 3,
       max_uses: 3,
       primary_base_ingredient_id: "i005",
       path: "sprites/circle/white.png",
@@ -225,15 +229,15 @@ module GameData
         "i005" => 2
       },
       traits: [
-        { CARD_TRAITS[:damage] => { amount: 1, type: DAMAGE_TYPES[:force] } },
-        { CARD_TRAITS[:restoration] => 2 }
+        { CARD_TRAITS[:damage] => { amount: 7, type: DAMAGE_TYPES[:force] } },
+        { CARD_TRAITS[:restoration] => 5 }
       ]
     },
     "p009" => {
       name: "Sandstone Potion",
       desc:
         "Reinforced dust globs out of the bottle forming a wall betwixt you and foes.",
-      fc: 3,
+      fc: 5,
       max_uses: 3,
       primary_base_ingredient_id: "i004",
       path: "sprites/circle/yellow.png",
@@ -242,7 +246,7 @@ module GameData
         "i004" => 1,
         "i007" => 1
       },
-      traits: [{ CARD_TRAITS[:ward] => 5 }]
+      traits: [{ CARD_TRAITS[:ward] => 15 }]
     },
     "p010" => {
       name: "Sandstorm Potion",
@@ -258,8 +262,8 @@ module GameData
         "i007" => 1
       },
       traits: [
-        { CARD_TRAITS[:damage] => { amount: 5, type: DAMAGE_TYPES[:force] } },
-        { CARD_TRAITS[:scorch] => 3 }
+        { CARD_TRAITS[:damage] => { amount: 8, type: DAMAGE_TYPES[:force] } },
+        { CARD_TRAITS[:scorch] => 5 }
       ]
     },
     "p011" => {
@@ -275,15 +279,15 @@ module GameData
         "i007" => 2
       },
       traits: [
-        { CARD_TRAITS[:scorch] => 5 },
-        { CARD_TRAITS[:mend] => 1 },
-        { CARD_TRAITS[:ward] => 2 }
+        { CARD_TRAITS[:scorch] => 10 },
+        { CARD_TRAITS[:mend] => 5 },
+        { CARD_TRAITS[:ward] => 5 }
       ]
     },
     "p012" => {
       name: "Quicksand Potion",
       desc: "Creates a puddle of quicksand below enemies that envelop them.",
-      fc: 1,
+      fc: 3,
       max_uses: 6,
       primary_base_ingredient_id: "i004",
       path: "sprites/circle/yellow.png",
@@ -293,13 +297,13 @@ module GameData
         "i007" => 1
       },
       traits: [
-        { CARD_TRAITS[:damage] => { amount: 2, type: DAMAGE_TYPES[:force] } }
+        { CARD_TRAITS[:damage] => { amount: 8, type: DAMAGE_TYPES[:force] } }
       ]
     },
     "p013" => {
       name: "Brickwall Potion",
       desc: "Creates a brickwall betwixt you and foes.",
-      fc: 3,
+      fc: 6,
       max_uses: 4,
       primary_base_ingredient_id: "i004",
       path: "sprites/circle/red.png",
@@ -307,13 +311,13 @@ module GameData
         "i001" => 1,
         "i009" => 2
       },
-      traits: [{ CARD_TRAITS[:ward] => 4 }]
+      traits: [{ CARD_TRAITS[:ward] => 20 }]
     },
     "p014" => {
       name: "Lightning Potion",
       desc: "Strikes an arc of lightning at foes.",
       fc: 2,
-      max_uses: 5,
+      max_uses: 4,
       primary_base_ingredient_id: "i005",
       path: "sprites/circle/yellow.png",
       ingredients: {
@@ -321,7 +325,7 @@ module GameData
         "i008" => 2
       },
       traits: [
-        { CARD_TRAITS[:damage] => { amount: 2, type: DAMAGE_TYPES[:spark] } }
+        { CARD_TRAITS[:damage] => { amount: 6, type: DAMAGE_TYPES[:spark] } }
       ]
     }
   }.freeze

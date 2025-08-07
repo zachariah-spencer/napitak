@@ -20,7 +20,7 @@ class Wolf < Enemy
         focus: 0,
         x: GTK.args.grid.w / 2,
         y: GTK.args.grid.h - 270,
-        resistances: []
+        resistances: [ $DAMAGE_TYPES[:cold] ]
       )
     @sprite = "sprites/wolf-sheet-3.png"
     @name = "Wolf"
@@ -31,11 +31,10 @@ class Wolf < Enemy
         traits: [
           {
             $CARD_TRAITS[:damage] => {
-              amount: 1,
+              amount: 5,
               type: $DAMAGE_TYPES[:force]
             }
           },
-          { $CARD_TRAITS[:blind] => 10 }
         ]
       },
       20 => {
@@ -44,7 +43,7 @@ class Wolf < Enemy
         traits: [
           {
             $CARD_TRAITS[:damage] => {
-              amount: 2,
+              amount: 10,
               type: $DAMAGE_TYPES[:force]
             }
           }
@@ -56,9 +55,10 @@ class Wolf < Enemy
         traits: [
           {
             $CARD_TRAITS[:damage] => {
-              amount: 2,
+              amount: 20,
               type: $DAMAGE_TYPES[:force]
-            }
+            },
+            $CARD_TRAITS[:ward] => 15
           }
         ]
       }

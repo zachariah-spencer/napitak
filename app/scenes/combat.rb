@@ -156,7 +156,7 @@ class Combat < Scene
   end
 
   def check_enemy_death
-    unless @enemy.combat_stats.dead && @enemy.turn_over? &&
+    unless @enemy.combat_stats.dead &&
              !@victory_banner_timer
       return
     end

@@ -17,8 +17,8 @@ class BossRewardsScreen < Scene
     when "dracolisk"
       $recipe_book.unlock_base("i004")
       $recipe_book.unlock_base("i005")
-      @reward_cards << GameUtils.gen_new_card("i004", is_reward: true)
-      @reward_cards << GameUtils.gen_new_card("i005", is_reward: true)
+      @reward_cards << RewardCard.new("i004")
+      @reward_cards << RewardCard.new("i005")
 
     end
   end

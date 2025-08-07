@@ -163,7 +163,11 @@ class RoleplayEncounter < Scene
           )
       when "bat"
         puts "START BAT FIGHT"
-        # Insert bat fight here when it exists
+        $game.change_scene(
+            prev_sc: @sc_id,
+            next_scene: "combat",
+            args: ["bat"]
+          )
       end
     when "add_random_ingredients"
       puts "ADD RANDOM INGREDIENTS TO SATCHEL"

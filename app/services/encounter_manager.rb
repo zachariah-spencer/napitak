@@ -9,11 +9,16 @@ class EncounterManager
 
     @encounter_map = [
       ["dracolisk"],
-      [rand_encounter?(2), rand_encounter?(2), rand_encounter?(2)],
-      [rand_encounter?(3), rand_encounter?(3), rand_encounter?(3)],
+      ["alchemy_table", "shop"],
+      [rand_encounter?(2)],
+      [rand_encounter?(3), rand_encounter?(3)],
       [rand_encounter?(4), rand_encounter?(4)],
       [rand_encounter?(5), rand_encounter?(5), rand_encounter?(5)],
-      [rand_encounter?(6), rand_encounter?(6)],
+      [rand_encounter?(6), rand_encounter?(6), rand_encounter?(6), rand_encounter?(6)],
+      [rand_encounter?(7), rand_encounter?(7), rand_encounter?(7)],
+      [rand_encounter?(8), rand_encounter?(8), rand_encounter?(8), rand_encounter?(8)],
+      [rand_encounter?(9), rand_encounter?(9), rand_encounter?(9)],
+      [rand_encounter?(10), rand_encounter?(10), rand_encounter?(10)],
       ["alchemy_lab"]
     ]
 
@@ -71,7 +76,7 @@ class EncounterManager
   end
 
   def next_choices?
-    last_layer = 6
+    last_layer = 11
     first_layer = 2
 
     e_layer = @encounter_map[@encounter_map.size - @map_layer]

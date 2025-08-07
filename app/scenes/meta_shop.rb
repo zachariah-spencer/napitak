@@ -453,59 +453,59 @@ class MetaShop < Scene
       },
       max_foc: {
         0 => {
-          val: 2,
+          val: 4,
           amount: -1
         },
         1 => {
-          val: 3,
+          val: 6,
           amount: 200
         },
         2 => {
-          val: 4,
+          val: 8,
           amount: 400
         },
         3 => {
-          val: 5,
+          val: 10,
           amount: 800
         }
       },
       max_hp: {
         0 => {
-          val: 10,
+          val: 100,
           amount: -1
         },
         1 => {
-          val: 15,
+          val: 125,
           amount: 250
         },
         2 => {
-          val: 20,
+          val: 150,
           amount: 500
         },
         3 => {
-          val: 30,
+          val: 200,
           amount: 1000
         }
       },
       alc_tab_use: {
         0 => {
-          val: 1,
+          val: 2,
           amount: -1
         },
         1 => {
-          val: 2,
+          val: 3,
           amount: 250
         },
         2 => {
-          val: 3,
+          val: 4,
           amount: 500
         },
         3 => {
-          val: 4,
+          val: 5,
           amount: 1000
         },
         4 => {
-          val: 5,
+          val: 6,
           amount: 1500
         }
       },
