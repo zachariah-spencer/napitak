@@ -95,16 +95,13 @@ def reset(_args)
 end
 
 def purge_old_version_saves_from_web_build(args)
-  if args.gtk.platform? :web
+    return unless args.gtk.platform? :win
+
     file_info = args.gtk.stat_file("data/save_data.json")
-
-    if file_info
-      now = Time.now
-      midnight = Time.new(now.year, now.month, now.day).to_i
-
-      args.gtk.delete_file("data/save_data.json") if file_info[:mod_time] < midnight
-    end
-  end
+    return unless file_info
+    date = 1754542800
+    puts "MODIFIED_SAVE_TIME: #{file_info[:mod_time]} || DATE: #{date}\n IS MOD TIME LESS THAN DATE? #{(file_info[:mod_time] < date)}"
+    args.gtk.delete_file("data/save_data.json") if file_info[:mod_time] < date
 end
 
 GTK.reset
