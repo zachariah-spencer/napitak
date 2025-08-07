@@ -79,8 +79,10 @@ require_relative "utils/transition"
 require_relative "utils/status_effect_list_widget"
 
 def tick(args)
+  purge_old_version_saves_from_web_build(args)
   $files ||= Files.new
   $game ||= Game.new
+  
   $game.args ||= args
   $game.tick if $game != nil
 end
@@ -91,4 +93,18 @@ def reset(_args)
   # A new rng will be used GTK.reset is invoked
   GTK.set_rng (Time.now.to_f * 100).to_i
 end
+
+def purge_old_version_saves_from_web_build(args)
+  if args.gtk.platform? :web
+    file_info = args.gtk.stat_file("data/save_data.json")
+
+    if file_info
+      now = Time.now
+      midnight = Time.new(now.year, now.month, now.day).to_i
+
+      args.gtk.delete_file("data/save_data.json") if file_info[:mod_time] < midnight
+    end
+  end
+end
+
 GTK.reset
