@@ -1,9 +1,10 @@
 class Combat < Scene
-  attr :sc_id
+  attr :sc_id, :hand_manager
 
   def initialize(enemy = nil)
     @sc_id = "combat"
 
+    puts "ENEMY: #{enemy}"
     $files.save_data["current_enemy"] = enemy if enemy
 
     @turn_stages = {
@@ -15,7 +16,13 @@ class Combat < Scene
     @player = $player
     @player.combat_stats.reset!(@player.maximum_hp, @player.maximum_focus)
     @enemy = Object.const_get($files.save_data["current_enemy"].capitalize).new
-    @hand_manager = CardHandManager.new(player: @player, enemy: @enemy)
+    @combo_manager = ComboManager.new
+    @hand_manager =
+      CardHandManager.new(
+        player: @player,
+        enemy: @enemy,
+        combo_manager: @combo_manager
+      )
     @enemy_ai = EnemyAI.new(@enemy, on_turn_end: method(:calc_enemy_turn_ended))
     @tutorial_service =
       TutorialService.new(
@@ -28,12 +35,17 @@ class Combat < Scene
     @victory_banner_timer = nil
     @flee_banner_timer = nil
     @fled = false
+    @flee_btn_alpha = 0
+    @pass_btn_alpha = 0
     @flee_attempts = 0
     @pre_deal_tick = Kernel.tick_count
     @pre_deal_time = 1.seconds
     @dealing_tick = nil
     @dealing_time = 1.seconds
-    GTK.args.audio[:shuffle] = { input: "sounds/sfx/card/SFX_Shuffle2.wav" }
+    GTK.args.audio[:shuffle] = {
+      input: "sounds/sfx/card/SFX_Shuffle2.wav",
+      gain: 0.7
+    }
     puts @hand_manager.hand
   end
 
@@ -42,6 +54,7 @@ class Combat < Scene
   end
 
   def tick
+    @combo_manager.tick(@hand_manager.hand)
     begin_combat if ready_for_combat?
     calc
 
@@ -85,7 +98,8 @@ class Combat < Scene
   def calc_enemy_turn_ended
     if @player.combat_stats.dead
       @defeat_banner_timer = Kernel.tick_count
-    elsif !combat_ended? && !@enemy.combat_stats.dead && !@player.combat_stats.dead
+    elsif !combat_ended? && !@enemy.combat_stats.dead &&
+          !@player.combat_stats.dead
       begin_turn_stage @turn_stages[:drawing_cards]
     end
   end
@@ -115,9 +129,7 @@ class Combat < Scene
         $game.change_scene(prev_sc: @sc_id, next_scene: "rewards_screen")
       end
     when :defeat
-      $player.anodyne += $encounter_manager.calc_anodyne_earnings
-      $player.save_upgrades_data
-      $game.change_scene(prev_sc: @sc_id, next_scene: "run_summary")
+      $game.end_run
     when :flee
       $game.change_scene(prev_sc: @sc_id, next_scene: "map")
     end
@@ -144,7 +156,10 @@ class Combat < Scene
   end
 
   def check_enemy_death
-    return unless @enemy.combat_stats.dead && @enemy.turn_over? && !@victory_banner_timer
+    unless @enemy.combat_stats.dead &&
+             !@victory_banner_timer
+      return
+    end
 
     puts "ENEMY_DIED_COMBAT_ENDED\n\n"
     end_combat
@@ -183,7 +198,7 @@ class Combat < Scene
     x = (Kernel.tick_count * 2) % (2 * range)
     osc_val = range - (x - range).abs
 
-    bg_tile_index = 0.frame_index(5, 1.0.seconds, true)
+    bg_tile_index = 0.frame_index(3, 1.0.seconds, true)
     tile_index = 0.frame_index(6, 0.25.seconds, true)
 
     case layer_num
@@ -198,13 +213,15 @@ class Combat < Scene
         b: 0,
         primitive_marker: :solid
       }
-      rect = Layout.rect(row: 0, col: 1, w: 22, h: 14)
+      rect = Layout.rect(row: -1, col: 1, w: 22, h: 14)
       background = {
         x: rect[:x],
         y: rect[:y],
         w: rect[:w],
         h: rect[:h],
-        path: "sprites/background_frames/woods/woods_bg#{bg_tile_index + 1}.png" # "sprites/background_frames/woods/woods_bg#{bg_tile_index + 1}.png"
+        a: 180,
+        path:
+          "sprites/background_frames/dungeon/dungeon_bg#{bg_tile_index + 1}.png"
       }
 
       l0 << [background_solid, background]
@@ -253,8 +270,8 @@ class Combat < Scene
         tile_h: GTK.args.grid.h,
         primitive_marker: :sprite
       }
-      hp_label_rect = Layout.rect(col: 0.4, row: 0.5, w: 1, h: 1)
-      hp_label_num_rect = Layout.rect(col: 0.4, row: 0.9, w: 1, h: 1)
+      hp_label_rect = Layout.rect(col: 0.4, row: 7, w: 1, h: 1)
+      hp_label_num_rect = Layout.rect(col: 0.4, row: 7.4, w: 1, h: 1)
 
       player_hp_label_header =
         hp_label_rect.center.merge(
@@ -293,8 +310,8 @@ class Combat < Scene
         primitive_marker: :label
       }
 
-      focus_label_rect = Layout.rect(col: 0.4, row: 1.5, w: 1, h: 1)
-      focus_label_num_rect = Layout.rect(col: 0.4, row: 1.9, w: 1, h: 1)
+      focus_label_rect = Layout.rect(col: 0.4, row: 6, w: 1, h: 1)
+      focus_label_num_rect = Layout.rect(col: 0.4, row: 6.4, w: 1, h: 1)
 
       player_focus_label_header =
         focus_label_rect.center.merge(
@@ -331,25 +348,39 @@ class Combat < Scene
         player_focus_label
       ]
 
+      if @player.combat_stats.bonus_focus > 0
+        player_bonus_focus_label = {
+          x: focus_label_num_rect.x - 12,
+          y: focus_label_num_rect.y + 24,
+          size_px: 18,
+          anchor_x: 0.5,
+          r: 0,
+          g: 225,
+          b: 225,
+          text: "+#{@player.combat_stats.bonus_focus}",
+          font: "fonts/eaglelake.ttf",
+          primitive_marker: :label
+        }
+        puts "HERE"
+        l1 << player_bonus_focus_label
+      end
+
       flee_percentage_label = {
-        x: flee_btn[:x] + 40,
-        y: flee_btn[:y] + 64,
+        x: flee_btn[:x] + 38,
+        y: flee_btn[:y] + 52,
         anchor_x: 0.5,
-        size_px: 20,
+        size_px: 14,
         r: 255,
         g: 255,
         b: 255,
-        a: 255,
-        text: "#{flee_success_rate?.to_i}% Chance",
+        a: @flee_btn_alpha,
+        text: "#{flee_success_rate?.to_i}% CHANCE",
         font: "fonts/eaglelake.ttf",
         primitive_marker: :label
       }
 
       l1 << flee_percentage_label
 
-      if @player.combat_stats.statuses[$STATUS_TYPES[:WARD]] > 0
-        l1 << player_ward_label
-      end
       return l1
     when 2
       deck_frame = 0.frame_index(3, 0.18.seconds, true)
@@ -389,30 +420,41 @@ class Combat < Scene
         primitive_marker: :solid
       }
 
-      pass_btn_rect = Layout.rect(col: 0.2, row: 0, w: 1.5, h: 0.75)
-
-      pass_button =
-        pass_btn_rect.merge(r: 40, g: 40, b: 40, primitive_marker: :solid)
-
       if @player.combat_stats.focus == @player.combat_stats.mod_max_focus
         pass_btn_text = "PASS"
-        pass_btn_size = 20
+        rgb = [0, 255, 255]
       else
-        pass_btn_text = "NEXT"
-        pass_btn_size = 20
+        pass_btn_text = "PASS"
+        rgb = [255, 255, 255]
       end
+      pass_btn_rect = Layout.rect(col: 0.2, row: 0, w: 1.5, h: 0.75)
+      pass_btn_f_i = 0.frame_index(4, 0.5.seconds, true)
+      pass_button =
+        pass_btn_rect.merge(
+          r: rgb[0],
+          g: rgb[1],
+          b: rgb[2],
+          a: @pass_btn_alpha,
+          tile_x: 96 * pass_btn_f_i,
+          tile_y: 0,
+          tile_w: 96,
+          tile_h: 48,
+          path: "sprites/wide_button_frame-sheet-6.png",
+          primitive_marker: :sprite
+        )
 
       pass_button_label =
         pass_btn_rect.center.merge(
           text: "#{pass_btn_text}",
           font: "fonts/eaglelake.ttf",
-          size_px: pass_btn_size,
+          size_px: 20,
           alignment_enum: 1,
           anchor_x: 0.5,
           anchor_y: 0.5,
           r: 255,
           g: 255,
           b: 255,
+          a: @pass_btn_alpha,
           primitive_marker: :label
         )
 
@@ -421,6 +463,7 @@ class Combat < Scene
         deck_card_count_label,
         pass_button,
         pass_button_label,
+        @combo_manager.prefab,
         cards,
         flee_btn
       ]
@@ -537,7 +580,6 @@ class Combat < Scene
         text: "YOUR TURN"
       }
 
-      l4 << @enemy.combat_stats.prefab
       l4 << @player.combat_stats.prefab
       l4 << players_turn_label if @player.my_turn?
       l4 << tool_tips
@@ -548,45 +590,44 @@ class Combat < Scene
   end
 
   def flee_btn
+    flee_btn_frames = 0.frame_index(4, 0.5.seconds, true)
     flee_btn_rect =
       Layout.rect(
-        col: Layout.col_count - 1.75,
-        row: Layout.row_count - 0.5,
+        col: Layout.col_count - 1.685,
+        row: Layout.row_count - 0.325,
         w: 1.5,
         h: 0.75
       )
 
-    GTK.args.outputs[:flee_btn].w = flee_btn_rect[:w]
-    GTK.args.outputs[:flee_btn].h = flee_btn_rect[:h]
+    GTK.args.outputs[:flee_btn].w = 96
+    GTK.args.outputs[:flee_btn].h = 48
+    btn_color = { r: 150, g: 150, b: 150 }
+    if @player.my_turn?
+      @flee_btn_alpha = @flee_btn_alpha.lerp(255, 0.1)
+      @pass_btn_alpha = @pass_btn_alpha.lerp(255, 0.1)
+    else
+      @flee_btn_alpha = @flee_btn_alpha.lerp(0, 0.1)
+      @pass_btn_alpha = @pass_btn_alpha.lerp(0, 0.1)
+    end
 
     GTK.args.outputs[:flee_btn].primitives << flee_btn_rect.merge(
       x: 0,
       y: 0,
       angle: 0,
-      r: 0,
+      path: "sprites/wide_button_frame-sheet-6.png",
+      tile_x: 96 * flee_btn_frames,
+      tile_y: 0,
+      tile_w: 96,
+      tile_h: 48,
+      r: 255,
       g: 0,
       b: 0,
-      primitive_marker: :solid
+      primitive_marker: :sprite
     )
 
-    btn_color = { r: 150, g: 150, b: 150 }
-    btn_color = { r: 80, g: 80, b: 200 } if @player.my_turn?
-
     GTK.args.outputs[:flee_btn].primitives << {
-      x: 5,
-      y: 5,
-      w: flee_btn_rect[:w] - 5,
-      h: flee_btn_rect[:h] - 5,
-      angle: 0,
-      r: btn_color[:r],
-      g: btn_color[:g],
-      b: btn_color[:b],
-      primitive_marker: :solid
-    }
-
-    GTK.args.outputs[:flee_btn].primitives << {
-      x: flee_btn_rect[:w] / 2 + 2.5,
-      y: flee_btn_rect[:h] / 2 + 2.5,
+      x: flee_btn_rect[:w] / 2,
+      y: flee_btn_rect[:h] / 2,
       text: "FLEE",
       font: "fonts/eaglelake.ttf",
       anchor_x: 0.5,
@@ -594,14 +635,21 @@ class Combat < Scene
       r: 255,
       g: 255,
       b: 255,
-      size_px: 20
+      size_px: 22
     }
 
-    flee_btn_rect.merge(path: :flee_btn, primitive_marker: :sprite)
+    flee_btn_rect.merge(
+      w: 96,
+      h: 48,
+      path: :flee_btn,
+      primitive_marker: :sprite,
+      a: @flee_btn_alpha
+    )
   end
 
   def cleanup
     puts "cleanup combat.rb"
+    super
     state.currently_dragging_card_id = nil
     state.mouse_point_inside_square = nil
     @hand_manager.cleanup
@@ -641,6 +689,11 @@ class Combat < Scene
     @player.my_turn = false
     @flee_banner_timer = Kernel.tick_count
     @fled = true
+  end
+
+  def card_usable?(card)
+    potion_info = $PIDS[card.id]
+    @player.combat_stats.focus >= potion_info.fc && card.uses_left > 0
   end
 
   def calc_mouse_inputs
@@ -699,7 +752,14 @@ class Combat < Scene
 
         if state.click_hold_time.elapsed_time < 20 &&
              (Geometry.distance c_ref.pos, c_ref.f_pos) < 20
-          @hand_manager.use_card c_ref
+          if card_usable?(c_ref)
+            if @player.check_hit?
+              @combo_manager.add_to_sequence(c_ref.primary_base_ingredient_id?)
+              @hand_manager.use_card(c_ref)
+            else
+              @hand_manager.consume_card(c_ref)
+            end
+          end
           end_combat if @enemy.combat_stats.dead
           unless @hand_manager.actions_available?
             begin_turn_stage(@turn_stages[:cleanup])
@@ -760,6 +820,7 @@ class Combat < Scene
       end
       @player.begin_turn
       calc_status_effects(type: :BLIGHT)
+      calc_status_effects(type: :BLIND)
       @hand_manager.draw_card
       begin_turn_stage @turn_stages[:playing_cards]
     elsif new_stage == @turn_stages[:playing_cards]

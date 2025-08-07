@@ -25,6 +25,7 @@ class RoleplayEncounter < Scene
 
     @OUTCOMES = { undetermined: 0, bad: 1, neutral: 2, good: 3 }
     @outcome = @OUTCOMES[:undetermined]
+    @consequence = {}
 
     @options
     @options_alpha = 0
@@ -51,9 +52,14 @@ class RoleplayEncounter < Scene
   def ready
   end
 
-  def play_message(message)
+  def play_message(message, is_outcome: false)
     @message_displaying_tick = Kernel.tick_count
-    @message = message
+
+    if is_outcome && @consequence && @consequence["effect"] != "add_random_ingredients"
+      @message = message
+    else
+      @message = message
+    end
   end
 
   def incremented_text?()
@@ -68,16 +74,17 @@ class RoleplayEncounter < Scene
   end
 
   def cleanup
+    super
   end
 
   def leave
-    $game.change_scene(prev_sc: @sc_id, next_scene: "map")
+    calc_outcome if @outcome != @OUTCOMES[:neutral]
+
+    $game.change_scene(prev_sc: @sc_id, next_scene: "map") if !$game.transitioning_scenes && !$player.combat_stats.dead
   end
 
   def tick
-    @outcome += 1 if GTK.args.inputs.keyboard.key_down.j
-
-    if GTK.args.inputs.mouse.click
+    if GTK.args.inputs.mouse.click && !$game.input_locked
       @options.each_with_index do |o, i|
         if o["rect"] && GTK.args.inputs.mouse.inside_rect?(o["rect"])
           puts "ROLLING PROBABILITY MATH FOR #{o["text"]}"
@@ -96,16 +103,30 @@ class RoleplayEncounter < Scene
   def determine_outcome(option)
     roll = Numeric.rand(0..20)
     dc = option["dc"]
+
     if roll >= dc
       @outcome = @OUTCOMES[:good]
-      play_message(option["outcome_messages"]["GOOD"])
+      @consequence = option["outcomes"]["GOOD"]
+      msg = option["outcome_messages"]["GOOD"]["flavor"] + option["outcome_messages"]["GOOD"]["consequence"]
+      if @consequence["effect"] == "add_random_ingredients"
+        ings = []
+        2.times do
+          ings << IngredientCard.new($IIDS.keys.sample)
+        end
+        msg << "#{ings[0].name} and #{ings[1].name}]"
+
+        ings.each { |i| $player.ingredients.add(i) }
+      end
+      play_message(msg, is_outcome: true)
     elsif roll < dc && dc - roll <= 5
       @outcome = @OUTCOMES[:neutral]
-      play_message(option["outcome_messages"]["NEUTRAL"])
+      play_message(option["outcome_messages"]["NEUTRAL"]["flavor"], is_outcome: true)
     else
       roll < dc && dc - roll > 5
       @outcome = @OUTCOMES[:bad]
-      play_message(option["outcome_messages"]["BAD"])
+      @consequence = option["outcomes"]["BAD"]
+      msg = option["outcome_messages"]["BAD"]["flavor"] + " " + option["outcome_messages"]["BAD"]["consequence"]
+      play_message(msg, is_outcome: true)
     end
 
     @options.each { |o| o["rect"] = nil }
@@ -114,10 +135,47 @@ class RoleplayEncounter < Scene
 
   def calc_outcome
     # find a way to make blessings or penalties for the player when specific scenarios play out
-    case @outcome
-    when @OUTCOMES[:good]
-    when @OUTCOMES[:neutral]
-    when @OUTCOMES[:bad]
+    # 
+    # possible effects
+      # initiate_combat wolf DONE
+      # initiate_combat bat BASICALLY DONE (NEED BAT ENCOUNTER)
+      # modify_max_hp int
+      # modify_max_focus int
+      # vulnerable
+      # modify_feathers int
+      # add_random_ingredients array_of_ing_ids
+      # vulnerable_cold
+      # resist_poison
+    effect = @consequence["effect"]
+    value = @consequence["value"]
+    duration = @consequence["duration"]
+
+    puts "EFFECT: #{effect}\nVALUE: #{value}\nDURATION: #{duration}"
+    case effect
+    when "initiate_combat"
+      case value
+      when "wolf"
+        puts "START WOLF FIGHT"
+        $game.change_scene(
+            prev_sc: @sc_id,
+            next_scene: "combat",
+            args: ["wolf"]
+          )
+      when "bat"
+        puts "START BAT FIGHT"
+        $game.change_scene(
+            prev_sc: @sc_id,
+            next_scene: "combat",
+            args: ["bat"]
+          )
+      end
+    when "add_random_ingredients"
+      puts "ADD RANDOM INGREDIENTS TO SATCHEL"
+
+    else
+      puts "MAKING STATUS EFFECT WITH A DURATION OF: #{duration}"
+      $player.status_effects << StatusEffect.new(effect: effect, value: value, duration: duration)
+      puts $player.status_effects
     end
   end
 
@@ -219,6 +277,7 @@ class RoleplayEncounter < Scene
         g: 255,
         b: 255,
         text: "Event",
+        font: "fonts/eaglelake.ttf",
         primitive_marker: :label
       }
 

@@ -11,19 +11,66 @@ class Game
     @next_scene_instance
     @scene_args
     @transitioning_scenes = false
-
+    @defeat_banner_alpha = 0
     @autosaved = false
     @input_locked = false
     @scene = $files.save_data&.[]("scene")
     @runs_completed = $files.save_data["runs_completed"] ||= 0
     @scene_ref = nil
+    @collection_scene_ref = nil
+    @viewing_collection = false
     @paused_scene_ref = nil
     @paused = false
-    @pause_button_pos = 200 + 20
+    @status_effect_list_widget = StatusEffectListWidget.new(x: misc_btn[:x] - 128 + 16, y: GTK.args.grid.h - 64, hover_rect: misc_btn)
+    @pot_col_btn = {
+      x: GTK.args.grid.w / 2 - 16 + 300,
+      y: GTK.args.grid.h - 32,
+      w: 32,
+      h: 32,
+      anchor_x: 0.5,
+      anchor_y: 0.5,
+      path: "sprites/bottle.png"
+    }
+    @ing_col_btn = {
+      x: GTK.args.grid.w / 2 - 16 - 300,
+      y: GTK.args.grid.h - 32,
+      w: 32,
+      h: 32,
+      anchor_x: 0.5,
+      anchor_y: 0.5,
+      path: "sprites/fire.png"
+    }
+    @pot_btn_label = {
+      x: GTK.args.grid.w / 2 - 16 + 300,
+      y: GTK.args.grid.h - 80,
+      anchor_x: 0.5,
+      anchor_y: 0.5,
+      font: "fonts/eaglelake.ttf",
+      text: "Potions",
+      size_px: 18,
+      r: 255,
+      g: 255,
+      b: 255,
+      a: 255
+    }
+    @ing_btn_label = {
+      x: GTK.args.grid.w / 2 - 16 - 300,
+      y: GTK.args.grid.h - 80,
+      anchor_x: 0.5,
+      anchor_y: 0.5,
+      font: "fonts/eaglelake.ttf",
+      text: "Ingredients",
+      size_px: 18,
+      r: 255,
+      g: 255,
+      b: 255,
+      a: 255
+    }
     AnimationManager.new
     AnnouncementManager.new
     EventBus.new
     @transition = nil
+    @mid_run = $files.save_data&.[]("mid_run") || false
 
     # keeps track of whether an entity with a specific entity_id has been created already
     @created_entity_ids = []
@@ -40,13 +87,13 @@ class Game
     @recipe_book = RecipeBook.new()
     EncounterManager.new()
 
+    @tutorial_completed = $files.save_data["tutorials"]["alchemy_lab_tutorial"] || false if $files.save_data["tutorials"]["alchemy_lab_tutorial"]
+
     @player.load_inventory_data
     @player.load_upgrades_data
-
-    is_mid_run = $files.save_data&.[]("mid_run")
     encounters_completed = $files.save_data&.[]("encounters_completed")
 
-    if is_mid_run
+    if @mid_run
       @player.load_feathers_data
       @player.load_run_upgrades_data
       change_scene(prev_sc: "", next_scene: @scene, quick: true)
@@ -57,15 +104,17 @@ class Game
 
   # reset vars for new run
   def new_run
+    @paused = false
+    @mid_run = true
     $files.save_data["mid_run"] = true
     $encounter_manager.reset!
     @player.reset!
 
     # if it is not the players first time playing
-    if @runs_completed && @runs_completed > 0
+    if @runs_completed && @runs_completed > 0 || @tutorial_completed
       change_scene(prev_sc: "", next_scene: "map", quick: true)
 
-      #sStart of first run for new player (scripted intro then scripted combat encounter before natural gameplay)
+      #Start of first run for new player (scripted intro then scripted combat encounter before natural gameplay)
     else
       @input_locked = true
       change_scene(prev_sc: "", next_scene: "intro", quick: true)
@@ -115,12 +164,6 @@ class Game
   def start_scene_change()
     @scene_ref.cleanup if @prev_sc != ""
     @scene = @next_sc
-
-    if @next_sc == "run_summary" || @next_sc == "meta_shop"
-      @pause_button_pos = 15
-    else
-      @pause_button_pos = 200 + 15
-    end
   end
 
   def finish_scene_change()
@@ -182,14 +225,29 @@ class Game
     end
   end
 
+  def toggle_collection(collection_scene_ref: nil, title: "", collection: [])
+    @viewing_collection = !@viewing_collection
+
+    if @viewing_collection
+      @scene = "collection"
+      @collection_scene_ref = collection_scene_ref if collection_scene_ref
+      @scene_ref = Collection.new(title: title, collection_array: collection)
+    else
+      @scene = @collection_scene_ref.sc_id
+      @scene_ref.cleanup
+      @scene_ref = @collection_scene_ref
+    end
+  end
+
   def handle_pause
-    if GTK.args.inputs.keyboard.key_down.escape or
+    if (
+         GTK.args.inputs.keyboard.key_down.escape &&
+           @scene_ref.sc_id != "collection"
+       ) ||
          (
-           GTK.args.inputs.mouse.click and
-             Geometry.intersect_rect?(
-               GTK.args.inputs.mouse,
-               pause_btn(x: @pause_button_pos)
-             )
+           GTK.args.inputs.mouse.click &&
+             Geometry.intersect_rect?(GTK.args.inputs.mouse, pause_btn) &&
+             @scene_ref.sc_id != "collection"
          )
       toggle_pause(paused_scene_ref: @scene_ref)
     end
@@ -201,24 +259,7 @@ class Game
     $files.write
   end
 
-  def tick
-
-    puts "VAL: #{$player.maximum_hp}" if GTK.args.inputs.keyboard.key_down.o
-    handle_pause
-
-    if !@status_labels_queue.empty? &&
-         @status_label_queue_count.elapsed_time >= 0.75.seconds
-      new_label = @status_labels_queue.shift
-      new_label.created_at = Kernel.tick_count
-      @status_labels << new_label
-      @new_status_label_queued = false
-    end
-
-    if @scene_ref
-      @scene_ref.args = args
-      @scene_ref.tick
-    end
-
+  def calc_transitions
     if @transition
       @transition.tick
       if @transitioning_scenes && @transition.past_midway?
@@ -231,10 +272,45 @@ class Game
         @scene_ref.ready if @scene_ref.respond_to?(:ready)
       end
     end
+  end
+
+  def tick
+    # puts $player.maximum_hp
+    puts "VAL: #{$player.maximum_hp}" if GTK.args.inputs.keyboard.key_down.o
+    handle_pause
+    calc_view_collection_inputs
+    calc_button_inputs
+    @status_effect_list_widget.tick
+
+    if $player.combat_stats.dead &&
+         $player.combat_stats.dead_tick.elapsed_time >= 3.0.seconds && @mid_run
+      end_run
+    elsif $player.combat_stats.dead &&
+          $player.combat_stats.dead_tick.elapsed_time < 3.0.seconds
+      $game.input_locked = true
+      @defeat_banner_alpha = @defeat_banner_alpha.lerp(255, 0.04)
+    end
+
+    if !@status_labels_queue.empty? &&
+         @status_label_queue_count.elapsed_time >= 0.2.seconds
+      new_label = @status_labels_queue.shift
+      new_label.created_at = Kernel.tick_count
+      @status_label_queue_count = Kernel.tick_count
+      @status_labels << new_label
+      @new_status_label_queued = false
+    end
+
+    calc_transitions
+
+    if @scene_ref
+      @scene_ref.args = args
+      @scene_ref.tick
+    end
 
     $animation_manager.tick if $animation_manager
     $announcement_manager.tick
     render
+
     calc_particles
 
     # puts $files.save_data to file
@@ -243,6 +319,37 @@ class Game
       puts $files.save_data
       $files.write
       puts "WRITING SAVE DATA TO FILE"
+    end
+  end
+
+  def calc_view_collection_inputs()
+    if !@paused
+      if GTK.args.inputs.keyboard.key_down.tab ||
+           GTK.args.inputs.mouse.click &&
+             GTK.args.inputs.mouse.intersect_rect?(@ing_col_btn) &&
+             !@viewing_collection
+        ing_ids = []
+        $player.ingredients.all_cards.each { |c| ing_ids << c.id }
+        toggle_collection(
+          collection_scene_ref: @scene_ref,
+          title: "Ingredients",
+          collection: ing_ids
+        )
+      elsif GTK.args.inputs.keyboard.key_down.shift_left ||
+            GTK.args.inputs.mouse.click &&
+              GTK.args.inputs.mouse.intersect_rect?(@pot_col_btn) &&
+              !@viewing_collection
+        pot_ids = []
+        $player.potions.all_cards.each { |c| pot_ids << c.id }
+        if @scene_ref.sc_id == "combat"
+          @scene_ref.hand_manager.hand.each { |id, c| pot_ids << c.id }
+        end
+        toggle_collection(
+          collection_scene_ref: @scene_ref,
+          title: "Potions",
+          collection: pot_ids
+        )
+      end
     end
   end
 
@@ -267,36 +374,212 @@ class Game
 
     # for each particle, construct a prefab
     l4 << @status_labels.map { |particle| status_label_prefab particle }
-    l4 << $announcement_manager&.prefab
 
+    if $player.combat_stats.dead_tick && @mid_run
+      defeat_banner_label ||= {
+        x: GTK.args.grid.w / 2,
+        y: GTK.args.grid.h / 2,
+        alignment_enum: 1,
+        anchor_x: 0.5,
+        anchor_y: 0.5,
+        size_px: 32,
+        r: 255,
+        g: 255,
+        b: 255,
+        a: @defeat_banner_alpha,
+        font: "fonts/eaglelake.ttf",
+        text: "DEFEAT",
+        primitive_marker: :label
+      }
+
+      defeat_banner ||= {
+        x: 0,
+        y: GTK.args.grid.h / 2 - 50,
+        w: GTK.args.grid.w,
+        h: 100,
+        r: 150,
+        g: 0,
+        b: 0,
+        a: @defeat_banner_alpha,
+        primitive_marker: :solid
+      }
+
+      l4 << [defeat_banner, defeat_banner_label]
+    end
     # render scene pipeline layers
     outputs.primitives << [l0, l1, l2, l3, l4]
 
     # render pause button
-    outputs.primitives << pause_btn(x: @pause_button_pos) if not @paused
+    outputs.primitives << pause_btn if @scene_ref.sc_id != "collection"
+    if !@viewing_collection && !@paused
+      outputs.primitives << [
+        @pot_btn_label,
+        @pot_col_btn,
+        @ing_btn_label,
+        @ing_col_btn,
+        hp_label[:icon],
+        hp_label[:label],
+        focus_label[:icon],
+        focus_label[:label],
+      ]
 
+      if !$player.status_effects.empty?
+        outputs.primitives << [
+          misc_btn,
+          @status_effect_list_widget.prefab[:background],
+          @status_effect_list_widget.prefab[:label],
+          @status_effect_list_widget.prefab[:list]
+        ]
+      end
+    end
+
+    outputs.primitives << $announcement_manager&.prefab
     # render scene transition overlay
     outputs.primitives << @transition.prefab if @transition
 
-    if Kernel.tick_count == 0
-      # args.outputs.static_primitives << Layout.debug_primitives.map do |primitive|
-      #   primitive.merge(r: 255, g: 255, b: 255)
-      # end
-      # args.outputs.static_primitives << Layout.debug_primitives
+  end
+
+  def calc_button_inputs
+    pot_hovered = GTK.args.inputs.mouse.intersect_rect?(@pot_col_btn)
+    if pot_hovered
+      @pot_col_btn[:w] = @pot_col_btn[:w].lerp(64, 0.2)
+      @pot_col_btn[:h] = @pot_col_btn[:h].lerp(64, 0.2)
+      @pot_btn_label[:a] = @pot_btn_label[:a].lerp(255, 0.2)
+    else
+      @pot_col_btn[:w] = @pot_col_btn[:w].lerp(32, 0.2)
+      @pot_col_btn[:h] = @pot_col_btn[:h].lerp(32, 0.2)
+      @pot_btn_label[:a] = @pot_btn_label[:a].lerp(0, 0.2)
+    end
+
+    ing_hovered = GTK.args.inputs.mouse.intersect_rect?(@ing_col_btn)
+    if ing_hovered
+      @ing_col_btn[:w] = @ing_col_btn[:w].lerp(64, 0.2)
+      @ing_col_btn[:h] = @ing_col_btn[:h].lerp(64, 0.2)
+      @ing_btn_label[:a] = @ing_btn_label[:a].lerp(255, 0.2)
+    else
+      @ing_col_btn[:w] = @ing_col_btn[:w].lerp(32, 0.2)
+      @ing_col_btn[:h] = @ing_col_btn[:h].lerp(32, 0.2)
+      @ing_btn_label[:a] = @ing_btn_label[:a].lerp(0, 0.2)
     end
   end
 
-  def pause_btn(x: 195, y: GTK.args.grid.h - 45, w: 32, h: 32)
-    { x: x, y: y, w: w, h: h, angle: 0, path: "sprites/pause_button.png" }
+  def misc_btn
+    f_i = 0.frame_index(count: 4, hold_for: 15, repeat: true)
+    {
+      x: GTK.args.grid.w - 128 - 32 - 16,
+      y: GTK.args.grid.h - 16 - 32,
+      w: 32,
+      h: 32,
+      path: "sprites/misc_button-sheet-4.png",
+      tile_x: 32 * f_i,
+      tile_y: 0,
+      tile_w: 32,
+      tile_h: 32,
+      angle: 0,
+      primitive_marker: :sprite
+    }
+  end
+
+  def pause_btn
+    f_i = 0.frame_index(count: 4, hold_for: 15, repeat: true)
+    {
+      x: 128 + 16,
+      y: GTK.args.grid.h - 16 - 32,
+      w: 32,
+      h: 32,
+      path: "sprites/pause_button-sheet-4.png",
+      tile_x: 32 * f_i,
+      tile_y: 0,
+      tile_w: 32,
+      tile_h: 32,
+      angle: 0,
+      primitive_marker: :sprite
+    }
+  end
+
+  def hp_label
+    f_i = 0.frame_index(count: 4, hold_for: 15, repeat: true)
+    icon = {
+      x: GTK.args.grid.w / 2 - 32 - 96,
+      y: GTK.args.grid.h - 16 - 32,
+      w: 32,
+      h: 32,
+      path: "sprites/hp_icon-sheet-4.png",
+      tile_x: 32 * f_i,
+      tile_y: 0,
+      tile_w: 32,
+      tile_h: 32,
+      a: 200,
+      angle: 0,
+      primitive_marker: :sprite
+    }
+
+    label = {
+      x: GTK.args.grid.w / 2 - 32 - 80,
+      y: GTK.args.grid.h - 32,
+      size_px: 22,
+      font: "fonts/eaglelake.ttf",
+      text: "#{$player.maximum_hp}",
+      anchor_x: 0.5,
+      anchor_y: 0.5,
+      r: 255,
+      g: 255,
+      b: 255,
+      primitive_marker: :label
+    }
+
+    { icon: icon, label: label }
+  end
+
+  def focus_label
+    f_i = 0.frame_index(count: 4, hold_for: 15, repeat: true)
+    icon = {
+      x: GTK.args.grid.w / 2 - 32 + 96,
+      y: GTK.args.grid.h - 16 - 32,
+      w: 32,
+      h: 32,
+      path: "sprites/focus_icon-sheet-4.png",
+      tile_x: 32 * f_i,
+      tile_y: 0,
+      tile_w: 32,
+      tile_h: 32,
+      a: 255,
+      angle: 0,
+      primitive_marker: :sprite
+    }
+
+    label = {
+      x: GTK.args.grid.w / 2 + 32 + 48,
+      y: GTK.args.grid.h - 32,
+      size_px: 18,
+      font: "fonts/eaglelake.ttf",
+      text: "#{$player.maximum_focus}",
+      anchor_x: 0.5,
+      anchor_y: 0.5,
+      r: 255,
+      g: 255,
+      b: 255,
+      primitive_marker: :label
+    }
+
+    { icon: icon, label: label }
+  end
+
+  def end_run
+    @mid_run = false
+    $files.save_data["mid_run"] = false
+    $player.anodyne += $encounter_manager.calc_anodyne_earnings
+    $player.save_upgrades_data
+    $game.change_scene(prev_sc: @sc_id, next_scene: "run_summary")
   end
 
   def calc_particles
     # process each particle setting their alpha
     # make them spin, and set their y value
     @status_labels.each do |particle|
-      particle.a -= 5
-      particle.angle += 0.5 # / (particle.scale * 0.2)
-      particle.y += 3
+      particle.a -= 4
+      particle.angle += particle.angle_mod # / (particle.scale * 0.2)
+      particle.y += 1.5
     end
 
     # reject all particles with an alpha less than equal to 0
@@ -322,8 +605,10 @@ class Game
       r: r,
       g: g,
       b: b,
+      font: "fonts/eaglelake.ttf",
       angle_anchor_x: 0.5,
-      angle_anchor_y: 0.5
+      angle_anchor_y: 0.5,
+      angle_mod: Numeric.rand(-0.2..0.2)
     }
   end
 
@@ -393,6 +678,7 @@ class Game
         g: s_l.g,
         b: s_l.b,
         a: s_l.a,
+        font: "fonts/eaglelake.ttf",
         angle: s_l.angle
       }
     end

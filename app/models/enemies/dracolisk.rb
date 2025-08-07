@@ -18,7 +18,7 @@ class Dracolisk < Enemy
     $enemy = self
     @combat_stats =
       CombatStatsComponent.new(
-        hp: 30,
+        hp: 80,
         focus: 0,
         x: GTK.args.grid.w / 2,
         y: GTK.args.grid.h - 270,

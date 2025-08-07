@@ -3,6 +3,7 @@
 class Card
   attr_accessor :grabbed,
                 :needs_removed,
+                :marked_for_removal,
                 :pos,
                 :f_pos,
                 :entity_id,
@@ -21,7 +22,8 @@ class Card
                 :uses_left,
                 :hovered,
                 :vx,
-                :vy
+                :vy,
+                :focus_mod
 
   def initialize(
     id,
@@ -45,6 +47,7 @@ class Card
     @floating_seed = Numeric.rand(0.0..100.0)
     @anim_seed = Numeric.rand(0..3)
     @anchored = anchored
+    @marked_for_removal = false
 
     @w = 160
     @h = 160
@@ -69,6 +72,7 @@ class Card
     @img = img
     @max_uses = max_uses
     @uses_left = uses_left || max_uses
+    @focus_mod = 0
     @card_composite_sprite_ref = :"card_composite_#{entity_id}"
     @card_composite_tooltip_ref = :"card_composite_tooltip_#{entity_id}"
 
@@ -93,9 +97,18 @@ class Card
     @h = 0
   end
 
+  def mark_for_removal
+    @marked_for_removal = true
+  end
+
   def tick()
     calc_hover
     calc_render_target(GTK.args)
+
+    if @marked_for_removal
+      @fw = 0
+      @fh = 0
+    end
   end
 
   def save_data?
@@ -118,7 +131,9 @@ class Card
       @hovered = false
     end
 
-    calc_hover_audio(was_hovered) if @activation_time.elapsed_time >= 0.2.seconds
+    if @activation_time.elapsed_time >= 0.2.seconds
+      calc_hover_audio(was_hovered)
+    end
 
     if @hovered and not @grabbed
       @tt_f_a = 255
@@ -130,8 +145,15 @@ class Card
   end
 
   def calc_hover_audio(was_hovered)
-    GTK.args.audio[:hovering_on] = { input: "sounds/sfx/card/SFX_Card5.wav", gain: 0.5 } if was_hovered != @hovered && @hovered && !@grabbed
-    GTK.args.audio[:hovering_off] = { input: "sounds/sfx/card/SFX_Card5.wav", gain: 0.2, pitch: 0.9 } if was_hovered != @hovered && !@hovered && !@grabbed
+    GTK.args.audio[:hovering_on] = {
+      input: "sounds/sfx/card/SFX_Card5.wav",
+      gain: 0.2
+    } if was_hovered != @hovered && @hovered && !@grabbed
+    GTK.args.audio[:hovering_off] = {
+      input: "sounds/sfx/card/SFX_Card5.wav",
+      gain: 0.08,
+      pitch: 0.9
+    } if was_hovered != @hovered && !@hovered && !@grabbed
   end
 
   def prefab
@@ -161,24 +183,17 @@ class Card
     calc_render_target(GTK.args)
   end
 
-  def calc_render_target(args)
-    # start_looping_at = Numeric.rand(0..3)
-    card_sprite_frame = 0.frame_index(
-                        count: 4,
-                        hold_for: 30,
-                        repeat: true,
-                        repeat_index: 0,
-                        tick_count_override: Kernel.tick_count)
-
+  def calc_render_target_background(args, prefab_alpha = 255)
+    card_sprite_frame =
+      0.frame_index(
+        count: 4,
+        hold_for: 30,
+        repeat: true,
+        repeat_index: 0,
+        tick_count_override: Kernel.tick_count
+      )
     card_sprite_frame += @anim_seed
     card_sprite_frame -= 4 if card_sprite_frame > 3
-    # define the dimensions of the combined sprite
-    # the name of the combined sprite is :card_combo
-    args.outputs[@card_composite_sprite_ref].w = @w
-    args.outputs[@card_composite_sprite_ref].h = @h
-
-    prefab_alpha = 255
-    prefab_alpha = (@uses_left > 0) ? 255 : 150 if GameUtils.is_potion(self.id)
 
     args.outputs[@card_composite_sprite_ref].primitives << {
       x: 0,
@@ -196,6 +211,17 @@ class Card
       tile_w: 128,
       tile_h: 128
     }
+  end
+
+  def calc_render_target(args)
+    # define the dimensions of the combined sprite
+    # the name of the combined sprite is :card_composite_sprite_ref
+    args.outputs[@card_composite_sprite_ref].w = @w
+    args.outputs[@card_composite_sprite_ref].h = @h
+    prefab_alpha = 255
+    prefab_alpha = (@uses_left > 0) ? 255 : 150 if GameUtils.is_potion(self.id)
+
+    calc_render_target_background(args, prefab_alpha)
 
     args.outputs[@card_composite_sprite_ref].primitives << {
       x: @w / 4,
@@ -207,7 +233,6 @@ class Card
       path: @img
     }
 
-    # add a label in the center of the render target
     args.outputs[@card_composite_sprite_ref].primitives << {
       x: @w / 2,
       y: @h / 1.25,
@@ -224,23 +249,49 @@ class Card
 
     if GameUtils.is_potion(self.id)
       args.outputs[@card_composite_sprite_ref].primitives << {
-        x: @w / 5,
-        y: @h / 5,
-        text: "#{@fc}",
-        anchor_x: 0.5,
-        anchor_y: 0.5,
-        r: 0,
-        g: 150,
-        b: 150,
-        size_px: 26,
+        x: @w / 2 - 8,
+        y: 12 + 8,
+        w: 16,
+        h: 16,
+        angle: 0,
         a: prefab_alpha,
-        font: "fonts/eaglelake.ttf"
+        path: $IIDS[$PIDS[self.id][:primary_base_ingredient_id]][:path]
       }
 
+      if @focus_mod == 0
+        args.outputs[@card_composite_sprite_ref].primitives << {
+          x: 24,
+          y: 28,
+          text: "#{@fc}",
+          anchor_x: 0.5,
+          anchor_y: 0.5,
+          r: 0,
+          g: 150,
+          b: 150,
+          size_px: 26,
+          a: prefab_alpha,
+          font: "fonts/eaglelake.ttf"
+        }
+      else
+        args.outputs[@card_composite_sprite_ref].primitives << {
+          x: 24,
+          y: 28,
+          text: "#{@fc + @focus_mod}",
+          anchor_x: 0.5,
+          anchor_y: 0.5,
+          r: 0,
+          g: 255,
+          b: 130,
+          size_px: 26,
+          a: prefab_alpha,
+          font: "fonts/eaglelake.ttf"
+        }
+      end
+
       args.outputs[@card_composite_sprite_ref].primitives << {
-        x: @w / 1.3,
-        y: @h / 5,
-        text: "#{@uses_left} / #{@max_uses}",
+        x: @w - 16 - 12,
+        y: 28,
+        text: "#{@uses_left}/#{@max_uses}",
         anchor_x: 0.5,
         anchor_y: 0.5,
         r: 200,
@@ -273,10 +324,10 @@ class Card
       y: 20,
       w: @w * 2,
       h: @h * 2,
-      r: 20,
-      g: 20,
-      b: 20,
-      a: 220,
+      r: 0,
+      g: 0,
+      b: 0,
+      a: 60,
       primitive_marker: :solid
     }
     parsed_name = String.wrapped_lines @name, 15
@@ -287,6 +338,7 @@ class Card
         x: 165,
         y: 275,
         text: "#{s}",
+        font: "fonts/eaglelake.ttf",
         anchor_x: 0.5,
         anchor_y: i,
         r: 255,
@@ -305,6 +357,7 @@ class Card
         x: 165,
         y: 200,
         text: "#{s}",
+        font: "fonts/eaglelake.ttf",
         anchor_x: 0.5,
         anchor_y: i,
         r: 255,
@@ -318,6 +371,7 @@ class Card
       x: 55,
       y: 65,
       text: "Focus",
+      font: "fonts/eaglelake.ttf",
       anchor_x: 0.5,
       anchor_y: 0.5,
       r: 255,
@@ -330,6 +384,7 @@ class Card
       x: 55,
       y: 35,
       text: "#{@fc}",
+      font: "fonts/eaglelake.ttf",
       anchor_x: 0.5,
       anchor_y: 0.5,
       r: 255,
@@ -341,7 +396,8 @@ class Card
     args.outputs[@card_composite_tooltip_ref].primitives << {
       x: 270,
       y: 65,
-      text: "Potencies",
+      text: "Effects",
+      font: "fonts/eaglelake.ttf",
       anchor_x: 0.5,
       anchor_y: 0.5,
       r: 255,
@@ -364,6 +420,7 @@ class Card
             x: damage_potency_val_x,
             y: 35,
             text: "#{potency_val.amount.to_s}",
+            font: "fonts/eaglelake.ttf",
             anchor_x: 0.5,
             anchor_y: 0.5,
             r: color.r,
@@ -376,6 +433,7 @@ class Card
             x: start_x + (i * 25),
             y: 35,
             text: "#{potency_val.to_s}",
+            font: "fonts/eaglelake.ttf",
             anchor_x: 0.5,
             anchor_y: 0.5,
             r: color.r,
@@ -402,6 +460,7 @@ class Card
       x: 160,
       y: 65,
       text: "Charges",
+      font: "fonts/eaglelake.ttf",
       anchor_x: 0.5,
       anchor_y: 0.5,
       r: 255,
@@ -414,6 +473,7 @@ class Card
       x: 160,
       y: 35,
       text: "#{@uses_left} / #{@max_uses}",
+      font: "fonts/eaglelake.ttf",
       anchor_x: 0.5,
       anchor_y: 0.5,
       r: 255,
@@ -486,7 +546,15 @@ class Card
       { r: 255, g: 255, b: 0 }
     when $CARD_TRAITS[:mend]
       { r: 0, g: 150, b: 0 }
+    when $CARD_TRAITS[:channel]
+      { r: 0, g: 150, b: 150 }
+    when $CARD_TRAITS[:blind]
+      { r: 150, g: 150, b: 150 }
     end
+  end
+
+  def primary_base_ingredient_id?
+    $PIDS[self.id][:primary_base_ingredient_id]
   end
 
   def front_card?

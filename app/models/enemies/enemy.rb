@@ -13,7 +13,8 @@ class Enemy
        :name,
        :enemy_id,
        :is_boss,
-       :value
+       :value,
+       :accuracy
 
   def initialize()
     $enemy = self
@@ -48,9 +49,7 @@ class Enemy
     $event_bus.subscribe(:enemy_hurt, self) do |data|
       hurt(data[:amount], data[:type])
     end
-    $event_bus.subscribe(:enemy_heal, self) do |amt|
-      @combat_stats.heal(amt)
-    end
+    $event_bus.subscribe(:enemy_heal, self) { |amt| @combat_stats.heal(amt) }
     $event_bus.subscribe(:enemy_apply_status, self) do |data|
       @combat_stats.apply_status(type: data[:type], stacks: data[:stacks])
     end
@@ -60,7 +59,7 @@ class Enemy
     attack = select_attack
     $animation_manager.queue_animation(attack[:attack_id], lock_input: true)
     hit_roll = Numeric.rand(0.0..100.0)
-    if hit_roll <= @accuracy
+    if hit_roll <= modified_accuracy?
       handle_attack_effects(attack)
     else
       GameUtils.status_label(
@@ -71,9 +70,14 @@ class Enemy
         255,
         255,
         64
-        )
+      )
     end
     @attacked = true
+  end
+
+  def modified_accuracy?
+    puts "ACCURACY: #{@accuracy}\n ACCURACY_MODIFIER: #{@combat_stats.accuracy_mod}\nFINAL_CALC: #{@accuracy + @combat_stats.accuracy_mod}\n"
+    @accuracy + @combat_stats.accuracy_mod
   end
 
   def hurt(amt, type)
@@ -121,29 +125,62 @@ class Enemy
         .find { |h| h.key?($CARD_TRAITS[:ward]) }
         &.[]($CARD_TRAITS[:ward])
 
+    blind_trait = attack.traits.find { |h| h.key?($CARD_TRAITS[:blind]) }
+    blind_trait &&= blind_trait[$CARD_TRAITS[:blind]]
+
     if damage_trait
-      $event_bus.publish(:player_hurt, amount: damage_trait[:amount], type: damage_trait[:type])
+      $event_bus.publish(
+        :player_hurt,
+        amount: damage_trait[:amount],
+        type: damage_trait[:type]
+      )
     end
 
     $event_bus.publish(:enemy_heal, mend_trait) if mend_trait
 
     if restoration_trait
-      $event_bus.publish(:enemy_apply_status, type: :RESTORATION, stacks: restoration_trait)
+      $event_bus.publish(
+        :enemy_apply_status,
+        type: :RESTORATION,
+        stacks: restoration_trait
+      )
     end
 
     if scorch_trait
-      $event_bus.publish(:player_apply_status, type: :SCORCH, stacks: scorch_trait)
+      $event_bus.publish(
+        :player_apply_status,
+        type: :SCORCH,
+        stacks: scorch_trait
+      )
     end
 
     if blight_trait
-      $event_bus.publish(:player_apply_status, type: :BLIGHT, stacks: blight_trait)
+      $event_bus.publish(
+        :player_apply_status,
+        type: :BLIGHT,
+        stacks: blight_trait
+      )
     end
 
     if frost_trait
-      $event_bus.publish(:player_apply_status, type: :FROST, stacks: frost_trait)
+      $event_bus.publish(
+        :player_apply_status,
+        type: :FROST,
+        stacks: frost_trait
+      )
     end
 
-    $event_bus.publish(:enemy_apply_status, type: :WARD, stacks: ward_trait) if ward_trait
+    if ward_trait
+      $event_bus.publish(:enemy_apply_status, type: :WARD, stacks: ward_trait)
+    end
+
+    if blind_trait
+      $event_bus.publish(
+        :player_apply_status,
+        type: :BLIND,
+        stacks: blind_trait
+      )
+    end
   end
 
   def select_attack
@@ -289,7 +326,7 @@ class Enemy
       enemy_shout = nil
     end
 
-    array = [enemy_sprite, enemy_hp_label]
+    array = [enemy_sprite, enemy_hp_label, @combat_stats.prefab]
     array << enemy_shout if enemy_shout
     array
   end

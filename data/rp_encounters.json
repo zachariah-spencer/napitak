@@ -4,30 +4,93 @@
         "prompt": "You push through a veil of ferns into a moonlit grove. Ancient trees loom overhead, their twisted branches silhouetted against a silver sky. A distant, lilting melody drifts on the breeze, and the soft glow of fireflies dances among the undergrowth.",
         "options": [
                     {
-                    "text": "Approach the source of the melody",
-                    "dc": 12,
-                    "outcome_messages": {
-                        "GOOD": "As you step into the clearing, a graceful dryad emerges, smiling. She offers you guidance through the forest’s safest paths and grants you her blessing.",
-                        "NEUTRAL": "The melody fades before you reach its source. You find nothing but empty air, then carry on undisturbed.",
-                        "BAD": "A banshee’s shriek rends the air. You reel back as spectral hands claw at your mind."
+                        "text": "Approach the source of the melody",
+                        "dc": 12,
+                        "outcome_messages": {
+                            "GOOD": {
+                                "flavor": "As you step into the clearing, a graceful dryad emerges, smiling. She offers you guidance through the forest’s safest paths and grants you her blessing.",
+                                "consequence": "[+2 Max Focus - 2 Encounters]"
+                            },
+                            "NEUTRAL": {
+                                "flavor": "The melody fades before you reach its source. You find nothing but empty air, then carry on undisturbed.",
+                                "consequence": ""
+                            },
+                            "BAD": {
+                                "flavor": "A banshee’s shriek rends the air. You reel back as spectral hands claw at your mind.",
+                                "consequence": "[Vulnerable to all damage types - 2 Encounters]"
+                            }
+                        },
+                        "outcomes": {
+                            "GOOD": {
+                                "effect": "modify_max_focus",
+                                "value": 2,
+                                "duration": 2
+                            },
+                            "BAD": {
+                                "effect": "vulnerable",
+                                "value": "",
+                                "duration": 2
+                            }
                         }
                     },
                     {
-                    "text": "Inspect the cluster of bioluminescent mushrooms",
-                    "dc": 14,
-                    "outcome_messages": {
-                        "GOOD": "One mushroom crumbles easily in your hand, revealing a sweet, restorative sap. You feel invigorated.",
-                        "NEUTRAL": "You examine the fungi but decide they’re edible only to creatures of the deep woods. No change in your condition.",
-                        "BAD": "A faint whisper coaxes you to eat more. When you resist, you’re struck by sudden dizziness."
+                        "text": "Inspect the cluster of bioluminescent mushrooms",
+                        "dc": 14,
+                        "outcome_messages": {
+                            "GOOD": {
+                                "flavor": "One mushroom crumbles easily in your hand, revealing a sweet, restorative sap. You feel invigorated.",
+                                "consequence": "[+10 Max HP - 5 Encounters]"
+                            },
+                            "NEUTRAL": {
+                                "flavor": "You examine the fungi but decide they’re edible only to creatures of the deep woods. No change in your condition.",
+                                "consequence": ""
+                            },
+                            "BAD": {
+                                "flavor": "A faint whisper coaxes you to eat more. When you resist, you’re struck by sudden dizziness.",
+                                "consequence": "[-2 Max Focus - 2 Encounters]"
+                            }
+                        },
+                        "outcomes": {
+                            "GOOD": {
+                                "effect": "modify_max_hp",
+                                "value": 10,
+                                "duration": 5
+                            },
+                            "BAD": {
+                                "effect": "modify_max_focus",
+                                "value": -2,
+                                "duration": 2
+                            }
                         }
                     },
                     {
-                    "text": "Move stealthily around the clearing",
-                    "dc": 16,
-                    "outcome_messages": {
-                        "GOOD": "You slip through shadow and underbrush unseen, spotting a hidden stag rutting spot. You gain valuable scouting information.",
-                        "NEUTRAL": "You pass through silently but find nothing unusual, just the quiet murmur of leaves.",
-                        "BAD": "A twig snaps underfoot, echoing through the grove. Moments later, a snarling wolf pack emerges, baring teeth in the dim light."
+                        "text": "Move stealthily around the clearing",
+                        "dc": 16,
+                        "outcome_messages": {
+                            "GOOD": {
+                                "flavor": "You slip through shadow and underbrush unseen, spotting a hidden stag rutting spot. You find some feathers lying on the forest bed. They must have fallen out of a hunter's pack.",
+                                "consequence": "[+4 Feathers]"
+                            },
+                            "NEUTRAL": {
+                                "flavor": "You pass through silently but find nothing unusual, just the quiet murmur of leaves.",
+                                "consequence": ""
+                            },
+                            "BAD": {
+                                "flavor": "A twig snaps underfoot, echoing through the grove. Moments later, a snarling wolf pack emerges, baring teeth in the dim light.",
+                                "consequence": "[Fight Wolf]"
+                            }
+                        },
+                        "outcomes": {
+                            "GOOD": {
+                                "effect": "modify_feathers",
+                                "value": 4,
+                                "duration": "instant"
+                            },
+                            "BAD": {
+                                "effect": "initiate_combat",
+                                "value": "wolf",
+                                "duration": "instant"
+                            }
                         }
                     }
                 ]
@@ -37,30 +100,93 @@
         "prompt": "Your lantern’s glow dances off damp stone as you descend into a vaulted cavern. Stalactites drip rhythmically, and somewhere deeper you hear a low rumble, like distant thunder beneath the earth.",
         "options": [
                     {
-                    "text": "Examine the shimmering crystals embedded in the wall",
-                    "dc": 12,
-                    "outcome_messages": {
-                        "GOOD": "The crystals pulse with faint energy. You touch one and feel your senses sharpen.",
-                        "NEUTRAL": "They glow softly but seem inert. You note their presence and move on without incident.",
-                        "BAD": "A sudden crack echoes as the crystals shatter, releasing a cloud of choking dust. You cough violently."
+                        "text": "Examine the shimmering crystals embedded in the wall",
+                        "dc": 12,
+                        "outcome_messages": {
+                            "GOOD": {
+                                "flavor": "The crystals pulse with faint energy. You touch one and feel your senses sharpen.",
+                                "consequence": "[+2 Max Focus]"
+                            },
+                            "NEUTRAL": {
+                                "flavor": "They glow softly but seem inert. You note their presence and move on without incident.",
+                                "consequence": ""
+                            },
+                            "BAD": {
+                                "flavor": "A sudden crack echoes as the crystals shatter, releasing a cloud of choking dust. You cough violently.",
+                                "consequence": "[-10 Max HP]"
+                            }
+                        },
+                        "outcomes": {
+                            "GOOD": {
+                                "effect": "modify_max_focus",
+                                "value": 2,
+                                "duration": "run"
+                            },
+                            "BAD": {
+                                "effect": "modify_max_hp",
+                                "value": -10,
+                                "duration": "run"
+                            }
                         }
                     },
                     {
-                    "text": "Venture down the narrow, water-slick passage",
-                    "dc": 14,
-                    "outcome_messages": {
-                        "GOOD": "You navigate the slick floor expertly and find a hidden alcove filled with discarded gear: tinder, rations, and a tattered map marking a safe route forward.",
-                        "NEUTRAL": "The tunnel twists and turns but leads you back to the main cavern, neither safer nor more dangerous.",
-                        "BAD": "Halfway through the passage, the footing gives way beneath you. You tumble into knee-deep cold water, soaking your gear."
+                        "text": "Venture down the narrow, water-slick passage",
+                        "dc": 14,
+                        "outcome_messages": {
+                            "GOOD": {
+                                "flavor": "You navigate the slick floor expertly and find a hidden alcove filled with discarded gear: tinder, rations, and some leftover ingredients.",
+                                "consequence": "[Loot 2 Random Ingredients   >   "
+                            },
+                            "NEUTRAL": {
+                                "flavor": "The tunnel twists and turns but leads you back to the main cavern, neither safer nor more dangerous.",
+                                "consequence": ""
+                            },
+                            "BAD": {
+                                "flavor": "Halfway through the passage, the footing gives way beneath you. You tumble into knee-deep cold water, soaking your gear.",
+                                "consequence": "[Vulnerable to Cold - 4 Encounters]"
+                            }
+                        },
+                        "outcomes": {
+                            "GOOD": {
+                                "effect": "add_random_ingredients",
+                                "value": 2,
+                                "duration": "instant"
+                            },
+                            "BAD": {
+                                "effect": "vulnerable_cold",
+                                "value": "",
+                                "duration": 4
+                            }
                         }
                     },
                     {
-                    "text": "Call out to whatever dwells below",
-                    "dc": 16,
-                    "outcome_messages": {
-                        "GOOD": "Your voice fades and then returns as a gentle, resonant hum. A friendly myconid emerges to offer a glowing sporecap that cures minor poisons.",
-                        "NEUTRAL": "Your shout echoes endlessly and then dies away. No response, and you’ve alerted nothing, or no one.",
-                        "BAD": "A screeching roar answers you. From the darkness, giant cave bats descend in a flurry of wings."
+                        "text": "Call out to whatever dwells below",
+                        "dc": 16,
+                        "outcome_messages": {
+                            "GOOD": {
+                                "flavor": "Your voice fades and then returns as a gentle, resonant hum. A friendly myconid emerges to offer a glowing sporecap that cures minor poisons.",
+                                "consequence": "[Resistant to Poison]"
+                            },
+                            "NEUTRAL": {
+                                "flavor": "Your shout echoes endlessly and then dies away. No response, and you’ve alerted nothing, or no one.",
+                                "consequence": ""
+                            },
+                            "BAD": {
+                                "flavor": "A screeching roar answers you. From the darkness, giant cave bats descend in a flurry of wings.",
+                                "consequence": "[Fight Bat]"
+                            }
+                        },
+                        "outcomes": {
+                            "GOOD": {
+                                "effect": "resist_poison",
+                                "value": "",
+                                "duration": "run"
+                            },
+                            "BAD": {
+                                "effect": "initiate_combat",
+                                "value": "bat",
+                                "duration": "instant"
+                            }
                         }
                     }
                 ]

@@ -8,14 +8,17 @@ module GameData
     scorch: 3,
     frost: 4,
     ward: 5,
-    mend: 6
+    mend: 6,
+    channel: 7,
+    blind: 8
   }.freeze
   STATUS_TYPES = {
     SCORCH: 1,
     BLIGHT: 2,
     FROST: 3,
     WARD: 4,
-    RESTORATION: 5
+    RESTORATION: 5,
+    BLIND: 6
   }.freeze
   DAMAGE_TYPES = {
     force: 0,
@@ -65,6 +68,12 @@ module GameData
       g: 255,
       b: 0,
       message: "RESTORED"
+    },
+    STATUS_TYPES[:BLIND] => {
+      r: 150,
+      g: 150,
+      b: 150,
+      message: "BLINDED"
     }
   }.freeze
   DAMAGE_TYPE_COLORS = {
@@ -119,20 +128,23 @@ module GameData
       desc: "Flames leap from the bottle at foes.",
       fc: 1,
       max_uses: 5,
-      path: "sprites/circle/orange.png",
+      primary_base_ingredient_id: "i003",
+      path: "sprites/flamelickbottle.png",
       ingredients: {
         "i001" => 1,
         "i003" => 2
       },
+      finisher_trait: { CARD_TRAITS[:ward] => 10 },
       traits: [
-        { CARD_TRAITS[:damage] => { amount: 1, type: DAMAGE_TYPES[:heat] } }
-      ]
+        { CARD_TRAITS[:damage] => { amount: 5, type: DAMAGE_TYPES[:heat] } },
+      ],
     },
     "p002" => {
       name: "Combustible Potion",
       desc: "Explodes upon throwing causing destruction to nearby creatures.",
-      fc: 2,
+      fc: 4,
       max_uses: 2,
+      primary_base_ingredient_id: "i003",
       path: "sprites/circle/orange.png",
       ingredients: {
         "i001" => 1,
@@ -140,21 +152,22 @@ module GameData
         "i006" => 1
       },
       traits: [
-        { CARD_TRAITS[:damage] => { amount: 5, type: DAMAGE_TYPES[:force] } }
-      ]
+        { CARD_TRAITS[:damage] => { amount: 15, type: DAMAGE_TYPES[:heat] } }
+      ],
     },
     "p003" => {
       name: "Waterbeam Potion",
       desc: "Sprays water at high pressure at foes.",
-      fc: 2,
+      fc: 0,
       max_uses: 5,
-      path: "sprites/circle/blue.png",
+      primary_base_ingredient_id: "i002",
+      path: "sprites/waterbeambottle.png",
       ingredients: {
         "i001" => 1,
         "i002" => 2
       },
       traits: [
-        { CARD_TRAITS[:damage] => { amount: 2, type: DAMAGE_TYPES[:force] } }
+        { CARD_TRAITS[:damage] => { amount: 2, type: DAMAGE_TYPES[:cold] } }
       ]
     },
     "p004" => {
@@ -162,25 +175,30 @@ module GameData
       desc: "A sip of the clouds lifts ones' spirits and heals them.",
       fc: 2,
       max_uses: 3,
+      primary_base_ingredient_id: "i002",
       path: "sprites/circle/blue.png",
       ingredients: {
         "i001" => 1,
         "i002" => 1,
         "i006" => 1
       },
-      traits: [{ CARD_TRAITS[:mend] => 3 }]
+      traits: [{ CARD_TRAITS[:mend] => 10 }]
     },
     "p005" => {
       name: "Steamblast Potion",
       desc: "A hot blast of steam projects towards foes.",
-      fc: 2,
+      fc: 3,
       max_uses: 2,
+      primary_base_ingredient_id: "i002",
       path: "sprites/circle/indigo.png",
       ingredients: {
         "i001" => 1,
         "i006" => 2
       },
-      traits: [{ CARD_TRAITS[:scorch] => 3 }]
+      traits: [
+        { CARD_TRAITS[:scorch] => 6 },
+        { CARD_TRAITS[:damage] => { amount: 4, type: DAMAGE_TYPES[:heat] } }
+    ]
     },
     "p006" => {
       name: "Rock Potion",
@@ -188,43 +206,47 @@ module GameData
         "Liquid solidifies as it is thrown out of the bottle, slamming into foes.",
       fc: 0,
       max_uses: 5,
+      primary_base_ingredient_id: "i004",
       path: "sprites/circle/green.png",
       ingredients: {
         "i001" => 1,
         "i004" => 2
       },
       traits: [
-        { CARD_TRAITS[:damage] => { amount: 1, type: DAMAGE_TYPES[:force] } }
+        { CARD_TRAITS[:damage] => { amount: 1, type: DAMAGE_TYPES[:force] } },
+        { CARD_TRAITS[:ward] => 1 }
       ]
     },
     "p007" => {
       name: "Wind Potion",
       desc: "A gust of wind bursts out of the bottle at foes.",
-      fc: 2,
+      fc: 3,
       max_uses: 3,
+      primary_base_ingredient_id: "i005",
       path: "sprites/circle/white.png",
       ingredients: {
         "i001" => 1,
         "i005" => 2
       },
       traits: [
-        { CARD_TRAITS[:damage] => { amount: 1, type: DAMAGE_TYPES[:force] } },
-        { CARD_TRAITS[:restoration] => 2 }
+        { CARD_TRAITS[:damage] => { amount: 7, type: DAMAGE_TYPES[:force] } },
+        { CARD_TRAITS[:restoration] => 5 }
       ]
     },
     "p009" => {
       name: "Sandstone Potion",
       desc:
         "Reinforced dust globs out of the bottle forming a wall betwixt you and foes.",
-      fc: 3,
+      fc: 5,
       max_uses: 3,
+      primary_base_ingredient_id: "i004",
       path: "sprites/circle/yellow.png",
       ingredients: {
         "i001" => 1,
         "i004" => 1,
         "i007" => 1
       },
-      traits: [{ CARD_TRAITS[:ward] => 5 }]
+      traits: [{ CARD_TRAITS[:ward] => 15 }]
     },
     "p010" => {
       name: "Sandstorm Potion",
@@ -232,39 +254,42 @@ module GameData
         "Sand gusts out of the bottle creating a vortex of sand that swirls towards foes.",
       fc: 5,
       max_uses: 4,
+      primary_base_ingredient_id: "i005",
       path: "sprites/circle/yellow.png",
       ingredients: {
         "i001" => 1,
-        "i004" => 1,
+        "i005" => 1,
         "i007" => 1
       },
       traits: [
-        { CARD_TRAITS[:damage] => { amount: 5, type: DAMAGE_TYPES[:force] } },
-        { CARD_TRAITS[:scorch] => 3 }
+        { CARD_TRAITS[:damage] => { amount: 8, type: DAMAGE_TYPES[:force] } },
+        { CARD_TRAITS[:scorch] => 5 }
       ]
     },
     "p011" => {
       name: "Dune Potion",
       desc:
-        "Sand gusts out of the bottle creating a vortex of sand that swirls towards foes.",
+        "A desert dune blossoms from the bottle enveloping foes.",
       fc: 4,
       max_uses: 1,
+      primary_base_ingredient_id: "i004",
       path: "sprites/circle/yellow.png",
       ingredients: {
         "i001" => 1,
         "i007" => 2
       },
       traits: [
-        { CARD_TRAITS[:scorch] => 5 },
-        { CARD_TRAITS[:mend] => 1 },
-        { CARD_TRAITS[:ward] => 2 }
+        { CARD_TRAITS[:scorch] => 10 },
+        { CARD_TRAITS[:mend] => 5 },
+        { CARD_TRAITS[:ward] => 5 }
       ]
     },
     "p012" => {
       name: "Quicksand Potion",
       desc: "Creates a puddle of quicksand below enemies that envelop them.",
-      fc: 1,
+      fc: 3,
       max_uses: 6,
+      primary_base_ingredient_id: "i004",
       path: "sprites/circle/yellow.png",
       ingredients: {
         "i001" => 1,
@@ -272,33 +297,35 @@ module GameData
         "i007" => 1
       },
       traits: [
-        { CARD_TRAITS[:damage] => { amount: 2, type: DAMAGE_TYPES[:force] } }
+        { CARD_TRAITS[:damage] => { amount: 8, type: DAMAGE_TYPES[:force] } }
       ]
     },
     "p013" => {
       name: "Brickwall Potion",
       desc: "Creates a brickwall betwixt you and foes.",
-      fc: 3,
+      fc: 6,
       max_uses: 4,
+      primary_base_ingredient_id: "i004",
       path: "sprites/circle/red.png",
       ingredients: {
         "i001" => 1,
         "i009" => 2
       },
-      traits: [{ CARD_TRAITS[:ward] => 4 }]
+      traits: [{ CARD_TRAITS[:ward] => 20 }]
     },
     "p014" => {
       name: "Lightning Potion",
       desc: "Strikes an arc of lightning at foes.",
       fc: 2,
-      max_uses: 5,
+      max_uses: 4,
+      primary_base_ingredient_id: "i005",
       path: "sprites/circle/yellow.png",
       ingredients: {
         "i001" => 1,
         "i008" => 2
       },
       traits: [
-        { CARD_TRAITS[:damage] => { amount: 2, type: DAMAGE_TYPES[:spark] } }
+        { CARD_TRAITS[:damage] => { amount: 6, type: DAMAGE_TYPES[:spark] } }
       ]
     }
   }.freeze
@@ -306,17 +333,17 @@ module GameData
     # BASEs
     "i001" => {
       name: "Bottle",
-      path: "sprites/hexagon/white.png",
+      path: "sprites/bottle.png",
       base: true
     },
     "i002" => {
       name: "Water",
-      path: "sprites/hexagon/blue.png",
+      path: "sprites/water.png",
       base: true
     },
     "i003" => {
       name: "Fire",
-      path: "sprites/hexagon/orange.png",
+      path: "sprites/fire.png",
       base: true
     },
     "i004" => {
@@ -332,7 +359,7 @@ module GameData
     # T1s
     "i006" => {
       name: "Steam",
-      path: "sprites/hexagon/indigo.png",
+      path: "sprites/steam.png",
       base: false,
       ingredients: {
         "i002" => 1,
@@ -413,44 +440,52 @@ module GameData
       path: "sprites/hexagon/red.png"
     }
   }.merge(IIDS)
+  REWARD_ITEMS = SHOP_ITEMS.select { |k, v| k[0] == "s" || v[:base] }
   ENCOUNTERS = {
     "alchemy_lab" => {
       name: "Laboratory",
-      path: "sprites/triangle/equilateral/indigo.png",
+      path: "sprites/square/indigo.png",
       is_combat: false,
       chance: 0
     },
     "alchemy_table" => {
       name: "Alchemy Workbench",
-      path: "sprites/triangle/equilateral/yellow.png",
+      path: "sprites/square/yellow.png",
       is_combat: false,
       chance: 8
     },
     "rp_encounter" => {
       name: "Event",
-      path: "sprites/square/indigo.png",
+      path: "sprites/square/blue.png",
       is_combat: false,
-      chance: 20
+      chance: 4
     },
     "shop" => {
       name: "Trader",
       path: "sprites/square/white.png",
       is_combat: false,
-      chance: 100
+      chance: 2
     },
     # basic enemy
     "wolf" => {
       name: "Wolf",
-      path: "sprites/wolf.png",
+      path: "sprites/wolf-sheet-3.png",
       is_combat: true,
-      chance: 4
+      chance: 15
+    },
+    # basic enemy
+    "bat" => {
+      name: "Bat",
+      path: "sprites/isometric/black.png",
+      is_combat: true,
+      chance: 15
     },
     # frost guy
     "wraith" => {
       name: "Wraith",
       path: "sprites/wraith.png",
       is_combat: true,
-      chance: 1
+      chance: 3
     },
     # first boss encounter, uses
     "dracolisk" => {
@@ -550,6 +585,7 @@ $IIDS = GameData::IIDS
 $ENCOUNTERS = GameData::ENCOUNTERS
 $ANIMATIONS = GameData::ANIMATIONS
 $SHOP_ITEMS = GameData::SHOP_ITEMS
+$REWARD_ITEMS = GameData::REWARD_ITEMS
 $TUTORIAL_INDEX = 0
 
 $entity_ids = []

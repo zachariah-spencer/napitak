@@ -24,24 +24,28 @@ class Player
        :reward_picks,
        :prev_loadout_ingredients,
        :prev_loadout_potions,
-       :feathers
+       :feathers,
+       :status_effects
 
   def initialize
     $player = self
 
     # meta-progression upgrades and currency vars
     @anodyne = 0
+    @maximum_focus = 4
+    @maximum_hp = 100
     @starting_inventory_size = 5
-    @maximum_focus = 2
-    @maximum_hp = 10
-    @start_maximum_hp = 10
-    @start_maximum_focus = 2
-    @alchemy_table_uses = 1
+    @start_maximum_hp = 100
+    @start_maximum_focus = 4
+    @alchemy_table_uses = 2
     @shop_discount = 0 # out of 100 (integer percentile) (CURRENTLY UNUSED)
     @reward_picks = 2
+    @accuracy = 100.0
 
     @my_turn = true
-    @combat_stats = CombatStatsComponent.new(hp: 20, focus: 4, x: 100, y: 375)
+    @combat_stats =
+      CombatStatsComponent.new(hp: 100, focus: 4, x: 64, y: 262, columns: 2)
+    @status_effects = load_status_effects_data || []
     @stunned_turns = 0
     @hovered_cards = []
     @died = false
@@ -56,9 +60,7 @@ class Player
     $event_bus.subscribe(:player_hurt, self) do |data|
       @combat_stats.hurt(data[:amount], data[:type])
     end
-    $event_bus.subscribe(:player_heal, self) do |amt|
-      @combat_stats.heal(amt)
-    end
+    $event_bus.subscribe(:player_heal, self) { |amt| @combat_stats.heal(amt) }
     $event_bus.subscribe(:player_apply_status, self) do |data|
       @combat_stats.apply_status(type: data[:type], stacks: data[:stacks])
     end
@@ -73,6 +75,7 @@ class Player
     @died = false
     @my_turn = true
     @feathers = 0
+    @status_effects = []
 
     save_feathers_data
     save_upgrades_data
@@ -86,13 +89,34 @@ class Player
     $files.save_data["player"]["ingredients"] = ingredients_save_data
   end
 
+  def save_status_effects_data
+    $files.save_data["player"]["status_effects"].clear
+    @status_effects.each do |effect|
+      $files.save_data["player"]["status_effects"] << effect.save_data?
+    end
+  end
+
+  def load_status_effects_data
+    effects = []
+    $files.save_data["player"]["status_effects"].each do |effect|
+      effects << StatusEffect.new(
+        effect: effect["effect"],
+        value: effect["value"],
+        duration: effect["duration"],
+        encounters_since_started: effect["encounters_since_started"]
+      )
+    end
+    puts effects
+    effects
+  end
+
   def save_feathers_data
     $files.save_data["player"]["feathers"] = @feathers
   end
 
   def load_feathers_data
     if $files.save_data["player"]["feathers"]
-      return @feathers = $files.save_data["player"]["feathers"] 
+      return @feathers = $files.save_data["player"]["feathers"]
     else
       return nil
     end
@@ -171,8 +195,12 @@ class Player
     $files.save_data["player"]["upgrades"][
       "starting_inventory_size"
     ] = @starting_inventory_size
-    $files.save_data["player"]["upgrades"]["start_maximum_focus"] = @start_maximum_focus
-    $files.save_data["player"]["upgrades"]["start_maximum_hp"] = @start_maximum_hp
+    $files.save_data["player"]["upgrades"][
+      "start_maximum_focus"
+    ] = @start_maximum_focus
+    $files.save_data["player"]["upgrades"][
+      "start_maximum_hp"
+    ] = @start_maximum_hp
     $files.save_data["player"]["upgrades"][
       "alchemy_table_uses"
     ] = @alchemy_table_uses
@@ -246,14 +274,39 @@ class Player
     end
   end
 
+  def modified_accuracy?
+    puts "ACCURACY: #{@accuracy}\n ACCURACY_MODIFIER: #{@combat_stats.accuracy_mod}\nFINAL_CALC: #{@accuracy + @combat_stats.accuracy_mod}\n"
+    @accuracy + @combat_stats.accuracy_mod
+  end
+
+  def check_hit?
+    hit_roll = Numeric.rand(0.0..100.0)
+    if hit_roll <= modified_accuracy?
+      true
+    else
+      GameUtils.status_label(
+        GTK.args.grid.w / 2,
+        GTK.args.grid.h - 500,
+        "MISSED",
+        255,
+        255,
+        255,
+        64
+      )
+      false
+    end
+  end
+
   def load_upgrades_data
     # Always saved and loaded as a group so if "starting_inventory_size" exists then a save file exists as well.
     if $files.save_data["player"]["upgrades"]["anodyne"]
       @anodyne = $files.save_data["player"]["upgrades"]["anodyne"]
       @starting_inventory_size =
         $files.save_data["player"]["upgrades"]["starting_inventory_size"]
-      @start_maximum_focus = $files.save_data["player"]["upgrades"]["start_maximum_focus"]
-      @start_maximum_hp = $files.save_data["player"]["upgrades"]["start_maximum_hp"]
+      @start_maximum_focus =
+        $files.save_data["player"]["upgrades"]["start_maximum_focus"]
+      @start_maximum_hp =
+        $files.save_data["player"]["upgrades"]["start_maximum_hp"]
       @alchemy_table_uses =
         $files.save_data["player"]["upgrades"]["alchemy_table_uses"]
       @shop_discount = $files.save_data["player"]["upgrades"]["shop_discount"]
@@ -264,7 +317,8 @@ class Player
   def begin_turn
     @my_turn = true
     @combat_stats.mod_max_focus =
-      @combat_stats.max_focus - @combat_stats.statuses[$STATUS_TYPES[:FROST]]
+      @combat_stats.max_focus + @combat_stats.consume_bonus_focus -
+        @combat_stats.statuses[$STATUS_TYPES[:FROST]]
     @combat_stats.mod_max_focus = 0 if @combat_stats.mod_max_focus < 0
     @combat_stats.focus = @combat_stats.mod_max_focus
     @combat_stats.calc_status(type: :RESTORATION)

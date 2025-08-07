@@ -10,9 +10,11 @@ require_relative "models/player"
 # components
 require_relative "models/components/combat_stats_component"
 require_relative "models/components/shout_component"
+require_relative "models/components/status_effect"
 
 # enemies
 require_relative "models/enemies/enemy"
+require_relative "models/enemies/bat"
 require_relative "models/enemies/wolf"
 require_relative "models/enemies/wraith"
 require_relative "models/enemies/dracolisk"
@@ -24,7 +26,7 @@ require_relative "models/enemies/abyssal_tutorial"
 require_relative "models/cards/card"
 require_relative "models/cards/potion_card"
 require_relative "models/cards/ingredient_card"
-require_relative "models/cards/ingredient_reward_card"
+require_relative "models/cards/reward_card"
 require_relative "models/cards/encounter_card"
 require_relative "models/cards/recipe_card"
 require_relative "models/cards/ingredient_generator_card"
@@ -47,6 +49,7 @@ require_relative "scenes/combat_tutorial"
 require_relative "scenes/boss_rewards_screen"
 require_relative "scenes/rp_encounter"
 require_relative "scenes/shop"
+require_relative "scenes/collection"
 
 # services and manager classes
 require_relative "services/deck"
@@ -60,6 +63,7 @@ require_relative "services/card_hand_manager"
 require_relative "services/enemy_ai"
 require_relative "services/tutorial_service"
 require_relative "services/event_bus"
+require_relative "services/combo_manager"
 
 # utilities and helper classes
 # (some of these could be models but are so small and self contained that they are here instead)
@@ -72,6 +76,7 @@ require_relative "utils/upgrade_level_bar_widget"
 require_relative "utils/button"
 require_relative "utils/announcement"
 require_relative "utils/transition"
+require_relative "utils/status_effect_list_widget"
 
 def tick(args)
   $files ||= Files.new

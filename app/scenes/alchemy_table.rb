@@ -29,10 +29,27 @@ class AlchemyTable < Scene
         w: 160,
         h: 500
       )
+
+    @leave_btn = Button.new(
+      x: GTK.args.grid.w - 25 - 150,
+      y: 20,
+      w: 150,
+      h: 75,
+      text: "LEAVE"
+    )
+
+    @craft_btn = Button.new(
+      x: GTK.args.grid.w / 2 - 75,
+      y: GTK.args.grid.h - 75 - 100,
+      w: 150,
+      h: 75,
+      text: "CRAFT"
+    )
   end
 
   def cleanup
     puts "cleanup alchemy_table.rb"
+    super
     state.currently_dragging_card_id = nil
     state.mouse_point_inside_square = nil
     c_ref = nil
@@ -349,15 +366,7 @@ class AlchemyTable < Scene
   end
 
   def craft_btn
-    Button
-      .new(
-        x: GTK.args.grid.w / 2 - 75,
-        y: GTK.args.grid.h - 75 - 100,
-        w: 150,
-        h: 75,
-        text: "CRAFT"
-      )
-      .prefab
+    @craft_btn.prefab
   end
 
   def potions_label()
@@ -461,15 +470,7 @@ class AlchemyTable < Scene
   end
 
   def leave_btn
-    Button
-      .new(
-        x: GTK.args.grid.w - 25 - 150,
-        y: 20,
-        w: 150,
-        h: 75,
-        text: "LEAVE"
-      )
-      .prefab
+    @leave_btn.prefab
   end
 
   def get_card_rects
@@ -507,24 +508,12 @@ class AlchemyTable < Scene
   end
 
   def calc_mouse_inputs
-    if Button.new(
-         x: GTK.args.grid.w - 25 - 150,
-         y: 20,
-         w: 150,
-         h: 75,
-         text: "LEAVE"
-       ).clicked?
+    if @leave_btn.clicked?
       puts "clicked on leave_btn"
       leave
     end
 
-    if Button.new(
-         x: GTK.args.grid.w / 2 - 75,
-         y: GTK.args.grid.h - 75 - 100,
-         w: 150,
-         h: 75,
-         text: "CRAFT"
-       ).clicked? && @craftable_potion
+    if @craft_btn.clicked? && @craftable_potion
       puts "clicked on craft_btn"
       craft(@craftable_potion.id)
       @craftable_potion = nil

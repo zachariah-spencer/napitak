@@ -1,10 +1,7 @@
-class Journal < Scene
-  attr :sc_id
-
-  def initialize(pause_menu_instance:)
-    @sc_id = "journal"
-    @pause_menu_instance = pause_menu_instance
-    @recipe_ids = $recipe_book.unlocked_recipes
+class Collection < Scene
+  def initialize(title:, collection_array: [])
+    @sc_id = "collection"
+    @title = title
     @recipe_cards = []
     @page = 1
     @total_pages = ($recipe_book.unlocked_recipes.size / 8).ceil
@@ -18,14 +15,14 @@ class Journal < Scene
     spacing = 50
     start_x = -75
 
-    $recipe_book.unlocked_recipes.each do |recipe_id|
+    collection_array.each do |card_id|
       @recipe_cards << RecipeCard.new(
         page: page,
         x: start_x + ((200 + spacing) * col),
         y: (GTK.args.grid.h - 90) - ((285 - spacing) * row),
         w: 185,
         h: 185,
-        id: recipe_id
+        id: card_id
       )
       if col % max_col == 0
         if row == 2
@@ -123,7 +120,7 @@ class Journal < Scene
         r: 255,
         g: 255,
         b: 255,
-        text: "Journal",
+        text: "#{@title}",
         font: "fonts/eaglelake.ttf",
         primitive_marker: :label
       }
@@ -277,7 +274,7 @@ class Journal < Scene
     if GTK.args.inputs.mouse.click and
          Geometry.intersect_rect?(GTK.args.inputs.mouse, back_btn)
       cleanup
-      @pause_menu_instance.go_back
+      $game.toggle_collection
     end
 
     @page += 1 if (

@@ -54,7 +54,7 @@ class ShopItemCard < Card
       $player.maximum_focus += 1
     elsif @id == "s002"
       #inc hp
-      $player.maximum_hp += 1
+      $player.maximum_hp += 5
     else
       $player.ingredients.add(
         IngredientCard.new(

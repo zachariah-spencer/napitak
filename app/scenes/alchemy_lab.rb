@@ -44,12 +44,6 @@ class AlchemyLab < Scene
       c = IngredientGeneratorCard.new(base_id)
       c.instant_set_position(x: start_x + (i * (padding + card_size)), y: 20)
       @ingredient_generators[c.id] = c
-
-      @trash_can = TrashCanCard.new()
-      @trash_can.instant_set_position(
-        x: GTK.args.grid.w - 300,
-        y: GTK.args.grid.h - 100
-      )
     end
 
     @ing_menu_widget =
@@ -71,12 +65,14 @@ class AlchemyLab < Scene
 
     @prev_loadout_btn =
       Button.new(
-        x: 300,
-        y: GTK.args.grid.h - 100,
-        w: 150,
-        h: 75,
-        text: "Prev. Loadout"
+        x: 222,
+        y: 32 - 16,
+        w: 64,
+        h: 64,
+        text: "PREV"
       )
+
+      update_inventories
   end
 
   def ready
@@ -93,6 +89,7 @@ class AlchemyLab < Scene
 
   def cleanup
     puts "cleanup alchemy_lab.rb"
+    super
     state.currently_dragging_card_id = nil
     state.mouse_point_inside_square = nil
 
@@ -217,10 +214,17 @@ class AlchemyLab < Scene
     new_pots.concat(table_cards.select { |c| GameUtils.is_potion(c.id) })
     new_pots.concat(selected_cards.select { |c| GameUtils.is_potion(c.id) })
 
+    new_pots.each do |c|
+      c.free_floating = false
+      c.marked_for_removal = false
+      c.needs_removed = false
+      c.fw = 160
+      c.fh = 160
+    end
+
     @player.ingredients = Inventory.new(new_ings)
     @player.potions = Inventory.new(new_pots)
 
-    $encounter_manager.inc_encounters_completed
     $files.save_data["tutorials"]["alchemy_lab_tutorial"] = true
 
     $game.change_scene(prev_sc: @sc_id, next_scene: "map")
@@ -233,7 +237,6 @@ class AlchemyLab < Scene
     @visible_ingredients.each { |id, c| c.tick }
     @visible_potions.each { |id, c| c.tick }
     @selected_ingredients.each { |id, c| c.tick }
-    @trash_can.tick
     calc
 
     if @leave_btn_clicked_tick &&
@@ -287,6 +290,7 @@ class AlchemyLab < Scene
   end
 
   def calc_card_positions
+
     all_cards =
       @visible_ingredients
         .merge(@selected_ingredients)
@@ -296,10 +300,12 @@ class AlchemyLab < Scene
     all_moveable_cards =
       @visible_ingredients.merge(@selected_ingredients).merge(@visible_potions)
 
-    all_cards[@trash_can.id] = @trash_can
-
     all_moveable_cards.each do |id, c|
       c.calc_position(0, 0)
+      if out_of_bounds?(c) && !$game.input_locked
+        c.mark_for_removal 
+        unselect_cards(c)
+      end
       other_card_rects =
         get_all_card_rects.reject { |other_c| other_c[:id] == c.entity_id }
       collision_rect = Geometry.find_intersect_rect(c.rect, other_card_rects)
@@ -315,7 +321,7 @@ class AlchemyLab < Scene
             Geometry.rect_center_point(c.rect)
           )
 
-        reverse_dist_formula = ((160 - (dist * 1.3)) / 4).clamp(0, 30)
+        reverse_dist_formula = ((160 - (dist * 1.5)) / 2).clamp(0, 30)
 
         nvec = Geometry.vec2_normalize(vec)
         c.vx = nvec.x * -1 * reverse_dist_formula
@@ -437,7 +443,6 @@ class AlchemyLab < Scene
         @ing_menu_widget.render,
         @pot_menu_widget.render,
         generator_cards,
-        @trash_can.prefab
       ]
       l1
     when 2
@@ -784,8 +789,6 @@ class AlchemyLab < Scene
         .merge(@visible_potions)
         .merge(@ingredient_generators)
 
-    cards[@trash_can.id] = @trash_can
-
     cards.each do |id, card|
       rects << { x: card.pos.x, y: card.pos.y, w: card.w, h: card.h, id: id }
     end
@@ -886,6 +889,8 @@ class AlchemyLab < Scene
           c_ref.grabbed = true
         end
       end
+
+      update_inventories
     end
 
     # try to pop a clicked ingredient from the ing_menu
@@ -906,6 +911,8 @@ class AlchemyLab < Scene
           c_ref.grabbed = true
         end
       end
+
+      update_inventories
     end
 
     @ingredient_generators.each do |id, c|
@@ -965,6 +972,7 @@ class AlchemyLab < Scene
              !GameUtils.is_potion(c_ref.id)
         @ing_menu_widget.add_item(c_ref)
         @visible_ingredients.reject! { |id, c| c == c_ref }
+        update_inventories
 
         if @from_tutorial && !@tutorial_steps[:starting_ingredients_packed] &&
              @ing_menu_widget.items?.count >= 3 &&
@@ -979,16 +987,15 @@ class AlchemyLab < Scene
         end
       end
 
-      if inputs.mouse.intersect_rect?(@trash_can.rect)
-        @visible_ingredients.reject! { |id, c| c == c_ref }
-        @visible_potions.reject! { |id, c| c == c_ref }
-      end
+      @visible_ingredients.reject! { |id, c| c.marked_for_removal && c.w <= 5 }
+      @visible_potions.reject! { |id, c| c.marked_for_removal && c.w <= 5}
 
       if inputs.mouse.intersect_rect?(@pot_menu_widget.rect) &&
            GameUtils.is_potion(c_ref.id)
-        @pot_menu_widget.add_item(c_ref)
         c_ref.free_floating = false
+        @pot_menu_widget.add_item(c_ref)
         @visible_potions.reject! { |id, c| c == c_ref }
+        update_inventories
       end
 
       # Re-fetch the card from either group.
@@ -1001,10 +1008,17 @@ class AlchemyLab < Scene
     end
   end
 
+  def out_of_bounds?(card)
+    !card.grabbed && (card.pos.y < 100 || 
+    card.pos.y > GTK.args.grid.h - card.h ||
+    card.pos.x < 200 ||
+    card.pos.x > GTK.args.grid.w - card.w - 200)
+  end
+
   def use_card(c)
     puts "CALLED USE CARD"
     toggle_card_selected(c) if !GameUtils.is_potion(c.id)
-    @craftable_potion = @recipe_book.craftable_potion?(@selected_ingredients)
+    craftable_potion?
 
     if @from_tutorial && @craftable_potion && !@tutorial_steps[:recipe_selected]
       @tutorial_steps[:recipe_selected] = true
@@ -1014,8 +1028,16 @@ class AlchemyLab < Scene
     end
   end
 
-  def unselect_cards
-    @selected_ingredients.each { |id, c| toggle_card_selected(c) }
+  def craftable_potion?
+    @craftable_potion = @recipe_book.craftable_potion?(@selected_ingredients)
+  end
+
+  def unselect_cards(c = nil)
+    if c
+      move_card(c, @visible_ingredients, @selected_ingredients)
+    else
+      @selected_ingredients.each { |id, c| toggle_card_selected(c) }
+    end
   end
 
   def toggle_card_selected(c)
@@ -1059,6 +1081,8 @@ class AlchemyLab < Scene
       c.grabbed = false
       c.padding = 5.0
     end
+
+    craftable_potion?
   end
 
   def calc_keyboard_inputs
@@ -1075,5 +1099,27 @@ class AlchemyLab < Scene
     if @selected_ingredients.key?(latest_card.entity_id)
       HashOrderUtils.back(@selected_ingredients, latest_card.entity_id)
     end
+  end
+
+  def update_inventories
+    # gather all ingredient cards to return to the player's inventory
+    new_ings = []
+
+    if @ing_menu_widget.respond_to?(:items?)
+      new_ings.concat(@ing_menu_widget.items?)
+    else
+      new_ings.concat(@ing_menu_widget.instance_variable_get(:@items))
+    end
+    # gather potions from the potion menu and any visible/selected potion stacks
+    new_pots = []
+
+    if @pot_menu_widget.respond_to?(:items?)
+      new_pots.concat(@pot_menu_widget.items?)
+    else
+      new_pots.concat(@pot_menu_widget.instance_variable_get(:@items))
+    end
+
+    @player.ingredients = Inventory.new(new_ings)
+    @player.potions = Inventory.new(new_pots)
   end
 end

@@ -1,4 +1,4 @@
-class Wolf < Enemy
+class Bat < Enemy
   attr_gtk
   attr :hp,
        :max_hp,
@@ -11,21 +11,22 @@ class Wolf < Enemy
        :combat_stats
 
   def initialize()
-    @enemy_id = "wolf"
+    @enemy_id = "bat"
     super
     $enemy = self
     @combat_stats =
       CombatStatsComponent.new(
-        hp: 50,
+        hp: 25,
         focus: 0,
         x: GTK.args.grid.w / 2,
         y: GTK.args.grid.h - 270,
-        resistances: [ $DAMAGE_TYPES[:cold] ]
+        resistances: [],
+        vulnerabilities: [ $DAMAGE_TYPES[:heat] ]
       )
-    @sprite = "sprites/wolf-sheet-3.png"
-    @name = "Wolf"
+    @sprite = "sprites/isometric/black.png"
+    @name = "Bat"
     @attacks = {
-      70 => {
+      50 => {
         name: "Basic Attack",
         attack_id: "a001",
         traits: [
@@ -35,6 +36,7 @@ class Wolf < Enemy
               type: $DAMAGE_TYPES[:force]
             }
           },
+          { $CARD_TRAITS[:blind] => 10 }
         ]
       },
       20 => {
@@ -43,23 +45,24 @@ class Wolf < Enemy
         traits: [
           {
             $CARD_TRAITS[:damage] => {
-              amount: 10,
+              amount: 5,
               type: $DAMAGE_TYPES[:force]
             }
-          }
+          },
+          { $CARD_TRAITS[:blind] => 15 }
         ]
       },
-      10 => {
+      30 => {
         name: "Ultimate Attack",
         attack_id: "a003",
         traits: [
           {
             $CARD_TRAITS[:damage] => {
-              amount: 20,
+              amount: 10,
               type: $DAMAGE_TYPES[:force]
-            },
-            $CARD_TRAITS[:ward] => 15
-          }
+            }
+          },
+          { $CARD_TRAITS[:blind] => 10 }
         ]
       }
     }
@@ -81,10 +84,10 @@ class Wolf < Enemy
         h: @h,
         r: @r,
         path: @sprite,
-        tile_x: (sprite_frame * 128),
-        tile_y: 0,
-        tile_w: 128,
-        tile_h: 128,
+        #tile_x: (sprite_frame * 128),
+        #tile_y: 0,
+        #tile_w: 128,
+        #tile_h: 128,
         primitive_marker: :sprite
       }
 

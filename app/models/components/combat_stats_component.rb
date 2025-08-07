@@ -9,30 +9,44 @@ class CombatStatsComponent
        :status_types,
        :focus,
        :max_focus,
+       :bonus_focus,
        :mod_max_focus,
        :ward,
        :dead_tick,
        :resistances,
-       :vulnerabilities
-  def initialize(x:, y:, hp: 1, focus: 0, resistances: [], vulnerabilities: [])
+       :vulnerabilities,
+       :accuracy_mod
+  def initialize(
+    x:,
+    y:,
+    hp: 1,
+    focus: 0,
+    resistances: [],
+    vulnerabilities: [],
+    columns: 8
+  )
     @statuses = {
       $STATUS_TYPES[:SCORCH] => 0,
       $STATUS_TYPES[:BLIGHT] => 0,
       $STATUS_TYPES[:FROST] => 0,
       $STATUS_TYPES[:WARD] => 0,
-      $STATUS_TYPES[:RESTORATION] => 0
+      $STATUS_TYPES[:RESTORATION] => 0,
+      $STATUS_TYPES[:BLIND] => 0
     }
 
     @resistances = resistances
     @vulnerabilities = vulnerabilities
     @x = x
     @y = y
+    @columns = columns
     @entity_id = GameUtils.new_id?
     @hp = hp
     @max_hp = hp
     @focus = focus
     @max_focus = focus
     @mod_max_focus = focus
+    @bonus_focus = 0
+    @accuracy_mod = 0.0
     @ward = 0
     @dead = false
     @dead_tick = nil
@@ -41,7 +55,18 @@ class CombatStatsComponent
   def heal(amt)
     @hp += amt
     @hp = @max_hp if @hp > @max_hp
-    GameUtils.status_label(@x, @y, "#{amt}", 0, 255, 0, 100)
+    GameUtils.status_label(GTK.args.grid.w / 2, @y, "#{amt}", 0, 255, 0, 100)
+  end
+
+  def channel(amt)
+    @bonus_focus += amt
+    GameUtils.status_label(GTK.args.grid.w / 2, @y, "#{amt}", 0, 150, 150, 100)
+  end
+
+  def consume_bonus_focus
+    consumed_focus = @bonus_focus
+    @bonus_focus = 0
+    consumed_focus
   end
 
   def hurt(amt, type)
@@ -63,11 +88,37 @@ class CombatStatsComponent
       @hp = 0 if @hp < 0
     end
 
-    GameUtils.status_label(@x, @y, "#{mod_amt}", 255, 0, 0, 100)
+    GameUtils.status_label(
+      GTK.args.grid.w / 2,
+      @y,
+      "#{mod_amt}",
+      255,
+      0,
+      0,
+      100
+    )
     if vulnerable
-      GameUtils.status_label(@x, @y, "VULNERABLE", 255, 255, 255, 100)
+      GameUtils.status_label(
+        GTK.args.grid.w / 2,
+        @y,
+        "VULNERABLE",
+        255,
+        255,
+        255,
+        100
+      )
     end
-    GameUtils.status_label(@x, @y, "RESISTANT", 255, 255, 255, 100) if resistant
+    if resistant
+      GameUtils.status_label(
+        GTK.args.grid.w / 2,
+        @y,
+        "RESISTANT",
+        255,
+        255,
+        255,
+        100
+      )
+    end
     @dead = true if dead?
     @dead_tick = Kernel.tick_count if @dead
   end
@@ -77,26 +128,29 @@ class CombatStatsComponent
     @max_focus = max_focus
   end
 
-  def tick; end
+  def tick
+  end
 
   def reset!(max_hp, max_foc)
     validate_upgrades(max_hp, max_foc)
     @hp = @max_hp
+    @focus = @max_focus
     @dead = false
     @dead_tick = nil
+    @accuracy_mod = 0.0
     @statuses = {
       $STATUS_TYPES[:SCORCH] => 0,
       $STATUS_TYPES[:BLIGHT] => 0,
       $STATUS_TYPES[:FROST] => 0,
       $STATUS_TYPES[:WARD] => 0,
-      $STATUS_TYPES[:RESTORATION] => 0
+      $STATUS_TYPES[:RESTORATION] => 0,
+      $STATUS_TYPES[:BLIND] => 0,
     }
   end
 
   def dead?
     @hp <= 0
   end
-
 
   # If is_turn is false then it is the end of round calc
   # TAKES A STRING
@@ -111,8 +165,8 @@ class CombatStatsComponent
         hurt(stacks, $DAMAGE_TYPES[:heat])
         @statuses[$STATUS_TYPES[:SCORCH]] -= 1
         GameUtils.status_label(
-          @x,
-          @y - 100,
+          GTK.args.grid.w / 2,
+          @y,
           "-1",
           color[0],
           color[1],
@@ -125,20 +179,48 @@ class CombatStatsComponent
     when $STATUS_TYPES[:FROST]
       if stacks > 0
         @statuses[$STATUS_TYPES[:FROST]] -= 1
-        GameUtils.status_label(@x, @y, "-1", color[0], color[1], color[2], 80)
+        GameUtils.status_label(
+          GTK.args.grid.w / 2,
+          @y,
+          "-1",
+          color[0],
+          color[1],
+          color[2],
+          80
+        )
       end
     when $STATUS_TYPES[:RESTORATION]
       if stacks > 0
         heal(stacks)
         @statuses[$STATUS_TYPES[:RESTORATION]] -= 1
-        GameUtils.status_label(@x, @y, "-1", color[0], color[1], color[2], 80)
+        GameUtils.status_label(
+          GTK.args.grid.w / 2,
+          @y,
+          "-1",
+          color[0],
+          color[1],
+          color[2],
+          80
+        )
+      end
+    when $STATUS_TYPES[:BLIND]
+      if stacks > 0
+        @accuracy_mod = -stacks
+        @statuses[$STATUS_TYPES[:BLIND]] -= 5
+        GameUtils.status_label(
+          GTK.args.grid.w / 2,
+          @y,
+          "-5",
+          color[0],
+          color[1],
+          color[2],
+          80
+        )
       end
     end
 
     @dead = true if dead?
     @dead_tick = Kernel.tick_count if @dead
-
-    # puts @statuses
   end
 
   # type: String || stacks: int
@@ -148,7 +230,7 @@ class CombatStatsComponent
     @statuses[$STATUS_TYPES[type]] += stacks
     color = status_color?($STATUS_TYPES[type])
     GameUtils.status_label(
-      @x,
+      GTK.args.grid.w / 2,
       @y - 100,
       "#{$STATUS_EFFECT_COLORS[$STATUS_TYPES[type]][:message]} +#{stacks}",
       color[0],
@@ -156,6 +238,8 @@ class CombatStatsComponent
       color[2],
       80
     )
+
+    @accuracy_mod = -@statuses[$STATUS_TYPES[:BLIND]] if type == :BLIND
   end
 
   def calc_status_tutorial(type:)
@@ -166,18 +250,10 @@ class CombatStatsComponent
         puts "PLAY TUTORIAL FOR FROST"
         $TUTORIAL_INDEX = 30
         id, text = GameUtils.tutorial_string?($TUTORIAL_INDEX)
-        GameUtils.announce(
-          text: text,
-          duration: 6.5.seconds,
-          tutorial_id: id,
-        )
+        GameUtils.announce(text: text, duration: 6.5.seconds, tutorial_id: id)
         $TUTORIAL_INDEX = 31
         id, text = GameUtils.tutorial_string?($TUTORIAL_INDEX)
-        GameUtils.announce(
-          text: text,
-          duration: 6.5.seconds,
-          tutorial_id: id,
-        )
+        GameUtils.announce(text: text, duration: 6.5.seconds, tutorial_id: id)
       end
     when :BLIGHT
       if !$files.save_data["tutorials"]["blight"]
@@ -185,18 +261,7 @@ class CombatStatsComponent
         puts "PLAY TUTORIAL FOR BLIGHT"
         $TUTORIAL_INDEX = 32
         id, text = GameUtils.tutorial_string?($TUTORIAL_INDEX)
-        GameUtils.announce(
-          text: text,
-          duration: 6.5.seconds,
-          tutorial_id: id,
-        )
-        # $TUTORIAL_INDEX = 33
-        # id, text = GameUtils.tutorial_string?($TUTORIAL_INDEX)
-        # GameUtils.announce(
-        #   text: text,
-        #   duration: 6.5.seconds,
-        #   tutorial_id: id,
-        # )
+        GameUtils.announce(text: text, duration: 6.5.seconds, tutorial_id: id)
       end
     when :WARD
       if !$files.save_data["tutorials"]["ward"]
@@ -204,18 +269,10 @@ class CombatStatsComponent
         puts "PLAY TUTORIAL FOR WARD"
         $TUTORIAL_INDEX = 34
         id, text = GameUtils.tutorial_string?($TUTORIAL_INDEX)
-        GameUtils.announce(
-          text: text,
-          duration: 6.5.seconds,
-          tutorial_id: id,
-        )
+        GameUtils.announce(text: text, duration: 6.5.seconds, tutorial_id: id)
         $TUTORIAL_INDEX = 35
         id, text = GameUtils.tutorial_string?($TUTORIAL_INDEX)
-        GameUtils.announce(
-          text: text,
-          duration: 6.5.seconds,
-          tutorial_id: id,
-        )
+        GameUtils.announce(text: text, duration: 6.5.seconds, tutorial_id: id)
       end
     when :RESTORATION
       if !$files.save_data["tutorials"]["restoration"]
@@ -223,18 +280,21 @@ class CombatStatsComponent
         puts "PLAY TUTORIAL FOR RESTORATION"
         $TUTORIAL_INDEX = 36
         id, text = GameUtils.tutorial_string?($TUTORIAL_INDEX)
-        GameUtils.announce(
-          text: text,
-          duration: 6.5.seconds,
-          tutorial_id: id,
-        )
+        GameUtils.announce(text: text, duration: 6.5.seconds, tutorial_id: id)
         $TUTORIAL_INDEX = 37
         id, text = GameUtils.tutorial_string?($TUTORIAL_INDEX)
-        GameUtils.announce(
-          text: text,
-          duration: 6.5.seconds,
-          tutorial_id: id,
-        )
+        GameUtils.announce(text: text, duration: 6.5.seconds, tutorial_id: id)
+      end
+    when :BLIND
+      if !$files.save_data["tutorials"]["blind"]
+        $files.save_data["tutorials"]["blind"] = true
+        puts "PLAY TUTORIAL FOR BLIND"
+        $TUTORIAL_INDEX = 38
+        id, text = GameUtils.tutorial_string?($TUTORIAL_INDEX)
+        GameUtils.announce(text: text, duration: 6.5.seconds, tutorial_id: id)
+        $TUTORIAL_INDEX = 39
+        id, text = GameUtils.tutorial_string?($TUTORIAL_INDEX)
+        GameUtils.announce(text: text, duration: 6.5.seconds, tutorial_id: id)
       end
     end
 
@@ -248,52 +308,77 @@ class CombatStatsComponent
 
   def prefab()
     rt_paths = []
+    stack_sprites = []
+    
     @statuses.each do |type, stacks|
-      if stacks > 0 and type != $STATUS_TYPES[:WARD]
-        path = "c_stat_#{@entity_id}_#{type}".to_s
-        GTK.args.outputs[path].w = 50
-        GTK.args.outputs[path].h = 50
+      path = "c_stat_#{@entity_id}_#{type}".to_s
+      if stacks > 0
+        GTK.args.outputs[path].w = 32
+        GTK.args.outputs[path].h = 32
+        if type != $STATUS_TYPES[:WARD]
+          color = status_color?(type)
+          GTK.args.outputs[path] << {
+            x: 0,
+            y: 0,
+            w: 32,
+            h: 32,
+            r: color[0],
+            g: color[1],
+            b: color[2],
+            path: "sprites/circle/white.png",
+            primitive_marker: :sprite
+          }
 
-        color = status_color?(type)
-        GTK.args.outputs[path] << {
-          x: 0,
-          y: 0,
-          w: 50,
-          h: 50,
-          r: color[0],
-          g: color[1],
-          b: color[2],
-          path: "sprites/circle/white.png",
-          primitive_marker: :sprite
-        }
-
-        GTK.args.outputs[path] << {
-          x: 25,
-          y: 25,
-          anchor_x: 0.5,
-          anchor_y: 0.5,
-          text: "#{stacks}",
-          size_enum: 8,
-          alignment_enum: 0,
-          r: 0,
-          g: 0,
-          b: 0,
-          a: 255,
-          primitive_marker: :label
-        }
-
-        rt_paths << path
+          GTK.args.outputs[path] << {
+            x: 16,
+            y: 16,
+            anchor_x: 0.5,
+            anchor_y: 0.5,
+            text: "#{stacks}",
+            size_px: 18,
+            font: "fonts/eaglelake.ttf",
+            alignment_enum: 0,
+            r: 0,
+            g: 0,
+            b: 0,
+            a: 255,
+            primitive_marker: :label
+          }
+          rt_paths << path
+        elsif stacks > 0 && type == $STATUS_TYPES[:WARD]
+          stack_sprites << {
+            x: @x,
+            y: @y - 32,
+            anchor_x: 0.5,
+            anchor_y: 0.5,
+            text: "#{stacks}",
+            size_px: 18,
+            font: "fonts/eaglelake.ttf",
+            alignment_enum: 0,
+            r: $STATUS_EFFECT_COLORS[$STATUS_TYPES[:WARD]][:r],
+            g: $STATUS_EFFECT_COLORS[$STATUS_TYPES[:WARD]][:g],
+            b: $STATUS_EFFECT_COLORS[$STATUS_TYPES[:WARD]][:b],
+            a: 255,
+            primitive_marker: :label
+          }
+        end
       end
     end
 
-    stack_sprites = []
-    start_x = @x - (rt_paths.size * 75 / 2)
+    # total width of the whole row:
+    if rt_paths.size > 2
+      total_width = 2 * 32 + (2 - 1) * 8
+    else
+      total_width = rt_paths.size * 32 + (rt_paths.size - 1) * 8
+    end
+    # x of the very first icon so that row is centered on @x:
+    start_x = @x - total_width / 2.0
     rt_paths.each_with_index do |path, i|
       stack_sprites << {
-        x: start_x + (i * 30 + 25),
-        y: @y,
-        w: 30,
-        h: 30,
+        x: start_x + i % 2 * (32 + 8),
+        y: @y - 80 - ((i / 2).floor * (32 + 8)),
+        w: 32,
+        h: 32,
         path: path,
         primitive_marker: :sprite
       }

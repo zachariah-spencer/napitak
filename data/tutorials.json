@@ -16,7 +16,10 @@
     "10": "Every time damage is dealt, the number of stacks is reduced by 1. There are many status effects in this world all with different effects and tempos.",
 
     "11": "If you pass your turn with your maximum focus still available, that focus is used to draw an extra card. This is useful if you are running out of cards in your hand to play.",
-
+    "40": "Every potion card has a primary base ingredient associated with it and each base ingredient has a unique combo sequence.",
+    "41": "There are many advantages in combat to playing combos. Firstly, cards that are next in a combo sequence cost 1 less Focus to play!",
+    "42": "Secondly, completing a combo sequence fully restores your Focus for that turn.",
+    "43": "Finally, combo completion grants an additional bonus combat effect dependent on which combo you completed.",
 
     "-2": "INTRO ALCHEMY LAB TUTORIAL",
     "12": "The creature left your laboratory in total disarray! Thankfully there are still a few ingredients lying around...",
@@ -50,5 +53,8 @@
     "35": "Stacks remain until the ward takes damage.",
 
     "36": "The RESTORATION status effect heals the afflicted creature at the beginning of that creature's turns equivalent to the number of RESTORATION stacks the creature has applied to them.",
-    "37": "RESTORATION stacks decrease at a rate of 1 per turn."
+    "37": "RESTORATION stacks decrease at a rate of 1 per turn.",
+
+    "38": "The BLIND status effect lowers the percentage chance for the afflicted creature's attacks to hit by the number of BLIND stacks the creature has applied to them.",
+    "39": "BLIND stacks decrease at a rate of 5 per turn."
 }
