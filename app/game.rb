@@ -67,6 +67,7 @@ class Game
       a: 255
     }
     AudioService.new
+    AnimationService.new
     AnimationManager.new
     AnnouncementManager.new
     EventBus.new

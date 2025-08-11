@@ -59,7 +59,6 @@ class AudioService
   end
 
   def tick
-    puts @playing_sounds
     @playing_sounds.reject! do |psid|
       GTK.args.audio.none? { |id, s| id == psid }
     end

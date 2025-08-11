@@ -19,6 +19,8 @@ class AlchemyLab < Scene
     @leave_btn_clicks = 0
     @leave_btn_clicked_tick = nil
     @leave_btn_message_a = 0
+    @brew_anim_tick = nil
+    @brew_completed = false
 
     @from_tutorial =
       !$files.save_data["tutorials"]["alchemy_lab_tutorial"] || tutorial
@@ -81,6 +83,48 @@ class AlchemyLab < Scene
     end
   end
 
+  def play_brew_anim
+    @brew_anim_tick = Kernel.tick_count
+    $game.input_locked = true
+    @brew_completed = false
+  end
+
+  def tick_brew_anim
+    if @brew_anim_tick
+      puts "BREWANIMTICK ELAPSED TIME: #{@brew_anim_tick.elapsed_time}"
+      if @brew_anim_tick.elapsed_time >= 1.0.seconds
+        @brew_anim_tick = nil
+        $game.input_locked = false
+      else
+
+      end
+    end
+  end
+
+  def render_brew_anim
+    if @brew_anim_tick && @brew_anim_tick.elapsed_time < 1.0.seconds
+      frames = @brew_anim_tick.frame_index(16, (1.0.seconds / 16), false)
+      on_brew_anim_completed if frames == 13 && !@brew_completed
+
+      puts "FRAMES: #{frames}"
+      
+      puts "sprites/brew-anim/brew_anim#{frames + 1}.png"
+      {
+        x: 0,
+        y: 0,
+        w: 1280,
+        h: 720,
+        path: "sprites/brew-anim/brewanim#{frames + 1}.png",
+      }
+    end
+  end
+
+  def on_brew_anim_completed
+    craft(@craftable_potion.id)
+    @craftable_potion = nil
+    @brew_completed = true
+  end
+
   def cleanup
     puts "cleanup alchemy_lab.rb"
     super
@@ -120,15 +164,18 @@ class AlchemyLab < Scene
         )
       @selected_ingredients.clear
 
-      if GameUtils.is_potion(potion.id)
-        @pot_menu_widget.add_item(potion)
-      else
-        potion.instant_set_position(
+      potion.instant_set_position(
           x: GTK.args.grid.w / 2 - (potion.w / 2),
           y: GTK.args.grid.h / 2 - (potion.h / 2)
         )
+
+
+      if !GameUtils.is_potion(potion.id)
         @visible_ingredients[potion.entity_id] = potion
-        @ingredients_on_screen.add(potion)
+        @ingredients_on_screen.add(potion) 
+      else
+        potion.free_floating = true
+        @visible_potions[potion.entity_id] = potion
       end
 
       if @from_tutorial && !@tutorial_steps[:potions_mixed] &&
@@ -179,6 +226,28 @@ class AlchemyLab < Scene
     leave
   end
 
+  def calc_selected_positions
+    spacing = 16
+    half_total_width = (@selected_ingredients.keys.length * (150 + spacing)) / 2.0
+    start_x = GTK.args.grid.w / 2 - half_total_width
+    @selected_ingredients.each_with_index do |(id, card), i|
+      card.f_pos.y = 400
+      card.f_pos.x = start_x + (i * (150 + spacing))
+    end
+  end
+
+  def center_elements(elements, center_x, element_width)
+    half_total_width = (elements.length * element_width) / 2.0
+    start_x = center_x - half_total_width
+
+    elements.each_with_index.map do |el, i|
+      {
+        element: el,
+        x: start_x + (i * element_width + spacing)
+      }
+    end
+  end
+
   def leave
     # gather all ingredient cards to return to the player's inventory
     new_ings = []
@@ -225,6 +294,7 @@ class AlchemyLab < Scene
   end
 
   def tick
+    tick_brew_anim
     @ing_menu_widget.tick(GTK.args.inputs)
     @pot_menu_widget.tick(GTK.args.inputs)
     @ingredient_generators.each { |id, c| c.tick }
@@ -254,6 +324,7 @@ class AlchemyLab < Scene
     end
 
     calc_card_positions
+    calc_selected_positions
   end
 
   def calc_inputs_locked
@@ -545,6 +616,7 @@ class AlchemyLab < Scene
           }
         end
       end
+      l4 << render_brew_anim
       l4
     else
       # puts "combat.rb: Invalid Render Argument"
@@ -885,8 +957,7 @@ class AlchemyLab < Scene
     if GTK.args.inputs.mouse.click && @craftable_potion &&
          Geometry.intersect_rect?(inputs.mouse, craft_btn)
       puts "clicked on craft_btn"
-      craft(@craftable_potion.id)
-      @craftable_potion = nil
+      play_brew_anim
     end
 
     if clicked = @pot_menu_widget.selected_item
