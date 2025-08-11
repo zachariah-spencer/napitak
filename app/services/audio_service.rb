@@ -15,12 +15,12 @@ class AudioService
       },
       get_fresh_ingredient: {
         input: "sounds/sfx/get_fresh_ingredient.wav",
-        gain: 0.2,
-        pitch: 1.0
+        gain: 0.4,
+        pitch: 1.75
       },
       remove_ingredient: {
         input: "sounds/sfx/remove_ingredient.wav",
-        gain: 0.22,
+        gain: 0.08,
         pitch: 1.0
       },
       card_hover: {
@@ -38,6 +38,26 @@ class AudioService
       cards_shuffle: {
         input: "sounds/sfx/card/SFX_Shuffle2.wav",
         gain: 0.7
+      },
+      select_card: {
+        input: "sounds/sfx/select_card.wav",
+        gain: 0.8,
+        pitch: 2
+      },
+      unselect_card: {
+        input: "sounds/sfx/unselect_card.wav",
+        gain: 0.6,
+        pitch: 1.25
+      },
+      brew_action: {
+        input: "sounds/sfx/brew_action.wav",
+        gain: 0.25,
+        pitch: 1
+      },
+      brew_action_completed: {
+        input: "sounds/sfx/brew_action_completed.wav",
+        gain: 0.5,
+        pitch: 1
       }
     }
   end

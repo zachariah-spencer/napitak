@@ -34,7 +34,7 @@ class AlchemyLab < Scene
       starting_ingredients_packed: false,
       potions_mixed: false
     }
-    # proc encounter manager so it is on correct map layer in the event that user came from scripted scenes instead of first map layer
+    # prep encounter manager so it is on correct map layer in the event that user came from scripted scenes instead of first map layer
     $encounter_manager.next_choices? if @from_tutorial
 
     padding = 40
@@ -85,6 +85,7 @@ class AlchemyLab < Scene
 
   def play_brew_anim
     @brew_anim_tick = Kernel.tick_count
+    $AUDIO_SERVICE.play_sound(:brew_action)
     $game.input_locked = true
     @brew_completed = false
   end
@@ -157,6 +158,8 @@ class AlchemyLab < Scene
          recipe_id,
          ingredients_inventory: @ingredients_on_screen.all_cards
        )
+      
+      $AUDIO_SERVICE.play_sound(:brew_action_completed)
       potion =
         @recipe_book.craft(
           recipe_id,
@@ -1167,9 +1170,11 @@ class AlchemyLab < Scene
         GameUtils.announce(text: text, duration: 6.5.seconds, tutorial_id: id)
       end
       if !c.selected
+        $AUDIO_SERVICE.play_sound(:select_card)
         move_card(c, @selected_ingredients, @visible_ingredients)
         c.calc_render_target(GTK.args)
       else
+        $AUDIO_SERVICE.play_sound(:unselect_card)
         move_card(c, @visible_ingredients, @selected_ingredients)
         c.calc_render_target(GTK.args)
       end
@@ -1200,8 +1205,7 @@ class AlchemyLab < Scene
   def calc_keyboard_inputs
     return unless @craftable_potion and inputs.keyboard.key_down.space
 
-    craft(@craftable_potion.id)
-    @craftable_potion = nil
+    play_brew_anim
   end
 
   def reorder_cards(latest_card)
