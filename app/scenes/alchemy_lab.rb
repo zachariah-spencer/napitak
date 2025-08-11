@@ -49,30 +49,24 @@ class AlchemyLab < Scene
     @ing_menu_widget =
       ScrollListWidget.new(
         items: [],
-        x: 20,
+        x: 16,
         y: GTK.args.grid.h / 2 - 270,
-        w: 160,
+        w: 96,
         h: 500
       )
     @pot_menu_widget =
       ScrollListWidget.new(
         items: [],
-        x: GTK.args.grid.w - 20 - 160,
+        x: GTK.args.grid.w - 16 - 96,
         y: GTK.args.grid.h / 2 - 270,
-        w: 160,
+        w: 96,
         h: 500
       )
 
     @prev_loadout_btn =
-      Button.new(
-        x: 222,
-        y: 32 - 16,
-        w: 64,
-        h: 64,
-        text: "PREV"
-      )
+      Button.new(x: 128 + 16, y: 32 - 10, w: 64, h: 64, text: "Prev.")
 
-      update_inventories
+    update_inventories
   end
 
   def ready
@@ -290,7 +284,6 @@ class AlchemyLab < Scene
   end
 
   def calc_card_positions
-
     all_cards =
       @visible_ingredients
         .merge(@selected_ingredients)
@@ -403,7 +396,7 @@ class AlchemyLab < Scene
       left_panel_a ||= {
         x: 0,
         y: 0,
-        w: 200,
+        w: 128,
         h: GTK.args.grid.h,
         path: "sprites/sketchypanel02.png",
         tile_x: 0 + (tile_index * 200),
@@ -414,9 +407,9 @@ class AlchemyLab < Scene
       }
 
       right_panel_a ||= {
-        x: GTK.args.grid.w - 200,
+        x: GTK.args.grid.w - 128,
         y: 0,
-        w: 200,
+        w: 128,
         h: GTK.args.grid.h,
         path: "sprites/sketchypanel02.png",
         tile_x: 0 + (tile_index * 200),
@@ -440,11 +433,7 @@ class AlchemyLab < Scene
 
       l1 << [low_panel_debug, left_panel_a, right_panel_a]
       # l1 << [ left_panel_b, right_panel_b,]
-      l1 << [
-        @ing_menu_widget.render,
-        @pot_menu_widget.render,
-        generator_cards,
-      ]
+      l1 << [@ing_menu_widget.render, @pot_menu_widget.render, generator_cards]
       l1
     when 2
       encounter_label ||= {
@@ -477,42 +466,26 @@ class AlchemyLab < Scene
       l3 << [front_card, sel_cards]
       l3
     when 4
-      if @craftable_potion
-        craftable_potion_label ||= {
-          x: GTK.args.grid.w / 2,
-          y: GTK.args.grid.h / 2 + 150,
-          text: "#{@craftable_potion.data.name}",
-          anchor_x: 0.5,
-          anchor_y: 0.5,
-          r: 255,
-          g: 0,
-          b: 0,
-          size_enum: 15,
-          font: $FONT,
-          primitive_marker: :label
-        }
-
-        l4 << [craftable_potion_label, craft_btn]
-      end
+      l4 << [craft_btn] if @craftable_potion
 
       uses_left_label ||= {
-        x: GTK.args.grid.w / 2,
-        y: 150,
+        x: 64,
+        y: 48,
         alignment_enum: 1,
-        size_enum: 8,
+        size_px: 18,
         r: 255,
         g: 255,
         b: 255,
-        text: "Brewing Capacity: #{@uses_left}",
+        text: "Brews Left: #{@uses_left}",
         font: $FONT,
         primitive_marker: :label
       }
 
       ingredients_stored_label ||= {
-        x: 100,
-        y: 75,
+        x: 64,
+        y: 64 + 8,
         alignment_enum: 1,
-        size_enum: 8,
+        size_px: 18,
         r: 255,
         g: 255,
         b: 255,
@@ -587,10 +560,10 @@ class AlchemyLab < Scene
     prefabs = []
 
     prefabs << {
-      x: GTK.args.grid.w - 162 - 16,
-      y: GTK.args.grid.h - (114) - (16 * 1.5),
-      w: 162,
-      h: 114,
+      x: GTK.args.grid.w - 96 - 16,
+      y: GTK.args.grid.h - 96,
+      w: 96,
+      h: 64,
       path: "sprites/sketchymodal_162x114.png",
       tile_x: 0 + (tile_index * 162),
       tile_y: 0,
@@ -600,29 +573,31 @@ class AlchemyLab < Scene
     }
 
     prefabs << {
-      x: GTK.args.grid.w - 162 - 12 + (162 / 2),
-      y: GTK.args.grid.h - (114) - (16 * 1.5) + (114 / 2) + 5 + 8,
+      x: GTK.args.grid.w - 64,
+      y: GTK.args.grid.h - 56,
       text: "POTION",
       anchor_x: 0.5,
       anchor_y: 0.5,
+      alignment_enum: 1,
       r: 255,
       g: 255,
       b: 255,
       font: $FONT,
-      size_px: 20
+      size_px: 12
     }
 
     prefabs << {
-      x: GTK.args.grid.w - 162 - 12 + (162 / 2),
-      y: GTK.args.grid.h - (114) - (16 * 1.5) + (114 / 2) + 5 - 12,
+      x: GTK.args.grid.w - 64,
+      y: GTK.args.grid.h - 52 - 16,
       text: "SATCHEL",
       anchor_x: 0.5,
       anchor_y: 0.5,
+      alignment_enum: 1,
       r: 255,
       g: 255,
       b: 255,
       font: $FONT,
-      size_px: 20
+      size_px: 12
     }
 
     prefabs
@@ -638,9 +613,9 @@ class AlchemyLab < Scene
 
     prefabs << {
       x: 16,
-      y: GTK.args.grid.h - (114) - (16 * 1.5),
-      w: 162,
-      h: 114,
+      y: GTK.args.grid.h - 96,
+      w: 96,
+      h: 64,
       path: "sprites/sketchymodal_162x114.png",
       tile_x: 0 + (tile_index * 162),
       tile_y: 0,
@@ -650,35 +625,37 @@ class AlchemyLab < Scene
     }
 
     prefabs << {
-      x: 100,
-      y: GTK.args.grid.h - (114) - (16 * 1.5) + (114 / 2) + 5 + 8,
+      x: 64,
+      y: GTK.args.grid.h - 56,
       text: "INGREDIENT",
       anchor_x: 0.5,
       anchor_y: 0.5,
+      alignment_enum: 1,
       r: 255,
       g: 255,
       b: 255,
       font: $FONT,
-      size_px: 20
+      size_px: 12
     }
 
     prefabs << {
-      x: 100,
-      y: GTK.args.grid.h - (114) - (16 * 1.5) + (114 / 2) + 5 - 12,
+      x: 64,
+      y: GTK.args.grid.h - 52 - 16,
       text: "SATCHEL",
       anchor_x: 0.5,
       anchor_y: 0.5,
+      alignment_enum: 1,
       r: 255,
       g: 255,
       b: 255,
       font: $FONT,
-      size_px: 20
+      size_px: 12
     }
 
     prefabs
   end
 
-  def craft_btn
+  def craft_btn_old
     GTK.args.outputs[:craft_btn].w = 150
     GTK.args.outputs[:craft_btn].h = 75
 
@@ -731,55 +708,117 @@ class AlchemyLab < Scene
     }
   end
 
-  def leave_btn
-    GTK.args.outputs[:leave_btn].w = 150
-    GTK.args.outputs[:leave_btn].h = 75
+  def craft_btn
+    craft_btn_frames = 0.frame_index(4, 0.5.seconds, true)
+    craft_btn_rect =
+      Layout.rect(
+        col: Layout.col_count / 2 - 1,
+        row: Layout.row_count - 2.25,
+        w: 1.5,
+        h: 0.75
+      )
 
-    GTK.args.outputs[:leave_btn].primitives << {
+    GTK.args.outputs[:craft_btn].w = 96
+    GTK.args.outputs[:craft_btn].h = 48
+    btn_color = { r: 150, g: 150, b: 150 }
+
+    GTK.args.outputs[:craft_btn].primitives << craft_btn_rect.merge(
       x: 0,
       y: 0,
-      w: 150,
-      h: 75,
       angle: 0,
-      r: 0,
+      path: "sprites/wide_button_frame-sheet-6.png",
+      tile_x: 96 * craft_btn_frames,
+      tile_y: 0,
+      tile_w: 96,
+      tile_h: 48,
+      r: 255,
       g: 0,
       b: 0,
-      primitive_marker: :solid
-    }
+      primitive_marker: :sprite
+    )
 
-    GTK.args.outputs[:leave_btn].primitives << {
-      x: 5,
-      y: 5,
-      w: 140,
-      h: 65,
-      angle: 0,
-      r: 100,
-      g: 150,
-      b: 150,
-      primitive_marker: :solid
-    }
-
-    GTK.args.outputs[:leave_btn].primitives << {
-      x: 150 / 2,
-      y: 75 / 2,
-      text: "#{@leave_btn_text}",
+    GTK.args.outputs[:craft_btn].primitives << {
+      x: craft_btn_rect[:w] / 2,
+      y: craft_btn_rect[:h] / 2 + 6,
+      text: "Brew",
+      font: $FONT,
       anchor_x: 0.5,
       anchor_y: 0.5,
-      r: 0,
-      g: 0,
-      b: 0,
-      size_enum: 3
+      r: 255,
+      g: 255,
+      b: 255,
+      size_px: 10
     }
 
-    {
-      x: GTK.args.grid.w - 25 - 150,
-      y: 20,
-      w: 150,
-      h: 75,
+    GTK.args.outputs[:craft_btn].primitives << {
+      x: craft_btn_rect[:w] / 2,
+      y: craft_btn_rect[:h] / 2 - 6,
+      text: "#{@craftable_potion.data.name}",
+      font: $FONT,
+      anchor_x: 0.5,
+      anchor_y: 0.5,
+      r: 255,
+      g: 255,
+      b: 255,
+      size_px: 10
+    }
+
+    craft_btn_rect.merge(
+      w: 128,
+      h: 64,
+      path: :craft_btn,
+      primitive_marker: :sprite
+    )
+  end
+
+  def leave_btn
+    leave_btn_frames = 0.frame_index(4, 0.5.seconds, true)
+    leave_btn_rect =
+      Layout.rect(
+        col: Layout.col_count - 1.685,
+        row: Layout.row_count - 0.5,
+        w: 1.5,
+        h: 0.75
+      )
+
+    GTK.args.outputs[:leave_btn].w = 96
+    GTK.args.outputs[:leave_btn].h = 48
+    btn_color = { r: 150, g: 150, b: 150 }
+
+    GTK.args.outputs[:leave_btn].primitives << leave_btn_rect.merge(
+      x: 0,
+      y: 0,
       angle: 0,
+      path: "sprites/wide_button_frame-sheet-6.png",
+      tile_x: 96 * leave_btn_frames,
+      tile_y: 0,
+      tile_w: 96,
+      tile_h: 48,
+      r: 255,
+      g: 0,
+      b: 0,
+      primitive_marker: :sprite
+    )
+
+    GTK.args.outputs[:leave_btn].primitives << {
+      x: leave_btn_rect[:w] / 2,
+      y: leave_btn_rect[:h] / 2,
+      text: "#{@leave_btn_text}",
+      font: $FONT,
+      anchor_x: 0.5,
+      anchor_y: 0.5,
+      r: 255,
+      g: 255,
+      b: 255,
+      size_px: 22
+    }
+
+    leave_btn_rect.merge(
+      w: 96,
+      h: 48,
       path: :leave_btn,
       primitive_marker: :sprite
-    }
+    )
   end
 
   def get_all_card_rects
@@ -843,8 +882,8 @@ class AlchemyLab < Scene
       end
     end
 
-    if GTK.args.inputs.mouse.click &&
-         Geometry.intersect_rect?(inputs.mouse, craft_btn) && @craftable_potion
+    if GTK.args.inputs.mouse.click && @craftable_potion &&
+         Geometry.intersect_rect?(inputs.mouse, craft_btn)
       puts "clicked on craft_btn"
       craft(@craftable_potion.id)
       @craftable_potion = nil
@@ -989,7 +1028,7 @@ class AlchemyLab < Scene
       end
 
       @visible_ingredients.reject! { |id, c| c.marked_for_removal && c.w <= 5 }
-      @visible_potions.reject! { |id, c| c.marked_for_removal && c.w <= 5}
+      @visible_potions.reject! { |id, c| c.marked_for_removal && c.w <= 5 }
 
       if inputs.mouse.intersect_rect?(@pot_menu_widget.rect) &&
            GameUtils.is_potion(c_ref.id)
@@ -1010,10 +1049,11 @@ class AlchemyLab < Scene
   end
 
   def out_of_bounds?(card)
-    !card.grabbed && (card.pos.y < 100 || 
-    card.pos.y > GTK.args.grid.h - card.h ||
-    card.pos.x < 200 ||
-    card.pos.x > GTK.args.grid.w - card.w - 200)
+    !card.grabbed &&
+      (
+        card.pos.y < 100 || card.pos.y > GTK.args.grid.h - card.h ||
+          card.pos.x < 128 || card.pos.x > GTK.args.grid.w - card.w - 128
+      )
   end
 
   def use_card(c)

@@ -145,8 +145,12 @@ class Card
   end
 
   def calc_hover_audio(was_hovered)
-    $AUDIO_SERVICE.play_sound(:card_hover) if was_hovered != @hovered && @hovered && !@grabbed
-    $AUDIO_SERVICE.play_sound(:card_unhover) if was_hovered != @hovered && !@hovered && !@grabbed
+    if was_hovered != @hovered && @hovered && !@grabbed
+      $AUDIO_SERVICE.play_sound(:card_hover)
+    end
+    if was_hovered != @hovered && !@hovered && !@grabbed
+      $AUDIO_SERVICE.play_sound(:card_unhover)
+    end
   end
 
   def prefab
@@ -512,8 +516,8 @@ class Card
     @f_pos.y = 0 if @pos.y < 0
     @f_pos.y = GTK.args.grid.h - @h if @pos.y > GTK.args.grid.h - @h
 
-    @f_pos.x = 200 if @pos.x < 200
-    @f_pos.x = GTK.args.grid.w - @w - 200 if @pos.x > GTK.args.grid.w - @w - 200
+    @f_pos.x = 128 if @pos.x < 128
+    @f_pos.x = GTK.args.grid.w - @w - 128 if @pos.x > GTK.args.grid.w - @w - 128
 
     @vx = @vx.lerp(0, 0.4)
     @vy = @vy.lerp(0, 0.4)

@@ -1,7 +1,7 @@
 class ScrollListWidget
   attr_reader :selected_item
 
-  def initialize(items:, x:, y:, w:, h:, item_height: 85)
+  def initialize(items:, x:, y:, w:, h:, item_height: 96)
     @items = items
     @x, @y = x, y
     @width = w
@@ -86,46 +86,46 @@ class ScrollListWidget
       ]
 
       # label
-      
 
       if GameUtils.is_potion(item.id)
-
         GTK.args.outputs[path].labels << {
-        x: local_x + 80,
-        y: local_y + (@item_height / 2) - 10,
-        text: item.name,
-        size_px: 16,
-        alignment_enum: 1
-      }
+          x: local_x + @width / 2,
+          y: local_y + (@item_height / 2) + 34,
+          text: item.name,
+          size_px: 12,
+          font: $FONT,
+          alignment_enum: 1
+        }
         # uses left label for potions
         GTK.args.outputs[path].labels << {
-          x: local_x + 140,
-          y: local_y + (@item_height / 2) + 25,
+          x: local_x + @width / 2,
+          y: local_y + (@item_height / 2) - 22,
           text: "#{item.uses_left}/#{item.max_uses}",
-          alignment_enum: 2,
-          size_enum: 1
+          alignment_enum: 1,
+          size_px: 16,
+          font: $FONT
         }
 
         # icon for potions
         GTK.args.outputs[path].sprites << {
-          x: local_x + 50 - 16,
-          y: local_y + (@item_height / 2) - 3,
+          x: local_x + @width / 2 - 16,
+          y: local_y + (@item_height / 2) - 16,
           w: 32,
           h: 32,
           path: item.img
         }
       else
-
         GTK.args.outputs[path].labels << {
-        x: local_x + 75,
-        y: local_y + (@item_height / 2) - 15,
-        text: item.name,
-        size_px: 16,
-        alignment_enum: 1
-      }
+          x: local_x + @width / 2,
+          y: local_y + (@item_height / 2) - 15,
+          text: item.name,
+          size_px: 12,
+          font: $FONT,
+          alignment_enum: 1
+        }
         # icon
         GTK.args.outputs[path].sprites << {
-          x: local_x + 75 - 16,
+          x: local_x + @width / 2 - 16,
           y: local_y + (@item_height / 2) - 8,
           w: 32,
           h: 32,
