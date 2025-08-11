@@ -64,6 +64,7 @@ require_relative "services/enemy_ai"
 require_relative "services/tutorial_service"
 require_relative "services/event_bus"
 require_relative "services/combo_manager"
+require_relative "services/audio_service"
 
 # utilities and helper classes
 # (some of these could be models but are so small and self contained that they are here instead)

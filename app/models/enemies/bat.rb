@@ -100,7 +100,7 @@ class Bat < Enemy
         g: 0,
         b: 0,
         text: "#{@combat_stats.hp} / #{@combat_stats.max_hp}",
-        font: "fonts/eaglelake.ttf",
+        font: $FONT,
         primitive_marker: :label
       }
 

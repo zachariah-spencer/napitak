@@ -145,15 +145,8 @@ class Card
   end
 
   def calc_hover_audio(was_hovered)
-    GTK.args.audio[:hovering_on] = {
-      input: "sounds/sfx/card/SFX_Card5.wav",
-      gain: 0.2
-    } if was_hovered != @hovered && @hovered && !@grabbed
-    GTK.args.audio[:hovering_off] = {
-      input: "sounds/sfx/card/SFX_Card5.wav",
-      gain: 0.08,
-      pitch: 0.9
-    } if was_hovered != @hovered && !@hovered && !@grabbed
+    $AUDIO_SERVICE.play_sound(:card_hover) if was_hovered != @hovered && @hovered && !@grabbed
+    $AUDIO_SERVICE.play_sound(:card_unhover) if was_hovered != @hovered && !@hovered && !@grabbed
   end
 
   def prefab
@@ -244,7 +237,7 @@ class Card
       b: 255,
       size_px: 20,
       a: prefab_alpha,
-      font: "fonts/eaglelake.ttf"
+      font: $FONT
     }
 
     if GameUtils.is_potion(self.id)
@@ -270,7 +263,7 @@ class Card
           b: 150,
           size_px: 26,
           a: prefab_alpha,
-          font: "fonts/eaglelake.ttf"
+          font: $FONT
         }
       else
         args.outputs[@card_composite_sprite_ref].primitives << {
@@ -284,7 +277,7 @@ class Card
           b: 130,
           size_px: 26,
           a: prefab_alpha,
-          font: "fonts/eaglelake.ttf"
+          font: $FONT
         }
       end
 
@@ -299,7 +292,7 @@ class Card
         b: 200,
         size_px: 18,
         a: prefab_alpha,
-        font: "fonts/eaglelake.ttf"
+        font: $FONT
       }
     end
 
@@ -338,7 +331,7 @@ class Card
         x: 165,
         y: 275,
         text: "#{s}",
-        font: "fonts/eaglelake.ttf",
+        font: $FONT,
         anchor_x: 0.5,
         anchor_y: i,
         r: 255,
@@ -357,7 +350,7 @@ class Card
         x: 165,
         y: 200,
         text: "#{s}",
-        font: "fonts/eaglelake.ttf",
+        font: $FONT,
         anchor_x: 0.5,
         anchor_y: i,
         r: 255,
@@ -371,7 +364,7 @@ class Card
       x: 55,
       y: 65,
       text: "Focus",
-      font: "fonts/eaglelake.ttf",
+      font: $FONT,
       anchor_x: 0.5,
       anchor_y: 0.5,
       r: 255,
@@ -384,7 +377,7 @@ class Card
       x: 55,
       y: 35,
       text: "#{@fc}",
-      font: "fonts/eaglelake.ttf",
+      font: $FONT,
       anchor_x: 0.5,
       anchor_y: 0.5,
       r: 255,
@@ -397,7 +390,7 @@ class Card
       x: 270,
       y: 65,
       text: "Effects",
-      font: "fonts/eaglelake.ttf",
+      font: $FONT,
       anchor_x: 0.5,
       anchor_y: 0.5,
       r: 255,
@@ -420,7 +413,7 @@ class Card
             x: damage_potency_val_x,
             y: 35,
             text: "#{potency_val.amount.to_s}",
-            font: "fonts/eaglelake.ttf",
+            font: $FONT,
             anchor_x: 0.5,
             anchor_y: 0.5,
             r: color.r,
@@ -433,7 +426,7 @@ class Card
             x: start_x + (i * 25),
             y: 35,
             text: "#{potency_val.to_s}",
-            font: "fonts/eaglelake.ttf",
+            font: $FONT,
             anchor_x: 0.5,
             anchor_y: 0.5,
             r: color.r,
@@ -460,7 +453,7 @@ class Card
       x: 160,
       y: 65,
       text: "Charges",
-      font: "fonts/eaglelake.ttf",
+      font: $FONT,
       anchor_x: 0.5,
       anchor_y: 0.5,
       r: 255,
@@ -473,7 +466,7 @@ class Card
       x: 160,
       y: 35,
       text: "#{@uses_left} / #{@max_uses}",
-      font: "fonts/eaglelake.ttf",
+      font: $FONT,
       anchor_x: 0.5,
       anchor_y: 0.5,
       r: 255,

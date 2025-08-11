@@ -302,8 +302,9 @@ class AlchemyLab < Scene
 
     all_moveable_cards.each do |id, c|
       c.calc_position(0, 0)
-      if out_of_bounds?(c) && !$game.input_locked
-        c.mark_for_removal 
+      if out_of_bounds?(c) && !$game.input_locked && !c.marked_for_removal
+        c.mark_for_removal
+        $AUDIO_SERVICE.play_sound(:remove_ingredient)
         unselect_cards(c)
       end
       other_card_rects =
@@ -455,7 +456,7 @@ class AlchemyLab < Scene
         g: 255,
         b: 255,
         text: "Alchemy Lab",
-        font: "fonts/eaglelake.ttf",
+        font: $FONT,
         primitive_marker: :label
       }
 
@@ -487,7 +488,7 @@ class AlchemyLab < Scene
           g: 0,
           b: 0,
           size_enum: 15,
-          font: "fonts/eaglelake.ttf",
+          font: $FONT,
           primitive_marker: :label
         }
 
@@ -503,7 +504,7 @@ class AlchemyLab < Scene
         g: 255,
         b: 255,
         text: "Brewing Capacity: #{@uses_left}",
-        font: "fonts/eaglelake.ttf",
+        font: $FONT,
         primitive_marker: :label
       }
 
@@ -516,7 +517,7 @@ class AlchemyLab < Scene
         g: 255,
         b: 255,
         text: "#{@ing_menu_widget.items?.size} / #{@max_ingredients}",
-        font: "fonts/eaglelake.ttf",
+        font: $FONT,
         primitive_marker: :label
       }
 
@@ -545,7 +546,7 @@ class AlchemyLab < Scene
           g: 255,
           b: 255,
           a: @leave_btn_message_a,
-          font: "fonts/eaglelake.ttf",
+          font: $FONT,
           text: "Are you sure?",
           size_px: 26,
           primitive_marker: :label
@@ -566,7 +567,7 @@ class AlchemyLab < Scene
             b: 255,
             a: @leave_btn_message_a,
             size_px: 26,
-            font: "fonts/eaglelake.ttf",
+            font: $FONT,
             primitive_marker: :label
           }
         end
@@ -607,7 +608,7 @@ class AlchemyLab < Scene
       r: 255,
       g: 255,
       b: 255,
-      font: "fonts/eaglelake.ttf",
+      font: $FONT,
       size_px: 20
     }
 
@@ -620,7 +621,7 @@ class AlchemyLab < Scene
       r: 255,
       g: 255,
       b: 255,
-      font: "fonts/eaglelake.ttf",
+      font: $FONT,
       size_px: 20
     }
 
@@ -657,7 +658,7 @@ class AlchemyLab < Scene
       r: 255,
       g: 255,
       b: 255,
-      font: "fonts/eaglelake.ttf",
+      font: $FONT,
       size_px: 20
     }
 
@@ -670,7 +671,7 @@ class AlchemyLab < Scene
       r: 255,
       g: 255,
       b: 255,
-      font: "fonts/eaglelake.ttf",
+      font: $FONT,
       size_px: 20
     }
 
@@ -716,7 +717,7 @@ class AlchemyLab < Scene
       g: 255,
       b: 255,
       size_enum: 3,
-      font: "fonts/eaglelake.ttf"
+      font: $FONT
     }
 
     {
@@ -925,7 +926,7 @@ class AlchemyLab < Scene
         end
         puts "YOU CLICKED: #{clicked}"
         c_ref = GameUtils.gen_new_card(clicked[:id])
-        puts c_ref
+        $AUDIO_SERVICE.play_sound(:get_fresh_ingredient)
         if c_ref
           c_ref.activation_time = Kernel.tick_count
           c_u_m = c_ref.rect

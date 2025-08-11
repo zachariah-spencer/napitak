@@ -119,7 +119,7 @@ class ShopItemCard < Card
       b: 255,
       size_px: 22,
       a: 255,
-      font: "fonts/eaglelake.ttf"
+      font: $FONT
     }
     super
   end

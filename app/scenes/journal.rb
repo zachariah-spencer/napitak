@@ -124,7 +124,7 @@ class Journal < Scene
         g: 255,
         b: 255,
         text: "Journal",
-        font: "fonts/eaglelake.ttf",
+        font: $FONT,
         primitive_marker: :label
       }
       l2 << [encounter_label]

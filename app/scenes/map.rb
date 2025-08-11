@@ -106,7 +106,7 @@ class Map < Scene
         g: 255,
         b: 255,
         text: "Please Select an Encounter",
-        font: "fonts/eaglelake.ttf",
+        font: $FONT,
         size_px: 36,
         primitive_marker: :label
       }

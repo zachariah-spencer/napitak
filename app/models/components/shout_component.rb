@@ -88,7 +88,7 @@ class ShoutComponent
           g: 0,
           b: 0,
           a: @shout_alpha,
-          font: "fonts/eaglelake.ttf",
+          font: $FONT,
           text: "#{t}",
         }
       end

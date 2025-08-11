@@ -49,7 +49,7 @@ class StatusEffectListWidget
       g: 255,
       b: 255,
       a: @a,
-      font: "fonts/eaglelake.ttf",
+      font: $FONT,
       text: "Effects"
     }
 
@@ -66,7 +66,7 @@ class StatusEffectListWidget
         g: 255,
         b: 255,
         a: @a,
-        font: "fonts/eaglelake.ttf",
+        font: $FONT,
         text: "- #{effect.label?}"
       }
     end

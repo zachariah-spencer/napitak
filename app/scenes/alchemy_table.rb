@@ -312,7 +312,7 @@ class AlchemyTable < Scene
         b: 255,
         text: "Alchemy Table",
         primitive_marker: :label,
-        font: "fonts/eaglelake.ttf"
+        font: $FONT
       }
 
       l2 << [
@@ -339,7 +339,7 @@ class AlchemyTable < Scene
           b: 0,
           size_enum: 15,
           primitive_marker: :label,
-          font: "fonts/eaglelake.ttf"
+          font: $FONT
         }
 
         l4 << [craftable_potion_label, craft_btn]
@@ -355,7 +355,7 @@ class AlchemyTable < Scene
         b: 255,
         text: "Brewing Capacity: #{@uses_left}",
         primitive_marker: :label,
-        font: "fonts/eaglelake.ttf"
+        font: $FONT
       }
 
       l4 << [uses_left_label]
@@ -399,7 +399,7 @@ class AlchemyTable < Scene
       r: 255,
       g: 255,
       b: 255,
-      font: "fonts/eaglelake.ttf",
+      font: $FONT,
       size_px: 20
     }
 
@@ -412,7 +412,7 @@ class AlchemyTable < Scene
       r: 255,
       g: 255,
       b: 255,
-      font: "fonts/eaglelake.ttf",
+      font: $FONT,
       size_px: 20
     }
 
@@ -449,7 +449,7 @@ class AlchemyTable < Scene
       r: 255,
       g: 255,
       b: 255,
-      font: "fonts/eaglelake.ttf",
+      font: $FONT,
       size_px: 20
     }
 
@@ -462,7 +462,7 @@ class AlchemyTable < Scene
       r: 255,
       g: 255,
       b: 255,
-      font: "fonts/eaglelake.ttf",
+      font: $FONT,
       size_px: 20
     }
 

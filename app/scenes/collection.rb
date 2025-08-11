@@ -121,7 +121,7 @@ class Collection < Scene
         g: 255,
         b: 255,
         text: "#{@title}",
-        font: "fonts/eaglelake.ttf",
+        font: $FONT,
         primitive_marker: :label
       }
       l2 << [encounter_label]

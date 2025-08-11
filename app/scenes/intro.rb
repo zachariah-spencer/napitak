@@ -118,7 +118,7 @@ class Intro < Scene
         g: 255,
         b: 255,
         text: "Hold LMB to Skip",
-        font: "fonts/eaglelake.ttf",
+        font: $FONT,
         primitive_marker: :label
       }
 

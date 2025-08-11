@@ -136,7 +136,7 @@ class PauseMenu < Scene
       g: 255,
       b: 255,
       text: "PAUSED",
-      font: "fonts/eaglelake.ttf",
+      font: $FONT,
       primitive_marker: :label
     }
 

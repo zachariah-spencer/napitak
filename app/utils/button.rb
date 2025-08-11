@@ -57,7 +57,7 @@ class Button
       g: 255,
       b: 255,
       size_px: 20,
-      font: "fonts/eaglelake.ttf"
+      font: $FONT
     }
 
     {

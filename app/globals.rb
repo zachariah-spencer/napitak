@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 module GameData
+  FONT = "fonts/amarante.ttf"
   CARD_TRAITS = {
     damage: 0,
     restoration: 1,
@@ -587,6 +588,7 @@ $ANIMATIONS = GameData::ANIMATIONS
 $SHOP_ITEMS = GameData::SHOP_ITEMS
 $REWARD_ITEMS = GameData::REWARD_ITEMS
 $TUTORIAL_INDEX = 0
+$FONT = GameData::FONT
 
 $entity_ids = []
 $player = nil

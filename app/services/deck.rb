@@ -22,7 +22,7 @@ class Deck
 
   # Draw a card: reshuffle if needed, then remove and return one.
   def draw(random_sample = false)
-    GTK.args.audio[:card_draw] = { input: "sounds/sfx/card/SFX_Card4.wav" }
+    $AUDIO_SERVICE.play_sound(:card_draw)
     
     if random_sample
       card = (@draw_pile + @discard_pile).sample()

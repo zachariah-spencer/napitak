@@ -95,7 +95,7 @@ class BossRewardsScreen < Scene
         g: 255,
         b: 255,
         text: "Congratulations, you've successfully recovered new base ingredients!",
-        font: "fonts/eaglelake.ttf",
+        font: $FONT,
         primitive_marker: :label
       }
 

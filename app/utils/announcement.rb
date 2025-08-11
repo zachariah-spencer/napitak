@@ -71,6 +71,7 @@ class Announcement
         r: 0,
         g: 0,
         b: 0,
+        a: @a / 8,
         primitive_marker: :solid
       }
 
@@ -90,7 +91,7 @@ class Announcement
           b: 255,
           size_px: @px_size,
           primitive_marker: :label,
-          font: "fonts/eaglelake.ttf"
+          font: $FONT
         }
       end
 

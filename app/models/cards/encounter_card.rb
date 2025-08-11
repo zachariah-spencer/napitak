@@ -154,7 +154,7 @@ class EncounterCard < Card
         r: 255,
         g: 255,
         b: 255,
-        font: "fonts/eaglelake.ttf",
+        font: $FONT,
         size_px: 20
       }
     end

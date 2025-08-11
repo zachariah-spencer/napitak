@@ -42,10 +42,7 @@ class Combat < Scene
     @pre_deal_time = 1.seconds
     @dealing_tick = nil
     @dealing_time = 1.seconds
-    GTK.args.audio[:shuffle] = {
-      input: "sounds/sfx/card/SFX_Shuffle2.wav",
-      gain: 0.7
-    }
+    $AUDIO_SERVICE.play_sound(:cards_shuffle)
     puts @hand_manager.hand
   end
 
@@ -281,7 +278,7 @@ class Combat < Scene
           g: 255,
           b: 255,
           text: "HP",
-          font: "fonts/eaglelake.ttf",
+          font: $FONT,
           primitive_marker: :label
         )
 
@@ -293,7 +290,7 @@ class Combat < Scene
           g: 150,
           b: 0,
           text: "#{@player.combat_stats.hp} / #{@player.combat_stats.max_hp}",
-          font: "fonts/eaglelake.ttf",
+          font: $FONT,
           primitive_marker: :label
         )
 
@@ -306,7 +303,7 @@ class Combat < Scene
         g: 255,
         b: 0,
         text: "#{@player.combat_stats.statuses[$STATUS_TYPES[:WARD]]}",
-        font: "fonts/eaglelake.ttf",
+        font: $FONT,
         primitive_marker: :label
       }
 
@@ -321,7 +318,7 @@ class Combat < Scene
           g: 255,
           b: 255,
           text: "FOCUS",
-          font: "fonts/eaglelake.ttf",
+          font: $FONT,
           primitive_marker: :label
         )
 
@@ -334,7 +331,7 @@ class Combat < Scene
           b: 150,
           text:
             "#{@player.combat_stats.focus} / #{@player.combat_stats.max_focus}",
-          font: "fonts/eaglelake.ttf",
+          font: $FONT,
           primitive_marker: :label
         )
 
@@ -358,7 +355,7 @@ class Combat < Scene
           g: 225,
           b: 225,
           text: "+#{@player.combat_stats.bonus_focus}",
-          font: "fonts/eaglelake.ttf",
+          font: $FONT,
           primitive_marker: :label
         }
         puts "HERE"
@@ -375,7 +372,7 @@ class Combat < Scene
         b: 255,
         a: @flee_btn_alpha,
         text: "#{flee_success_rate?.to_i}% CHANCE",
-        font: "fonts/eaglelake.ttf",
+        font: $FONT,
         primitive_marker: :label
       }
 
@@ -399,7 +396,7 @@ class Combat < Scene
       deck_card_count_label =
         deck_rect.center.merge(
           text: "#{@player.potions.size}",
-          font: "fonts/eaglelake.ttf",
+          font: $FONT,
           anchor_x: 0.5,
           anchor_y: 0.5,
           size_px: 20,
@@ -446,7 +443,7 @@ class Combat < Scene
       pass_button_label =
         pass_btn_rect.center.merge(
           text: "#{pass_btn_text}",
-          font: "fonts/eaglelake.ttf",
+          font: $FONT,
           size_px: 20,
           alignment_enum: 1,
           anchor_x: 0.5,
@@ -484,7 +481,7 @@ class Combat < Scene
           g: 255,
           b: 255,
           a: @banner_alpha,
-          font: "fonts/eaglelake.ttf",
+          font: $FONT,
           text: "DEFEAT",
           primitive_marker: :label
         }
@@ -516,7 +513,7 @@ class Combat < Scene
           g: 255,
           b: 255,
           a: @banner_alpha,
-          font: "fonts/eaglelake.ttf",
+          font: $FONT,
           text: "VICTORY",
           primitive_marker: :label
         }
@@ -547,7 +544,7 @@ class Combat < Scene
           g: 255,
           b: 255,
           a: @banner_alpha,
-          font: "fonts/eaglelake.ttf",
+          font: $FONT,
           text: "FLED",
           primitive_marker: :label
         }
@@ -576,7 +573,7 @@ class Combat < Scene
         b: 255,
         a: osc_val,
         alignment_enum: 1,
-        font: "fonts/eaglelake.ttf",
+        font: $FONT,
         text: "YOUR TURN"
       }
 
@@ -629,7 +626,7 @@ class Combat < Scene
       x: flee_btn_rect[:w] / 2,
       y: flee_btn_rect[:h] / 2,
       text: "FLEE",
-      font: "fonts/eaglelake.ttf",
+      font: $FONT,
       anchor_x: 0.5,
       anchor_y: 0.5,
       r: 255,

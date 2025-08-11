@@ -277,7 +277,7 @@ class RoleplayEncounter < Scene
         g: 255,
         b: 255,
         text: "Event",
-        font: "fonts/eaglelake.ttf",
+        font: $FONT,
         primitive_marker: :label
       }
 
@@ -300,7 +300,7 @@ class RoleplayEncounter < Scene
           g: 255,
           b: 255,
           size_px: 30,
-          font: "fonts/eaglelake.ttf",
+          font: $FONT,
           primitive_marker: :label
         )
       end
@@ -339,7 +339,7 @@ class RoleplayEncounter < Scene
               b: 255,
               a: @options_alpha,
               size_px: 22,
-              font: "fonts/eaglelake.ttf",
+              font: $FONT,
               primitive_marker: :label
             )
           end
@@ -354,7 +354,7 @@ class RoleplayEncounter < Scene
         anchor_x: 0.5,
         anchor_y: 0.5,
         size_px: 20,
-        font: "fonts/eaglelake.ttf",
+        font: $FONT,
         text: "Click to Continue...",
         r: 255,
         g: 255,

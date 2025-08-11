@@ -45,7 +45,7 @@ class Game
       y: GTK.args.grid.h - 80,
       anchor_x: 0.5,
       anchor_y: 0.5,
-      font: "fonts/eaglelake.ttf",
+      font: $FONT,
       text: "Potions",
       size_px: 18,
       r: 255,
@@ -58,7 +58,7 @@ class Game
       y: GTK.args.grid.h - 80,
       anchor_x: 0.5,
       anchor_y: 0.5,
-      font: "fonts/eaglelake.ttf",
+      font: $FONT,
       text: "Ingredients",
       size_px: 18,
       r: 255,
@@ -66,6 +66,7 @@ class Game
       b: 255,
       a: 255
     }
+    AudioService.new
     AnimationManager.new
     AnnouncementManager.new
     EventBus.new
@@ -229,10 +230,12 @@ class Game
     @viewing_collection = !@viewing_collection
 
     if @viewing_collection
+      $AUDIO_SERVICE.play_sound(:open_book)
       @scene = "collection"
       @collection_scene_ref = collection_scene_ref if collection_scene_ref
       @scene_ref = Collection.new(title: title, collection_array: collection)
     else
+      $AUDIO_SERVICE.play_sound(:close_book)
       @scene = @collection_scene_ref.sc_id
       @scene_ref.cleanup
       @scene_ref = @collection_scene_ref
@@ -275,8 +278,7 @@ class Game
   end
 
   def tick
-    # puts $player.maximum_hp
-    puts "VAL: #{$player.maximum_hp}" if GTK.args.inputs.keyboard.key_down.o
+    $AUDIO_SERVICE.tick
     handle_pause
     calc_view_collection_inputs
     calc_button_inputs
@@ -387,7 +389,7 @@ class Game
         g: 255,
         b: 255,
         a: @defeat_banner_alpha,
-        font: "fonts/eaglelake.ttf",
+        font: $FONT,
         text: "DEFEAT",
         primitive_marker: :label
       }
@@ -518,7 +520,7 @@ class Game
       x: GTK.args.grid.w / 2 - 32 - 80,
       y: GTK.args.grid.h - 32,
       size_px: 22,
-      font: "fonts/eaglelake.ttf",
+      font: $FONT,
       text: "#{$player.maximum_hp}",
       anchor_x: 0.5,
       anchor_y: 0.5,
@@ -552,7 +554,7 @@ class Game
       x: GTK.args.grid.w / 2 + 32 + 48,
       y: GTK.args.grid.h - 32,
       size_px: 18,
-      font: "fonts/eaglelake.ttf",
+      font: $FONT,
       text: "#{$player.maximum_focus}",
       anchor_x: 0.5,
       anchor_y: 0.5,
@@ -605,7 +607,7 @@ class Game
       r: r,
       g: g,
       b: b,
-      font: "fonts/eaglelake.ttf",
+      font: $FONT,
       angle_anchor_x: 0.5,
       angle_anchor_y: 0.5,
       angle_mod: Numeric.rand(-0.2..0.2)
@@ -678,7 +680,7 @@ class Game
         g: s_l.g,
         b: s_l.b,
         a: s_l.a,
-        font: "fonts/eaglelake.ttf",
+        font: $FONT,
         angle: s_l.angle
       }
     end
