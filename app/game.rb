@@ -411,6 +411,7 @@ class Game
     end
     # render scene pipeline layers
     outputs.primitives << [l0, l1, l2, l3, l4]
+    
 
     # render pause button
     outputs.primitives << pause_btn if @scene_ref.sc_id != "collection"
