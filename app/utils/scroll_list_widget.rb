@@ -13,6 +13,8 @@ class ScrollListWidget
     @selected_item = nil
     @uid = GameUtils.new_id?
     @frame_index_start_ticks = {}
+
+    @items.each { |item| @frame_index_start_ticks[item.entity_id] = Numeric.rand(0..120) }
   end
 
   def rect
