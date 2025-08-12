@@ -19,6 +19,17 @@ class Game
     @scene_ref = nil
     @collection_scene_ref = nil
     @viewing_collection = false
+    @pause_btn = Button.new(
+      x: 128 + 16 + 8, 
+      y: GTK.args.grid.h - 32,
+      w: 32,
+      h: 32,
+      path: "sprites/pause_button-sheet-4.png",
+      tile_rect: {
+        x: 32, y: 0, w: 32, h: 32
+      },
+      frame_length: 4,
+      text: "")
     @paused_scene_ref = nil
     @paused = false
     @status_effect_list_widget = StatusEffectListWidget.new(x: misc_btn[:x] - 128 + 16, y: GTK.args.grid.h - 64, hover_rect: misc_btn)
@@ -244,13 +255,13 @@ class Game
   end
 
   def handle_pause
+    @pause_btn.tick
     if (
          GTK.args.inputs.keyboard.key_down.escape &&
            @scene_ref.sc_id != "collection"
        ) ||
          (
-           GTK.args.inputs.mouse.click &&
-             Geometry.intersect_rect?(GTK.args.inputs.mouse, pause_btn) &&
+           @pause_btn.clicked? &&
              @scene_ref.sc_id != "collection"
          )
       toggle_pause(paused_scene_ref: @scene_ref)
@@ -414,7 +425,7 @@ class Game
     
 
     # render pause button
-    outputs.primitives << pause_btn if @scene_ref.sc_id != "collection"
+    outputs.primitives << @pause_btn.prefab if @scene_ref.sc_id != "collection"
     if !@viewing_collection && !@paused
       outputs.primitives << [
         @pot_btn_label,
@@ -483,7 +494,6 @@ class Game
       primitive_marker: :sprite
     }
   end
-
   def pause_btn
     f_i = 0.frame_index(count: 4, hold_for: 15, repeat: true)
     {

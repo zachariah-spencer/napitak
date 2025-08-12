@@ -8,7 +8,7 @@ class AlchemyLab < Scene
     @player = $player
     @recipe_book = $recipe_book
     @uses_left = max_uses
-    @max_ingredients = max_ingredients
+    @max_ingredients = 20 # max_ingredients
     @visible_ingredients = {}
     @selected_ingredients = {}
     @visible_potions = {}
@@ -21,6 +21,8 @@ class AlchemyLab < Scene
     @leave_btn_message_a = 0
     @brew_anim_tick = nil
     @brew_completed = false
+    @leave_btn = Button.new(x: GTK.args.grid.w - 64, y: 52, w: 64 + 8, h: 32, text: "#{@leave_btn_text}", background_color: { r: 255, g: 0, b: 0})
+    @brew_btn = Button.new(x: GTK.args.grid.w / 2, y: 128 + 32, w: 96, h: 48, text: "Brew", background_color: { r: 0, g: 255, b: 100})
 
     @from_tutorial =
       !$files.save_data["tutorials"]["alchemy_lab_tutorial"] || tutorial
@@ -52,7 +54,7 @@ class AlchemyLab < Scene
       ScrollListWidget.new(
         items: [],
         x: 16,
-        y: GTK.args.grid.h / 2 - 270,
+        y: GTK.args.grid.h / 2 - 245,
         w: 96,
         h: 500
       )
@@ -60,13 +62,13 @@ class AlchemyLab < Scene
       ScrollListWidget.new(
         items: [],
         x: GTK.args.grid.w - 16 - 96,
-        y: GTK.args.grid.h / 2 - 270,
+        y: GTK.args.grid.h / 2 - 245,
         w: 96,
         h: 500
       )
 
     @prev_loadout_btn =
-      Button.new(x: 128 + 16, y: 32 - 10, w: 64, h: 64, text: "Prev.")
+      Button.new(x: 128 + 48, y: 54, w: 64, h: 64, text: "Prev.")
 
     update_inventories
   end
@@ -305,6 +307,9 @@ class AlchemyLab < Scene
     @visible_potions.each { |id, c| c.tick }
     @selected_ingredients.each { |id, c| c.tick }
     calc
+    @prev_loadout_btn.tick
+    @leave_btn.tick
+    @brew_btn.tick
 
     if @leave_btn_clicked_tick &&
          @leave_btn_clicked_tick.elapsed_time >= 5.0.seconds
@@ -493,19 +498,19 @@ class AlchemyLab < Scene
         primitive_marker: :sprite
       }
 
-      low_panel_debug ||= {
-        x: 0,
-        y: 0,
-        w: GTK.args.grid.w,
-        h: 110,
-        r: 50,
-        g: 50,
-        b: 50,
-        a: 200,
-        primitive_marker: :solid
-      }
+      # low_panel_debug ||= {
+      #   x: 0,
+      #   y: 0,
+      #   w: GTK.args.grid.w,
+      #   h: 110,
+      #   r: 50,
+      #   g: 50,
+      #   b: 50,
+      #   a: 200,
+      #   primitive_marker: :solid
+      # }
 
-      l1 << [low_panel_debug, left_panel_a, right_panel_a]
+      l1 << [left_panel_a, right_panel_a]
       # l1 << [ left_panel_b, right_panel_b,]
       l1 << [@ing_menu_widget.render, @pot_menu_widget.render, generator_cards]
       l1
@@ -530,7 +535,7 @@ class AlchemyLab < Scene
 
       l2 << [
         encounter_label,
-        leave_btn,
+        @leave_btn.prefab,
         potions_label(),
         ingredients_label,
         cards
@@ -540,7 +545,7 @@ class AlchemyLab < Scene
       l3 << [front_card, sel_cards]
       l3
     when 4
-      l4 << [craft_btn] if @craftable_potion
+      l4 << [@brew_btn.prefab] if @craftable_potion
 
       uses_left_label ||= {
         x: 64,
@@ -730,171 +735,118 @@ class AlchemyLab < Scene
     prefabs
   end
 
-  def craft_btn_old
-    GTK.args.outputs[:craft_btn].w = 150
-    GTK.args.outputs[:craft_btn].h = 75
+  # def craft_btn
+  #   craft_btn_frames = 0.frame_index(4, 0.5.seconds, true)
+  #   craft_btn_rect =
+  #     Layout.rect(
+  #       col: Layout.col_count / 2 - 1,
+  #       row: Layout.row_count - 2.25,
+  #       w: 1.5,
+  #       h: 0.75
+  #     )
+# 
+  #   GTK.args.outputs[:craft_btn].w = 96
+  #   GTK.args.outputs[:craft_btn].h = 48
+  #   btn_color = { r: 150, g: 150, b: 150 }
+# 
+  #   GTK.args.outputs[:craft_btn].primitives << craft_btn_rect.merge(
+  #     x: 0,
+  #     y: 0,
+  #     angle: 0,
+  #     path: "sprites/wide_button_frame-sheet-6.png",
+  #     tile_x: 96 * craft_btn_frames,
+  #     tile_y: 0,
+  #     tile_w: 96,
+  #     tile_h: 48,
+  #     r: 255,
+  #     g: 0,
+  #     b: 0,
+  #     primitive_marker: :sprite
+  #   )
+# 
+  #   GTK.args.outputs[:craft_btn].primitives << {
+  #     x: craft_btn_rect[:w] / 2,
+  #     y: craft_btn_rect[:h] / 2 + 6,
+  #     text: "Brew",
+  #     font: $FONT,
+  #     anchor_x: 0.5,
+  #     anchor_y: 0.5,
+  #     r: 255,
+  #     g: 255,
+  #     b: 255,
+  #     size_px: 10
+  #   }
+# 
+  #   GTK.args.outputs[:craft_btn].primitives << {
+  #     x: craft_btn_rect[:w] / 2,
+  #     y: craft_btn_rect[:h] / 2 - 6,
+  #     text: "#{@craftable_potion.data.name}",
+  #     font: $FONT,
+  #     anchor_x: 0.5,
+  #     anchor_y: 0.5,
+  #     r: 255,
+  #     g: 255,
+  #     b: 255,
+  #     size_px: 10
+  #   }
+# 
+  #   craft_btn_rect.merge(
+  #     w: 128,
+  #     h: 64,
+  #     path: :craft_btn,
+  #     primitive_marker: :sprite
+  #   )
+  # end
 
-    GTK.args.outputs[:craft_btn].primitives << {
-      x: 0,
-      y: 0,
-      w: 150,
-      h: 75,
-      angle: 0,
-      r: 0,
-      g: 0,
-      b: 0,
-      primitive_marker: :solid
-    }
-
-    GTK.args.outputs[:craft_btn].primitives << {
-      x: 5,
-      y: 5,
-      w: 140,
-      h: 65,
-      angle: 0,
-      r: 70,
-      g: 70,
-      b: 150,
-      a: 100,
-      primitive_marker: :solid
-    }
-
-    GTK.args.outputs[:craft_btn].primitives << {
-      x: 150 / 2,
-      y: 75 / 2,
-      text: "CRAFT",
-      anchor_x: 0.5,
-      anchor_y: 0.5,
-      r: 255,
-      g: 255,
-      b: 255,
-      size_enum: 3,
-      font: $FONT
-    }
-
-    {
-      x: GTK.args.grid.w / 2 - 75,
-      y: GTK.args.grid.h - 75 - 100,
-      w: 150,
-      h: 75,
-      angle: 0,
-      path: :craft_btn,
-      primitive_marker: :sprite
-    }
-  end
-
-  def craft_btn
-    craft_btn_frames = 0.frame_index(4, 0.5.seconds, true)
-    craft_btn_rect =
-      Layout.rect(
-        col: Layout.col_count / 2 - 1,
-        row: Layout.row_count - 2.25,
-        w: 1.5,
-        h: 0.75
-      )
-
-    GTK.args.outputs[:craft_btn].w = 96
-    GTK.args.outputs[:craft_btn].h = 48
-    btn_color = { r: 150, g: 150, b: 150 }
-
-    GTK.args.outputs[:craft_btn].primitives << craft_btn_rect.merge(
-      x: 0,
-      y: 0,
-      angle: 0,
-      path: "sprites/wide_button_frame-sheet-6.png",
-      tile_x: 96 * craft_btn_frames,
-      tile_y: 0,
-      tile_w: 96,
-      tile_h: 48,
-      r: 255,
-      g: 0,
-      b: 0,
-      primitive_marker: :sprite
-    )
-
-    GTK.args.outputs[:craft_btn].primitives << {
-      x: craft_btn_rect[:w] / 2,
-      y: craft_btn_rect[:h] / 2 + 6,
-      text: "Brew",
-      font: $FONT,
-      anchor_x: 0.5,
-      anchor_y: 0.5,
-      r: 255,
-      g: 255,
-      b: 255,
-      size_px: 10
-    }
-
-    GTK.args.outputs[:craft_btn].primitives << {
-      x: craft_btn_rect[:w] / 2,
-      y: craft_btn_rect[:h] / 2 - 6,
-      text: "#{@craftable_potion.data.name}",
-      font: $FONT,
-      anchor_x: 0.5,
-      anchor_y: 0.5,
-      r: 255,
-      g: 255,
-      b: 255,
-      size_px: 10
-    }
-
-    craft_btn_rect.merge(
-      w: 128,
-      h: 64,
-      path: :craft_btn,
-      primitive_marker: :sprite
-    )
-  end
-
-  def leave_btn
-    leave_btn_frames = 0.frame_index(4, 0.5.seconds, true)
-    leave_btn_rect =
-      Layout.rect(
-        col: Layout.col_count - 1.685,
-        row: Layout.row_count - 0.5,
-        w: 1.5,
-        h: 0.75
-      )
-
-    GTK.args.outputs[:leave_btn].w = 96
-    GTK.args.outputs[:leave_btn].h = 48
-    btn_color = { r: 150, g: 150, b: 150 }
-
-    GTK.args.outputs[:leave_btn].primitives << leave_btn_rect.merge(
-      x: 0,
-      y: 0,
-      angle: 0,
-      path: "sprites/wide_button_frame-sheet-6.png",
-      tile_x: 96 * leave_btn_frames,
-      tile_y: 0,
-      tile_w: 96,
-      tile_h: 48,
-      r: 255,
-      g: 0,
-      b: 0,
-      primitive_marker: :sprite
-    )
-
-    GTK.args.outputs[:leave_btn].primitives << {
-      x: leave_btn_rect[:w] / 2,
-      y: leave_btn_rect[:h] / 2,
-      text: "#{@leave_btn_text}",
-      font: $FONT,
-      anchor_x: 0.5,
-      anchor_y: 0.5,
-      r: 255,
-      g: 255,
-      b: 255,
-      size_px: 22
-    }
-
-    leave_btn_rect.merge(
-      w: 96,
-      h: 48,
-      path: :leave_btn,
-      primitive_marker: :sprite
-    )
-  end
+  # def leave_btn
+  #   leave_btn_frames = 0.frame_index(4, 0.5.seconds, true)
+  #   leave_btn_rect =
+  #     Layout.rect(
+  #       col: Layout.col_count - 1.685,
+  #       row: Layout.row_count - 0.5,
+  #       w: 1.5,
+  #       h: 0.75
+  #     )
+# 
+  #   GTK.args.outputs[:leave_btn].w = 96
+  #   GTK.args.outputs[:leave_btn].h = 48
+  #   btn_color = { r: 150, g: 150, b: 150 }
+# 
+  #   GTK.args.outputs[:leave_btn].primitives << leave_btn_rect.merge(
+  #     x: 0,
+  #     y: 0,
+  #     angle: 0,
+  #     path: "sprites/wide_button_frame-sheet-6.png",
+  #     tile_x: 96 * leave_btn_frames,
+  #     tile_y: 0,
+  #     tile_w: 96,
+  #     tile_h: 48,
+  #     r: 255,
+  #     g: 0,
+  #     b: 0,
+  #     primitive_marker: :sprite
+  #   )
+# 
+  #   GTK.args.outputs[:leave_btn].primitives << {
+  #     x: leave_btn_rect[:w] / 2,
+  #     y: leave_btn_rect[:h] / 2,
+  #     text: "#{@leave_btn_text}",
+  #     font: $FONT,
+  #     anchor_x: 0.5,
+  #     anchor_y: 0.5,
+  #     r: 255,
+  #     g: 255,
+  #     b: 255,
+  #     size_px: 22
+  #   }
+# 
+  #   leave_btn_rect.merge(
+  #     w: 96,
+  #     h: 48,
+  #     path: :leave_btn,
+  #     primitive_marker: :sprite
+  #   )
+  # end
 
   def get_all_card_rects
     rects = []
@@ -940,8 +892,7 @@ class AlchemyLab < Scene
       config_prev_loadout
     end
 
-    if GTK.args.inputs.mouse.click &&
-         Geometry.intersect_rect?(inputs.mouse, leave_btn)
+    if @leave_btn.clicked?
       puts "clicked on leave_btn"
 
       if @from_tutorial
@@ -957,8 +908,7 @@ class AlchemyLab < Scene
       end
     end
 
-    if GTK.args.inputs.mouse.click && @craftable_potion &&
-         Geometry.intersect_rect?(inputs.mouse, craft_btn)
+    if @craftable_potion && @brew_btn.clicked?
       puts "clicked on craft_btn"
       play_brew_anim
     end

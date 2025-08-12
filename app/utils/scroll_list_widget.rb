@@ -12,6 +12,7 @@ class ScrollListWidget
     @hovered_idx = nil
     @selected_item = nil
     @uid = GameUtils.new_id?
+    @frame_index_start_ticks = {}
   end
 
   def rect
@@ -20,6 +21,7 @@ class ScrollListWidget
 
   def add_item(item)
     @items.unshift(item)
+    @frame_index_start_ticks[item.entity_id] = Numeric.rand(0..120)
     item
   end
 
@@ -29,6 +31,7 @@ class ScrollListWidget
 
   def remove_item(item)
     @items.delete(item)
+    @frame_indexes.delete(item.entity_id)
     item
   end
 
@@ -66,9 +69,16 @@ class ScrollListWidget
     GTK.args.outputs[path].w = @width
     GTK.args.outputs[path].h = @height
     # background
-    GTK.args.outputs[path].solids << [0, 0, @width, @height, 0, 0, 0, 160]
+    # GTK.args.outputs[path].solids << [0, 0, @width, @height, 0, 0, 0, 160]
 
     @items.each_with_index do |item, idx|
+      f_i = (Numeric.frame_index(start_at: @frame_index_start_ticks[item.entity_id],
+                              count: 4,
+                              hold_for: 0.5.seconds,
+                              repeat: true))
+
+      puts f_i
+
       local_x = 0
       local_y = @height - ((idx + 1) * @item_height) - @scroll_y
       # skip fully off‐screen rows
@@ -76,14 +86,22 @@ class ScrollListWidget
       next if local_y > @height
 
       # slot
-      color = (@hovered_idx == idx) ? [80, 80, 80] : [100, 100, 100]
-      GTK.args.outputs[path].solids << [
-        local_x + 5,
-        local_y + 5,
-        @width - 10,
-        @item_height - 10,
-        *color
-      ]
+      color = (@hovered_idx == idx) ? [255, 255, 255, 255] : [255, 255, 255, 255]
+      GTK.args.outputs[path].sprites << {
+        x: local_x + 5,
+        y: local_y + 5,
+        w: @width - 10,
+        h: @item_height - 10,
+        r: color[0],
+        g: color[1],
+        b: color[2],
+        a: color[3],
+        path: "sprites/button_frame-128x128-sheet-4.png",
+        tile_x: 128 * f_i,
+        tile_y: 0,
+        tile_w: 128,
+        tile_h: 128
+      }
 
       # label
 
@@ -93,6 +111,9 @@ class ScrollListWidget
           y: local_y + (@item_height / 2) + 34,
           text: item.name,
           size_px: 12,
+          r: 255,
+          g: 255,
+          b: 255,
           font: $FONT,
           alignment_enum: 1
         }
@@ -102,6 +123,9 @@ class ScrollListWidget
           y: local_y + (@item_height / 2) - 22,
           text: "#{item.uses_left}/#{item.max_uses}",
           alignment_enum: 1,
+          r: 255,
+          g: 255,
+          b: 255,
           size_px: 16,
           font: $FONT
         }
@@ -121,6 +145,9 @@ class ScrollListWidget
           text: item.name,
           size_px: 12,
           font: $FONT,
+          r: 255,
+          g: 255,
+          b: 255,
           alignment_enum: 1
         }
         # icon
