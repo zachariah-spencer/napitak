@@ -37,7 +37,10 @@ class Button
   end
 
   def tick
+    hovered_last_tick = @hovered
     @hovered = GTK.args.inputs.mouse.intersect_rect?(rect)
+    $AUDIO_SERVICE.play_sound(:button_hover) if @hovered != hovered_last_tick && @hovered
+    $AUDIO_SERVICE.play_sound(:button_unhover) if @hovered != hovered_last_tick && !@hovered
 
     @anim_speed = @hovered ? 0.1.seconds : 0.5.seconds
     @fw = @hovered ? @hovered_w : @normal_w
@@ -110,7 +113,12 @@ class Button
   end
 
   def clicked?
-    Geometry.intersect_rect?(GTK.args.inputs.mouse, hovered_rect) &&
+    if Geometry.intersect_rect?(GTK.args.inputs.mouse, hovered_rect) &&
       GTK.args.inputs.mouse.click
+      $AUDIO_SERVICE.play_sound(:button_press)
+      true
+    else
+      false
+    end
   end
 end

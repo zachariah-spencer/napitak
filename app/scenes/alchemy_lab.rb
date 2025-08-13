@@ -70,6 +70,8 @@ class AlchemyLab < Scene
     @prev_loadout_btn =
       Button.new(x: 128 + 48, y: 54, w: 64, h: 64, text: "Prev.")
 
+    $AUDIO_SERVICE.play_song(:alchemy_encounter)
+
     update_inventories
   end
 
@@ -951,7 +953,7 @@ class AlchemyLab < Scene
           )
           c_u_m.x = GTK.args.inputs.mouse.x - 80
           c_u_m.y = GTK.args.inputs.mouse.y - 80
-          c_ref.grabbed = true
+          c_ref.grab
         end
       end
 
@@ -974,7 +976,7 @@ class AlchemyLab < Scene
           )
           c_u_m.x = GTK.args.inputs.mouse.x - 80
           c_u_m.y = GTK.args.inputs.mouse.y - 80
-          c_ref.grabbed = true
+          c_ref.grab
         end
       end
 
@@ -1001,7 +1003,7 @@ class AlchemyLab < Scene
           )
           c_u_m.x = GTK.args.inputs.mouse.x - 80
           c_u_m.y = GTK.args.inputs.mouse.y - 80
-          c_ref.grabbed = true
+          c_ref.grab
           draw_card(c_ref)
         end
       end
@@ -1013,7 +1015,7 @@ class AlchemyLab < Scene
       c_ref =
         @visible_ingredients[card_id] || @selected_ingredients[card_id] ||
           @visible_potions[card_id]
-      c_ref.grabbed = true
+      c_ref.grab
 
       reorder_cards(c_ref)
 
@@ -1038,6 +1040,7 @@ class AlchemyLab < Scene
              !GameUtils.is_potion(c_ref.id)
         @ing_menu_widget.add_item(c_ref)
         @visible_ingredients.reject! { |id, c| c == c_ref }
+        $AUDIO_SERVICE.play_sound(:bag_insert)
         update_inventories
 
         if @from_tutorial && !@tutorial_steps[:starting_ingredients_packed] &&
@@ -1061,6 +1064,7 @@ class AlchemyLab < Scene
         c_ref.free_floating = false
         @pot_menu_widget.add_item(c_ref)
         @visible_potions.reject! { |id, c| c == c_ref }
+        $AUDIO_SERVICE.play_sound(:bag_insert)
         update_inventories
       end
 

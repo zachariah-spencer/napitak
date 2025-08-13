@@ -87,6 +87,7 @@ class Card
     @tt_f_a = 0
     @needs_removed = false
     @activation_time = 0.0
+    @free_floating = false
     calc_render_target GTK.args
   end
 
@@ -97,11 +98,17 @@ class Card
     @h = 0
   end
 
+  def grab
+    @grabbed = true
+    $AUDIO_SERVICE.play_sound(:card_grab)
+  end
+
   def mark_for_removal
     @marked_for_removal = true
   end
 
   def tick()
+    
     calc_hover
     calc_render_target(GTK.args)
 
@@ -184,7 +191,7 @@ class Card
     card_sprite_frame =
       0.frame_index(
         count: 4,
-        hold_for: 30,
+        hold_for: @hovered ? 10 : 30,
         repeat: true,
         repeat_index: 0,
         tick_count_override: Kernel.tick_count
@@ -231,23 +238,23 @@ class Card
     }
 
     args.outputs[@card_composite_sprite_ref].primitives << {
-      x: @w / 2,
-      y: @h / 1.25,
-      text: "#{@name}",
-      anchor_x: 0.5,
-      anchor_y: 0.5,
-      r: 255,
-      g: 255,
-      b: 255,
-      size_px: 20,
-      a: prefab_alpha,
-      font: $FONT
-    }
+        x: @w / 2,
+        y: @h / 1.25,
+        text: "#{@name}",
+        anchor_x: 0.5,
+        anchor_y: 0.5,
+        r: 255,
+        g: 255,
+        b: 255,
+        size_px: @free_floating ? 16 : 20,
+        a: prefab_alpha,
+        font: $FONT
+      }
 
     if GameUtils.is_potion(self.id)
       args.outputs[@card_composite_sprite_ref].primitives << {
         x: @w / 2 - 8,
-        y: 12 + 8,
+        y: @free_floating ? 12 : 20,
         w: 16,
         h: 16,
         angle: 0,
@@ -258,28 +265,28 @@ class Card
       if @focus_mod == 0
         args.outputs[@card_composite_sprite_ref].primitives << {
           x: 24,
-          y: 28,
+          y: @free_floating ? 20 : 28,
           text: "#{@fc}",
           anchor_x: 0.5,
           anchor_y: 0.5,
           r: 0,
           g: 150,
           b: 150,
-          size_px: 26,
+          size_px: @free_floating ? 16 : 26,
           a: prefab_alpha,
           font: $FONT
         }
       else
         args.outputs[@card_composite_sprite_ref].primitives << {
           x: 24,
-          y: 28,
+          y: @free_floating ? 20 : 28,
           text: "#{@fc + @focus_mod}",
           anchor_x: 0.5,
           anchor_y: 0.5,
           r: 0,
           g: 255,
           b: 130,
-          size_px: 26,
+          size_px: @free_floating ? 16 : 26,
           a: prefab_alpha,
           font: $FONT
         }
@@ -287,14 +294,14 @@ class Card
 
       args.outputs[@card_composite_sprite_ref].primitives << {
         x: @w - 16 - 12,
-        y: 28,
+        y: @free_floating ? 20 : 28,
         text: "#{@uses_left}/#{@max_uses}",
         anchor_x: 0.5,
         anchor_y: 0.5,
         r: 200,
         g: 100,
         b: 200,
-        size_px: 18,
+        size_px: @free_floating ? 16 : 18,
         a: prefab_alpha,
         font: $FONT
       }

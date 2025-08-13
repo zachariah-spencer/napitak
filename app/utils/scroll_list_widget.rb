@@ -80,8 +80,6 @@ class ScrollListWidget
                               hold_for: 0.5.seconds,
                               repeat: true))
 
-      puts f_i
-
       local_x = 0
       local_y = @height - ((idx + 1) * @item_height) - @scroll_y
       # skip fully off‐screen rows

@@ -2,6 +2,7 @@ class AudioService
   def initialize()
     $AUDIO_SERVICE = self
     @playing_sounds = []
+    @current_song = nil
     @sounds = {
       open_book: {
         input: "sounds/sfx/book/book_open.wav",
@@ -29,7 +30,7 @@ class AudioService
       },
       card_unhover: {
         input: "sounds/sfx/card/SFX_Card5.wav",
-        gain: 0.3,
+        gain: 0.2,
         pitch: 0.8
       },
       card_draw: {
@@ -61,36 +62,134 @@ class AudioService
       },
       bag_insert: {
         input: "sounds/sfx/bag_insert.wav",
-        gain: 1,
-        pitch: 1
+        gain: 0.2,
+        pitch: 1.15
       },
       bag_remove: {
         input: "sounds/sfx/bag_remove.wav",
-        gain: 1,
-        pitch: 1
+        gain: 0.3,
+        pitch: 1.15
+      },
+      hover_ingredient_generator: {
+        input: "sounds/sfx/hover_ingredient_generator.wav",
+        gain: 0.3,
+        pitch: 1.25
+      },
+      unhover_ingredient_generator: {
+        input: "sounds/sfx/hover_ingredient_generator.wav",
+        gain: 0.08,
+        pitch: 1.15
+      },
+      card_grab: {
+        input: "sounds/sfx/card/card_grab.wav",
+        gain: 0.4,
+        pitch: 1.0
+      },
+      button_press: {
+        input: "sounds/sfx/button_press.wav",
+        gain: 0.1,
+      },
+      button_hover: {
+        input: "sounds/sfx/button_hover.wav",
+        gain: 0.25,
+        pitch: 1.2
+      },
+      button_unhover: {
+        input: "sounds/sfx/button_hover.wav",
+        gain: 0.15,
+      },
+    
+    }
+
+    @songs = {
+      alchemy_encounter: {
+        input: "sounds/music/alchemy_encounter.mp3",
+        looping: true,
+        gain: 0.09
+      },
+      combat_encounter: {
+        input: "sounds/music/combat_encounter.mp3",
+        looping: true,
+        gain: 0.09
       }
     }
   end
 
-  def play_sound(sound)
-    if !@sounds[sound]
-      raise "ERROR: Sound not found in AudioService sounds hash."
+  def play_song(song)
+    if !@current_song
+      GTK.args.audio[:bg_music] = @songs[song]
+    else
+      transition_songs(song)
     end
-    sound_id_string = sound.to_s
-    sound_id_num = 0
-    @playing_sounds.each do |s|
-      sound_id_num += 1 if s.include?(sound_id_string)
-    end
-    sound_id_string += sound_id_num.to_s
-    sound_id_hash = @sounds[sound].merge(id: sound_id_string)
-    @playing_sounds << sound_id_string
-    GTK.args.audio[sound_id_string.to_sym] = sound_id_hash
-    puts "PLAYING SOUNDS: #{@playing_sounds}"
+    @current_song = song
+  end
+
+  def transition_songs(next_song)
+     # get the current bg music and create a new audio entry that represents the crossfade
+    current_bg_music = GTK.args.audio[:bg_music]
+
+    # cross fade audio entry
+    GTK.args.audio[:bg_music_fade] = {
+      input:    current_bg_music[:input],
+      looping:  true,
+      gain:     current_bg_music[:gain],
+      pitch:    current_bg_music[:pitch],
+      paused:   false,
+      playtime: current_bg_music[:playtime]
+    }
+
+    # replace the current playing background music (toggling between bg-1.ogg and bg-2.ogg)
+    # set the gain/volume to 0.0 (this will be increased to 1.0 accross ticks)
+    new_background_music = { looping: true, gain: 0.0 }
+
+    # determine track to play (swap between bg-1 and bg-2)
+    new_background_music[:input] = @songs[next_song].input
+
+    # bg music audio entry
+    GTK.args.audio[:bg_music] = new_background_music
   end
 
   def tick
     @playing_sounds.reject! do |psid|
       GTK.args.audio.none? { |id, s| id == psid }
     end
+    
+    process_crossfades
+
+  end
+
+  def process_crossfades
+    if GTK.args.audio[:bg_music] && GTK.args.audio[:bg_music].gain < @songs[@current_song].gain
+      # increase the gain 1% every tick until we are at 100%
+      GTK.args.audio[:bg_music].gain += 0.007
+      # clamp value to 1.0 max value
+      GTK.args.audio[:bg_music].gain = @songs[@current_song].gain if GTK.args.audio[:bg_music].gain > @songs[@current_song].gain
+    end
+
+    # decrease the volume of cross fade bg music until it's 0.0, then delete it
+    if GTK.args.audio[:bg_music_fade] && GTK.args.audio[:bg_music_fade].gain > 0.0
+      # decrease by 1% every frame
+      GTK.args.audio[:bg_music_fade].gain -= 0.007
+      # delete audio when it's at 0%
+      if GTK.args.audio[:bg_music_fade].gain <= 0.0
+        GTK.args.audio[:bg_music_fade] = nil
+      end
+    end
+  end
+
+  def play_sound(sound, rand_pitch: false)
+    raise "ERROR: Sound not found in AudioService sounds hash." if !@sounds[sound]
+
+    sound_id_string = sound.to_s
+    sound_id_num = 0
+    @playing_sounds.each { |s| sound_id_num += 1 if s.include?(sound_id_string) }
+
+    sound_id_string += sound_id_num.to_s
+    sound_id_hash = @sounds[sound].merge(id: sound_id_string)
+
+    sound_id_hash[:pitch] = Numeric.rand(0.9..1.25) if rand_pitch
+
+    @playing_sounds << sound_id_string
+    GTK.args.audio[sound_id_string.to_sym] = sound_id_hash
   end
 end

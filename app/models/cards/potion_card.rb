@@ -62,8 +62,8 @@ class PotionCard < Card
           @fw = 200
           @fh = 200
         else
-          @fw = 160
-          @fh = 160
+          @fw = 120
+          @fh = 120
           @f_pos.x =
             @f_pos.x +
               (Math.cos(@floating_seed + Kernel.tick_count * 0.01) * 0.15)

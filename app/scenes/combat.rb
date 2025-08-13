@@ -43,10 +43,12 @@ class Combat < Scene
     @dealing_tick = nil
     @dealing_time = 1.seconds
     $AUDIO_SERVICE.play_sound(:cards_shuffle)
+    $AUDIO_SERVICE.play_song(:combat_encounter)
     puts @hand_manager.hand
   end
 
   def ready
+    
     @tutorial_service.handle_combat_start
   end
 
