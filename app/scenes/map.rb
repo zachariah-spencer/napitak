@@ -47,7 +47,7 @@ class Map < Scene
     choice_cards ||= []
 
     count = @choices.size
-    spacing = 256 - 32
+    spacing = 256 - 16
     center = GTK.args.grid.w / 2
 
     # total span from first to last card

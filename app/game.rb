@@ -34,7 +34,7 @@ class Game
     @paused = false
     @status_effect_list_widget = StatusEffectListWidget.new(x: misc_btn[:x] - 128 + 16, y: GTK.args.grid.h - 64, hover_rect: misc_btn)
     @pot_col_btn = {
-      x: GTK.args.grid.w / 2 - 16 + 300,
+      x: GTK.args.grid.w / 2 - 16 + 300 + 22,
       y: GTK.args.grid.h - 32,
       w: 32,
       h: 32,
@@ -52,7 +52,7 @@ class Game
       path: "sprites/fire.png"
     }
     @pot_btn_label = {
-      x: GTK.args.grid.w / 2 - 16 + 300,
+      x: GTK.args.grid.w / 2 - 16 + 300 + 22,
       y: GTK.args.grid.h - 80,
       anchor_x: 0.5,
       anchor_y: 0.5,
@@ -514,7 +514,7 @@ class Game
   def hp_label
     f_i = 0.frame_index(count: 4, hold_for: 15, repeat: true)
     icon = {
-      x: GTK.args.grid.w / 2 - 32 - 96,
+      x: GTK.args.grid.w / 2 - 32 - 96 + 16,
       y: GTK.args.grid.h - 16 - 32,
       w: 32,
       h: 32,
@@ -529,7 +529,7 @@ class Game
     }
 
     label = {
-      x: GTK.args.grid.w / 2 - 32 - 80,
+      x: GTK.args.grid.w / 2 - 32 - 80 + 16,
       y: GTK.args.grid.h - 32,
       size_px: 22,
       font: $FONT,
@@ -548,7 +548,7 @@ class Game
   def focus_label
     f_i = 0.frame_index(count: 4, hold_for: 15, repeat: true)
     icon = {
-      x: GTK.args.grid.w / 2 - 32 + 96,
+      x: GTK.args.grid.w / 2 - 32 + 96 + 16,
       y: GTK.args.grid.h - 16 - 32,
       w: 32,
       h: 32,
@@ -563,7 +563,7 @@ class Game
     }
 
     label = {
-      x: GTK.args.grid.w / 2 + 32 + 48,
+      x: GTK.args.grid.w / 2 + 32 + 48 + 16,
       y: GTK.args.grid.h - 32,
       size_px: 18,
       font: $FONT,

@@ -8,7 +8,7 @@ class AlchemyLab < Scene
     @player = $player
     @recipe_book = $recipe_book
     @uses_left = max_uses
-    @max_ingredients = 20 # max_ingredients
+    @max_ingredients = max_ingredients
     @visible_ingredients = {}
     @selected_ingredients = {}
     @visible_potions = {}
@@ -938,6 +938,7 @@ class AlchemyLab < Scene
       puts "Clicked: #{clicked.name}"
       new_card = @pot_menu_widget.remove_item(clicked)
       puts new_card
+      $AUDIO_SERVICE.play_sound(:bag_remove)
       if new_card
         c_ref = draw_card(new_card)
         if c_ref
@@ -961,6 +962,7 @@ class AlchemyLab < Scene
     if clicked = @ing_menu_widget.pop_clicked
       puts "Clicked: #{clicked.name}"
       new_card = @ing_menu_widget.remove_item(clicked)
+      $AUDIO_SERVICE.play_sound(:bag_remove)
       if new_card
         c_ref = draw_card(new_card)
         if c_ref

@@ -58,6 +58,16 @@ class AudioService
         input: "sounds/sfx/brew_action_completed.wav",
         gain: 0.5,
         pitch: 1
+      },
+      bag_insert: {
+        input: "sounds/sfx/bag_insert.wav",
+        gain: 1,
+        pitch: 1
+      },
+      bag_remove: {
+        input: "sounds/sfx/bag_remove.wav",
+        gain: 1,
+        pitch: 1
       }
     }
   end

@@ -33,7 +33,7 @@ class ScrollListWidget
 
   def remove_item(item)
     @items.delete(item)
-    @frame_indexes.delete(item.entity_id)
+    @frame_index_start_ticks.delete(item.entity_id)
     item
   end
 
@@ -74,7 +74,8 @@ class ScrollListWidget
     # GTK.args.outputs[path].solids << [0, 0, @width, @height, 0, 0, 0, 160]
 
     @items.each_with_index do |item, idx|
-      f_i = (Numeric.frame_index(start_at: @frame_index_start_ticks[item.entity_id],
+      start = @frame_index_start_ticks[item.entity_id] ||= Kernel.tick_count
+      f_i = (Numeric.frame_index(start_at: start,
                               count: 4,
                               hold_for: 0.5.seconds,
                               repeat: true))

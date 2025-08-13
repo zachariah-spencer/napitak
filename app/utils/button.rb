@@ -54,6 +54,10 @@ class Button
     [@x - (@w / 2), @y - (@h / 2), @w, @h]
   end
 
+  def hovered_rect
+    [@x - (@fw / 2), @y - (@fh / 2), @fw, @fh]
+  end
+
   def prefab
     f_i = 0.frame_index(start_at: @rand_seed,
                               count: @frame_length,
@@ -106,7 +110,7 @@ class Button
   end
 
   def clicked?
-    Geometry.intersect_rect?(GTK.args.inputs.mouse, rect) &&
+    Geometry.intersect_rect?(GTK.args.inputs.mouse, hovered_rect) &&
       GTK.args.inputs.mouse.click
   end
 end
