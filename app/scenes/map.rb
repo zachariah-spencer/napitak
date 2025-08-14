@@ -29,6 +29,8 @@ class Map < Scene
         y: GTK.args.grid.h / 2 - 112.5
       )
     end
+
+    $AUDIO_SERVICE.play_song(:map_encounter)
   end
 
   def tick

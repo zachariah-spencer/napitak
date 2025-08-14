@@ -111,7 +111,12 @@ class AudioService
         input: "sounds/music/combat_encounter.mp3",
         looping: true,
         gain: 0.09
-      }
+      },
+      map_encounter: {
+        input: "sounds/music/map_encounter.wav",
+        looping: true,
+        gain: 0.09
+      },
     }
   end
 
@@ -127,16 +132,23 @@ class AudioService
   def transition_songs(next_song)
      # get the current bg music and create a new audio entry that represents the crossfade
     current_bg_music = GTK.args.audio[:bg_music]
+    puts "CURR PLAYTIME #{GTK.args.audio[:bg_music].playtime}"
 
     # cross fade audio entry
-    GTK.args.audio[:bg_music_fade] = {
-      input:    current_bg_music[:input],
-      looping:  true,
-      gain:     current_bg_music[:gain],
-      pitch:    current_bg_music[:pitch],
-      paused:   false,
-      playtime: current_bg_music[:playtime]
-    }
+    # GTK.args.audio[:bg_music_fade] = {
+    #   input:    current_bg_music[:input],
+    #   looping:  true,
+    #   gain:     current_bg_music[:gain],
+    #   pitch:    current_bg_music[:pitch],
+    #   paused:   false,
+    #   playtime: current_bg_music[:playtime]
+    # }
+
+    if GTK.args.audio[:bg_music]
+      GTK.args.audio[:bg_music_fade] = GTK.args.audio[:bg_music]
+    end
+
+    puts "CURR PLAYTIME FOR FADE #{GTK.args.audio[:bg_music_fade][:playtime]}"
 
     # replace the current playing background music (toggling between bg-1.ogg and bg-2.ogg)
     # set the gain/volume to 0.0 (this will be increased to 1.0 accross ticks)
@@ -168,8 +180,10 @@ class AudioService
 
     # decrease the volume of cross fade bg music until it's 0.0, then delete it
     if GTK.args.audio[:bg_music_fade] && GTK.args.audio[:bg_music_fade].gain > 0.0
+      puts "CURR PLAYTIME FOR FADE NEXT TICKS #{GTK.args.audio[:bg_music_fade][:playtime]}"
+      
       # decrease by 1% every frame
-      GTK.args.audio[:bg_music_fade].gain -= 0.007
+      GTK.args.audio[:bg_music_fade].gain -= 0.0008
       # delete audio when it's at 0%
       if GTK.args.audio[:bg_music_fade].gain <= 0.0
         GTK.args.audio[:bg_music_fade] = nil
