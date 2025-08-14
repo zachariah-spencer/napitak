@@ -5,6 +5,10 @@ class Map < Scene
     @sc_id = "map"
 
     @choices = []
+    @selection = nil
+    @selected_card_ref = nil
+    @selection_made_tick = false
+    @selection_handled = false
     @encounter_manager = $encounter_manager
     if $files.save_data["scene"] == "map" and $files.save_data["map_layer"] != 1
       choice_ids = $files.save_data["map_choices"]
@@ -35,23 +39,47 @@ class Map < Scene
 
   def tick
     calc_input if !$game.input_locked
-
+    handle_selection_animation if @selection_made_tick
     @choices.each { |c| c.tick }
   end
 
   def calc_input
     @choices.each do |c|
-      if (clicked = c.pop_clicked)
-        if $ENCOUNTERS[clicked[:id]].is_combat
+      if (c.selected)
+        @selection = c.pop_clicked
+        @selected_card_ref = c
+        @selection_made_tick = Kernel.tick_count
+        $game.input_locked = true
+      end
+    end
+  end
+
+  def handle_selection_animation
+    @choices.each do |c|
+      c.fade_out if c != @selected_card_ref
+
+      if c == @selected_card_ref && @selection_made_tick.elapsed_time >= 0.1.seconds
+        c.fw = 300
+        c.fh = 300
+        c.f_pos.x = GTK.args.grid.w / 2 - (c.fw / 2)
+        c.f_pos.y = GTK.args.grid.h / 2 - (c.fh / 2)
+      end
+    end
+
+    handle_selection if @selection_made_tick.elapsed_time >= 1.0.seconds && !@selection_handled
+  end
+
+  def handle_selection
+    @selection_handled = true
+    
+    if $ENCOUNTERS[@selection[:id]].is_combat
           $game.change_scene(
             prev_sc: "map",
             next_scene: "combat",
-            args: [clicked[:id]]
+            args: [@selection[:id]]
           )
         else
-          $game.change_scene(prev_sc: "map", next_scene: clicked[:id])
-        end
-      end
+          $game.change_scene(prev_sc: "map", next_scene: @selection[:id])
     end
   end
 

@@ -6,6 +6,13 @@ class EncounterCard < Card
   def initialize(id)
     super(id, GameUtils.new_id?, $ENCOUNTERS[id].name, 0, $ENCOUNTERS[id].path)
     @selected = nil
+    @a = 255
+    @fading = false
+    @is_selected = false
+  end
+
+  def fade_out
+    @fading = true
   end
 
   def tick
@@ -17,10 +24,23 @@ class EncounterCard < Card
     end
     calc_position(-1, -1)
     calc_render_target(GTK.args)
+
+    @a -= 15 if @fading
   end
 
   def calc_hover
+    hovered_last_tick = @hovered
     @hovered = Geometry.intersect_rect?(GTK.args.inputs.mouse, rect)
+    calc_hover_audio(hovered_last_tick)
+  end
+
+  def calc_hover_audio(was_hovered)
+    if was_hovered != @hovered && @hovered && !@grabbed
+      $AUDIO_SERVICE.play_sound(:card_hover)
+    end
+    if was_hovered != @hovered && !@hovered && !@grabbed
+      $AUDIO_SERVICE.play_sound(:card_unhover)
+    end
   end
 
   def calc_click
@@ -30,11 +50,14 @@ class EncounterCard < Card
        )
       puts "#{@entity_id} || #{@name} : was clicked"
       @selected = { id: @id, data: $ENCOUNTERS[@id] }
+      $AUDIO_SERVICE.play_sound(:encounter_selected)
+      $AUDIO_SERVICE.play_sound(:card_grab)
     end
   end
 
   def pop_clicked
     encounter = @selected
+    @is_selected = true
     @selected = nil
     encounter
   end
@@ -45,6 +68,7 @@ class EncounterCard < Card
         y: @pos.y,
         w: @w,
         h: @h,
+        a: @a,
         angle: @angle,
         path: @card_composite_sprite_ref,
         primitive_marker: :sprite
@@ -56,15 +80,20 @@ class EncounterCard < Card
   end
 
   def calc_position(num_cards, index)
-    if @hovered
-      @fw = 230
-      @fh = 230
-    else
-      @fw = 190
-      @fh = 190
+    if !@hovered
       @f_pos.y =
         @f_pos.y + (Math.sin(@floating_seed + Kernel.tick_count * 0.01) * 0.15)
       @f_angle = Math.sin(@floating_seed + Kernel.tick_count * 0.005) * 2
+    end
+
+    if !@fading && !@is_selected
+      if @hovered
+        @fw = 230
+        @fh = 230
+      else
+        @fw = 190
+        @fh = 190
+      end
     end
 
     super
@@ -75,7 +104,7 @@ class EncounterCard < Card
     card_sprite_frame =
       0.frame_index(
         count: 4,
-        hold_for: 30,
+        hold_for: @hovered ? 8 : 30,
         repeat: true,
         repeat_index: 0,
         tick_count_override: Kernel.tick_count

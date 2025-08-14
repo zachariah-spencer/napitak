@@ -60,6 +60,11 @@ class AudioService
         gain: 0.5,
         pitch: 1
       },
+      encounter_selected: {
+        input: "sounds/sfx/brew_action_completed.wav",
+        gain: 0.75,
+        pitch: 0.2
+      },
       bag_insert: {
         input: "sounds/sfx/bag_insert.wav",
         gain: 0.2,
@@ -132,7 +137,6 @@ class AudioService
   def transition_songs(next_song)
      # get the current bg music and create a new audio entry that represents the crossfade
     current_bg_music = GTK.args.audio[:bg_music]
-    puts "CURR PLAYTIME #{GTK.args.audio[:bg_music].playtime}"
 
     # cross fade audio entry
     # GTK.args.audio[:bg_music_fade] = {
@@ -147,8 +151,6 @@ class AudioService
     if GTK.args.audio[:bg_music]
       GTK.args.audio[:bg_music_fade] = GTK.args.audio[:bg_music]
     end
-
-    puts "CURR PLAYTIME FOR FADE #{GTK.args.audio[:bg_music_fade][:playtime]}"
 
     # replace the current playing background music (toggling between bg-1.ogg and bg-2.ogg)
     # set the gain/volume to 0.0 (this will be increased to 1.0 accross ticks)
@@ -180,7 +182,6 @@ class AudioService
 
     # decrease the volume of cross fade bg music until it's 0.0, then delete it
     if GTK.args.audio[:bg_music_fade] && GTK.args.audio[:bg_music_fade].gain > 0.0
-      puts "CURR PLAYTIME FOR FADE NEXT TICKS #{GTK.args.audio[:bg_music_fade][:playtime]}"
       
       # decrease by 1% every frame
       GTK.args.audio[:bg_music_fade].gain -= 0.0008
