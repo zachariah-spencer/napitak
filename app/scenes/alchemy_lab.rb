@@ -21,8 +21,33 @@ class AlchemyLab < Scene
     @leave_btn_message_a = 0
     @brew_anim_tick = nil
     @brew_completed = false
-    @leave_btn = Button.new(x: GTK.args.grid.w - 64, y: 52, w: 64 + 8, h: 32, text: "#{@leave_btn_text}", background_color: { r: 255, g: 0, b: 0})
-    @brew_btn = Button.new(x: GTK.args.grid.w / 2, y: 128 + 32, w: 96, h: 48, text: "Brew", background_color: { r: 0, g: 255, b: 100})
+    @leave_btn =
+      Button.new(
+        x: GTK.args.grid.w - 64,
+        y: 52,
+        w: 64 + 8,
+        h: 32,
+        text: "#{@leave_btn_text}",
+        background_color: {
+          r: 255,
+          g: 0,
+          b: 0
+        }
+      )
+    @brew_btn =
+      Button.new(
+        x: GTK.args.grid.w / 2,
+        y: 128 + 32,
+        w: 96,
+        h: 48,
+        text: "Brew",
+        background_color: {
+          r: 0,
+          g: 255,
+          b: 100
+        }
+      )
+    @selection_squares = []
 
     @from_tutorial =
       !$files.save_data["tutorials"]["alchemy_lab_tutorial"] || tutorial
@@ -101,7 +126,6 @@ class AlchemyLab < Scene
         @brew_anim_tick = nil
         $game.input_locked = false
       else
-
       end
     end
   end
@@ -112,14 +136,14 @@ class AlchemyLab < Scene
       on_brew_anim_completed if frames == 13 && !@brew_completed
 
       puts "FRAMES: #{frames}"
-      
+
       puts "sprites/brew-anim/brew_anim#{frames + 1}.png"
       {
         x: 0,
         y: 0,
         w: 1280,
         h: 720,
-        path: "sprites/brew-anim/brewanim#{frames + 1}.png",
+        path: "sprites/brew-anim/brewanim#{frames + 1}.png"
       }
     end
   end
@@ -162,24 +186,25 @@ class AlchemyLab < Scene
          recipe_id,
          ingredients_inventory: @ingredients_on_screen.all_cards
        )
-      
       $AUDIO_SERVICE.play_sound(:brew_action_completed)
       potion =
         @recipe_book.craft(
           recipe_id,
           ingredients_inventory: @ingredients_on_screen.all_cards
         )
+      @selected_ingredients.each do |id, c|
+        remove_selection_square(followed_card: c)
+      end
       @selected_ingredients.clear
 
       potion.instant_set_position(
-          x: GTK.args.grid.w / 2 - (potion.w / 2),
-          y: GTK.args.grid.h / 2 - (potion.h / 2)
-        )
-
+        x: GTK.args.grid.w / 2 - (potion.w / 2),
+        y: GTK.args.grid.h / 2 - (potion.h / 2)
+      )
 
       if !GameUtils.is_potion(potion.id)
         @visible_ingredients[potion.entity_id] = potion
-        @ingredients_on_screen.add(potion) 
+        @ingredients_on_screen.add(potion)
       else
         potion.free_floating = true
         @visible_potions[potion.entity_id] = potion
@@ -234,8 +259,9 @@ class AlchemyLab < Scene
   end
 
   def calc_selected_positions
-    spacing = 16
-    half_total_width = (@selected_ingredients.keys.length * (150 + spacing)) / 2.0
+    spacing = 24
+    half_total_width =
+      (@selected_ingredients.keys.length * (150 + spacing)) / 2.0
     start_x = GTK.args.grid.w / 2 - half_total_width
     @selected_ingredients.each_with_index do |(id, card), i|
       card.f_pos.y = 400
@@ -248,10 +274,7 @@ class AlchemyLab < Scene
     start_x = center_x - half_total_width
 
     elements.each_with_index.map do |el, i|
-      {
-        element: el,
-        x: start_x + (i * element_width + spacing)
-      }
+      { element: el, x: start_x + (i * element_width + spacing) }
     end
   end
 
@@ -462,12 +485,11 @@ class AlchemyLab < Scene
         y: 0,
         w: 1280,
         h: 720,
-        r: 50,
-        g: 50,
-        b: 50,
-        a: 200,
-        path:
-          "sprites/background_frames/sketchybackground#{bg_tile_index + 1}.png"
+        r: 255,
+        g: 255,
+        b: 255,
+        a: 80,
+        path: "sprites/alchemy_table_bg.png"
       }
 
       l0 << [background_solid, background]
@@ -542,6 +564,21 @@ class AlchemyLab < Scene
         ingredients_label,
         cards
       ]
+
+      @selection_squares.each do |square|
+        f_i =
+          Numeric.frame_index(
+            start_at: square.start_tick,
+            count: 4,
+            hold_for: 10,
+            repeat: true
+          )
+        l2 << selection_square_prefab(
+          x: square.card_to_follow.pos.x,
+          y: square.card_to_follow.pos.y,
+          f_i: f_i
+        )
+      end
       l2
     when 3
       l3 << [front_card, sel_cards]
@@ -746,11 +783,11 @@ class AlchemyLab < Scene
   #       w: 1.5,
   #       h: 0.75
   #     )
-# 
+  #
   #   GTK.args.outputs[:craft_btn].w = 96
   #   GTK.args.outputs[:craft_btn].h = 48
   #   btn_color = { r: 150, g: 150, b: 150 }
-# 
+  #
   #   GTK.args.outputs[:craft_btn].primitives << craft_btn_rect.merge(
   #     x: 0,
   #     y: 0,
@@ -765,7 +802,7 @@ class AlchemyLab < Scene
   #     b: 0,
   #     primitive_marker: :sprite
   #   )
-# 
+  #
   #   GTK.args.outputs[:craft_btn].primitives << {
   #     x: craft_btn_rect[:w] / 2,
   #     y: craft_btn_rect[:h] / 2 + 6,
@@ -778,7 +815,7 @@ class AlchemyLab < Scene
   #     b: 255,
   #     size_px: 10
   #   }
-# 
+  #
   #   GTK.args.outputs[:craft_btn].primitives << {
   #     x: craft_btn_rect[:w] / 2,
   #     y: craft_btn_rect[:h] / 2 - 6,
@@ -791,7 +828,7 @@ class AlchemyLab < Scene
   #     b: 255,
   #     size_px: 10
   #   }
-# 
+  #
   #   craft_btn_rect.merge(
   #     w: 128,
   #     h: 64,
@@ -809,11 +846,11 @@ class AlchemyLab < Scene
   #       w: 1.5,
   #       h: 0.75
   #     )
-# 
+  #
   #   GTK.args.outputs[:leave_btn].w = 96
   #   GTK.args.outputs[:leave_btn].h = 48
   #   btn_color = { r: 150, g: 150, b: 150 }
-# 
+  #
   #   GTK.args.outputs[:leave_btn].primitives << leave_btn_rect.merge(
   #     x: 0,
   #     y: 0,
@@ -828,7 +865,7 @@ class AlchemyLab < Scene
   #     b: 0,
   #     primitive_marker: :sprite
   #   )
-# 
+  #
   #   GTK.args.outputs[:leave_btn].primitives << {
   #     x: leave_btn_rect[:w] / 2,
   #     y: leave_btn_rect[:h] / 2,
@@ -841,7 +878,7 @@ class AlchemyLab < Scene
   #     b: 255,
   #     size_px: 22
   #   }
-# 
+  #
   #   leave_btn_rect.merge(
   #     w: 96,
   #     h: 48,
@@ -1106,6 +1143,7 @@ class AlchemyLab < Scene
   def unselect_cards(c = nil)
     if c
       move_card(c, @visible_ingredients, @selected_ingredients)
+      remove_selection_square(followed_card: c)
     else
       @selected_ingredients.each { |id, c| toggle_card_selected(c) }
     end
@@ -1127,14 +1165,45 @@ class AlchemyLab < Scene
       end
       if !c.selected
         $AUDIO_SERVICE.play_sound(:select_card)
+        add_selection_square(card_to_follow: c)
         move_card(c, @selected_ingredients, @visible_ingredients)
         c.calc_render_target(GTK.args)
       else
         $AUDIO_SERVICE.play_sound(:unselect_card)
+        remove_selection_square(followed_card: c)
         move_card(c, @visible_ingredients, @selected_ingredients)
         c.calc_render_target(GTK.args)
       end
     end
+  end
+
+  def add_selection_square(card_to_follow:)
+    @selection_squares << {
+      card_to_follow: card_to_follow,
+      start_tick: Numeric.rand(-180..0)
+    }
+  end
+
+  def remove_selection_square(followed_card:)
+    @selection_squares.reject! do |square|
+      square.card_to_follow == followed_card
+    end
+  end
+
+  def selection_square_prefab(x:, y:, f_i:)
+    puts "FRAME_INDEX: #{f_i}"
+    {
+      x: x - 8,
+      y: y - 12,
+      w: 170,
+      h: 170,
+      a: 255,
+      path: "sprites/selected_card_outline-sheet-4.png",
+      tile_x: 1024 * f_i,
+      tile_y: 0,
+      tile_w: 1024,
+      tile_h: 1024
+    }
   end
 
   def move_card(c, to, from)

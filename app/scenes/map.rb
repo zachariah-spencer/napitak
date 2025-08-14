@@ -13,6 +13,22 @@ class Map < Scene
     else
       @choices = @encounter_manager.next_choices?
     end
+
+    count = @choices.size
+    spacing = 256 - 16
+    center = GTK.args.grid.w / 2
+
+    # total span from first to last card
+    total_span = spacing * (count - 1)
+    # x-coordinate of the first card
+    start_x = center - (total_span / 2.0)
+
+    @choices.each_with_index do |c, idx|
+      c.instant_set_position(
+        x: (start_x + spacing * idx) - (c.fw / 2),
+        y: GTK.args.grid.h / 2 - 112.5
+      )
+    end
   end
 
   def tick
@@ -45,23 +61,7 @@ class Map < Scene
     l4 = []
 
     choice_cards ||= []
-
-    count = @choices.size
-    spacing = 256 - 16
-    center = GTK.args.grid.w / 2
-
-    # total span from first to last card
-    total_span = spacing * (count - 1)
-    # x-coordinate of the first card
-    start_x = center - (total_span / 2.0)
-
-    @choices.each_with_index do |c, idx|
-      c.f_pos.x = (start_x + spacing * idx) - (c.fw / 2)
-      c.f_pos.y = GTK.args.grid.h / 2 - 112.5
-
-      choice_cards << c.prefab
-    end
-
+    @choices.each { |c| choice_cards << c.prefab }
     bg_tile_index = 0.frame_index(24, 1.0.seconds, true)
 
     case layer_num
@@ -74,7 +74,7 @@ class Map < Scene
         r: 0,
         g: 0,
         b: 0,
-        primitive_marker: :solid,
+        primitive_marker: :solid
       }
       background = {
         x: 0,
@@ -93,7 +93,6 @@ class Map < Scene
 
       l0
     when 1
-
       l1 << []
       l1
     when 2
