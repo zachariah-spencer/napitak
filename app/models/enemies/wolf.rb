@@ -22,6 +22,7 @@ class Wolf < Enemy
         y: GTK.args.grid.h - 270,
         resistances: [ $DAMAGE_TYPES[:cold] ]
       )
+    @animations = EnemyAnimationComponent.new(x: @x, y: @y, w: @w, h: @h, tx: 0, ty: 0, tw: 128, th: 128)
     @sprite = "sprites/wolf-sheet-3.png"
     @name = "Wolf"
     @attacks = {
@@ -64,29 +65,20 @@ class Wolf < Enemy
       }
     }
 
+    def tick
+      super
+      frost_stacks = @combat_stats.statuses[$STATUS_TYPES[:FROST]]
+      @animations.tick(x: @x, y: @y)
+      @animations.play_animation(:attack) if frost_stacks <= 0 && @my_turn && @turn_start_timer.elapsed_time >= 0.7.seconds && @turn_start_timer.elapsed_time < 0.8.seconds && !@animations.playing_one_shot
+    end
+    
+    def attack
+      @damage_flash_tick = Kernel.tick_count
+      super
+    end
+
     def prefab
-      sprite_frame =
-        0.frame_index(
-          count: 3,
-          hold_for: 30,
-          repeat: true,
-          repeat_index: 0,
-          tick_count_override: Kernel.tick_count
-        )
-      enemy_sprite ||= {
-        x: @x,
-        y: @y,
-        angle: @ang,
-        w: @w,
-        h: @h,
-        r: @r,
-        path: @sprite,
-        tile_x: (sprite_frame * 128),
-        tile_y: 0,
-        tile_w: 128,
-        tile_h: 128,
-        primitive_marker: :sprite
-      }
+      enemy_sprite = @animations.prefab
 
       enemy_hp_label ||= {
         x: GTK.args.grid.w / 2,
@@ -106,9 +98,54 @@ class Wolf < Enemy
       else
         enemy_shout = nil
       end
-
       array = [enemy_sprite, enemy_hp_label, @combat_stats.prefab]
       array << enemy_shout if enemy_shout
+
+
+      damage_flash_frame_index = nil
+      claw_frame_index = nil
+      if @damage_flash_tick
+        damage_flash_frame_index = Numeric.frame_index(
+                  start_at: @damage_flash_tick,
+                  count: 4,
+                  hold_for: 3,
+                  repeat: false,
+                )
+        claw_frame_index = Numeric.frame_index(
+          start_at: @damage_flash_tick,
+          count: 4,
+          hold_for: 6,
+          repeat: false,
+        )
+      end
+
+      if damage_flash_frame_index
+        puts damage_flash_frame_index
+        damage_flash_anim = {
+          x: 0,
+          y: 0,
+          w: 1280,
+          h: 720,
+          a: 100,
+          path: "sprites/damage_flash#{damage_flash_frame_index + 1}.png",
+        }
+        array << damage_flash_anim
+      end
+
+      if claw_frame_index
+        claw_anim = {
+          x: 0,
+          y: 0,
+          w: 1280,
+          h: 720,
+          path: "sprites/claw_attack#{claw_frame_index + 1}.png",
+        }
+        
+        array << claw_anim
+      end
+
+      
+      
       array
     end
   end

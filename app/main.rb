@@ -11,6 +11,7 @@ require_relative "models/player"
 require_relative "models/components/combat_stats_component"
 require_relative "models/components/shout_component"
 require_relative "models/components/status_effect"
+require_relative "models/components/enemy_animation_component.rb"
 
 # enemies
 require_relative "models/enemies/enemy"

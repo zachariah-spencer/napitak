@@ -219,8 +219,8 @@ class Combat < Scene
         w: rect[:w],
         h: rect[:h],
         a: 180,
-        path:
-          "sprites/background_frames/dungeon/dungeon_bg#{bg_tile_index + 1}.png"
+        path: "sprites/background_frames/dungeon/dungeon_bg1.png"
+          # "sprites/background_frames/dungeon/dungeon_bg#{bg_tile_index + 1}.png"
       }
 
       l0 << [background_solid, background]

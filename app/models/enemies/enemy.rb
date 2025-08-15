@@ -31,6 +31,7 @@ class Enemy
     @accuracy = 90.0
     @value = 1
     @floating_seed = Numeric.rand(0.0..100.0)
+    @damage_flash_tick = nil
 
     @ang = 0
     @fx = GTK.args.grid.w / 2 - 100
@@ -296,6 +297,29 @@ class Enemy
   end
 
   def prefab
+
+    sprite_frame =
+        0.frame_index(
+          count: 3,
+          hold_for: 30,
+          repeat: true,
+          repeat_index: 0,
+          tick_count_override: Kernel.tick_count
+        )
+    enemy_sprite ||= {
+      x: @x,
+      y: @y,
+      angle: @ang,
+      w: @w,
+      h: @h,
+      r: @r,
+      path: @sprite,
+      tile_x: (sprite_frame * 128),
+      tile_y: 0,
+      tile_w: 128,
+      tile_h: 128,
+      primitive_marker: :sprite
+    }
     enemy_sprite ||= {
       x: @x,
       y: @y,
