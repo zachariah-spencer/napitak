@@ -103,6 +103,29 @@ class AudioService
         input: "sounds/sfx/button_hover.wav",
         gain: 0.15,
       },
+      wolf_start: {
+        input: "sounds/sfx/wolf_howl.wav",
+        gain: 1.25,
+        pitch: 1.25
+      },
+      wolf_attack: {
+        input: "sounds/sfx/wolf_snarl.wav",
+        gain: 0.2,
+        pitch: 1.0
+      },
+      wolf_hurt: {
+        input: "sounds/sfx/wolf_hurt.wav",
+        gain: 0.5
+      },
+      wolf_death: {
+        input: "sounds/sfx/wolf_death.wav",
+        gain: 0.6
+      },
+      hit_impact: {
+        input: "sounds/sfx/hit_impact.wav",
+        gain: 0.5,
+        pitch: 1.0
+      }
     
     }
 
@@ -193,7 +216,10 @@ class AudioService
   end
 
   def play_sound(sound, rand_pitch: false)
-    raise "ERROR: Sound not found in AudioService sounds hash." if !@sounds[sound]
+    if !@sounds[sound]
+      puts "ERROR: Sound not found in AudioService sounds hash."
+      return
+    end
 
     sound_id_string = sound.to_s
     sound_id_num = 0

@@ -37,6 +37,7 @@ class Combat < Scene
     @fled = false
     @flee_btn_alpha = 0
     @pass_btn_alpha = 0
+    @combat_active = true
     @flee_attempts = 0
     @pre_deal_tick = Kernel.tick_count
     @pre_deal_time = 1.seconds
@@ -156,7 +157,7 @@ class Combat < Scene
 
   def check_enemy_death
     unless @enemy.combat_stats.dead &&
-             !@victory_banner_timer
+             !@victory_banner_timer && @combat_active
       return
     end
 
@@ -835,6 +836,9 @@ class Combat < Scene
   end
 
   def end_combat()
+    puts "HERE?"
+    @combat_active = false
+    $AUDIO_SERVICE.play_sound("#{@enemy.enemy_id}_death".to_sym)
     @victory_banner_timer = Kernel.tick_count
     @player.my_turn = false
   end
