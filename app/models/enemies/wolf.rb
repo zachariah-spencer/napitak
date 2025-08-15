@@ -16,7 +16,7 @@ class Wolf < Enemy
     $enemy = self
     @combat_stats =
       CombatStatsComponent.new(
-        hp: 50,
+        hp: 20,
         focus: 0,
         x: GTK.args.grid.w / 2,
         y: GTK.args.grid.h - 270,
@@ -69,7 +69,7 @@ class Wolf < Enemy
 
   def begin_turn
     super
-    $AUDIO_SERVICE.play_sound("#{@enemy_id}_attack".to_sym, rand_pitch: true)
+    $AUDIO_SERVICE.play_sound("#{@enemy_id}_attack".to_sym, rand_pitch: true) if !@combat_stats.dead
   end
 
   def tick

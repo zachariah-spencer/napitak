@@ -83,7 +83,7 @@ class Enemy
 
   def hurt(amt, type)
     @shout_component.shout_defensively
-    $AUDIO_SERVICE.play_sound("#{@enemy_id}_hurt".to_sym)
+    $AUDIO_SERVICE.play_sound("#{@enemy_id}_hurt".to_sym, rand_pitch: true)
     @combat_stats.hurt(amt, type)
   end
 
