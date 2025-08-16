@@ -4,6 +4,21 @@
 require_relative "game"
 require_relative "globals"
 
+# utilities and helper classes
+# (some of these could be models but are so small and self contained that they are here instead)
+require_relative "utils/json"
+require_relative "utils/game_utils"
+require_relative "utils/hash_order_utils"
+require_relative "utils/scroll_list_widget"
+require_relative "utils/scroll_list_widget_h"
+require_relative "utils/upgrade_level_bar_widget"
+require_relative "utils/button"
+require_relative "utils/announcement"
+require_relative "utils/transition"
+require_relative "utils/status_effect_list_widget"
+require_relative "utils/animation"
+require_relative "utils/run_once"
+
 # models (just player)
 require_relative "models/player"
 
@@ -67,20 +82,6 @@ require_relative "services/event_bus"
 require_relative "services/combo_manager"
 require_relative "services/audio_service"
 require_relative "services/animation_service"
-
-# utilities and helper classes
-# (some of these could be models but are so small and self contained that they are here instead)
-require_relative "utils/json"
-require_relative "utils/game_utils"
-require_relative "utils/hash_order_utils"
-require_relative "utils/scroll_list_widget"
-require_relative "utils/scroll_list_widget_h"
-require_relative "utils/upgrade_level_bar_widget"
-require_relative "utils/button"
-require_relative "utils/announcement"
-require_relative "utils/transition"
-require_relative "utils/status_effect_list_widget"
-require_relative "utils/animation"
 
 def tick(args)
   purge_old_version_saves_from_web_build(args)

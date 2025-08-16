@@ -125,8 +125,15 @@ class AudioService
         input: "sounds/sfx/hit_impact.wav",
         gain: 0.5,
         pitch: 1.0
+      },
+      victory_fanfare: {
+        input: "sounds/sfx/victory_fanfare.wav",
+        gain: 0.1,
+      },
+      defeat_fanfare: {
+        input: "sounds/sfx/defeat_fanfare.wav",
+        gain: 0.1,
       }
-    
     }
 
     @songs = {
@@ -145,6 +152,11 @@ class AudioService
         looping: true,
         gain: 0.09
       },
+      loot_encounter: {
+        input: "sounds/music/loot_encounter.mp3",
+        looping: true,
+        gain: 0.09
+      }
     }
   end
 
@@ -155,6 +167,11 @@ class AudioService
       transition_songs(song)
     end
     @current_song = song
+  end
+
+  def stop_song
+    #FIXME: Implement method here
+    @current_song = nil
   end
 
   def transition_songs(next_song)
@@ -188,11 +205,23 @@ class AudioService
 
   def tick
     @playing_sounds.reject! do |psid|
+      $EVENT_BUS.publish(:sound_finished_playback, sound: psid) if GTK.args.audio.none? { |id, s| id == psid }
       GTK.args.audio.none? { |id, s| id == psid }
     end
     
-    process_crossfades
+    @current_song ? process_crossfades : process_fade_out
 
+  end
+
+  def process_fade_out
+    if GTK.args.audio[:bg_music] && GTK.args.audio[:bg_music].gain > 0.0
+      # decrease by 1% every frame
+      GTK.args.audio[:bg_music].gain -= 0.0008
+      # delete audio when it's at 0%
+      if GTK.args.audio[:bg_music].gain <= 0.0
+        GTK.args.audio[:bg_music] = nil
+      end
+    end
   end
 
   def process_crossfades

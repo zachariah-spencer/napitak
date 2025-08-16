@@ -82,6 +82,7 @@ class Game
     AnimationManager.new
     AnnouncementManager.new
     EventBus.new
+
     @transition = nil
     @mid_run = $files.save_data&.[]("mid_run") || false
 

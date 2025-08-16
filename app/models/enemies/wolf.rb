@@ -1,4 +1,6 @@
 class Wolf < Enemy
+  include RunOnce
+
   attr_gtk
   attr :hp,
        :max_hp,
@@ -16,7 +18,7 @@ class Wolf < Enemy
     $enemy = self
     @combat_stats =
       CombatStatsComponent.new(
-        hp: 20,
+        hp: 1,
         focus: 0,
         x: GTK.args.grid.w / 2,
         y: GTK.args.grid.h - 270,
@@ -32,7 +34,7 @@ class Wolf < Enemy
         traits: [
           {
             $CARD_TRAITS[:damage] => {
-              amount: 5,
+              amount: 30,
               type: $DAMAGE_TYPES[:force]
             }
           },
@@ -73,10 +75,14 @@ class Wolf < Enemy
   end
 
   def tick
-    super
     frost_stacks = @combat_stats.statuses[$STATUS_TYPES[:FROST]]
     @animations.tick(x: @x, y: @y)
-    @animations.play_animation(:attack) if frost_stacks <= 0 && @my_turn && @turn_start_timer.elapsed_time >= 0.7.seconds && @turn_start_timer.elapsed_time < 0.8.seconds && !@animations.playing_one_shot
+    @animations.play_animation(:attack) if frost_stacks <= 0 && @my_turn && @turn_start_timer.elapsed_time >= 0.7.seconds && @turn_start_timer.elapsed_time < 0.8.seconds
+    super
+  end
+
+  def calc_death_anim
+    run_once(:death_animation) { @animations.play_animation(:death) }
   end
   
   def attack

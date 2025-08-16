@@ -57,11 +57,11 @@ class Player
     @prev_loadout_ingredients = Inventory.new()
     @prev_loadout_potions = Inventory.new()
 
-    $event_bus.subscribe(:player_hurt, self) do |data|
+    $EVENT_BUS.subscribe(:player_hurt, self) do |data|
       @combat_stats.hurt(data[:amount], data[:type])
     end
-    $event_bus.subscribe(:player_heal, self) { |amt| @combat_stats.heal(amt) }
-    $event_bus.subscribe(:player_apply_status, self) do |data|
+    $EVENT_BUS.subscribe(:player_heal, self) { |amt| @combat_stats.heal(amt) }
+    $EVENT_BUS.subscribe(:player_apply_status, self) do |data|
       @combat_stats.apply_status(type: data[:type], stacks: data[:stacks])
     end
   end

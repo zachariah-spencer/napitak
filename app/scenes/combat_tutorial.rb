@@ -725,7 +725,7 @@ class CombatTutorial < Scene
     state.currently_dragging_card_id = nil
     state.mouse_point_inside_square = nil
     @hand_manager.cleanup
-    $event_bus.unsubscribe_owner(@enemy)
+    $EVENT_BUS.unsubscribe_owner(@enemy)
 
     potions_save_data = []
     @player.potions.all_cards.each { |c| potions_save_data << c.save_data? }

@@ -45,12 +45,17 @@ class Combat < Scene
     @dealing_time = 1.seconds
     $AUDIO_SERVICE.play_sound(:cards_shuffle)
     $AUDIO_SERVICE.play_song(:combat_encounter)
+    $EVENT_BUS.subscribe(:enemy_animation_completed, self) { |p| on_enemy_animation_completed(p) }
     puts @hand_manager.hand
   end
 
   def ready
-    
     @tutorial_service.handle_combat_start
+  end
+
+  def on_enemy_animation_completed(payload)
+    puts "ENEMY_ANIMATION_COMPLETED"
+    @victory_banner_timer = Kernel.tick_count if @enemy.combat_stats.dead
   end
 
   def tick
@@ -98,6 +103,8 @@ class Combat < Scene
   def calc_enemy_turn_ended
     if @player.combat_stats.dead
       @defeat_banner_timer = Kernel.tick_count
+      $AUDIO_SERVICE.stop_song
+      $AUDIO_SERVICE.play_sound(:defeat_fanfare)
     elsif !combat_ended? && !@enemy.combat_stats.dead &&
           !@player.combat_stats.dead
       begin_turn_stage @turn_stages[:drawing_cards]
@@ -653,7 +660,7 @@ class Combat < Scene
     state.currently_dragging_card_id = nil
     state.mouse_point_inside_square = nil
     @hand_manager.cleanup
-    $event_bus.unsubscribe_owner(@enemy)
+    $EVENT_BUS.unsubscribe_owner(@enemy)
 
     potions_save_data = []
     @player.potions.all_cards.each { |c| potions_save_data << c.save_data? }
@@ -836,10 +843,10 @@ class Combat < Scene
   end
 
   def end_combat()
-    puts "HERE?"
     @combat_active = false
     $AUDIO_SERVICE.play_sound("#{@enemy.enemy_id}_death".to_sym)
-    @victory_banner_timer = Kernel.tick_count
+    $AUDIO_SERVICE.stop_song
+    $AUDIO_SERVICE.play_sound(:victory_fanfare)
     @player.my_turn = false
   end
 

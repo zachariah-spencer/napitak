@@ -1,6 +1,6 @@
 class EventBus
   def initialize
-    $event_bus = self
+    $EVENT_BUS = self
     @listeners = Hash.new { |h, k| h[k] = [] }
   end
 

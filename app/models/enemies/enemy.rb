@@ -47,11 +47,11 @@ class Enemy
 
     @attacks = {}
 
-    $event_bus.subscribe(:enemy_hurt, self) do |data|
+    $EVENT_BUS.subscribe(:enemy_hurt, self) do |data|
       hurt(data[:amount], data[:type])
     end
-    $event_bus.subscribe(:enemy_heal, self) { |amt| @combat_stats.heal(amt) }
-    $event_bus.subscribe(:enemy_apply_status, self) do |data|
+    $EVENT_BUS.subscribe(:enemy_heal, self) { |amt| @combat_stats.heal(amt) }
+    $EVENT_BUS.subscribe(:enemy_apply_status, self) do |data|
       @combat_stats.apply_status(type: data[:type], stacks: data[:stacks])
     end
   end
@@ -131,17 +131,17 @@ class Enemy
     blind_trait &&= blind_trait[$CARD_TRAITS[:blind]]
 
     if damage_trait
-      $event_bus.publish(
+      $EVENT_BUS.publish(
         :player_hurt,
         amount: damage_trait[:amount],
         type: damage_trait[:type]
       )
     end
 
-    $event_bus.publish(:enemy_heal, mend_trait) if mend_trait
+    $EVENT_BUS.publish(:enemy_heal, mend_trait) if mend_trait
 
     if restoration_trait
-      $event_bus.publish(
+      $EVENT_BUS.publish(
         :enemy_apply_status,
         type: :RESTORATION,
         stacks: restoration_trait
@@ -149,7 +149,7 @@ class Enemy
     end
 
     if scorch_trait
-      $event_bus.publish(
+      $EVENT_BUS.publish(
         :player_apply_status,
         type: :SCORCH,
         stacks: scorch_trait
@@ -157,7 +157,7 @@ class Enemy
     end
 
     if blight_trait
-      $event_bus.publish(
+      $EVENT_BUS.publish(
         :player_apply_status,
         type: :BLIGHT,
         stacks: blight_trait
@@ -165,7 +165,7 @@ class Enemy
     end
 
     if frost_trait
-      $event_bus.publish(
+      $EVENT_BUS.publish(
         :player_apply_status,
         type: :FROST,
         stacks: frost_trait
@@ -173,11 +173,11 @@ class Enemy
     end
 
     if ward_trait
-      $event_bus.publish(:enemy_apply_status, type: :WARD, stacks: ward_trait)
+      $EVENT_BUS.publish(:enemy_apply_status, type: :WARD, stacks: ward_trait)
     end
 
     if blind_trait
-      $event_bus.publish(
+      $EVENT_BUS.publish(
         :player_apply_status,
         type: :BLIND,
         stacks: blind_trait

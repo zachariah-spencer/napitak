@@ -19,6 +19,8 @@ class RewardsScreen < Scene
       random_reward_card = RewardCard.new(random_reward_id)
       @choices[random_reward_card.entity_id] = random_reward_card
     end
+
+    $AUDIO_SERVICE.play_song(:loot_encounter)
   end
 
   def cleanup

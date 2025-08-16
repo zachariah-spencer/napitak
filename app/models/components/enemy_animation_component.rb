@@ -1,5 +1,4 @@
 class EnemyAnimationComponent
-  attr :playing_one_shot
   def initialize(x:, y:, w:, h:, tx:, ty:, tw:, th:)
     @x = x
     @y = y
@@ -9,6 +8,7 @@ class EnemyAnimationComponent
     @ty = ty
     @tw = tw
     @th = th
+    @dead = false
 
     # FIXME: Refactor to pull from global hash
     @animations = {
@@ -22,6 +22,12 @@ class EnemyAnimationComponent
         path: "sprites/wolf_attack1-sheet-4.png",
         count: 4,
         hold_for: 10,
+        repeat: false,
+      },
+      death: {
+        path: "sprites/wolf_death-sheet-15.png",
+        count: 15,
+        hold_for: 5,
         repeat: false,
       }
     }
@@ -44,22 +50,42 @@ class EnemyAnimationComponent
     if animation != :idle
       @sprite_frame_start_ticks[animation] = Kernel.tick_count
       @playing_one_shot = true
+
+      @dead = true if animation == :death
     end
     @current_animation = animation
   end
 
   def calc_frame_index
-    Numeric.frame_index(
-                  start_at: @sprite_frame_start_ticks[@current_animation],
-                  count: @animations[@current_animation][:count],
-                  hold_for: @animations[@current_animation][:hold_for],
-                  repeat: @animations[@current_animation][:repeat],
-                )
+    if !@dead
+      Numeric.frame_index(
+                    start_at: @sprite_frame_start_ticks[@current_animation],
+                    count: @animations[@current_animation][:count],
+                    hold_for: @animations[@current_animation][:hold_for],
+                    repeat: @animations[@current_animation][:repeat],
+                  )
+    else
+      f_i = Numeric.frame_index(
+                    start_at: @sprite_frame_start_ticks[@current_animation],
+                    count: @animations[@current_animation][:count],
+                    hold_for: @animations[@current_animation][:hold_for],
+                    repeat: @animations[@current_animation][:repeat],
+                  )
+
+      if f_i
+        return f_i
+      else
+        $EVENT_BUS.publish(:enemy_animation_completed) if @playing_one_shot
+        @playing_one_shot = false
+        return (@animations[@current_animation][:count] - 1)
+      end
+    end
   end
 
   def prefab()
-    if !(calc_frame_index)
+    if !(calc_frame_index) && !@dead
       @current_animation = :idle
+      $EVENT_BUS.publish(:enemy_animation_completed) if @playing_one_shot
       @playing_one_shot = false
     end
     enemy_sprite = {
