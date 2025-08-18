@@ -18,7 +18,7 @@ class Wolf < Enemy
     $enemy = self
     @combat_stats =
       CombatStatsComponent.new(
-        hp: 1,
+        hp: 20,
         focus: 0,
         x: GTK.args.grid.w / 2,
         y: GTK.args.grid.h - 270,

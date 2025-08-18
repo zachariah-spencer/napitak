@@ -25,7 +25,8 @@ class Player
        :prev_loadout_ingredients,
        :prev_loadout_potions,
        :feathers,
-       :status_effects
+       :status_effects,
+       :potion_animations
 
   def initialize
     $player = self
@@ -45,6 +46,7 @@ class Player
     @my_turn = true
     @combat_stats =
       CombatStatsComponent.new(hp: 100, focus: 4, x: 64, y: 262, columns: 2)
+    @potion_animations = PotionAnimationComponent.new(x: GTK.args.grid.w / 2 - 150, y: 0, w: 256, h: 720, tx: 256, ty: 0, tw: 256, th: 720)
     @status_effects = load_status_effects_data || []
     @stunned_turns = 0
     @hovered_cards = []
@@ -341,5 +343,9 @@ class Player
 
   def add_stun(num_turns)
     @stunned_turns += num_turns
+  end
+
+  def prefab
+    @potion_animations.prefab
   end
 end

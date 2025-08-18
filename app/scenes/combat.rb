@@ -46,6 +46,9 @@ class Combat < Scene
     $AUDIO_SERVICE.play_sound(:cards_shuffle)
     $AUDIO_SERVICE.play_song(:combat_encounter)
     $EVENT_BUS.subscribe(:enemy_animation_completed, self) { |p| on_enemy_animation_completed(p) }
+    $EVENT_BUS.subscribe(:potion_animation_completed, self) { |p| on_potion_cast_animation_completed(p) }
+    $EVENT_BUS.subscribe(:potion_animation_impacted, self) { |p| on_potion_animation_impact(p) }
+    
     puts @hand_manager.hand
   end
 
@@ -56,6 +59,17 @@ class Combat < Scene
   def on_enemy_animation_completed(payload)
     puts "ENEMY_ANIMATION_COMPLETED"
     @victory_banner_timer = Kernel.tick_count if @enemy.combat_stats.dead
+  end
+
+  def on_potion_animation_impact(payload)
+    puts "POTION_IMPACTED #{payload[:id]}"
+    @hand_manager.calc_card_effects($PIDS[payload[:id]])
+  end
+
+  def on_potion_cast_animation_completed(payload)
+    puts "POTION CAST COMPLETED"
+    $game.input_locked = false
+    begin_turn_stage(@turn_stages[:cleanup]) if !$game.input_locked
   end
 
   def tick
@@ -476,7 +490,7 @@ class Combat < Scene
       ]
       return l2
     when 3
-      l3 << [front_card]
+      l3 << [front_card, $player.prefab]
       return l3
     when 4
       if @defeat_banner_timer
@@ -769,7 +783,7 @@ class Combat < Scene
           end
           end_combat if @enemy.combat_stats.dead
           unless @hand_manager.actions_available?
-            begin_turn_stage(@turn_stages[:cleanup])
+            begin_turn_stage(@turn_stages[:cleanup]) if !$game.input_locked
           end
         end
 

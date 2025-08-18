@@ -135,6 +135,14 @@ module GameData
         "i001" => 1,
         "i003" => 2
       },
+      cast_animation: {
+        id: "p001",
+        path: "sprites/flamelickcast-sheet-19.png",
+        count: 19,
+        hold_for: 4,
+        impact_frame: 8,
+        repeat: false,
+      },
       finisher_trait: { CARD_TRAITS[:ward] => 10 },
       traits: [
         { CARD_TRAITS[:damage] => { amount: 5, type: DAMAGE_TYPES[:heat] } },

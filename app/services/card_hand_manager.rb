@@ -72,59 +72,70 @@ class CardHandManager
 
       potion_traits = potion_info.traits
 
-      if @combo_manager.combo_completion_tick
-        if potion_info[:finisher_trait]
-          puts "DO A SPECIFIC FINISHER EFFECT"
-          puts "#{potion_info[:finisher_trait]}"
-          potion_traits = potion_info.traits + [potion_info[:finisher_trait]]
-        end
+      if potion_info.cast_animation
+        $game.input_locked = true
+        $player.potion_animations.play_animation(potion_info.cast_animation) 
       end
 
-      damage_trait = potion_traits.find { |h| h.key?($CARD_TRAITS[:damage]) }
-      damage_trait &&= damage_trait[$CARD_TRAITS[:damage]]
-      mend_trait = potion_traits.find { |h| h.key?($CARD_TRAITS[:mend]) }
-      mend_trait &&= mend_trait[$CARD_TRAITS[:mend]]
-      restoration_trait =
-        potion_traits.find { |h| h.key?($CARD_TRAITS[:restoration]) }
-      restoration_trait &&= restoration_trait[$CARD_TRAITS[:restoration]]
-      scorch_trait = potion_traits.find { |h| h.key?($CARD_TRAITS[:scorch]) }
-      scorch_trait &&= scorch_trait[$CARD_TRAITS[:scorch]]
-      blight_trait = potion_traits.find { |h| h.key?($CARD_TRAITS[:blight]) }
-      blight_trait &&= blight_trait[$CARD_TRAITS[:blight]]
-      frost_trait = potion_traits.find { |h| h.key?($CARD_TRAITS[:frost]) }
-      frost_trait &&= frost_trait[$CARD_TRAITS[:frost]]
-      ward_trait = potion_traits.find { |h| h.key?($CARD_TRAITS[:ward]) }
-      ward_trait &&= ward_trait[$CARD_TRAITS[:ward]]
-      channel_trait = potion_traits.find { |h| h.key?($CARD_TRAITS[:channel]) }
-      channel_trait &&= channel_trait[$CARD_TRAITS[:channel]]
-      blind_trait = potion_traits.find { |h| h.key?($CARD_TRAITS[:blind]) }
-      blind_trait &&= blind_trait[$CARD_TRAITS[:blind]]
+      
+  end
 
-      @enemy.hurt(damage_trait[:amount], damage_trait[:type]) if damage_trait
-      @player.combat_stats.heal(mend_trait) if mend_trait
-      if restoration_trait
-        @player.combat_stats.apply_status(
-          type: :RESTORATION,
-          stacks: restoration_trait
-        )
-      end
-      if scorch_trait
-        @enemy.combat_stats.apply_status(type: :SCORCH, stacks: scorch_trait)
-      end
-      if blight_trait
-        @enemy.combat_stats.apply_status(type: :BLIGHT, stacks: blight_trait)
-      end
-      if frost_trait
-        @enemy.combat_stats.apply_status(type: :FROST, stacks: frost_trait)
-      end
-      if ward_trait
-        @player.combat_stats.apply_status(type: :WARD, stacks: ward_trait)
-      end
-      @player.combat_stats.channel(channel_trait) if channel_trait
-      if blind_trait
-        @enemy.combat_stats.apply_status(type: :BLIND, stacks: blind_trait)
+  def calc_card_effects(potion)
+    potion_info = potion
+    potion_traits = potion_info.traits
+    if @combo_manager.combo_completion_tick
+      if potion_info[:finisher_trait]
+        puts "DO A SPECIFIC FINISHER EFFECT"
+        puts "#{potion_info[:finisher_trait]}"
+        potion_traits = potion_info.traits + [potion_info[:finisher_trait]]
       end
     end
+
+    damage_trait = potion_traits.find { |h| h.key?($CARD_TRAITS[:damage]) }
+    damage_trait &&= damage_trait[$CARD_TRAITS[:damage]]
+    mend_trait = potion_traits.find { |h| h.key?($CARD_TRAITS[:mend]) }
+    mend_trait &&= mend_trait[$CARD_TRAITS[:mend]]
+    restoration_trait =
+      potion_traits.find { |h| h.key?($CARD_TRAITS[:restoration]) }
+    restoration_trait &&= restoration_trait[$CARD_TRAITS[:restoration]]
+    scorch_trait = potion_traits.find { |h| h.key?($CARD_TRAITS[:scorch]) }
+    scorch_trait &&= scorch_trait[$CARD_TRAITS[:scorch]]
+    blight_trait = potion_traits.find { |h| h.key?($CARD_TRAITS[:blight]) }
+    blight_trait &&= blight_trait[$CARD_TRAITS[:blight]]
+    frost_trait = potion_traits.find { |h| h.key?($CARD_TRAITS[:frost]) }
+    frost_trait &&= frost_trait[$CARD_TRAITS[:frost]]
+    ward_trait = potion_traits.find { |h| h.key?($CARD_TRAITS[:ward]) }
+    ward_trait &&= ward_trait[$CARD_TRAITS[:ward]]
+    channel_trait = potion_traits.find { |h| h.key?($CARD_TRAITS[:channel]) }
+    channel_trait &&= channel_trait[$CARD_TRAITS[:channel]]
+    blind_trait = potion_traits.find { |h| h.key?($CARD_TRAITS[:blind]) }
+    blind_trait &&= blind_trait[$CARD_TRAITS[:blind]]
+
+    @enemy.hurt(damage_trait[:amount], damage_trait[:type]) if damage_trait
+    @player.combat_stats.heal(mend_trait) if mend_trait
+    if restoration_trait
+      @player.combat_stats.apply_status(
+        type: :RESTORATION,
+        stacks: restoration_trait
+      )
+    end
+    if scorch_trait
+      @enemy.combat_stats.apply_status(type: :SCORCH, stacks: scorch_trait)
+    end
+    if blight_trait
+      @enemy.combat_stats.apply_status(type: :BLIGHT, stacks: blight_trait)
+    end
+    if frost_trait
+      @enemy.combat_stats.apply_status(type: :FROST, stacks: frost_trait)
+    end
+    if ward_trait
+      @player.combat_stats.apply_status(type: :WARD, stacks: ward_trait)
+    end
+    @player.combat_stats.channel(channel_trait) if channel_trait
+    if blind_trait
+      @enemy.combat_stats.apply_status(type: :BLIND, stacks: blind_trait)
+    end
+  end
 
     if @combo_manager.combo_completion_tick
       $game.input_locked = true
