@@ -391,13 +391,19 @@ class Game
     l4 << @status_labels.map { |particle| status_label_prefab particle }
 
     if $player.combat_stats.dead_tick && @mid_run
+      banner_f_i = Numeric.frame_index(
+        start_at: 0,
+        count: 18,
+        hold_for: 6,
+        repeat: true
+      )
       defeat_banner_label ||= {
         x: GTK.args.grid.w / 2,
         y: GTK.args.grid.h / 2,
         alignment_enum: 1,
         anchor_x: 0.5,
         anchor_y: 0.5,
-        size_px: 32,
+        size_px: 50,
         r: 255,
         g: 255,
         b: 255,
@@ -407,17 +413,18 @@ class Game
         primitive_marker: :label
       }
 
-      defeat_banner ||= {
-        x: 0,
-        y: GTK.args.grid.h / 2 - 50,
-        w: GTK.args.grid.w,
-        h: 100,
-        r: 150,
-        g: 0,
-        b: 0,
-        a: @defeat_banner_alpha,
-        primitive_marker: :solid
-      }
+      defeat_banner = {
+          path: "sprites/combat_banner_frames/combat_banner#{banner_f_i + 1}.png",
+          x: 0,
+          y: GTK.args.grid.h / 2 - 64,
+          w: 1280,
+          h: 128,
+          r: 255,
+          g: 0,
+          b: 0,
+          a: @defeat_banner_alpha,
+          primitive_marker: :sprite
+        }
 
       l4 << [defeat_banner, defeat_banner_label]
     end

@@ -175,6 +175,14 @@ module GameData
         "i001" => 1,
         "i002" => 2
       },
+      cast_animation: {
+        id: "p003",
+        path: "sprites/waterbeamcast-sheet-23.png",
+        count: 23,
+        hold_for: 4,
+        impact_frame:9,
+        repeat: false,
+      },
       traits: [
         { CARD_TRAITS[:damage] => { amount: 2, type: DAMAGE_TYPES[:cold] } }
       ]
