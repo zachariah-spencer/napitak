@@ -721,6 +721,8 @@ class Combat < Scene
     @player.my_turn = false
     @flee_banner_timer = Kernel.tick_count
     @fled = true
+    $AUDIO_SERVICE.stop_song
+    $AUDIO_SERVICE.play_sound(:flee_fanfare)
   end
 
   def card_usable?(card)

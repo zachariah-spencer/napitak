@@ -137,6 +137,10 @@ class AudioService
       waterbeam_cast: {
         input: "sounds/sfx/waterbeamcast.wav",
         gain: 0.8,
+      },
+      flee_fanfare: {
+        input: "sounds/sfx/flee_fanfare.wav",
+        gain: 0.4
       }
     }
 
