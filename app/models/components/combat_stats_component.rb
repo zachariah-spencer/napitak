@@ -70,7 +70,7 @@ class CombatStatsComponent
   end
 
   def hurt(amt, type)
-    $AUDIO_SERVICE.play_sound(:hit_impact)
+    # $AUDIO_SERVICE.play_sound(:hit_impact)
     vulnerable = @vulnerabilities.include?(type)
     resistant = @resistances.include?(type)
 

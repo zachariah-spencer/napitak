@@ -183,6 +183,7 @@ module GameData
         impact_frame:9,
         repeat: false,
       },
+      cast_sfx: :waterbeam_cast,
       traits: [
         { CARD_TRAITS[:damage] => { amount: 2, type: DAMAGE_TYPES[:cold] } }
       ]

@@ -123,7 +123,7 @@ class AudioService
       },
       hit_impact: {
         input: "sounds/sfx/hit_impact.wav",
-        gain: 0.5,
+        gain: 0.8,
         pitch: 1.0
       },
       victory_fanfare: {
@@ -133,6 +133,10 @@ class AudioService
       defeat_fanfare: {
         input: "sounds/sfx/defeat_fanfare.wav",
         gain: 0.1,
+      },
+      waterbeam_cast: {
+        input: "sounds/sfx/waterbeamcast.wav",
+        gain: 0.8,
       }
     }
 

@@ -1,4 +1,5 @@
 class Combat < Scene
+  include RunOnce
   attr :sc_id, :hand_manager
 
   def initialize(enemy = nil)
@@ -73,6 +74,7 @@ class Combat < Scene
   end
 
   def tick
+    run_once(:pre_load_loot_encounter_music) { $AUDIO_SERVICE.play_song(:loot_encounter) } if @victory_banner_timer && @victory_banner_timer.elapsed_time >= 3.25.seconds
     @combo_manager.tick(@hand_manager.hand)
     begin_combat if ready_for_combat?
     calc

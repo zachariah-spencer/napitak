@@ -77,6 +77,8 @@ class CardHandManager
         $player.potion_animations.play_animation(potion_info.cast_animation) 
       end
 
+      $AUDIO_SERVICE.play_sound(potion_info.cast_sfx) if potion_info.cast_sfx
+
       
   end
 
