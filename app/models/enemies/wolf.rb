@@ -18,13 +18,23 @@ class Wolf < Enemy
     $enemy = self
     @combat_stats =
       CombatStatsComponent.new(
-        hp: 1,
+        hp: 20,
         focus: 0,
         x: GTK.args.grid.w / 2,
         y: GTK.args.grid.h - 270,
-        resistances: [ $DAMAGE_TYPES[:cold] ]
+        resistances: [$DAMAGE_TYPES[:cold]]
       )
-    @animations = EnemyAnimationComponent.new(x: @x, y: @y, w: @w, h: @h, tx: 0, ty: 0, tw: 128, th: 128)
+    @animations =
+      EnemyAnimationComponent.new(
+        x: @x,
+        y: @y,
+        w: @w,
+        h: @h,
+        tx: 0,
+        ty: 0,
+        tw: 128,
+        th: 128
+      )
     @sprite = "sprites/wolf-sheet-3.png"
     @name = "Wolf"
     @attacks = {
@@ -37,7 +47,7 @@ class Wolf < Enemy
               amount: 30,
               type: $DAMAGE_TYPES[:force]
             }
-          },
+          }
         ]
       },
       20 => {
@@ -71,20 +81,26 @@ class Wolf < Enemy
 
   def begin_turn
     super
-    $AUDIO_SERVICE.play_sound("#{@enemy_id}_attack".to_sym, rand_pitch: true) if !@combat_stats.dead
+    if !@combat_stats.dead
+      $AUDIO_SERVICE.play_sound("#{@enemy_id}_attack".to_sym, rand_pitch: true)
+    end
   end
 
   def tick
     frost_stacks = @combat_stats.statuses[$STATUS_TYPES[:FROST]]
     @animations.tick(x: @x, y: @y)
-    @animations.play_animation(:attack) if frost_stacks <= 0 && @my_turn && @turn_start_timer.elapsed_time >= 0.7.seconds && @turn_start_timer.elapsed_time < 0.8.seconds
+    if frost_stacks <= 0 && @my_turn &&
+         @turn_start_timer.elapsed_time >= 0.7.seconds &&
+         @turn_start_timer.elapsed_time < 0.8.seconds
+      @animations.play_animation(:attack)
+    end
     super
   end
 
   def calc_death_anim
     run_once(:death_animation) { @animations.play_animation(:death) }
   end
-  
+
   def attack
     @damage_flash_tick = Kernel.tick_count
     super
@@ -114,22 +130,23 @@ class Wolf < Enemy
     array = [enemy_sprite, enemy_hp_label, @combat_stats.prefab]
     array << enemy_shout if enemy_shout
 
-
     damage_flash_frame_index = nil
     claw_frame_index = nil
     if @damage_flash_tick
-      damage_flash_frame_index = Numeric.frame_index(
-                start_at: @damage_flash_tick,
-                count: 4,
-                hold_for: 1,
-                repeat: false,
-              )
-      claw_frame_index = Numeric.frame_index(
-        start_at: @damage_flash_tick,
-        count: 4,
-        hold_for: 6,
-        repeat: false,
-      )
+      damage_flash_frame_index =
+        Numeric.frame_index(
+          start_at: @damage_flash_tick,
+          count: 4,
+          hold_for: 1,
+          repeat: false
+        )
+      claw_frame_index =
+        Numeric.frame_index(
+          start_at: @damage_flash_tick,
+          count: 4,
+          hold_for: 6,
+          repeat: false
+        )
     end
 
     if damage_flash_frame_index
@@ -140,7 +157,7 @@ class Wolf < Enemy
         w: 1280,
         h: 720,
         a: 100,
-        path: "sprites/damage_flash#{damage_flash_frame_index + 1}.png",
+        path: "sprites/damage_flash#{damage_flash_frame_index + 1}.png"
       }
       array << damage_flash_anim
     end
@@ -151,14 +168,12 @@ class Wolf < Enemy
         y: 0,
         w: 1280,
         h: 720,
-        path: "sprites/claw_attack#{claw_frame_index + 1}.png",
+        path: "sprites/claw_attack#{claw_frame_index + 1}.png"
       }
-      
+
       array << claw_anim
     end
 
-    
-    
     array
   end
 end

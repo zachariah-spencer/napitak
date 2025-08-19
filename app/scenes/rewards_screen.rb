@@ -67,16 +67,10 @@ class RewardsScreen < Scene
     l4 = []
 
     cards ||= []
-    front_card = nil
+    front_card = []
 
     @choices.each do |id, c|
-      prefab = c.prefab
-
-      if c.grabbed
-        front_card = prefab
-      else
-        cards.append prefab
-      end
+      c.grabbed ? front_card << c.prefab : cards << c.prefab
     end
 
     case layer_num
@@ -113,7 +107,7 @@ class RewardsScreen < Scene
       l2 << [cards]
       return l2
     when 3
-      l3 << [front_card]
+      l3 << front_card unless front_card.empty?
       return l3
     when 4
       rewards_left_label = {

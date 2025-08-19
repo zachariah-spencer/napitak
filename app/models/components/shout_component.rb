@@ -1,5 +1,4 @@
 class ShoutComponent
-
   # requires (x,y) worth of space to safely function without overlapping other screen elements
   def initialize(enemy_id: "wolf")
     rect = Layout.rect(row: 1, col: 15, w: 5, h: 3)
@@ -25,8 +24,8 @@ class ShoutComponent
     all_shouts = GTK.parse_json(shouts_json)
     enemy_specific_shouts = all_shouts[@enemy_id]
 
-    @offensive_shouts = enemy_specific_shouts["offense"]
-    @defensive_shouts = enemy_specific_shouts["defense"]
+    @offensive_shouts = enemy_specific_shouts["offense"] || []
+    @defensive_shouts = enemy_specific_shouts["defense"] || []
   end
 
   def tick
@@ -36,17 +35,21 @@ class ShoutComponent
     @x += (Math.cos(Kernel.tick_count * 0.05) * 0.1)
     @y += (Math.sin(Kernel.tick_count * 0.025) * 0.1)
 
-    @shout_alpha = @shout_alpha.lerp(255, 0.09) if @shout_tick.elapsed_time < @duration * 0.8
-    @shout_alpha = @shout_alpha.lerp(0, 0.09) if @shout_tick.elapsed_time >= @duration * 0.8
+    @shout_alpha = @shout_alpha.lerp(255, 0.09) if @shout_tick.elapsed_time <
+      @duration * 0.8
+    @shout_alpha = @shout_alpha.lerp(0, 0.09) if @shout_tick.elapsed_time >=
+      @duration * 0.8
   end
 
   def shout_offensively
+    return if @defensive_shouts.empty?
     @selected_shout = @offensive_shouts.sample
     @shout_tick = Kernel.tick_count
     reset_position
   end
 
   def shout_defensively
+    return if @defensive_shouts.empty?
     @selected_shout = @defensive_shouts.sample
     @shout_tick = Kernel.tick_count
     reset_position
@@ -89,10 +92,10 @@ class ShoutComponent
           b: 0,
           a: @shout_alpha,
           font: $FONT,
-          text: "#{t}",
+          text: "#{t}"
         }
       end
-      
+
       prefab_array
     end
   end

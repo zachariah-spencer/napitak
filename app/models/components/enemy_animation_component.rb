@@ -16,28 +16,25 @@ class EnemyAnimationComponent
         path: "sprites/wolf-sheet-3.png",
         count: 3,
         hold_for: 30,
-        repeat: true,
+        repeat: true
       },
       attack: {
         path: "sprites/wolf_attack1-sheet-4.png",
         count: 4,
         hold_for: 10,
-        repeat: false,
+        repeat: false
       },
       death: {
         path: "sprites/wolf_death-sheet-15.png",
         count: 15,
         hold_for: 5,
-        repeat: false,
+        repeat: false
       }
     }
 
     @current_animation = :idle
     @playing_one_shot = false
-    @sprite_frame_start_ticks = {
-      idle: 0,
-      attack: 0,
-    }
+    @sprite_frame_start_ticks = { idle: 0, attack: 0 }
   end
 
   def tick(x: @x, y: @y)
@@ -57,27 +54,29 @@ class EnemyAnimationComponent
   end
 
   def calc_frame_index
+    return 0 unless @sprite_frame_start_ticks && @current_animation
     if !@dead
       Numeric.frame_index(
-                    start_at: @sprite_frame_start_ticks[@current_animation],
-                    count: @animations[@current_animation][:count],
-                    hold_for: @animations[@current_animation][:hold_for],
-                    repeat: @animations[@current_animation][:repeat],
-                  )
+        start_at: @sprite_frame_start_ticks[@current_animation],
+        count: @animations[@current_animation][:count],
+        hold_for: @animations[@current_animation][:hold_for],
+        repeat: @animations[@current_animation][:repeat]
+      )
     else
-      f_i = Numeric.frame_index(
-                    start_at: @sprite_frame_start_ticks[@current_animation],
-                    count: @animations[@current_animation][:count],
-                    hold_for: @animations[@current_animation][:hold_for],
-                    repeat: @animations[@current_animation][:repeat],
-                  )
+      f_i =
+        Numeric.frame_index(
+          start_at: @sprite_frame_start_ticks[@current_animation],
+          count: @animations[@current_animation][:count],
+          hold_for: @animations[@current_animation][:hold_for],
+          repeat: @animations[@current_animation][:repeat]
+        )
 
       if f_i
         return f_i
       else
         $EVENT_BUS.publish(:enemy_animation_completed) if @playing_one_shot
         @playing_one_shot = false
-        return (@animations[@current_animation][:count] - 1)
+        return(@animations[@current_animation][:count] - 1)
       end
     end
   end
@@ -103,5 +102,4 @@ class EnemyAnimationComponent
 
     enemy_sprite
   end
-
 end

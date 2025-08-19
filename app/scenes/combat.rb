@@ -46,10 +46,16 @@ class Combat < Scene
     @dealing_time = 1.seconds
     $AUDIO_SERVICE.play_sound(:cards_shuffle)
     $AUDIO_SERVICE.play_song(:combat_encounter)
-    $EVENT_BUS.subscribe(:enemy_animation_completed, self) { |p| on_enemy_animation_completed(p) }
-    $EVENT_BUS.subscribe(:potion_animation_completed, self) { |p| on_potion_cast_animation_completed(p) }
-    $EVENT_BUS.subscribe(:potion_animation_impacted, self) { |p| on_potion_animation_impact(p) }
-    
+    $EVENT_BUS.subscribe(:enemy_animation_completed, self) do |p|
+      on_enemy_animation_completed(p)
+    end
+    $EVENT_BUS.subscribe(:potion_animation_completed, self) do |p|
+      on_potion_cast_animation_completed(p)
+    end
+    $EVENT_BUS.subscribe(:potion_animation_impacted, self) do |p|
+      on_potion_animation_impact(p)
+    end
+
     puts @hand_manager.hand
   end
 
@@ -70,11 +76,18 @@ class Combat < Scene
   def on_potion_cast_animation_completed(payload)
     puts "POTION CAST COMPLETED"
     $game.input_locked = false
-    begin_turn_stage(@turn_stages[:cleanup]) if !$game.input_locked
+    if !@hand_manager.actions_available? && !$game.input_locked
+      begin_turn_stage(@turn_stages[:cleanup])
+    end
   end
 
   def tick
-    run_once(:pre_load_loot_encounter_music) { $AUDIO_SERVICE.play_song(:loot_encounter) } if @victory_banner_timer && @victory_banner_timer.elapsed_time >= 3.25.seconds
+    if @victory_banner_timer &&
+         @victory_banner_timer.elapsed_time >= 3.25.seconds
+      run_once(:pre_load_loot_encounter_music) do
+        $AUDIO_SERVICE.play_song(:loot_encounter)
+      end
+    end
     @combo_manager.tick(@hand_manager.hand)
     begin_combat if ready_for_combat?
     calc
@@ -179,8 +192,7 @@ class Combat < Scene
   end
 
   def check_enemy_death
-    unless @enemy.combat_stats.dead &&
-             !@victory_banner_timer && @combat_active
+    unless @enemy.combat_stats.dead && !@victory_banner_timer && @combat_active
       return
     end
 
@@ -244,7 +256,7 @@ class Combat < Scene
         h: rect[:h],
         a: 180,
         path: "sprites/background_frames/dungeon/dungeon_bg1.png"
-          # "sprites/background_frames/dungeon/dungeon_bg#{bg_tile_index + 1}.png"
+        # "sprites/background_frames/dungeon/dungeon_bg#{bg_tile_index + 1}.png"
       }
 
       l0 << [background_solid, background]
@@ -495,12 +507,8 @@ class Combat < Scene
       l3 << [front_card, $player.prefab]
       return l3
     when 4
-      banner_f_i = Numeric.frame_index(
-        start_at: 0,
-        count: 18,
-        hold_for: 6,
-        repeat: true
-      )
+      banner_f_i =
+        Numeric.frame_index(start_at: 0, count: 18, hold_for: 6, repeat: true)
       # if @defeat_banner_timer
       #   defeat_banner_label = {
       #     x: GTK.args.grid.w / 2,
@@ -517,7 +525,7 @@ class Combat < Scene
       #     text: "DEFEAT",
       #     primitive_marker: :label
       #   }
-# 
+      #
       #   defeat_banner = {
       #     path: "sprites/combat_banner_frames/combat_banner#{banner_f_i + 1}.png",
       #     x: 0,
@@ -530,7 +538,7 @@ class Combat < Scene
       #     a: @banner_alpha,
       #     primitive_marker: :sprite
       #   }
-# 
+      #
       #   l4 << [defeat_banner, defeat_banner_label]
       # end
 
@@ -552,7 +560,8 @@ class Combat < Scene
         }
 
         victory_banner = {
-          path: "sprites/combat_banner_frames/combat_banner#{banner_f_i + 1}.png",
+          path:
+            "sprites/combat_banner_frames/combat_banner#{banner_f_i + 1}.png",
           x: 0,
           y: GTK.args.grid.h / 2 - 64,
           w: 1280,
@@ -584,7 +593,8 @@ class Combat < Scene
         }
 
         flee_banner = {
-          path: "sprites/combat_banner_frames/combat_banner#{banner_f_i + 1}.png",
+          path:
+            "sprites/combat_banner_frames/combat_banner#{banner_f_i + 1}.png",
           x: 0,
           y: GTK.args.grid.h / 2 - 64,
           w: 1280,
@@ -686,6 +696,7 @@ class Combat < Scene
     state.mouse_point_inside_square = nil
     @hand_manager.cleanup
     $EVENT_BUS.unsubscribe_owner(@enemy)
+    $EVENT_BUS.unsubscribe_owner(self)
 
     potions_save_data = []
     @player.potions.all_cards.each { |c| potions_save_data << c.save_data? }
@@ -795,8 +806,8 @@ class Combat < Scene
             end
           end
           end_combat if @enemy.combat_stats.dead
-          unless @hand_manager.actions_available?
-            begin_turn_stage(@turn_stages[:cleanup]) if !$game.input_locked
+          if !@hand_manager.actions_available? && !$game.input_locked
+            begin_turn_stage(@turn_stages[:cleanup])
           end
         end
 
