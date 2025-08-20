@@ -87,6 +87,7 @@ class RewardsScreen < Scene
       }
 
       l0 << [background]
+      l0.flatten
       return l0
     when 1
       top_panel ||= {
@@ -102,11 +103,14 @@ class RewardsScreen < Scene
       }
 
       l1 << [top_panel]
+      l1.flatten
       return l1
     when 2
+      l2.flatten
       l2 << [cards]
       return l2
     when 3
+      l3.flatten
       l3 << front_card unless front_card.empty?
       return l3
     when 4
@@ -121,6 +125,7 @@ class RewardsScreen < Scene
         text: "Loot #{@picks}!",
         primitive_marker: :label
       }
+      l4.flatten
       l4 << [rewards_left_label]
       return l4
     else
