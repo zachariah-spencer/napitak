@@ -881,11 +881,15 @@ class Combat < Scene
   end
 
   def end_combat()
-    @combat_active = false
+    @combo_manager.combat_ended = true
     $AUDIO_SERVICE.play_sound("#{@enemy.enemy_id}_death".to_sym)
     $AUDIO_SERVICE.stop_song
     $AUDIO_SERVICE.play_sound(:victory_fanfare)
     @player.my_turn = false
+
+    unless @enemy.instance_variable_defined?(:@animations)
+      $EVENT_BUS.publish(:enemy_animation_completed)
+    end
   end
 
   def get_card_rects

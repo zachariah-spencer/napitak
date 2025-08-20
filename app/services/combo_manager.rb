@@ -1,5 +1,9 @@
 class ComboManager
-  attr :current_sequence, :combo_completion_tick, :current_combo_sequence_path, :next_combo_ingredient
+  attr :current_sequence,
+       :combo_completion_tick,
+       :current_combo_sequence_path,
+       :next_combo_ingredient,
+       :combat_ended
 
   def initialize
     @current_sequence = []
@@ -9,40 +13,31 @@ class ComboManager
     @da = 0
     @a = 0
     @combo_completion_tick = nil
+    @combat_ended = false
     @possible_sequences = [
       # two fire sequences
-      {
-        sequence: ["i003", "i002", "i003"],
-        effect: "scorch_doubles"
-      },
-      {
-        sequence: ["i003", "i004", "i002"],
-        effect: "ward_doubles"
-      },
+      { sequence: %w[i003 i002 i003], effect: "scorch_doubles" },
+      { sequence: %w[i003 i004 i002], effect: "ward_doubles" },
       # water sequence and following elements
-      {
-        sequence: ["i002", "i003", "i002"],
-        effect: "regen_5"
-      },
-      {
-        sequence: ["i004", "i005", "i004"],
-        effect: "something"
-      },
-      {
-        sequence: ["i005", "i004", "i005"],
-        effect: "something else"
-      }
+      { sequence: %w[i002 i003 i002], effect: "regen_5" },
+      { sequence: %w[i004 i005 i004], effect: "something" },
+      { sequence: %w[i005 i004 i005], effect: "something else" }
     ]
   end
 
   def tick(hand)
-    reset_sequence(true) if @combo_completion_tick && @combo_completion_tick.elapsed_time >= 1.5.seconds
+    if @combo_completion_tick &&
+         @combo_completion_tick.elapsed_time >= 1.5.seconds
+      reset_sequence(true)
+    end
 
     find_matching_combo
 
     (hand.values + $player.potions.all_cards).each do |card|
       card.focus_mod = 0
-      card.focus_mod = -1 if (card.primary_base_ingredient_id? == @next_combo_ingredient) && @next_combo_ingredient != ""
+      card.focus_mod = -1 if (
+        card.primary_base_ingredient_id? == @next_combo_ingredient
+      ) && @next_combo_ingredient != ""
     end
   end
 
@@ -52,18 +47,23 @@ class ComboManager
   end
 
   def combo_completed?(current_combo_sequence, valid_matching_combo_sequence)
-    current_combo_sequence.size == valid_matching_combo_sequence.size && current_combo_sequence == valid_matching_combo_sequence
+    current_combo_sequence.size == valid_matching_combo_sequence.size &&
+      current_combo_sequence == valid_matching_combo_sequence
   end
 
   def add_to_sequence(primary_base_ingredient_id)
     @current_sequence << primary_base_ingredient_id
-    find_matching_combo 
+    find_matching_combo
   end
 
   def find_matching_combo
-    first_matching_combo_sequence = @possible_sequences.find do |possible_sequence_hash|
-      current_sequence_combo?(@current_sequence, possible_sequence_hash[:sequence])
-    end
+    first_matching_combo_sequence =
+      @possible_sequences.find do |possible_sequence_hash|
+        current_sequence_combo?(
+          @current_sequence,
+          possible_sequence_hash[:sequence]
+        )
+      end
 
     #puts "Current_Sequence: #{@current_sequence}"
 
@@ -78,7 +78,10 @@ class ComboManager
   end
 
   def update_sequence_state(matched_combo_sequence)
-    @combo_completion_tick = Kernel.tick_count if combo_completed?(@current_sequence, matched_combo_sequence[:sequence]) && !@combo_completion_tick
+    @combo_completion_tick = Kernel.tick_count if combo_completed?(
+      @current_sequence,
+      matched_combo_sequence[:sequence]
+    ) && !@combo_completion_tick
     is_new_path = @current_combo_sequence_path != matched_combo_sequence
     @current_combo_sequence_path = matched_combo_sequence
 
@@ -123,13 +126,24 @@ class ComboManager
   end
 
   def prefab
-    if ((@current_combo_sequence_path && @current_combo_sequence_path != {}) && !@combo_completion_tick) || @combo_completion_tick && @combo_completion_tick.elapsed_time < 0.5.seconds
-      @da = 255
-    elsif @combo_completion_tick && @combo_completion_tick.elapsed_time >= 0.5.seconds
+    if @combat_ended
       @da = 0
     else
-      @da = 0
+      if (
+         (@current_combo_sequence_path && @current_combo_sequence_path != {}) &&
+           !@combo_completion_tick
+       ) ||
+         @combo_completion_tick &&
+           @combo_completion_tick.elapsed_time < 0.5.seconds
+        @da = 255
+      elsif @combo_completion_tick &&
+            @combo_completion_tick.elapsed_time >= 0.5.seconds
+        @da = 0
+      else
+        @da = 0
+      end
     end
+    
 
     @a = @a.lerp(@da, 0.075)
 
