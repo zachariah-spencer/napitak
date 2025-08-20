@@ -19,20 +19,30 @@ class Game
     @scene_ref = nil
     @collection_scene_ref = nil
     @viewing_collection = false
-    @pause_btn = Button.new(
-      x: 128 + 16 + 8, 
-      y: GTK.args.grid.h - 32,
-      w: 32,
-      h: 32,
-      path: "sprites/pause_button-sheet-4.png",
-      tile_rect: {
-        x: 32, y: 0, w: 32, h: 32
-      },
-      frame_length: 4,
-      text: "")
+    @pause_btn =
+      Button.new(
+        x: 128 + 16 + 8,
+        y: GTK.args.grid.h - 32,
+        w: 32,
+        h: 32,
+        path: "sprites/pause_button-sheet-4.png",
+        tile_rect: {
+          x: 32,
+          y: 0,
+          w: 32,
+          h: 32
+        },
+        frame_length: 4,
+        text: ""
+      )
     @paused_scene_ref = nil
     @paused = false
-    @status_effect_list_widget = StatusEffectListWidget.new(x: misc_btn[:x] - 128 + 16, y: GTK.args.grid.h - 64, hover_rect: misc_btn)
+    @status_effect_list_widget =
+      StatusEffectListWidget.new(
+        x: misc_btn[:x] - 128 + 16,
+        y: GTK.args.grid.h - 64,
+        hover_rect: misc_btn
+      )
     @pot_col_btn = {
       x: GTK.args.grid.w / 2 - 16 + 300 + 22,
       y: GTK.args.grid.h - 32,
@@ -101,7 +111,9 @@ class Game
     @recipe_book = RecipeBook.new()
     EncounterManager.new()
 
-    @tutorial_completed = $files.save_data["tutorials"]["alchemy_lab_tutorial"] || false if $files.save_data["tutorials"]["alchemy_lab_tutorial"]
+    @tutorial_completed =
+      $files.save_data["tutorials"]["alchemy_lab_tutorial"] ||
+        false if $files.save_data["tutorials"]["alchemy_lab_tutorial"]
 
     @player.load_inventory_data
     @player.load_upgrades_data
@@ -260,11 +272,7 @@ class Game
     if (
          GTK.args.inputs.keyboard.key_down.escape &&
            @scene_ref.sc_id != "collection"
-       ) ||
-         (
-           @pause_btn.clicked? &&
-             @scene_ref.sc_id != "collection"
-         )
+       ) || (@pause_btn.clicked? && @scene_ref.sc_id != "collection")
       toggle_pause(paused_scene_ref: @scene_ref)
     end
   end
@@ -377,6 +385,11 @@ class Game
     l4 = []
 
     if @scene_ref
+      l0.flatten!
+      l1.flatten!
+      l2.flatten!
+      l3.flatten!
+      l4.flatten!
       l0 << @scene_ref.render(0)
       l1 << @scene_ref.render(1)
       l2 << @scene_ref.render(2)
@@ -391,12 +404,8 @@ class Game
     l4 << @status_labels.map { |particle| status_label_prefab particle }
 
     if $player.combat_stats.dead_tick && @mid_run
-      banner_f_i = Numeric.frame_index(
-        start_at: 0,
-        count: 18,
-        hold_for: 6,
-        repeat: true
-      )
+      banner_f_i =
+        Numeric.frame_index(start_at: 0, count: 18, hold_for: 6, repeat: true)
       defeat_banner_label ||= {
         x: GTK.args.grid.w / 2,
         y: GTK.args.grid.h / 2,
@@ -414,23 +423,22 @@ class Game
       }
 
       defeat_banner = {
-          path: "sprites/combat_banner_frames/combat_banner#{banner_f_i + 1}.png",
-          x: 0,
-          y: GTK.args.grid.h / 2 - 64,
-          w: 1280,
-          h: 128,
-          r: 255,
-          g: 0,
-          b: 0,
-          a: @defeat_banner_alpha,
-          primitive_marker: :sprite
-        }
+        path: "sprites/combat_banner_frames/combat_banner#{banner_f_i + 1}.png",
+        x: 0,
+        y: GTK.args.grid.h / 2 - 64,
+        w: 1280,
+        h: 128,
+        r: 255,
+        g: 0,
+        b: 0,
+        a: @defeat_banner_alpha,
+        primitive_marker: :sprite
+      }
 
       l4 << [defeat_banner, defeat_banner_label]
     end
     # render scene pipeline layers
     outputs.primitives << [l0, l1, l2, l3, l4]
-    
 
     # render pause button
     outputs.primitives << @pause_btn.prefab if @scene_ref.sc_id != "collection"
@@ -443,7 +451,7 @@ class Game
         hp_label[:icon],
         hp_label[:label],
         focus_label[:icon],
-        focus_label[:label],
+        focus_label[:label]
       ]
 
       if !$player.status_effects.empty?
@@ -459,7 +467,6 @@ class Game
     outputs.primitives << $announcement_manager&.prefab
     # render scene transition overlay
     outputs.primitives << @transition.prefab if @transition
-
   end
 
   def calc_button_inputs
