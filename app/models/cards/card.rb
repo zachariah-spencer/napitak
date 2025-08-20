@@ -180,7 +180,7 @@ class Card
       path: @card_composite_tooltip_ref,
       primitive_marker: :sprite
     }
-    return card_sprite, tt_sprite
+    return card_sprite
   end
 
   def update_sprite()
@@ -316,7 +316,7 @@ class Card
       primitive_marker: :sprite
     }
 
-    render_tooltip(args) if GameUtils.is_potion(self.id) && @hovered
+    # render_tooltip(args) if GameUtils.is_potion(self.id) && @hovered
   end
 
   def render_tooltip(args)

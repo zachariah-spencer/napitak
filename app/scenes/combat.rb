@@ -187,8 +187,6 @@ class Combat < Scene
     elsif @player.my_turn? && !@fled
       calc_mouse_inputs
     end
-
-    check_enemy_death
     @hand_manager.remove_marked
     fade_banners
   end
@@ -623,7 +621,7 @@ class Combat < Scene
 
       l4 << @player.combat_stats.prefab
       l4 << players_turn_label if @player.my_turn?
-      l4 << tool_tips
+      # l4 << tool_tips
       return l4
     else
       # puts "combat.rb: Invalid Render Argument"
@@ -778,7 +776,7 @@ class Combat < Scene
       if inputs.mouse.click and c_u_m
         state.currently_dragging_card_id = c_u_m.id
         c_ref = @hand_manager.hand[state.currently_dragging_card_id]
-        c_ref.grabbed = true
+        c_ref.grab
 
         state.mouse_point_inside_square = {
           x: inputs.mouse.x - c_u_m.x,
@@ -787,11 +785,21 @@ class Combat < Scene
 
         state.click_hold_time = Kernel.tick_count
       elsif inputs.mouse.held and state.currently_dragging_card_id
-        c_ref.pos.x = inputs.mouse.x - state.mouse_point_inside_square.x
-        c_ref.pos.y = inputs.mouse.y - state.mouse_point_inside_square.y
+        card_pos = {
+          x: inputs.mouse.x - state.mouse_point_inside_square.x,
+          y: inputs.mouse.y - state.mouse_point_inside_square.y
+        }
+        if c_ref.grabbed_tick && c_ref.grabbed_tick.elapsed_time >= 0.8.seconds && Geometry.distance(c_ref.grabbed_pos, card_pos) < 16 && !c_ref.flipped
+          c_ref.flip(true)
+        elsif c_ref.flipped
+          
+        else
+          c_ref.pos.x = card_pos[:x]
+          c_ref.pos.y = card_pos[:y]
+        end
       elsif inputs.mouse.up and state.currently_dragging_card_id
         # Re-fetch the card from either group.
-        c_ref.grabbed = false
+        c_ref.release
         c_ref = @hand_manager.hand[state.currently_dragging_card_id]
 
         if state.click_hold_time.elapsed_time < 20 &&

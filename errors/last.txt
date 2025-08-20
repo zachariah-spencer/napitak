@@ -1,22 +1,24 @@
 * EXCEPTION:
-* ERROR - :run_once method missing on ~Bat~.
+* ERROR - :tick_count method missing on ~PotionCard~.
 
-#+begin_src ~Bat#inspect~
-#<Bat:0x1ffac7e7ef0 @enemy_id="bat", @sprite="sprites/isometric/black.png", @fang=1.970284338829532, @x=543.8642886480296, @home_y=470, @fy=494.5373134833698, @w=200, @attack_y=-30, @fx=543.2761430851432, @shout_component=#<ShoutComponent:0x1ffac7e7dd0>, @damage_flash_tick=nil, @combat_stats=#<CombatStatsComponent:0x1ffac7e53d0>, @turn_start_timer=0, @turn_ended_signal=true, @name="Bat", @value=1, @ang=1.976264326538912, @h=200, @attacked=false, @y=494.421701027472, @floating_seed=57.0479870906677, @accuracy=90.0, @attacks={50=>{:name=>"Basic Attack", :attack_id=>"a001", :traits=>[{0=>{:amount=>5, :type=>0}}, {8=>10}]}, 20=>{:name=>"Power Attack", :attack_id=>"a002", :traits=>[{0=>{:amount=>5, :type=>0}}, {8=>15}]}, 30=>{:name=>"Ultimate Attack", :attack_id=>"a003", :traits=>[{0=>{:amount=>10, :type=>0}}, {8=>10}]}}, @my_turn=false, @is_boss=false>
-#+end_src ~Bat#inspect~
+#+begin_src ~PotionCard#inspect~
+#<PotionCard:0x1de81a0cc40 @anchored=false, @img="sprites/flamelickbottle.png", @free_floating=false, @anim_seed=2, @grabbed_pos={:x=>0, :y=>0}, @activation_time=0.0, @card_back_img="sprites/card_sheet.png", @f_angle=11.25, @needs_removed=false, @entity_id=44158, @potencies=[{0=>{:amount=>5, :type=>1}}], @tt_f_a=0, @dy=0.0, @desc="Flames leap from the bottle at foes.", @name="Flamelick Potion", @r=255, @vy=0.0, @f_pos={:x=>404.9999999999998, :y=>25.0}, @h=160.0, @ttw=1000, @dx=0.0, @tth=1000, @b=255, @marked_for_removal=false, @padding=-30, @vx=0.0, @g=255, @grabbed=false, @w=160.0, @card_composite_tooltip_ref=:card_composite_tooltip_44158, @tt_a=3.303608032110544e-53, @selected=false, @max_uses=5, @grabbed_tick=nil, @hovered=false, @angle=11.25, @id="p001", @uses_left=5, @focus_mod=0, @pos={:x=>404.9999999999998, :y=>25.0}, @fh=160, @floating_seed=13.56345259434624, @flipped=false, @card_composite_sprite_ref=:card_composite_44158, @fc=1, @fw=160>
+#+end_src ~PotionCard#inspect~
 
-
+** Did you mean?
+Here's a list of methods that kind of look like :tick_count.
+*** :tick
 
 The method named
-  :run_once
-with args
-  [:publish_death]
-doesn't exist on [Bat, #<Class:#<Bat:0x1ffac7e7ef0>>, Enemy, AttrGTK].
+  :tick_count
+doesn't exist on [PotionCard, #<Class:#<PotionCard:0x1de81a0cc40>>, Card].
 
 (suggestions above)
 ** Backtrace:
-*** app/models/enemies/enemy.rb:234:in tick
-*** app/services/enemy_ai.rb:10:in tick
-*** app/scenes/combat.rb:106:in tick
+*** app/models/cards/potion_card.rb:234:in calc_position
+*** app/services/card_hand_manager.rb:33:in calc_card_positions
+*** app/services/card_hand_manager.rb:32:in calc_card_positions
+*** app/scenes/combat.rb:183:in calc
+*** app/scenes/combat.rb:101:in tick
 *** app/game.rb:330:in tick
 *** app/main.rb:93:in tick
