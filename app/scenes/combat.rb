@@ -56,6 +56,10 @@ class Combat < Scene
       on_potion_animation_impact(p)
     end
 
+    $EVENT_BUS.subscribe(:enemy_died, self) do |p|
+      on_enemy_died(p)
+    end
+
     puts @hand_manager.hand
   end
 
@@ -79,6 +83,10 @@ class Combat < Scene
     if !@hand_manager.actions_available? && !$game.input_locked
       begin_turn_stage(@turn_stages[:cleanup])
     end
+  end
+
+  def on_enemy_died(payload)
+    end_combat
   end
 
   def tick
@@ -189,15 +197,6 @@ class Combat < Scene
     @hand_manager.hand.each { |_id, c| c.grabbed = false }
     state.currently_dragging_card_id = nil
     state.mouse_point_inside_square = nil
-  end
-
-  def check_enemy_death
-    unless @enemy.combat_stats.dead && !@victory_banner_timer && @combat_active
-      return
-    end
-
-    puts "ENEMY_DIED_COMBAT_ENDED\n\n"
-    end_combat
   end
 
   def fade_banners
@@ -880,7 +879,7 @@ class Combat < Scene
     end
   end
 
-  def end_combat()
+  def end_combat
     @combo_manager.combat_ended = true
     $AUDIO_SERVICE.play_sound("#{@enemy.enemy_id}_death".to_sym)
     $AUDIO_SERVICE.stop_song

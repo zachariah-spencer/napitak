@@ -1,4 +1,5 @@
 class Enemy
+  include RunOnce
   attr_gtk
   attr :hp,
        :max_hp,
@@ -231,6 +232,7 @@ class Enemy
       @shout_component.tick
       calc_float
     else
+      run_once(:publish_death) { $EVENT_BUS.publish(:enemy_died) }
       calc_death_anim
     end
   end

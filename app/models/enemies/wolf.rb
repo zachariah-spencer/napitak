@@ -98,7 +98,10 @@ class Wolf < Enemy
   end
 
   def calc_death_anim
-    run_once(:death_animation) { @animations.play_animation(:death) }
+    run_once(:death_animation) do 
+      @animations.play_animation(:death)
+      
+    end
   end
 
   def attack
