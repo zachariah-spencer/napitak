@@ -499,7 +499,7 @@ class Card
   def interpolate_attributes
     @w = @w.lerp @fw, 0.2
     @h = @h.lerp @fh, 0.2
-    if @grabbed
+    if @grabbed && !@flipped
       @vx = 0.0
       @vy = 0.0
       return

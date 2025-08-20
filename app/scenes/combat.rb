@@ -789,10 +789,10 @@ class Combat < Scene
           x: inputs.mouse.x - state.mouse_point_inside_square.x,
           y: inputs.mouse.y - state.mouse_point_inside_square.y
         }
-        if c_ref.grabbed_tick && c_ref.grabbed_tick.elapsed_time >= 0.8.seconds && Geometry.distance(c_ref.grabbed_pos, card_pos) < 16 && !c_ref.flipped
+        if c_ref.grabbed_tick && c_ref.grabbed_tick.elapsed_time >= 0.8.seconds && c_ref.grabbed_tick.elapsed_time < 1.0.seconds && Geometry.distance(c_ref.grabbed_pos, card_pos) < 32 && !c_ref.flipped
           c_ref.flip(true)
         elsif c_ref.flipped
-          
+
         else
           c_ref.pos.x = card_pos[:x]
           c_ref.pos.y = card_pos[:y]
