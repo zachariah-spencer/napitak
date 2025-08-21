@@ -4,9 +4,9 @@ class AnimationManager
   attr_gtk
   attr_accessor :player_ready_at
 
-  def initialize(animations = $ANIMATIONS)
-    $animation_manager = self
-    @animations = animations
+  def initialize()
+    # $animation_manager = self
+    # @animations = animations
     @queue = []
     @current = nil
     @current_frame_index = 0

@@ -59,7 +59,6 @@ class Enemy
 
   def attack
     attack = select_attack
-    $animation_manager.queue_animation(attack[:attack_id], lock_input: true)
     hit_roll = Numeric.rand(0.0..100.0)
     if hit_roll <= modified_accuracy?
       handle_attack_effects(attack)
@@ -296,7 +295,7 @@ class Enemy
   end
 
   def attack_completed?
-    attacked and not $animation_manager&.input_locked? and @my_turn
+    attacked and not !$game.input_locked and @my_turn
   end
 
   def prefab

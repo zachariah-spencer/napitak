@@ -26,6 +26,7 @@ class Wolf < Enemy
       )
     @animations =
       EnemyAnimationComponent.new(
+        enemy_id_sym: :wolf,
         x: @x,
         y: @y,
         w: @w,

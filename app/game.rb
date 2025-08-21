@@ -88,8 +88,8 @@ class Game
       a: 255
     }
     AudioService.new
-    AnimationService.new
-    AnimationManager.new
+    # AnimationService.new
+    # AnimationManager.new
     AnnouncementManager.new
     EventBus.new
 
@@ -329,8 +329,6 @@ class Game
       @scene_ref.args = args
       @scene_ref.tick
     end
-
-    $animation_manager.tick if $animation_manager
     $announcement_manager.tick
     render
 
@@ -396,9 +394,6 @@ class Game
       l3 << @scene_ref.render(3)
       l4 << @scene_ref.render(4)
     end
-
-    # render any active animations
-    l2 << $animation_manager.render if $animation_manager
 
     # for each particle, construct a prefab
     l4 << @status_labels.map { |particle| status_label_prefab particle }

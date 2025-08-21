@@ -16,7 +16,6 @@ require_relative "utils/button"
 require_relative "utils/announcement"
 require_relative "utils/transition"
 require_relative "utils/status_effect_list_widget"
-require_relative "utils/animation"
 require_relative "utils/run_once"
 
 # models (just player)
@@ -74,7 +73,6 @@ require_relative "services/inventory"
 require_relative "services/recipe_book"
 require_relative "services/encounter_manager"
 require_relative "services/files"
-require_relative "services/animation_manager"
 require_relative "services/announcement_manager"
 require_relative "services/card_hand_manager"
 require_relative "services/enemy_ai"
@@ -82,7 +80,6 @@ require_relative "services/tutorial_service"
 require_relative "services/event_bus"
 require_relative "services/combo_manager"
 require_relative "services/audio_service"
-require_relative "services/animation_service"
 
 def tick(args)
   purge_old_version_saves_from_web_build(args)

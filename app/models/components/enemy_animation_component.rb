@@ -1,5 +1,5 @@
 class EnemyAnimationComponent
-  def initialize(x:, y:, w:, h:, tx:, ty:, tw:, th:)
+  def initialize(x:, y:, w:, h:, tx:, ty:, tw:, th:, enemy_id_sym:)
     @x = x
     @y = y
     @w = w
@@ -10,27 +10,28 @@ class EnemyAnimationComponent
     @th = th
     @dead = false
 
-    # FIXME: Refactor to pull from global hash
-    @animations = {
-      idle: {
-        path: "sprites/wolf-sheet-3.png",
-        count: 3,
-        hold_for: 30,
-        repeat: true
-      },
-      attack: {
-        path: "sprites/wolf_attack1-sheet-4.png",
-        count: 4,
-        hold_for: 10,
-        repeat: false
-      },
-      death: {
-        path: "sprites/wolf_death-sheet-15.png",
-        count: 15,
-        hold_for: 5,
-        repeat: false
-      }
-    }
+    @animations = $ENEMY_ANIMATIONS[enemy_id_sym]
+    
+    # {
+    #   idle: {
+    #     path: "sprites/wolf-sheet-3.png",
+    #     count: 3,
+    #     hold_for: 30,
+    #     repeat: true
+    #   },
+    #   attack: {
+    #     path: "sprites/wolf_attack1-sheet-4.png",
+    #     count: 4,
+    #     hold_for: 10,
+    #     repeat: false
+    #   },
+    #   death: {
+    #     path: "sprites/wolf_death-sheet-15.png",
+    #     count: 15,
+    #     hold_for: 5,
+    #     repeat: false
+    #   }
+    # }
 
     @current_animation = :idle
     @playing_one_shot = false

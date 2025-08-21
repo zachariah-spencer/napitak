@@ -528,66 +528,46 @@ module GameData
       chance: 2
     }
   }.freeze
-  ANIMATIONS = {
-    "a001" => {
-      rect: {
-        x: GTK.args.grid.w / 2 - 100,
-        y: GTK.args.grid.h / 2 - 100,
-        w: 200,
-        h: 200
+  ENEMY_ANIMATIONS = {
+    wolf: {
+      idle: {
+        path: "sprites/wolf-sheet-3.png",
+        count: 3,
+        hold_for: 30,
+        repeat: true
       },
-      frames: %w[
-        sprites/misc/explosion-0.png
-        sprites/misc/explosion-1.png
-        sprites/misc/explosion-2.png
-        sprites/misc/explosion-3.png
-        sprites/misc/explosion-4.png
-        sprites/misc/explosion-5.png
-        sprites/misc/explosion-6.png
-      ],
-      frame_length: 5,
-      particle_frames: {
-      }
-    },
-    "a002" => {
-      rect: {
-        x: GTK.args.grid.w / 2 - 100,
-        y: GTK.args.grid.h / 2 - 100,
-        w: 200,
-        h: 200
+      hurt: {
+        path: "",
+        count: 1,
+        hold_for: 2,
+        repeat: false,
       },
-      frames: %w[
-        sprites/misc/explosion-0.png
-        sprites/misc/explosion-1.png
-        sprites/misc/explosion-2.png
-        sprites/misc/explosion-3.png
-        sprites/misc/explosion-4.png
-        sprites/misc/explosion-5.png
-        sprites/misc/explosion-6.png
-      ],
-      frame_length: 5,
-      particle_frames: {
-      }
-    },
-    "a003" => {
-      rect: {
-        x: GTK.args.grid.w / 2 - 100,
-        y: GTK.args.grid.h / 2 - 100,
-        w: 200,
-        h: 200
+      death: {
+        path: "sprites/wolf_death-sheet-15.png",
+        count: 15,
+        hold_for: 5,
+        repeat: false
       },
-      frames: %w[
-        sprites/misc/explosion-0.png
-        sprites/misc/explosion-1.png
-        sprites/misc/explosion-2.png
-        sprites/misc/explosion-3.png
-        sprites/misc/explosion-4.png
-        sprites/misc/explosion-5.png
-        sprites/misc/explosion-6.png
-      ],
-      frame_length: 5,
-      particle_frames: {
-      }
+      attacks: {
+        basic: {
+          path: "sprites/wolf_attack1-sheet-4.png",
+          count: 4,
+          hold_for: 10,
+          repeat: false
+        },
+        special: {
+          path: "sprites/wolf_attack1-sheet-4.png",
+          count: 4,
+          hold_for: 10,
+          repeat: false
+        },
+        apex:  {
+          path: "sprites/wolf_attack1-sheet-4.png",
+          count: 4,
+          hold_for: 10,
+          repeat: false
+        },
+      },
     }
   }.freeze
 end
@@ -602,7 +582,7 @@ $DAMAGE_TYPE_SPRITES = GameData::DAMAGE_TYPE_SPRITES
 $PIDS = GameData::PIDS
 $IIDS = GameData::IIDS
 $ENCOUNTERS = GameData::ENCOUNTERS
-$ANIMATIONS = GameData::ANIMATIONS
+$ENEMY_ANIMATIONS = GameData::ENEMY_ANIMATIONS
 $SHOP_ITEMS = GameData::SHOP_ITEMS
 $REWARD_ITEMS = GameData::REWARD_ITEMS
 $TUTORIAL_INDEX = 0

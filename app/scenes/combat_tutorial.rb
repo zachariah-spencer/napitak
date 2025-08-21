@@ -775,7 +775,7 @@ class CombatTutorial < Scene
   end
 
   def calc_mouse_inputs
-    return if $animation_manager&.input_locked? || $game.input_locked
+    return if $game.input_locked? || $game.input_locked
 
     if GTK.args.inputs.mouse.click &&
          Geometry.intersect_rect?(inputs.mouse, flee_btn) && @player.my_turn
