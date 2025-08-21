@@ -247,7 +247,7 @@ class AudioService
       GTK.args.audio[:bg_music_fade].gain -= 0.0008
       # delete audio when it's at 0%
       if GTK.args.audio[:bg_music_fade].gain <= 0.0
-        GTK.args.audio[:bg_music_fade] = nil
+        # GTK.args.audio[:bg_music_fade] = nil
       end
     end
   end

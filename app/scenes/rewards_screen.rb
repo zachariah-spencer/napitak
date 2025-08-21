@@ -87,7 +87,7 @@ class RewardsScreen < Scene
       }
 
       l0 << [background]
-      l0.flatten!
+      #l0.flatten!
       return l0
     when 1
       top_panel ||= {
@@ -103,15 +103,15 @@ class RewardsScreen < Scene
       }
 
       l1 << [top_panel]
-      l1.flatten!
+      #l1.flatten!
       return l1
     when 2
       l2 << [cards]
-      l2.flatten!
+      #l2.flatten!
       return l2
     when 3
       l3 << front_card unless front_card.empty?
-      l3.flatten!
+      #l3.flatten!
       return l3
     when 4
       rewards_left_label = {
@@ -126,7 +126,7 @@ class RewardsScreen < Scene
         primitive_marker: :label
       }
       l4 << [rewards_left_label]
-      l4.flatten!
+      #l4.flatten!
       return l4
     else
       # puts "combat.rb: Invalid Render Argument"

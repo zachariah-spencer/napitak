@@ -385,11 +385,11 @@ class Game
     l4 = []
 
     if @scene_ref
-      l0.flatten!
-      l1.flatten!
-      l2.flatten!
-      l3.flatten!
-      l4.flatten!
+      # l0.flatten!
+      # l1.flatten!
+      # l2.flatten!
+      # l3.flatten!
+      # l4.flatten!
       l0 << @scene_ref.render(0)
       l1 << @scene_ref.render(1)
       l2 << @scene_ref.render(2)
