@@ -81,6 +81,7 @@ class CardHandManager
     end
 
     def calc_card_effects(potion)
+      return if !$player.check_hit?
       potion_info = potion
       potion_traits = potion_info.traits
       if @combo_manager.combo_completion_tick

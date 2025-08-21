@@ -805,12 +805,8 @@ class Combat < Scene
         if state.click_hold_time.elapsed_time < 20 &&
              (Geometry.distance c_ref.pos, c_ref.f_pos) < 20
           if card_usable?(c_ref)
-            if @player.check_hit?
-              @combo_manager.add_to_sequence(c_ref.primary_base_ingredient_id?)
-              @hand_manager.use_card(c_ref)
-            else
-              @hand_manager.consume_card(c_ref)
-            end
+            @combo_manager.add_to_sequence(c_ref.primary_base_ingredient_id?)
+            @hand_manager.use_card(c_ref)
           end
           end_combat if @enemy.combat_stats.dead
           if !@hand_manager.actions_available? && !$game.input_locked
