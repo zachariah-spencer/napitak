@@ -45,7 +45,7 @@ class Player
 
     @my_turn = true
     @combat_stats =
-      CombatStatsComponent.new(hp: 100, focus: 4, x: 64, y: 262, columns: 2)
+      CombatStatsComponent.new(hp: 100, focus: 4, x: 64, y: 262, columns: 2, parent: self)
     @potion_animations = PotionAnimationComponent.new(x: GTK.args.grid.w / 2 - 150, y: 0, w: 256, h: 720, tx: 256, ty: 0, tw: 256, th: 720)
     @status_effects = load_status_effects_data || []
     @stunned_turns = 0

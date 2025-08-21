@@ -23,7 +23,8 @@ class Dracolisk < Enemy
         x: GTK.args.grid.w / 2,
         y: GTK.args.grid.h - 270,
         resistances: [$DAMAGE_TYPES[:force]],
-        vulnerabilities: [$DAMAGE_TYPES[:spark]]
+        vulnerabilities: [$DAMAGE_TYPES[:spark]],
+        parent: self
       )
     @sprite = "sprites/triangle/equilateral/red.png"
     @name = "Crystal Dracolisk"

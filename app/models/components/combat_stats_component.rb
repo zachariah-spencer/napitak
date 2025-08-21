@@ -19,12 +19,12 @@ class CombatStatsComponent
   def initialize(
     x:,
     y:,
+    parent:,
     hp: 1,
     focus: 0,
     resistances: [],
     vulnerabilities: [],
-    columns: 8
-  )
+    columns: 8)
     @statuses = {
       $STATUS_TYPES[:SCORCH] => 0,
       $STATUS_TYPES[:BLIGHT] => 0,
@@ -33,7 +33,7 @@ class CombatStatsComponent
       $STATUS_TYPES[:RESTORATION] => 0,
       $STATUS_TYPES[:BLIND] => 0
     }
-
+    @parent = parent
     @resistances = resistances
     @vulnerabilities = vulnerabilities
     @x = x
@@ -51,6 +51,8 @@ class CombatStatsComponent
     @dead = false
     @dead_tick = nil
   end
+  
+  def tick; end
 
   def heal(amt)
     @hp += amt
@@ -71,6 +73,7 @@ class CombatStatsComponent
 
   def hurt(amt, type)
     # $AUDIO_SERVICE.play_sound(:hit_impact)
+    $EVENT_BUS.publish(:combatant_hurt, combatant: @parent)
     vulnerable = @vulnerabilities.include?(type)
     resistant = @resistances.include?(type)
 
@@ -127,9 +130,6 @@ class CombatStatsComponent
   def validate_upgrades(max_hp, max_focus)
     @max_hp = max_hp
     @max_focus = max_focus
-  end
-
-  def tick
   end
 
   def reset!(max_hp, max_foc)

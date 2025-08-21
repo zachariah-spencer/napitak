@@ -33,6 +33,7 @@ class Enemy
     @value = 1
     @floating_seed = Numeric.rand(0.0..100.0)
     @damage_flash_tick = nil
+    @selected_attack = nil
 
     @ang = 0
     @fx = GTK.args.grid.w / 2 - 100
@@ -45,6 +46,7 @@ class Enemy
 
     @attack_y = GTK.args.grid.h - 250 - 500
     @home_y = GTK.args.grid.h - 250
+    @attack_queued = false
 
     @attacks = {}
 
@@ -55,15 +57,18 @@ class Enemy
     $EVENT_BUS.subscribe(:enemy_apply_status, self) do |data|
       @combat_stats.apply_status(type: data[:type], stacks: data[:stacks])
     end
-
     $EVENT_BUS.subscribe(:enemy_animation_completed, self) { |p| on_enemy_animation_completed }
+    $EVENT_BUS.subscribe(:enemy_animation_impacted, self) { |p| on_attack_animation_impact_frame_reached }
+    $EVENT_BUS.subscribe(:combatant_hurt, self) do |combatant|
+      puts "combatant: #{combatant[:combatant]} \n self: #{self} \n animations exists: #{@animations}"
+      @animations.play_animation(:hurt) if combatant[:combatant] == self && @animations
+    end
   end
 
   def attack
-    attack = select_attack
     hit_roll = Numeric.rand(0.0..100.0)
     if hit_roll <= modified_accuracy?
-      handle_attack_effects(attack)
+      handle_attack_effects(@selected_attack)
     else
       GameUtils.status_label(
         GTK.args.grid.w / 2,
@@ -76,6 +81,7 @@ class Enemy
       )
     end
     @attacked = true
+    @selected_attack[:id]
   end
 
   def modified_accuracy?
@@ -199,12 +205,15 @@ class Enemy
     rand_n = Numeric.rand(0...total_weight)
     cumulative = 0
 
-    weighted_attacks.each do |weight, attack|
+    weighted_attacks.each do |weight, att|
       cumulative += weight
-      return attack if rand_n < cumulative
+      if rand_n < cumulative
+        @selected_attack = att
+        return
+      end
     end
 
-    weighted_attacks.last.last
+    @selected_attack = weighted_attacks.last.last
   end
 
   def begin_turn
@@ -225,9 +234,9 @@ class Enemy
     if @my_turn and not @combat_stats.dead
       calc
 
-    unless @enemy.instance_variable_defined?(:@animations)
-      GTK.on_tick_count(Kernel.tick_count + 1) { $EVENT_BUS.publish(:enemy_animation_completed) } if @attacked && @turn_start_timer.elapsed_time >= 1.0.seconds
-    end
+      unless @enemy.instance_variable_defined?(:@animations)
+        GTK.on_tick_count(Kernel.tick_count + 1) { $EVENT_BUS.publish(:enemy_animation_completed) } if @attacked && @turn_start_timer.elapsed_time >= 1.0.seconds
+      end
 
       
     elsif @combat_stats.dead
@@ -255,21 +264,30 @@ class Enemy
   end
 
   def calc
-    if not @attacked
-      attack if @turn_start_timer.elapsed_time >= 1.seconds
+    if !@attacked && !@attack_queued
+      @attack_queued = true
+      GTK.on_tick_count(@turn_start_timer + 0.4.seconds) do
+        select_attack
+        puts "SELECTED: #{@selected_attack[:id]}"
+        @animations.play_animation(@selected_attack[:id]) if @animations
+        $EVENT_BUS.publish(:enemy_animation_impacted, @selected_attack[:id]) if !@animations
+      end
     end
+  end
+
+  def on_attack_animation_impact_frame_reached
+    attack
   end
 
   def calc_float
     if @my_turn and @turn_start_timer.elapsed_time < 0.85.seconds
-      # if @turn_start_timer.elapsed_time > 1.seconds or @turn_start_timer = 0
       @fx = @fx + (Math.cos(@floating_seed + Kernel.tick_count * 0.85) * 5)
     elsif @my_turn and @turn_start_timer.elapsed_time >= 0.85.seconds and
           @turn_start_timer.elapsed_time < 1.0.seconds
-      @fy = @attack_y
+      # @fy = @attack_y
     elsif @my_turn and @turn_start_timer.elapsed_time >= 1.0.seconds
-      @fx = GTK.args.grid.w / 2 - 100
-      @fy = @home_y
+      # @fx = GTK.args.grid.w / 2 - 100
+      # @fy = @home_y
     else
       @fx = @fx + (Math.cos(@floating_seed + Kernel.tick_count * 0.01) * 0.15)
       @fy = @fy + (Math.sin(@floating_seed + Kernel.tick_count * 0.01) * 0.15)
@@ -290,6 +308,7 @@ class Enemy
 
   def end_turn
     @attacked = false
+    @attack_queued = false
     @my_turn = false
     @turn_ended_signal = true
     @combat_stats.calc_status(type: :SCORCH)
@@ -298,7 +317,7 @@ class Enemy
 
 
   def on_enemy_animation_completed
-    end_turn if attacked && @my_turn
+    end_turn if @attacked && @my_turn
   end
 
   def prefab

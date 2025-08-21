@@ -17,6 +17,7 @@ class EnemyAnimationComponent
 
     @current_animation = :idle
     @playing_one_shot = false
+    @animation_impacted = false
     @sprite_frame_start_ticks = { idle: 0, attack: 0 }
   end
 
@@ -58,19 +59,31 @@ class EnemyAnimationComponent
         return f_i
       else
         $EVENT_BUS.publish(:enemy_animation_completed) if @playing_one_shot
-        puts "HERE"
         @playing_one_shot = false
         return(@animations[@current_animation][:count] - 1)
       end
     end
   end
 
+  def impact_frame_reached?
+    @current_animation && calc_frame_index && calc_frame_index == @animations[@current_animation][:impact_frame] && !@animation_impacted && @playing_one_shot
+  end
+
+  def anim_has_impact_frame?
+    @animations[@current_animation].key?(:impact_frame)
+  end
+
   def prefab()
-    if !(calc_frame_index) && !@dead
-      puts "HERE2" 
+    return unless @current_animation
+
+    if @current_animation && !(calc_frame_index) && !@dead
       @current_animation = :idle
       $EVENT_BUS.publish(:enemy_animation_completed) if @playing_one_shot
       @playing_one_shot = false
+      @animation_impacted = false
+    elsif calc_frame_index && anim_has_impact_frame? && impact_frame_reached?
+      @animation_impacted = true
+      $EVENT_BUS.publish(:enemy_animation_impacted, id: @current_animation)
     end
     enemy_sprite = {
       x: @x,

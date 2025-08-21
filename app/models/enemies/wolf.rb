@@ -22,7 +22,8 @@ class Wolf < Enemy
         focus: 0,
         x: GTK.args.grid.w / 2,
         y: GTK.args.grid.h - 270,
-        resistances: [$DAMAGE_TYPES[:cold]]
+        resistances: [$DAMAGE_TYPES[:cold]],
+        parent: self
       )
     @animations =
       EnemyAnimationComponent.new(
@@ -90,7 +91,7 @@ class Wolf < Enemy
     if frost_stacks <= 0 && @my_turn &&
          @turn_start_timer.elapsed_time >= 0.7.seconds &&
          @turn_start_timer.elapsed_time < 0.8.seconds
-      @animations.play_animation(:basic)
+      # @animations.play_animation(:special)
     end
     super
   end
@@ -98,7 +99,6 @@ class Wolf < Enemy
   def calc_death_anim
     run_once(:death_animation) do 
       @animations.play_animation(:death)
-      
     end
   end
 

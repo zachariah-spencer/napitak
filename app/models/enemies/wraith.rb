@@ -25,7 +25,8 @@ class Wraith < Enemy
           $DAMAGE_TYPES[:cold],
           $DAMAGE_TYPES[:dark]
         ],
-        resistances: [$DAMAGE_TYPES[:light]]
+        resistances: [$DAMAGE_TYPES[:light]],
+        parent: self
       )
     @sprite = "sprites/wraith.png"
     @name = "Wraith"

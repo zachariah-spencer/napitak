@@ -41,7 +41,7 @@ class PotionAnimationComponent
   def prefab()
     return unless @current_animation
 
-    if @current_animation && !(calc_frame_index)
+    if !(calc_frame_index)
       $EVENT_BUS.publish(:potion_animation_completed, id: @current_animation[:id]) if @playing_one_shot
       @current_animation = nil
       @animation_impacted = false

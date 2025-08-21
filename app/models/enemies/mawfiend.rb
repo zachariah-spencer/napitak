@@ -21,7 +21,8 @@ class Mawfiend < Enemy
         x: GTK.args.grid.w / 2,
         y: GTK.args.grid.h - 270,
         resistances: [$DAMAGE_TYPES[:heat]],
-        vulnerabilities: [$DAMAGE_TYPES[:cold]]
+        vulnerabilities: [$DAMAGE_TYPES[:cold]],
+        parent: self
       )
     @sprite = "sprites/triangle/equilateral/orange.png"
     @name = "Abyssal Mawfiend"

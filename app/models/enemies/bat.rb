@@ -21,7 +21,8 @@ class Bat < Enemy
         x: GTK.args.grid.w / 2,
         y: GTK.args.grid.h - 270,
         resistances: [],
-        vulnerabilities: [ $DAMAGE_TYPES[:heat] ]
+        vulnerabilities: [ $DAMAGE_TYPES[:heat] ],
+        parent: self
       )
     @sprite = "sprites/isometric/black.png"
     @name = "Bat"

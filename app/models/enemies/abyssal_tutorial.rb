@@ -21,7 +21,8 @@ class AbyssalTutorial < Enemy
         hp: 100,
         focus: 0,
         x: GTK.args.grid.w / 2,
-        y: GTK.args.grid.h - 270
+        y: GTK.args.grid.h - 270,
+        parent: self
       )
     @sprite = "sprites/triangle/equilateral/blue.png"
     @name = "The Abyssal"

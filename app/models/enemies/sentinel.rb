@@ -21,7 +21,8 @@ class Sentinel < Enemy
         x: GTK.args.grid.w / 2,
         y: GTK.args.grid.h - 270,
         resistances: [$DAMAGE_TYPES[:cold]],
-        vulnerabilities: [$DAMAGE_TYPES[:heat]]
+        vulnerabilities: [$DAMAGE_TYPES[:heat]],
+        parent: self
       )
     @sprite = "sprites/triangle/equilateral/green.png"
     @name = "Ironroot Sentinel"
