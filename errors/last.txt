@@ -1,8 +1,10 @@
-* EXCEPTION: non float value
+* EXCEPTION: 'rand': wrong number of arguments (2 for 0)
 ** Backtrace:
-*** app/utils/scroll_list_widget.rb:101:in render
-*** app/utils/scroll_list_widget.rb:76:in render
-*** app/scenes/alchemy_lab.rb:539:in render
-*** app/game.rb:392:in render
-*** app/game.rb:333:in tick
+*** app/utils/scroll_list_widget.rb:26:in add_item
+*** app/scenes/alchemy_lab.rb:383:in config_prev_loadout
+*** app/scenes/alchemy_lab.rb:382:in config_prev_loadout
+*** app/scenes/alchemy_lab.rb:931:in calc_mouse_inputs
+*** app/scenes/alchemy_lab.rb:354:in calc
+*** app/scenes/alchemy_lab.rb:334:in tick
+*** app/game.rb:330:in tick
 *** app/main.rb:90:in tick

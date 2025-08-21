@@ -14,7 +14,7 @@ class ScrollListWidget
     @uid = GameUtils.new_id?
     @frame_index_start_ticks = {}
 
-    @items.each { |item| @frame_index_start_ticks[item.entity_id] = Numeric.rand(-120..0) }
+    @items.each { |item| @frame_index_start_ticks[item.entity_id] = Numeric.rand(-30..0) }
   end
 
   def rect
@@ -23,7 +23,7 @@ class ScrollListWidget
 
   def add_item(item)
     @items.unshift(item)
-    @frame_index_start_ticks[item.entity_id] = Numeric.rand(0..120)
+    @frame_index_start_ticks[item.entity_id] = Numeric.rand(-30..0)
     item
   end
 
