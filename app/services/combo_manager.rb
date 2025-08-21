@@ -109,7 +109,7 @@ class ComboManager
   end
 
   def reset_sequence(end_of_combo = false)
-    $game.input_locked = false
+    # $game.input_locked = false
     @current_combo_sequence_path = {}
     @combo_completion_tick = nil
     last_value = @current_sequence.last

@@ -217,6 +217,7 @@ class Enemy
   end
 
   def begin_turn
+    @attack_queued = false
     @combat_stats.calc_status(type: :RESTORATION)
     frost_stacks = @combat_stats.statuses[$STATUS_TYPES[:FROST]]
     if frost_stacks > 0

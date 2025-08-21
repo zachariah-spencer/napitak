@@ -1,10 +1,22 @@
-* EXCEPTION: 'rand': wrong number of arguments (2 for 0)
+* EXCEPTION:
+* ERROR - :ready_for_combat method missing on ~Combat~.
+
+#+begin_src ~Combat#inspect~
+#<Combat:0x22592c74240 @flee_banner_timer=nil, @args=#<GTK::Args:0x225f06ecd90>, @enemy=#<Wolf:0x22592c73c70>, @flee_btn_alpha=0, @hand_manager=#<CardHandManager:0x225fb082f50>, @turn_stages={:drawing_cards=>0, :playing_hand=>1, :cleanup=>2, :enemy_turn=>3}, @pass_btn_alpha=0, @dealing_time=60, @tutorial_service=#<TutorialService:0x225fb082aa0>, @combo_manager=#<ComboManager:0x225fb08c010>, @combat_active=true, @pre_deal_tick=18402, @enemy_ai=#<EnemyAI:0x225fb082cb0>, @player=#<Player:0x225f058e5a0>, @banner_alpha=0, @sc_id="combat", @fled=false, @defeat_banner_timer=nil, @flee_attempts=0, @dealing_tick=nil, @victory_banner_timer=nil, @pre_deal_time=60>
+#+end_src ~Combat#inspect~
+
+** Did you mean?
+Here's a list of methods that kind of look like :ready_for_combat.
+*** :ready_for_combat?
+*** :combat_ended?
+*** :ready
+
+The method named
+  :ready_for_combat
+doesn't exist on [Combat, #<Class:#<Combat:0x22592c74240>>, RunOnce, Scene, AttrGTK].
+
+(suggestions above)
 ** Backtrace:
-*** app/utils/scroll_list_widget.rb:26:in add_item
-*** app/scenes/alchemy_lab.rb:383:in config_prev_loadout
-*** app/scenes/alchemy_lab.rb:382:in config_prev_loadout
-*** app/scenes/alchemy_lab.rb:931:in calc_mouse_inputs
-*** app/scenes/alchemy_lab.rb:354:in calc
-*** app/scenes/alchemy_lab.rb:334:in tick
+*** app/scenes/combat.rb:94:in tick
 *** app/game.rb:330:in tick
 *** app/main.rb:90:in tick

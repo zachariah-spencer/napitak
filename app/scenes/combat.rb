@@ -42,10 +42,12 @@ class Combat < Scene
     @flee_attempts = 0
     @pre_deal_tick = Kernel.tick_count
     @pre_deal_time = 1.seconds
+    @done_dealing = false
     @dealing_tick = nil
     @dealing_time = 1.seconds
     $AUDIO_SERVICE.play_sound(:cards_shuffle)
     $AUDIO_SERVICE.play_song(:combat_encounter)
+    
     $EVENT_BUS.subscribe(:enemy_animation_completed, self) do |p|
       on_enemy_animation_completed(p)
     end
@@ -60,10 +62,11 @@ class Combat < Scene
       on_enemy_died(p)
     end
 
-    puts @hand_manager.hand
+    $game.input_locked = true
   end
 
   def ready
+    $game.input_locked = true
     @tutorial_service.handle_combat_start
   end
 
@@ -90,6 +93,7 @@ class Combat < Scene
   end
 
   def tick
+    run_once(:allow_input_after_dealing_completed) { $game.input_locked = false } if @done_dealing
     if @victory_banner_timer &&
          @victory_banner_timer.elapsed_time >= 3.25.seconds
       run_once(:pre_load_loot_encounter_music) do
@@ -103,6 +107,7 @@ class Combat < Scene
     if dealing?
       handle_card_dealing
     else
+      @done_dealing = true if @dealing_tick && @dealing_tick.elapsed_time >= @dealing_time
       @enemy_ai.tick
       @player.tick
       handle_combat_end

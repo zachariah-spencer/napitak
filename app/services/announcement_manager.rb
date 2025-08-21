@@ -43,11 +43,11 @@ class AnnouncementManager
   def display_next_announcement
     if @announcements.empty?
       @current_announcement = nil
-      $game.input_locked = false
+      #$game.input_locked = false
     else
       @current_announcement = @announcements.shift
       @current_announcement.start_message
-      $game.input_locked = true
+      #$game.input_locked = true
     end
   end
 
