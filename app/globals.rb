@@ -143,6 +143,7 @@ module GameData
         impact_frame: 8,
         repeat: false,
       },
+      cast_sfx: :firelick_cast,
       finisher_trait: { CARD_TRAITS[:ward] => 10 },
       traits: [
         { CARD_TRAITS[:damage] => { amount: 5, type: DAMAGE_TYPES[:heat] } },
