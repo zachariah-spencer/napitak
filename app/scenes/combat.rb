@@ -608,8 +608,8 @@ class Combat < Scene
 
       players_turn_label ||= {
         x: GTK.args.grid.w / 2,
-        y: GTK.args.grid.h / 2,
-        size_px: 26,
+        y: GTK.args.grid.h - 32,
+        size_px: 32,
         r: 255,
         g: 255,
         b: 255,
@@ -789,7 +789,7 @@ class Combat < Scene
           x: inputs.mouse.x - state.mouse_point_inside_square.x,
           y: inputs.mouse.y - state.mouse_point_inside_square.y
         }
-        if c_ref.grabbed_tick && c_ref.grabbed_tick.elapsed_time >= 0.8.seconds && c_ref.grabbed_tick.elapsed_time < 1.0.seconds && Geometry.distance(c_ref.grabbed_pos, card_pos) < 32 && !c_ref.flipped
+        if c_ref.grabbed_tick && c_ref.grabbed_tick.elapsed_time >= 0.5.seconds && c_ref.grabbed_tick.elapsed_time < 1.0.seconds && Geometry.distance(c_ref.grabbed_pos, card_pos) < 32 && !c_ref.flipped
           c_ref.flip(true)
         elsif c_ref.flipped
 

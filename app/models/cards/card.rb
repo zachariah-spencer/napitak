@@ -537,7 +537,7 @@ class Card
   def trait_color?(trait)
     case trait
     when $CARD_TRAITS[:damage]
-      { r: 255, g: 0, b: 0 }
+      { r: 180, g: 0, b: 0 }
     when $CARD_TRAITS[:restoration]
       { r: 0, g: 255, b: 0 }
     when $CARD_TRAITS[:blight]

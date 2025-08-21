@@ -29,7 +29,6 @@ class PotionCard < Card
     @desc = $PIDS[id].desc
     @potencies = $PIDS[id].traits
     @flipped = false
-    puts "HERE"
     @grabbed_tick = nil
     @grabbed_pos = { x: 0, y: 0}
   end
@@ -80,8 +79,6 @@ class PotionCard < Card
   end
 
   def calc_render_target(args)
-    puts Kernel.tick_count
-    puts "flipped: #{@flipped}"
     # define the dimensions of the combined sprite
     # the name of the combined sprite is :card_composite_sprite_ref
     args.outputs[@card_composite_sprite_ref].w = @w
@@ -101,7 +98,229 @@ class PotionCard < Card
   end
 
   def calc_rt_card_back(args)
-    
+    parsed_name = String.wrapped_lines @name, 15
+    args.outputs[
+      @card_composite_sprite_ref
+    ].primitives << parsed_name.map_with_index do |s, i|
+      {
+        x: @w / 2,
+        y: @h - 64,
+        text: "#{s}",
+        font: $FONT,
+        anchor_x: 0.5,
+        anchor_y: i,
+        r: 255,
+        g: 255,
+        b: 150,
+        size_px: 32
+      }
+    end
+
+    parsed_description = String.wrapped_lines @desc, 25
+    # add a label in the center of the render target
+    args.outputs[
+      @card_composite_sprite_ref
+    ].primitives << parsed_description.map_with_index do |s, i|
+      {
+        x: @w / 2,
+        y: @h / 1.75,
+        text: "#{s}",
+        font: $FONT,
+        anchor_x: 0.5,
+        anchor_y: i,
+        r: 255,
+        g: 255,
+        b: 150,
+        size_enum: 1
+      }
+    end
+
+    args.outputs[@card_composite_sprite_ref].primitives << {
+      x: @w / 5,
+      y: @h / 2.5,
+      text: "Focus",
+      font: $FONT,
+      anchor_x: 0.5,
+      anchor_y: 0.5,
+      r: 255,
+      g: 255,
+      b: 255,
+      size_enum: 1
+    }
+
+    args.outputs[@card_composite_sprite_ref].primitives << {
+      x: @w / 2,
+      y: @h / 2.5,
+      text: "Base",
+      font: $FONT,
+      anchor_x: 0.5,
+      anchor_y: 0.5,
+      r: 255,
+      g: 255,
+      b: 255,
+      size_enum: 1
+    }
+
+    args.outputs[@card_composite_sprite_ref].primitives << {
+      x: @w / 2 - 12,
+      y: @h / 3.25 - 10,
+      w: 24,
+      h: 24,
+      path: $IIDS[$PIDS[self.id][:primary_base_ingredient_id]][:path]
+    }
+
+    args.outputs[@card_composite_sprite_ref].primitives << {
+      x: @w / 5,
+      y: @h / 3.25,
+      text: "#{@fc}",
+      font: $FONT,
+      anchor_x: 0.5,
+      anchor_y: 0.5,
+      r: 0,
+      g: 150,
+      b: 150,
+      size_enum: 1
+    }
+
+    args.outputs[@card_composite_sprite_ref].primitives << {
+      x: @w / 1.25,
+      y: @h / 2.5,
+      text: "Charges",
+      font: $FONT,
+      anchor_x: 0.5,
+      anchor_y: 0.5,
+      r: 255,
+      g: 255,
+      b: 255,
+      size_enum: 1
+    }
+
+    args.outputs[@card_composite_sprite_ref].primitives << {
+      x: @w / 1.25,
+      y: @h / 3.25,
+      text: "#{@uses_left} / #{@max_uses}",
+      font: $FONT,
+      anchor_x: 0.5,
+      anchor_y: 0.5,
+      r: 200,
+      g: 100,
+      b: 200,
+      size_enum: 1
+    }
+
+    args.outputs[@card_composite_sprite_ref].primitives << {
+      x: @w / 2,
+      y: @h / 4.75,
+      text: "Effects",
+      font: $FONT,
+      anchor_x: 0.5,
+      anchor_y: 0.5,
+      r: 255,
+      g: 255,
+      b: 255,
+      size_enum: 1
+    }
+
+    gap = 25
+n = @potencies.length
+center_x = @w / 2
+start_x = center_x - ((n - 1) * gap) / 2.0
+
+damage_trait = nil
+damage_x = nil
+damage_color = nil
+
+@potencies.each_with_index do |trait, i|
+  trait.each do |trait_id, potency_val|
+    color = trait_color?(trait_id)
+    x = start_x + (i * gap)
+
+    if trait_id == $CARD_TRAITS[:damage]
+      damage_trait = potency_val
+      damage_x = x
+      damage_color = $DAMAGE_TYPE_COLORS[damage_trait[:type]]
+      args.outputs[@card_composite_sprite_ref].primitives << {
+        x: x, y: @h / 8,
+        text: potency_val.amount.to_s,
+        font: $FONT,
+        anchor_x: 0.5, anchor_y: 0.5,
+        r: color.r, g: color.g, b: color.b,
+        size_px: 40
+      }
+    else
+      args.outputs[@card_composite_sprite_ref].primitives << {
+        x: x, y: @h / 8,
+        text: potency_val.to_s,
+        font: $FONT,
+        anchor_x: 0.5, anchor_y: 0.5,
+        r: color.r, g: color.g, b: color.b,
+        size_px: 40
+      }
+    end
+  end
+end
+
+# Draw a colored sprite under the damage label (uses :pixel tinted to damage color).
+if damage_trait && damage_x && damage_color
+  args.outputs[@card_composite_sprite_ref].primitives << {
+    x: damage_x - 8,                # center a 16px sprite under the text
+    y: (@h / 7.75) - 20,               # "under" the label (lower on screen)
+    w: 16, h: 4,
+    path: :pixel,                   # 1px white, tinted via RGB
+    r: damage_color.r, g: damage_color.g, b: damage_color.b, a: 255,
+    primitive_marker: :sprite
+  }
+end
+
+    # damage_potency_val_x = 0
+    # damage_trait = nil
+    # @potencies.each_with_index do |trait, i|
+    #   trait.each do |trait_id, potency_val|
+    #     color = trait_color?(trait_id)
+    #     start_x = @w / 2
+# 
+    #     if trait_id == $CARD_TRAITS[:damage]
+    #       damage_trait = potency_val
+    #       damage_potency_val_x = start_x + (i * 25)
+    #       args.outputs[@card_composite_sprite_ref].primitives << {
+    #         x: damage_potency_val_x,
+    #         y: @h / 2,
+    #         text: "#{potency_val.amount.to_s}",
+    #         font: $FONT,
+    #         anchor_x: 0.5,
+    #         anchor_y: 0.5,
+    #         r: color.r,
+    #         g: color.g,
+    #         b: color.b,
+    #         size_enum: 1
+    #       }
+    #     else
+    #       args.outputs[@card_composite_sprite_ref].primitives << {
+    #         x: start_x + (i * 25),
+    #         y: @h / 2,
+    #         text: "#{potency_val.to_s}",
+    #         font: $FONT,
+    #         anchor_x: 0.5,
+    #         anchor_y: 0.5,
+    #         r: color.r,
+    #         g: color.g,
+    #         b: color.b,
+    #         size_enum: 1
+    #       }
+    #     end
+    #   end
+    # end
+# 
+    # if damage_trait
+    #   args.outputs[@card_composite_sprite_ref].primitives << {
+    #     x: damage_potency_val_x - 5 - 15,
+    #     y: 35 - 5,
+    #     w: 10,
+    #     h: 10,
+    #     path: $DAMAGE_TYPE_SPRITES[damage_trait[:type]],
+    #     primitive_marker: :sprite
+    #   }
+    # end
   end
 
   def calc_rt_card_front(args)
@@ -128,7 +347,7 @@ class PotionCard < Card
         anchor_y: 0.5,
         r: 255,
         g: 255,
-        b: 255,
+        b: 150,
         size_px: @free_floating ? 16 : 20,
         a: prefab_alpha,
         font: $FONT
@@ -225,10 +444,10 @@ class PotionCard < Card
       end
     else
       if @flipped
-        @fw = 256
-        @fh = 256
-        @f_pos.x = GTK.args.grid.w / 2 - 128
-        @f_pos.y = GTK.args.grid.h / 2 - 128
+        @fw = 256 + 64
+        @fh = 256 + 64
+        @f_pos.x = GTK.args.grid.w / 2 - 128 - 32
+        @f_pos.y = GTK.args.grid.h / 2 - 128 - 32
       else
         @fw = 128 + 32
         @fh = 128 + 32
