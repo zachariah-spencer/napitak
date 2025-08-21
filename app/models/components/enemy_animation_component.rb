@@ -10,28 +10,10 @@ class EnemyAnimationComponent
     @th = th
     @dead = false
 
+    # Load anims from global hash and do some light parsing to eliminate organizational sub-hashes so we have flat k,v pairs to work with
     @animations = $ENEMY_ANIMATIONS[enemy_id_sym]
-    
-    # {
-    #   idle: {
-    #     path: "sprites/wolf-sheet-3.png",
-    #     count: 3,
-    #     hold_for: 30,
-    #     repeat: true
-    #   },
-    #   attack: {
-    #     path: "sprites/wolf_attack1-sheet-4.png",
-    #     count: 4,
-    #     hold_for: 10,
-    #     repeat: false
-    #   },
-    #   death: {
-    #     path: "sprites/wolf_death-sheet-15.png",
-    #     count: 15,
-    #     hold_for: 5,
-    #     repeat: false
-    #   }
-    # }
+      .merge($ENEMY_ANIMATIONS[enemy_id_sym][:attacks])
+      .reject! { |id, anim| id == :attacks}
 
     @current_animation = :idle
     @playing_one_shot = false
@@ -76,6 +58,7 @@ class EnemyAnimationComponent
         return f_i
       else
         $EVENT_BUS.publish(:enemy_animation_completed) if @playing_one_shot
+        puts "HERE"
         @playing_one_shot = false
         return(@animations[@current_animation][:count] - 1)
       end
@@ -84,6 +67,7 @@ class EnemyAnimationComponent
 
   def prefab()
     if !(calc_frame_index) && !@dead
+      puts "HERE2" 
       @current_animation = :idle
       $EVENT_BUS.publish(:enemy_animation_completed) if @playing_one_shot
       @playing_one_shot = false

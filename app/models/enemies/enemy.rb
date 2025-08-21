@@ -55,6 +55,8 @@ class Enemy
     $EVENT_BUS.subscribe(:enemy_apply_status, self) do |data|
       @combat_stats.apply_status(type: data[:type], stacks: data[:stacks])
     end
+
+    $EVENT_BUS.subscribe(:enemy_animation_completed, self) { |p| on_enemy_animation_completed }
   end
 
   def attack
@@ -222,6 +224,12 @@ class Enemy
     @combat_stats.tick
     if @my_turn and not @combat_stats.dead
       calc
+
+    unless @enemy.instance_variable_defined?(:@animations)
+      GTK.on_tick_count(Kernel.tick_count + 1) { $EVENT_BUS.publish(:enemy_animation_completed) } if @attacked && @turn_start_timer.elapsed_time >= 1.0.seconds
+    end
+
+      
     elsif @combat_stats.dead
       @combat_stats.calc_status(type: :FROST)
       end_turn
@@ -250,8 +258,6 @@ class Enemy
     if not @attacked
       attack if @turn_start_timer.elapsed_time >= 1.seconds
     end
-
-    calc_end_turn
   end
 
   def calc_float
@@ -281,10 +287,6 @@ class Enemy
     val
   end
 
-  def calc_end_turn
-    # check end turn
-    end_turn if attack_completed?
-  end
 
   def end_turn
     @attacked = false
@@ -294,8 +296,9 @@ class Enemy
     $player.combat_stats.calc_status(type: :SCORCH)
   end
 
-  def attack_completed?
-    attacked and not !$game.input_locked and @my_turn
+
+  def on_enemy_animation_completed
+    end_turn if attacked && @my_turn
   end
 
   def prefab

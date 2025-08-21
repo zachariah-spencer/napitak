@@ -1,18 +1,20 @@
 * EXCEPTION:
-* ERROR - :sc_id method missing on ~NilClass~.
+* ERROR - :turn_start_timer method missing on ~Module~.
 
-#+begin_src ~NilClass#inspect~
-nil
-#+end_src ~NilClass#inspect~
+#+begin_src ~Module#inspect~
+Kernel
+#+end_src ~Module#inspect~
 
 
 
 The method named
-  :sc_id
-doesn't exist on [NilClass, NilClassFalseClass].
+  :turn_start_timer
+doesn't exist on [Kernel].
 
 (suggestions above)
 ** Backtrace:
-*** app/game.rb:439:in render
-*** app/game.rb:333:in tick
+*** app/models/enemies/enemy.rb:229:in tick
+*** app/services/enemy_ai.rb:10:in tick
+*** app/scenes/combat.rb:106:in tick
+*** app/game.rb:330:in tick
 *** app/main.rb:90:in tick

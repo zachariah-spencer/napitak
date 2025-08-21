@@ -40,8 +40,7 @@ class Wolf < Enemy
     @name = "Wolf"
     @attacks = {
       70 => {
-        name: "Basic Attack",
-        attack_id: "a001",
+        id: :basic,
         traits: [
           {
             $CARD_TRAITS[:damage] => {
@@ -52,8 +51,7 @@ class Wolf < Enemy
         ]
       },
       20 => {
-        name: "Power Attack",
-        attack_id: "a002",
+        id: :special,
         traits: [
           {
             $CARD_TRAITS[:damage] => {
@@ -64,8 +62,7 @@ class Wolf < Enemy
         ]
       },
       10 => {
-        name: "Ultimate Attack",
-        attack_id: "a003",
+        id: :apex,
         traits: [
           {
             $CARD_TRAITS[:damage] => {
@@ -93,7 +90,7 @@ class Wolf < Enemy
     if frost_stacks <= 0 && @my_turn &&
          @turn_start_timer.elapsed_time >= 0.7.seconds &&
          @turn_start_timer.elapsed_time < 0.8.seconds
-      @animations.play_animation(:attack)
+      @animations.play_animation(:basic)
     end
     super
   end
