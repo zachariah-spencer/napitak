@@ -1,6 +1,6 @@
 class Button
   attr_gtk
-  attr :text
+  attr :text, :background_color
 
   def initialize(
     x: GTK.args.grid / 2,
@@ -30,6 +30,7 @@ class Button
     @tile_rect = tile_rect
     @text = text
     @background_color = background_color
+    @a = 255
     @font_color = font_color
     @rand_seed = Numeric.rand(0..4)
     @hovered = false
@@ -37,20 +38,29 @@ class Button
   end
 
   def tick
-    hovered_last_tick = @hovered
-    @hovered = GTK.args.inputs.mouse.intersect_rect?(rect)
-    $AUDIO_SERVICE.play_sound(:button_hover) if @hovered != hovered_last_tick && @hovered
-    $AUDIO_SERVICE.play_sound(:button_unhover) if @hovered != hovered_last_tick && !@hovered
+    if $game.input_locked
+      hovered_last_tick = false
+      @hovered = false
+    else
+      hovered_last_tick = @hovered
+      @hovered = GTK.args.inputs.mouse.intersect_rect?(rect)
+      $AUDIO_SERVICE.play_sound(:button_hover) if @hovered != hovered_last_tick && @hovered
+      $AUDIO_SERVICE.play_sound(:button_unhover) if @hovered != hovered_last_tick && !@hovered
 
-    @anim_speed = @hovered ? 0.1.seconds : 0.5.seconds
-    @fw = @hovered ? @hovered_w : @normal_w
-    @fh = @hovered ? @hovered_h : @normal_h
+      @anim_speed = @hovered ? 0.1.seconds : 0.5.seconds
+      @fw = @hovered ? @hovered_w : @normal_w
+      @fh = @hovered ? @hovered_h : @normal_h
 
-    @w = @normal_w / 1.5 if clicked?
-    @h = @normal_h / 1.5 if clicked?
+      @w = @normal_w / 1.5 if clicked?
+      @h = @normal_h / 1.5 if clicked?
 
-    @w = @w.lerp(@fw, 0.2)
-    @h = @h.lerp(@fh, 0.2)
+      @w = @w.lerp(@fw, 0.2)
+      @h = @h.lerp(@fh, 0.2)
+    end
+  end
+
+  def update_alpha(a)
+    @a = a
   end
 
   def rect
@@ -78,6 +88,7 @@ class Button
       r: @background_color[:r],
       g: @background_color[:g],
       b: @background_color[:b],
+      a: @a,
       path: @path,
       primitive_marker: :sprite,
       tile_x: @tile_rect[:x] * f_i,
@@ -95,6 +106,7 @@ class Button
       r: 255,
       g: 255,
       b: 255,
+      a: @a,
       size_px: @w / 4,
       font: $FONT
     }
@@ -113,6 +125,7 @@ class Button
   end
 
   def clicked?
+    return false if $game.input_locked
     if Geometry.intersect_rect?(GTK.args.inputs.mouse, hovered_rect) &&
       GTK.args.inputs.mouse.click
       $AUDIO_SERVICE.play_sound(:button_press)

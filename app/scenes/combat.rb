@@ -38,6 +38,15 @@ class Combat < Scene
     @fled = false
     @flee_btn_alpha = 0
     @pass_btn_alpha = 0
+    pass_btn_rect = Layout.rect(col: 0.2, row: -0.68, w: 1.5, h: 0.75)
+    @pass_btn = Button.new(
+      x: 64,
+      y: GTK.args.grid.h - 32,
+      w: pass_btn_rect[:w],
+      h: pass_btn_rect[:h],
+      text: "PASS",
+      font_color: { r: 255, g: 255, b: 255 },
+      background_color: { r: 255, g: 255, b: 255 },)
     @combat_active = true
     @flee_attempts = 0
     @pre_deal_tick = Kernel.tick_count
@@ -91,6 +100,8 @@ class Combat < Scene
   end
 
   def tick
+    @pass_btn.tick
+    @pass_btn.update_alpha(@pass_btn_alpha)
     run_once(:allow_input_after_dealing_completed) do
       $game.input_locked = false
     end if @done_dealing
@@ -461,6 +472,7 @@ class Combat < Scene
       if @player.combat_stats.focus == @player.combat_stats.mod_max_focus
         pass_btn_text = "PASS"
         rgb = [0, 255, 255]
+        @pass_btn.background_color = { r: rgb[0], g: rgb[1], b: rgb[2] }
       else
         pass_btn_text = "PASS"
         rgb = [255, 255, 255]
@@ -499,8 +511,9 @@ class Combat < Scene
       l2 << [
         deck_sprite,
         deck_card_count_label,
-        pass_button,
-        pass_button_label,
+        @pass_btn.prefab,
+        # pass_button,
+        # pass_button_label,
         @combo_manager.prefab,
         cards,
         flee_btn
@@ -769,7 +782,7 @@ class Combat < Scene
       if Geometry.intersect_rect? inputs.mouse, get_deck_rect and
            @turn_stage == @turn_stages[:drawing_cards]
         puts "clicked on deck"
-      elsif Geometry.intersect_rect? inputs.mouse, get_pass_button_rect and
+      elsif @pass_btn.clicked? and
             @turn_stage == @turn_stages[:playing_cards]
         if @player.combat_stats.focus == @player.combat_stats.max_focus
           @hand_manager.draw_card
