@@ -364,7 +364,7 @@ class Game
               !@viewing_collection
         pot_ids = []
         $player.potions.all_cards.each { |c| pot_ids << c.id }
-        if @scene_ref.sc_id == "combat"
+        if @scene_ref.sc_id == "combat" || @scene_ref.sc_id == "combat_tutorial"
           @scene_ref.hand_manager.hand.each { |id, c| pot_ids << c.id }
         end
         toggle_collection(
@@ -548,7 +548,8 @@ class Game
       font: $FONT,
       text:
         (
-          if @scene_ref.sc_id == "combat"
+          if @scene_ref.sc_id == "combat" ||
+               @scene_ref.sc_id == "combat_tutorial"
             "#{$player.combat_stats.hp} / #{$player.maximum_hp}"
           else
             "#{$player.maximum_hp}"
@@ -589,7 +590,8 @@ class Game
       font: $FONT,
       text:
         (
-          if @scene_ref.sc_id == "combat"
+          if @scene_ref.sc_id == "combat" ||
+               @scene_ref.sc_id == "combat_tutorial"
             "#{$player.combat_stats.focus} / #{$player.combat_stats.max_focus}"
           else
             "#{$player.maximum_focus}"

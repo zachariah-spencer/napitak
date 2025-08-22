@@ -39,22 +39,42 @@ class Combat < Scene
     @flee_btn_alpha = 0
     @pass_btn_alpha = 0
     pass_btn_rect = Layout.rect(col: 0.2, row: -0.68, w: 1.5, h: 0.75)
-    @pass_btn = Button.new(
-      x: 64,
-      y: GTK.args.grid.h - 32,
-      w: pass_btn_rect[:w],
-      h: pass_btn_rect[:h],
-      text: "PASS",
-      font_color: { r: 255, g: 255, b: 255 },
-      background_color: { r: 255, g: 255, b: 255 },)
-    @flee_btn = Button.new(
-      x: GTK.args.grid.w - 64,
-      y: 44,
-      w: pass_btn_rect[:w],
-      h: pass_btn_rect[:h],
-      text: "FLEE",
-      font_color: { r: 255, g: 255, b: 255 },
-      background_color: { r: 255, g: 0, b: 0 },)
+    @pass_btn =
+      Button.new(
+        x: 64,
+        y: GTK.args.grid.h - 32,
+        w: pass_btn_rect[:w],
+        h: pass_btn_rect[:h],
+        text: "PASS",
+        font_color: {
+          r: 255,
+          g: 255,
+          b: 255
+        },
+        background_color: {
+          r: 255,
+          g: 255,
+          b: 255
+        }
+      )
+    @flee_btn =
+      Button.new(
+        x: GTK.args.grid.w - 64,
+        y: 44,
+        w: pass_btn_rect[:w],
+        h: pass_btn_rect[:h],
+        text: "FLEE",
+        font_color: {
+          r: 255,
+          g: 255,
+          b: 255
+        },
+        background_color: {
+          r: 255,
+          g: 0,
+          b: 0
+        }
+      )
     @combat_active = true
     @flee_attempts = 0
     @pre_deal_tick = Kernel.tick_count
@@ -272,7 +292,6 @@ class Combat < Scene
         b: 0,
         primitive_marker: :solid
       }
-      rect = Layout.rect(row: -1, col: 0, w: 24, h: 14)
       background = {
         x: 0,
         y: 0,
@@ -280,7 +299,6 @@ class Combat < Scene
         h: 720,
         a: 100,
         path: "sprites/background_frames/dungeon/dungeon_bg1.png"
-        # "sprites/background_frames/dungeon/dungeon_bg#{bg_tile_index + 1}.png"
       }
 
       l0 << [background_solid, background]
@@ -398,13 +416,13 @@ class Combat < Scene
         )
 
       l1 << [
-        #left_panel_a,
-        #right_panel_a,
+        # left_panel_a,
+        # right_panel_a,
         @enemy.prefab
-        #player_hp_label_header,
-        #player_hp_label,
-        #player_focus_label_header,
-        #player_focus_label
+        # player_hp_label_header,
+        # player_hp_label,
+        # player_focus_label_header,
+        # player_focus_label
       ]
 
       if @player.combat_stats.bonus_focus > 0
@@ -791,8 +809,7 @@ class Combat < Scene
       if Geometry.intersect_rect? inputs.mouse, get_deck_rect and
            @turn_stage == @turn_stages[:drawing_cards]
         puts "clicked on deck"
-      elsif @pass_btn.clicked? and
-            @turn_stage == @turn_stages[:playing_cards]
+      elsif @pass_btn.clicked? and @turn_stage == @turn_stages[:playing_cards]
         if @player.combat_stats.focus == @player.combat_stats.max_focus
           @hand_manager.draw_card
         end

@@ -1,4 +1,5 @@
 class CombatTutorial < Scene
+  include RunOnce
   attr :sc_id, :hand_manager
 
   def initialize()
@@ -10,16 +11,17 @@ class CombatTutorial < Scene
       cleanup: 2,
       enemy_turn: 3
     }
-    @hand = {}
-    @matching_potion = nil
-    @max_hand_size = 5
-    @turn_stage = nil
-    @turn_num = 1
     @player = $player
     @player.combat_stats.reset!(@player.maximum_hp, @player.maximum_focus)
     @enemy = AbyssalTutorial.new
     @combo_manager = ComboManager.new
-    @hand_manager = CardHandManager.new(player: @player, enemy: @enemy, combo_manager: @combo_manager)
+    setup_tutorial_deck
+    @hand_manager =
+      CardHandManager.new(
+        player: @player,
+        enemy: @enemy,
+        combo_manager: @combo_manager
+      )
     @enemy_ai = EnemyAI.new(@enemy, on_turn_end: method(:calc_enemy_turn_ended))
     @banner_alpha = 0
     @defeat_banner_timer = nil
@@ -28,17 +30,55 @@ class CombatTutorial < Scene
     @fled = false
     @flee_btn_alpha = 0
     @pass_btn_alpha = 0
-    @attempting_flee = false
+    pass_btn_rect = Layout.rect(col: 0.2, row: -0.68, w: 1.5, h: 0.75)
+    @pass_btn =
+      Button.new(
+        x: 64,
+        y: GTK.args.grid.h - 32,
+        w: pass_btn_rect[:w],
+        h: pass_btn_rect[:h],
+        text: "PASS",
+        font_color: {
+          r: 255,
+          g: 255,
+          b: 255
+        },
+        background_color: {
+          r: 255,
+          g: 255,
+          b: 255
+        }
+      )
+    @flee_btn =
+      Button.new(
+        x: GTK.args.grid.w - 64,
+        y: 44,
+        w: pass_btn_rect[:w],
+        h: pass_btn_rect[:h],
+        text: "FLEE",
+        font_color: {
+          r: 255,
+          g: 255,
+          b: 255
+        },
+        background_color: {
+          r: 255,
+          g: 0,
+          b: 0
+        }
+      )
+    @combat_active = true
     @flee_attempts = 0
+    @attempting_flee = false
     @pre_deal_tick = Kernel.tick_count
     @pre_deal_time = 1.seconds
+    @done_dealing = false
     @dealing_tick = nil
     @dealing_time = 1.seconds
     $AUDIO_SERVICE.play_sound(:cards_shuffle)
+    $AUDIO_SERVICE.play_song(:combat_encounter)
     @card_hovered_tutorial_played = false
     @second_card_hovered_tutorial_played = false
-    setup_tutorial_deck
-    begin_combat
   end
 
   def ready
@@ -71,6 +111,19 @@ class CombatTutorial < Scene
   end
 
   def tick
+    @pass_btn.tick
+    @flee_btn.tick
+    @pass_btn.update_alpha(@pass_btn_alpha)
+    @flee_btn.update_alpha(@flee_btn_alpha)
+    run_once(:allow_input_after_dealing_completed) do
+      $game.input_locked = false
+    end if @done_dealing
+    if @victory_banner_timer &&
+         @victory_banner_timer.elapsed_time >= 3.25.seconds
+      run_once(:pre_load_loot_encounter_music) do
+        $AUDIO_SERVICE.play_song(:loot_encounter)
+      end
+    end
     @combo_manager.tick(@hand_manager.hand)
     begin_combat if ready_for_combat?
     calc
@@ -78,6 +131,8 @@ class CombatTutorial < Scene
     if dealing?
       handle_card_dealing
     else
+      @done_dealing = true if @dealing_tick &&
+        @dealing_tick.elapsed_time >= @dealing_time
       @enemy_ai.tick
       @player.tick
       handle_combat_end
@@ -102,12 +157,8 @@ class CombatTutorial < Scene
 
   def handle_combat_end
     if @enemy.combat_stats.dead && @victory_banner_timer &&
-         @victory_banner_timer.elapsed_time >= 3.seconds
+         @victory_banner_timer.elapsed_time >= 4.seconds
       leave(:victory)
-    end
-    if @fled && @flee_banner_timer &&
-         @flee_banner_timer.elapsed_time >= 3.seconds
-      leave(:flee)
     end
   end
 
@@ -174,7 +225,6 @@ class CombatTutorial < Scene
 
   def calc_enemy_turn_ended
     if @player.combat_stats.dead
-      @defeat_banner_timer = Kernel.tick_count
     elsif !combat_ended? && !@enemy.combat_stats.dead &&
           !@player.combat_stats.dead
       begin_turn_stage @turn_stages[:drawing_cards]
@@ -196,12 +246,6 @@ class CombatTutorial < Scene
     )
   end
 
-  def clear_dragging_state
-    @hand.each { |id, c| c.grabbed = false }
-    state.currently_dragging_card_id = nil
-    state.mouse_point_inside_square = nil
-  end
-
   def calc
     @hand_manager.calc_card_positions
 
@@ -210,19 +254,14 @@ class CombatTutorial < Scene
     elsif @player.my_turn? && !@fled
       calc_mouse_inputs
     end
-
-    check_enemy_death
     @hand_manager.remove_marked
     fade_banners
   end
-  def check_enemy_death
-    unless @enemy.combat_stats.dead && @enemy.turn_over? &&
-             !@victory_banner_timer
-      return
-    end
 
-    puts "ENEMY_DIED_COMBAT_ENDED\n\n"
-    end_combat
+  def clear_dragging_state
+    @hand_manager.hand.each { |_id, c| c.grabbed = false }
+    state.currently_dragging_card_id = nil
+    state.mouse_point_inside_square = nil
   end
 
   def fade_banners
@@ -286,14 +325,13 @@ class CombatTutorial < Scene
         b: 0,
         primitive_marker: :solid
       }
-      rect = Layout.rect(row: -1, col: 1, w: 22, h: 14)
       background = {
-        x: rect[:x],
-        y: rect[:y],
-        w: rect[:w],
-        h: rect[:h],
-        a: 180,
-        path: "sprites/background_frames/woods/woods_bg#{bg_tile_index + 1}.png" # "sprites/background_frames/woods/woods_bg#{bg_tile_index + 1}.png"
+        x: 0,
+        y: 0,
+        w: 1280,
+        h: 720,
+        a: 100,
+        path: "sprites/background_frames/woods/woods_bg1.png" # "sprites/background_frames/woods/woods_bg#{bg_tile_index + 1}.png"
       }
 
       l0 << [background_solid, background]
@@ -411,13 +449,13 @@ class CombatTutorial < Scene
         )
 
       l1 << [
-        left_panel_a,
-        right_panel_a,
-        @enemy.prefab,
-        player_hp_label_header,
-        player_hp_label,
-        player_focus_label_header,
-        player_focus_label
+        # left_panel_a,
+        # right_panel_a,
+        @enemy.prefab
+        # player_hp_label_header,
+        # player_hp_label,
+        # player_focus_label_header,
+        # player_focus_label
       ]
 
       if @player.combat_stats.bonus_focus > 0
@@ -457,7 +495,7 @@ class CombatTutorial < Scene
     when 2
       deck_frame = 0.frame_index(3, 0.18.seconds, true)
 
-      deck_rect = Layout.rect(col: 0.12, row: 10.75, w: 1.5, h: 1.5)
+      deck_rect = Layout.rect(col: 0.12, row: 11, w: 1.5, h: 1.5)
       deck_sprite =
         deck_rect.merge(
           primitive_marker: :sprite,
@@ -495,11 +533,12 @@ class CombatTutorial < Scene
       if @player.combat_stats.focus == @player.combat_stats.mod_max_focus
         pass_btn_text = "PASS"
         rgb = [0, 255, 255]
+        @pass_btn.background_color = { r: rgb[0], g: rgb[1], b: rgb[2] }
       else
         pass_btn_text = "PASS"
         rgb = [255, 255, 255]
       end
-      pass_btn_rect = Layout.rect(col: 0.2, row: 0, w: 1.5, h: 0.75)
+      pass_btn_rect = Layout.rect(col: 0.2, row: -0.68, w: 1.5, h: 0.75)
       pass_btn_f_i = 0.frame_index(4, 0.5.seconds, true)
       pass_button =
         pass_btn_rect.merge(
@@ -533,57 +572,29 @@ class CombatTutorial < Scene
       l2 << [
         deck_sprite,
         deck_card_count_label,
-        pass_button,
-        pass_button_label,
+        @pass_btn.prefab,
+        # pass_button,
+        # pass_button_label,
         @combo_manager.prefab,
         cards,
-        flee_btn
+        @flee_btn.prefab
       ]
       return l2
     when 3
-      l3 << [front_card]
+      l3 << [front_card, $player.prefab]
       return l3
     when 4
-      if @defeat_banner_timer
-        defeat_banner_label ||= {
-          x: GTK.args.grid.w / 2,
-          y: GTK.args.grid.h / 2,
-          alignment_enum: 1,
-          anchor_x: 0.5,
-          anchor_y: 0.5,
-          size_px: 32,
-          r: 255,
-          g: 255,
-          b: 255,
-          a: @banner_alpha,
-          font: $FONT,
-          text: "DEFEAT",
-          primitive_marker: :label
-        }
-
-        defeat_banner ||= {
-          x: 0,
-          y: GTK.args.grid.h / 2 - 50,
-          w: GTK.args.grid.w,
-          h: 100,
-          r: 150,
-          g: 0,
-          b: 0,
-          a: @banner_alpha,
-          primitive_marker: :solid
-        }
-
-        l4 << [defeat_banner, defeat_banner_label]
-      end
+      banner_f_i =
+        Numeric.frame_index(start_at: 0, count: 18, hold_for: 6, repeat: true)
 
       if @victory_banner_timer
-        victory_banner_label ||= {
+        victory_banner_label = {
           x: GTK.args.grid.w / 2,
           y: GTK.args.grid.h / 2,
           alignment_enum: 1,
           anchor_x: 0.5,
           anchor_y: 0.5,
-          size_px: 32,
+          size_px: 50,
           r: 255,
           g: 255,
           b: 255,
@@ -593,56 +604,26 @@ class CombatTutorial < Scene
           primitive_marker: :label
         }
 
-        victory_banner ||= {
+        victory_banner = {
+          path:
+            "sprites/combat_banner_frames/combat_banner#{banner_f_i + 1}.png",
           x: 0,
-          y: GTK.args.grid.h / 2 - 50,
-          w: GTK.args.grid.w,
-          h: 100,
+          y: GTK.args.grid.h / 2 - 64,
+          w: 1280,
+          h: 128,
           r: 0,
-          g: 150,
-          b: 0,
+          g: 255,
+          b: 255,
           a: @banner_alpha,
-          primitive_marker: :solid
+          primitive_marker: :sprite
         }
         l4 << [victory_banner, victory_banner_label]
       end
 
-      if @flee_banner_timer
-        flee_banner_label ||= {
-          x: GTK.args.grid.w / 2,
-          y: GTK.args.grid.h / 2,
-          alignment_enum: 1,
-          anchor_x: 0.5,
-          anchor_y: 0.5,
-          size_px: 32,
-          r: 255,
-          g: 255,
-          b: 255,
-          a: @banner_alpha,
-          font: $FONT,
-          text: "FLED",
-          primitive_marker: :label
-        }
-
-        flee_banner ||= {
-          x: 0,
-          y: GTK.args.grid.h / 2 - 50,
-          w: GTK.args.grid.w,
-          h: 100,
-          r: 0,
-          g: 0,
-          b: 150,
-          a: @banner_alpha,
-          primitive_marker: :solid
-        }
-
-        l4 << [flee_banner, flee_banner_label]
-      end
-
       players_turn_label ||= {
-        x: GTK.args.grid.w / 2,
-        y: GTK.args.grid.h / 2,
-        size_px: 26,
+        x: 100,
+        y: GTK.args.grid.h - 64,
+        size_px: 32,
         r: 255,
         g: 255,
         b: 255,
@@ -654,7 +635,7 @@ class CombatTutorial < Scene
 
       l4 << @player.combat_stats.prefab
       l4 << players_turn_label if @player.my_turn?
-      l4 << tool_tips
+      # l4 << tool_tips
       return l4
     else
       # puts "combat.rb: Invalid Render Argument"
@@ -726,6 +707,7 @@ class CombatTutorial < Scene
     state.mouse_point_inside_square = nil
     @hand_manager.cleanup
     $EVENT_BUS.unsubscribe_owner(@enemy)
+    $EVENT_BUS.unsubscribe_owner(self)
 
     potions_save_data = []
     @player.potions.all_cards.each { |c| potions_save_data << c.save_data? }
@@ -747,26 +729,16 @@ class CombatTutorial < Scene
   def attempt_flee
     GameUtils.announce_lg(
       text: "There is no escaping the darkness...",
-      duration: 1.25.seconds
+      duration: 2.seconds
     )
     @attempting_flee = true
-    puts $announcement_manager.announcements
-    puts $announcement_manager.current_announcement
   end
 
   def calc_attempt_flee_end
     if @attempting_flee && !@fled && GameUtils.current_announcement_completed?
-      puts "HERE"
       @attempting_flee = false
       begin_turn_stage @turn_stages[:cleanup] if !@fled
     end
-  end
-
-  def flee
-    puts "FLED"
-    @player.my_turn = false
-    @flee_banner_timer = Kernel.tick_count
-    @fled = true
   end
 
   def card_usable?(card)
@@ -777,8 +749,7 @@ class CombatTutorial < Scene
   def calc_mouse_inputs
     return if $game.input_locked
 
-    if GTK.args.inputs.mouse.click &&
-         Geometry.intersect_rect?(inputs.mouse, flee_btn) && @player.my_turn
+    if @flee_btn.clicked? && @player.my_turn
       puts "clicked on flee_btn"
       attempt_flee
     end
@@ -799,8 +770,7 @@ class CombatTutorial < Scene
       if Geometry.intersect_rect? inputs.mouse, get_deck_rect and
            @turn_stage == @turn_stages[:drawing_cards]
         puts "clicked on deck"
-      elsif Geometry.intersect_rect? inputs.mouse, get_pass_button_rect and
-            @turn_stage == @turn_stages[:playing_cards]
+      elsif @pass_btn.clicked? and @turn_stage == @turn_stages[:playing_cards]
         if @player.combat_stats.focus == @player.combat_stats.max_focus
           @hand_manager.draw_card
         end
@@ -812,7 +782,7 @@ class CombatTutorial < Scene
       if inputs.mouse.click and c_u_m
         state.currently_dragging_card_id = c_u_m.id
         c_ref = @hand_manager.hand[state.currently_dragging_card_id]
-        c_ref.grabbed = true
+        c_ref.grab
 
         state.mouse_point_inside_square = {
           x: inputs.mouse.x - c_u_m.x,
@@ -821,25 +791,34 @@ class CombatTutorial < Scene
 
         state.click_hold_time = Kernel.tick_count
       elsif inputs.mouse.held and state.currently_dragging_card_id
-        c_ref.pos.x = inputs.mouse.x - state.mouse_point_inside_square.x
-        c_ref.pos.y = inputs.mouse.y - state.mouse_point_inside_square.y
+        card_pos = {
+          x: inputs.mouse.x - state.mouse_point_inside_square.x,
+          y: inputs.mouse.y - state.mouse_point_inside_square.y
+        }
+        if c_ref.grabbed_tick &&
+             c_ref.grabbed_tick.elapsed_time >= 0.5.seconds &&
+             c_ref.grabbed_tick.elapsed_time < 1.0.seconds &&
+             Geometry.distance(c_ref.grabbed_pos, card_pos) < 32 &&
+             !c_ref.flipped
+          c_ref.flip(true)
+        elsif c_ref.flipped
+        else
+          c_ref.pos.x = card_pos[:x]
+          c_ref.pos.y = card_pos[:y]
+        end
       elsif inputs.mouse.up and state.currently_dragging_card_id
         # Re-fetch the card from either group.
-        c_ref.grabbed = false
+        c_ref.release
         c_ref = @hand_manager.hand[state.currently_dragging_card_id]
 
         if state.click_hold_time.elapsed_time < 20 &&
              (Geometry.distance c_ref.pos, c_ref.f_pos) < 20
           if card_usable?(c_ref)
-            if @player.check_hit?
-              @combo_manager.add_to_sequence(c_ref.primary_base_ingredient_id?)
-              @hand_manager.use_card(c_ref)
-            else
-              @hand_manager.consume_card(c_ref)
-            end
+            @combo_manager.add_to_sequence(c_ref.primary_base_ingredient_id?)
+            @hand_manager.use_card(c_ref)
           end
           end_combat if @enemy.combat_stats.dead
-          unless @hand_manager.actions_available?
+          if !@hand_manager.actions_available? && !$game.input_locked
             begin_turn_stage(@turn_stages[:cleanup])
           end
         end
@@ -1004,6 +983,22 @@ class CombatTutorial < Scene
     end
   end
 
+  def end_combat
+    @combo_manager.combat_ended = true
+    $AUDIO_SERVICE.play_sound("#{@enemy.enemy_id}_death".to_sym)
+    $AUDIO_SERVICE.stop_song
+    $AUDIO_SERVICE.play_sound(:victory_fanfare)
+    @player.my_turn = false
+
+    unless @enemy.instance_variable_defined?(:@animations)
+      $EVENT_BUS.publish(:enemy_animation_completed)
+    end
+    GameUtils.announce_lg(
+      text: "The creature has fled and disappeared into the cover of night.",
+      duration: 3.0.seconds
+    )
+  end
+
   def setup_tutorial_deck
     # array of cards for the player to start with
     starting_pots = [
@@ -1025,25 +1020,12 @@ class CombatTutorial < Scene
     $player.potions = Inventory.new(starting_pots)
   end
 
-  def end_combat()
-    @victory_banner_timer = Kernel.tick_count
-    @player.my_turn = false
-    GameUtils.announce_lg(
-      text: "The creature has fled and disappeared into the cover of night.",
-      duration: 3.0.seconds
-    )
-  end
-
   def get_card_rects
     @hand_manager.get_card_rects
   end
 
   def get_deck_rect
     { x: 20, y: 20, w: 160, h: 160 }
-  end
-
-  def get_pass_button_rect
-    Layout.rect(col: 0.25, row: 0, w: 1.5, h: 0.75)
   end
 
   def begin_combat
