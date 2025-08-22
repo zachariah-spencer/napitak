@@ -148,7 +148,7 @@ class AudioService
       },
       upgrade_selected: {
         input: "sounds/sfx/blessing.wav",
-        gain: 0.1
+        gain: 0.17
       },
     }
 
@@ -178,7 +178,8 @@ class AudioService
 
   def play_song(song)
     if !@current_song
-      GTK.args.audio[:bg_music] = @songs[song]
+      # GTK.args.audio[:bg_music] = @songs[song]
+      GTK.args.audio[:bg_music] = @songs[song].dup
     else
       transition_songs(song)
     end
@@ -187,6 +188,9 @@ class AudioService
 
   def stop_song
     #FIXME: Implement method here
+    if GTK.args.audio[:bg_music]
+      GTK.args.audio[:bg_music] = GTK.args.audio[:bg_music].dup
+    end
     @current_song = nil
   end
 
@@ -208,12 +212,8 @@ class AudioService
       GTK.args.audio[:bg_music_fade] = GTK.args.audio[:bg_music]
     end
 
-    # replace the current playing background music (toggling between bg-1.ogg and bg-2.ogg)
-    # set the gain/volume to 0.0 (this will be increased to 1.0 accross ticks)
-    new_background_music = { looping: true, gain: 0.0 }
-
-    # determine track to play (swap between bg-1 and bg-2)
-    new_background_music[:input] = @songs[next_song].input
+    new_background_music = @songs[next_song].dup
+    new_background_music[:gain] = 0.0
 
     # bg music audio entry
     GTK.args.audio[:bg_music] = new_background_music

@@ -36,7 +36,7 @@ class RewardCard < Card
   end
 
   def use()
-    GameUtils.sparkle_particle(x: @pos.x + @w / 2, y: @pos.y + @h / 2, r: 255, g: 255, b: 0)
+    GameUtils.sparkle_particle(x: @pos.x + @w / 2, y: @pos.y + @h / 2, r: 0, g: 255, b: 255)
     
     if @id == "s001"
       #inc focus

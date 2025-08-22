@@ -10,6 +10,7 @@ class RewardsScreen < Scene
     @looting_ingredients = false
     @looting_upgrades = false
     @choosing_ended = false
+    @outroing = false
     @alt_upgrades_label_alpha = 255
     @loot_label_alpha = 255
     @final_message_alpha = 0
@@ -45,7 +46,7 @@ class RewardsScreen < Scene
   def tick
     @alt_upgrades_label_alpha = @alt_upgrades_label_alpha.lerp(0, 0.08) if @looting_ingredients || @choosing_ended
     @loot_label_alpha = @loot_label_alpha.lerp(0, 0.08) if @looting_upgrades || @choosing_ended
-    @final_message_alpha = @final_message_alpha.lerp( 255, 0.008) if @choosing_ended
+    @final_message_alpha = @final_message_alpha.lerp( 255, 0.008) if @outroing
     @loot_label_y = @loot_label_y.lerp(GTK.args.grid.h / 2 + 200, 0.05) if @looting_ingredients
     @choices_y = @choices_y.lerp(GTK.args.grid.h / 2 - 128, 0.05) if @looting_ingredients
     calc_card_positions
@@ -72,11 +73,10 @@ class RewardsScreen < Scene
 
           if @picks <= 0
             @choosing_ended = true
-            $AUDIO_SERVICE.stop_song
-            $AUDIO_SERVICE.play_sound(:flee_fanfare)
             @choices.each { |id,c| c.mark_for_removal }
             @upgrades.each { |id,c| c.mark_for_removal }
-            GTK.on_tick_count(Kernel.tick_count + 4.seconds) { leave }
+            GTK.on_tick_count(Kernel.tick_count + 5.seconds) { leave }
+            GTK.on_tick_count(Kernel.tick_count + 1.seconds) { on_outro }
             $game.input_locked = true
           end
         end
@@ -85,6 +85,12 @@ class RewardsScreen < Scene
 
     
     calc_entity_removals()
+  end
+
+  def on_outro
+    $AUDIO_SERVICE.stop_song
+    $AUDIO_SERVICE.play_sound(:flee_fanfare)
+    @outroing = true
   end
 
   def leave

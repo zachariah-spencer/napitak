@@ -15,7 +15,7 @@ class SparkleParticle
 
     @particles = []
     60.times.each do
-      @particles << particle(Numeric.rand(-20..20), Numeric.rand(-20..20))
+      @particles << particle(Numeric.rand(-8..8), Numeric.rand(8..25))
     end
 
     @start_tick = Kernel.tick_count
@@ -28,8 +28,8 @@ class SparkleParticle
       dx: dx,
       dy: dy,
       primitive_marker: :solid,
-      w: Numeric.rand(1..3),
-      h: Numeric.rand(1..3),
+      w: Numeric.rand(1..4),
+      h: Numeric.rand(1..4),
       r: @color.r,
       g: @color.g,
       b: @color.b,
@@ -38,9 +38,9 @@ class SparkleParticle
   end
 
   def tick
-    @color[:a] -= 2
+    @color[:a] -= 5
     @particles.each do |particle| 
-      particle.dy -= 0.5
+      particle.dy -= 0.8
       particle.dy = particle[:dy].clamp(-100.0, 100.0)
 
       particle.x = particle.x + particle.dx
