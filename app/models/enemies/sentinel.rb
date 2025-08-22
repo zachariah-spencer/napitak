@@ -14,16 +14,8 @@ class Sentinel < Enemy
     @enemy_id = "sentinel"
     super
     $enemy = self
-    @combat_stats =
-      CombatStatsComponent.new(
-        hp: 5,
-        focus: 0,
-        x: GTK.args.grid.w / 2,
-        y: GTK.args.grid.h - 270,
-        resistances: [$DAMAGE_TYPES[:cold]],
-        vulnerabilities: [$DAMAGE_TYPES[:heat]],
-        parent: self
-      )
+    @combat_stats.set_stats(hp: 5, resistances: [$DAMAGE_TYPES[:cold]],
+        vulnerabilities: [$DAMAGE_TYPES[:heat]])
     @sprite = "sprites/triangle/equilateral/green.png"
     @name = "Ironroot Sentinel"
     @attacks = {

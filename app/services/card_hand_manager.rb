@@ -155,7 +155,7 @@ class CardHandManager
 
         case combo_effect
         when "scorch_doubles"
-          @enemy.combat_stats.hurt(20, $DAMAGE_TYPES[:force])
+          @enemy.combat_stats.hurt(5, $DAMAGE_TYPES[:force])
         else
         end
       end

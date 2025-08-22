@@ -48,6 +48,20 @@ class Enemy
     @home_y = GTK.args.grid.h - 250
     @attack_queued = false
 
+    @combat_stats =
+      CombatStatsComponent.new(
+        hp: 20,
+        focus: 0,
+        x: GTK.args.grid.w / 2,
+        y: GTK.args.grid.h - 270,
+        ward_label_x: GTK.args.grid.w / 2,
+        ward_label_y: GTK.args.grid.h - 260,
+        stacks_x: GTK.args.grid.w / 2 - 160,
+        stacks_y: GTK.args.grid.h - 80,
+        resistances: [$DAMAGE_TYPES[:cold]],
+        parent: self
+    )
+
     @attacks = {}
 
     $EVENT_BUS.subscribe(:enemy_hurt, self) do |data|

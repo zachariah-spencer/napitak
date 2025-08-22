@@ -14,16 +14,7 @@ class Mawfiend < Enemy
     @enemy_id = "mawfiend"
     super
     $enemy = self
-    @combat_stats =
-      CombatStatsComponent.new(
-        hp: 12,
-        focus: 0,
-        x: GTK.args.grid.w / 2,
-        y: GTK.args.grid.h - 270,
-        resistances: [$DAMAGE_TYPES[:heat]],
-        vulnerabilities: [$DAMAGE_TYPES[:cold]],
-        parent: self
-      )
+    @combat_stats.set_stats(hp: 12, resistances: [$DAMAGE_TYPES[:heat]], vulnerabilities: [$DAMAGE_TYPES[:cold]])
     @sprite = "sprites/triangle/equilateral/orange.png"
     @name = "Abyssal Mawfiend"
     @attacks = {

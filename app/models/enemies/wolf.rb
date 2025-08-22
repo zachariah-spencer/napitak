@@ -16,15 +16,7 @@ class Wolf < Enemy
     @enemy_id = "wolf"
     super
     $enemy = self
-    @combat_stats =
-      CombatStatsComponent.new(
-        hp: 20,
-        focus: 0,
-        x: GTK.args.grid.w / 2,
-        y: GTK.args.grid.h - 270,
-        resistances: [$DAMAGE_TYPES[:cold]],
-        parent: self
-      )
+    @combat_stats.set_stats(hp: 20, resistances: [$DAMAGE_TYPES[:cold]])
     @animations =
       EnemyAnimationComponent.new(
         enemy_id_sym: :wolf,
@@ -48,7 +40,7 @@ class Wolf < Enemy
               amount: 30,
               type: $DAMAGE_TYPES[:force]
             }
-          }
+          },
         ]
       },
       20 => {
@@ -97,9 +89,7 @@ class Wolf < Enemy
   end
 
   def calc_death_anim
-    run_once(:death_animation) do 
-      @animations.play_animation(:death)
-    end
+    run_once(:death_animation) { @animations.play_animation(:death) }
   end
 
   def attack

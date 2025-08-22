@@ -543,7 +543,14 @@ class Game
       y: GTK.args.grid.h - 32,
       size_px: 22,
       font: $FONT,
-      text: "#{$player.maximum_hp}",
+      text:
+        (
+          if @scene_ref.sc_id == "combat"
+            "#{$player.combat_stats.hp} / #{$player.maximum_hp}"
+          else
+            "#{$player.maximum_hp}"
+          end
+        ),
       anchor_x: 0.5,
       anchor_y: 0.5,
       r: 255,
@@ -577,7 +584,14 @@ class Game
       y: GTK.args.grid.h - 32,
       size_px: 18,
       font: $FONT,
-      text: "#{$player.maximum_focus}",
+      text:
+        (
+          if @scene_ref.sc_id == "combat"
+            "#{$player.combat_stats.focus} / #{$player.combat_stats.max_focus}"
+          else
+            "#{$player.maximum_focus}"
+          end
+        ),
       anchor_x: 0.5,
       anchor_y: 0.5,
       r: 255,

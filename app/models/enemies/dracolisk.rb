@@ -16,16 +16,8 @@ class Dracolisk < Enemy
     super
     @is_boss = true
     $enemy = self
-    @combat_stats =
-      CombatStatsComponent.new(
-        hp: 80,
-        focus: 0,
-        x: GTK.args.grid.w / 2,
-        y: GTK.args.grid.h - 270,
-        resistances: [$DAMAGE_TYPES[:force]],
-        vulnerabilities: [$DAMAGE_TYPES[:spark]],
-        parent: self
-      )
+    @combat_stats.set_stats(hp: 80,         resistances: [$DAMAGE_TYPES[:force]],
+        vulnerabilities: [$DAMAGE_TYPES[:spark]])
     @sprite = "sprites/triangle/equilateral/red.png"
     @name = "Crystal Dracolisk"
     @attacks = {

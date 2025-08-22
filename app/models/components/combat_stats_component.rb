@@ -19,6 +19,10 @@ class CombatStatsComponent
   def initialize(
     x:,
     y:,
+    ward_label_x:,
+    ward_label_y:,
+    stacks_x:,
+    stacks_y:,
     parent:,
     hp: 1,
     focus: 0,
@@ -38,6 +42,10 @@ class CombatStatsComponent
     @vulnerabilities = vulnerabilities
     @x = x
     @y = y
+    @ward_label_x = ward_label_x
+    @ward_label_y = ward_label_y
+    @stacks_x = stacks_x
+    @stacks_y = stacks_y
     @columns = columns
     @entity_id = GameUtils.new_id?
     @hp = hp
@@ -50,6 +58,13 @@ class CombatStatsComponent
     @ward = 0
     @dead = false
     @dead_tick = nil
+  end
+
+  def set_stats(hp:, resistances: [], vulnerabilities: [])
+    @hp = hp
+    @max_hp = hp
+    @resistances = resistances
+    @vulnerabilities = vulnerabilities
   end
   
   def tick; end
@@ -348,8 +363,8 @@ class CombatStatsComponent
           rt_paths << path
         elsif stacks > 0 && type == $STATUS_TYPES[:WARD]
           stack_sprites << {
-            x: @x,
-            y: @y - 32,
+            x: @ward_label_x,
+            y: @ward_label_y,
             anchor_x: 0.5,
             anchor_y: 0.5,
             text: "#{stacks}",
@@ -373,11 +388,11 @@ class CombatStatsComponent
       total_width = rt_paths.size * 32 + (rt_paths.size - 1) * 8
     end
     # x of the very first icon so that row is centered on @x:
-    start_x = @x - total_width / 2.0
+    start_x = @stacks_x - total_width / 2.0
     rt_paths.each_with_index do |path, i|
       stack_sprites << {
         x: start_x + i % 2 * (32 + 8),
-        y: @y - 80 - ((i / 2).floor * (32 + 8)),
+        y: @stacks_y - 80 - ((i / 2).floor * (32 + 8)),
         w: 32,
         h: 32,
         path: path,
@@ -386,5 +401,7 @@ class CombatStatsComponent
     end
 
     stack_sprites
+
+    
   end
 end

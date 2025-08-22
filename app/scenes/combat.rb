@@ -47,7 +47,7 @@ class Combat < Scene
     @dealing_time = 1.seconds
     $AUDIO_SERVICE.play_sound(:cards_shuffle)
     $AUDIO_SERVICE.play_song(:combat_encounter)
-    
+
     $EVENT_BUS.subscribe(:enemy_animation_completed, self) do |p|
       on_enemy_animation_completed(p)
     end
@@ -58,9 +58,7 @@ class Combat < Scene
       on_potion_animation_impact(p)
     end
 
-    $EVENT_BUS.subscribe(:enemy_died, self) do |p|
-      on_enemy_died(p)
-    end
+    $EVENT_BUS.subscribe(:enemy_died, self) { |p| on_enemy_died(p) }
 
     $game.input_locked = true
   end
@@ -93,7 +91,9 @@ class Combat < Scene
   end
 
   def tick
-    run_once(:allow_input_after_dealing_completed) { $game.input_locked = false } if @done_dealing
+    run_once(:allow_input_after_dealing_completed) do
+      $game.input_locked = false
+    end if @done_dealing
     if @victory_banner_timer &&
          @victory_banner_timer.elapsed_time >= 3.25.seconds
       run_once(:pre_load_loot_encounter_music) do
@@ -107,7 +107,8 @@ class Combat < Scene
     if dealing?
       handle_card_dealing
     else
-      @done_dealing = true if @dealing_tick && @dealing_tick.elapsed_time >= @dealing_time
+      @done_dealing = true if @dealing_tick &&
+        @dealing_tick.elapsed_time >= @dealing_time
       @enemy_ai.tick
       @player.tick
       handle_combat_end
@@ -250,12 +251,12 @@ class Combat < Scene
         b: 0,
         primitive_marker: :solid
       }
-      rect = Layout.rect(row: -1, col: 1, w: 22, h: 14)
+      rect = Layout.rect(row: -1, col: 0, w: 24, h: 14)
       background = {
-        x: rect[:x],
-        y: rect[:y],
-        w: rect[:w],
-        h: rect[:h],
+        x: 0,
+        y: 0,
+        w: 1280,
+        h: 720,
         a: 180,
         path: "sprites/background_frames/dungeon/dungeon_bg1.png"
         # "sprites/background_frames/dungeon/dungeon_bg#{bg_tile_index + 1}.png"
@@ -376,13 +377,13 @@ class Combat < Scene
         )
 
       l1 << [
-        left_panel_a,
-        right_panel_a,
-        @enemy.prefab,
-        player_hp_label_header,
-        player_hp_label,
-        player_focus_label_header,
-        player_focus_label
+        #left_panel_a,
+        #right_panel_a,
+        @enemy.prefab
+        #player_hp_label_header,
+        #player_hp_label,
+        #player_focus_label_header,
+        #player_focus_label
       ]
 
       if @player.combat_stats.bonus_focus > 0
@@ -422,7 +423,7 @@ class Combat < Scene
     when 2
       deck_frame = 0.frame_index(3, 0.18.seconds, true)
 
-      deck_rect = Layout.rect(col: 0.12, row: 10.75, w: 1.5, h: 1.5)
+      deck_rect = Layout.rect(col: 0.12, row: 11, w: 1.5, h: 1.5)
       deck_sprite =
         deck_rect.merge(
           primitive_marker: :sprite,
@@ -464,7 +465,7 @@ class Combat < Scene
         pass_btn_text = "PASS"
         rgb = [255, 255, 255]
       end
-      pass_btn_rect = Layout.rect(col: 0.2, row: 0, w: 1.5, h: 0.75)
+      pass_btn_rect = Layout.rect(col: 0.2, row: -0.68, w: 1.5, h: 0.75)
       pass_btn_f_i = 0.frame_index(4, 0.5.seconds, true)
       pass_button =
         pass_btn_rect.merge(
@@ -612,8 +613,8 @@ class Combat < Scene
       end
 
       players_turn_label ||= {
-        x: GTK.args.grid.w / 2,
-        y: GTK.args.grid.h - 32,
+        x: 100,
+        y: GTK.args.grid.h - 64,
         size_px: 32,
         r: 255,
         g: 255,
@@ -794,10 +795,13 @@ class Combat < Scene
           x: inputs.mouse.x - state.mouse_point_inside_square.x,
           y: inputs.mouse.y - state.mouse_point_inside_square.y
         }
-        if c_ref.grabbed_tick && c_ref.grabbed_tick.elapsed_time >= 0.5.seconds && c_ref.grabbed_tick.elapsed_time < 1.0.seconds && Geometry.distance(c_ref.grabbed_pos, card_pos) < 32 && !c_ref.flipped
+        if c_ref.grabbed_tick &&
+             c_ref.grabbed_tick.elapsed_time >= 0.5.seconds &&
+             c_ref.grabbed_tick.elapsed_time < 1.0.seconds &&
+             Geometry.distance(c_ref.grabbed_pos, card_pos) < 32 &&
+             !c_ref.flipped
           c_ref.flip(true)
         elsif c_ref.flipped
-
         else
           c_ref.pos.x = card_pos[:x]
           c_ref.pos.y = card_pos[:y]
@@ -909,7 +913,7 @@ class Combat < Scene
   end
 
   def get_pass_button_rect
-    Layout.rect(col: 0.25, row: 0, w: 1.5, h: 0.75)
+    Layout.rect(col: 0.25, row: -0.68, w: 1.5, h: 0.75)
   end
 
   def begin_combat

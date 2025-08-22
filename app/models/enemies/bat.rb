@@ -14,16 +14,7 @@ class Bat < Enemy
     @enemy_id = "bat"
     super
     $enemy = self
-    @combat_stats =
-      CombatStatsComponent.new(
-        hp: 25,
-        focus: 0,
-        x: GTK.args.grid.w / 2,
-        y: GTK.args.grid.h - 270,
-        resistances: [],
-        vulnerabilities: [ $DAMAGE_TYPES[:heat] ],
-        parent: self
-      )
+    @combat_stats.set_stats(hp: 25, vulnerabilities: [$DAMAGE_TYPES[:heat]])
     @sprite = "sprites/isometric/black.png"
     @name = "Bat"
     @attacks = {

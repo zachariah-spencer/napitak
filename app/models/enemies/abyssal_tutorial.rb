@@ -16,14 +16,7 @@ class AbyssalTutorial < Enemy
     @w = 200
     @h = 200
     $enemy = self
-    @combat_stats =
-      CombatStatsComponent.new(
-        hp: 100,
-        focus: 0,
-        x: GTK.args.grid.w / 2,
-        y: GTK.args.grid.h - 270,
-        parent: self
-      )
+    @combat_stats.set_stats(hp: 100)
     @sprite = "sprites/triangle/equilateral/blue.png"
     @name = "The Abyssal"
     @fled = false

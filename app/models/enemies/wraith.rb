@@ -14,20 +14,13 @@ class Wraith < Enemy
     @enemy_id = "wraith"
     super
     $enemy = self
-    @combat_stats =
-      CombatStatsComponent.new(
-        hp: 20,
-        focus: 0,
-        x: GTK.args.grid.w / 2,
-        y: GTK.args.grid.h - 270,
-        vulnerabilities: [
+    @combat_stats.set_stats(hp: 20,
+      vulnerabilities: [
           $DAMAGE_TYPES[:heat],
           $DAMAGE_TYPES[:cold],
           $DAMAGE_TYPES[:dark]
-        ],
-        resistances: [$DAMAGE_TYPES[:light]],
-        parent: self
-      )
+      ],
+      resistances: [$DAMAGE_TYPES[:light]])
     @sprite = "sprites/wraith.png"
     @name = "Wraith"
     @attacks = {
