@@ -35,6 +35,40 @@ class RewardCard < Card
     instant_set_position(x: x_pos, y: y)
   end
 
+  def calc_render_target_background(args, prefab_alpha = 255)
+    if @id[0] == "s"
+      card_sprite_frame =
+        0.frame_index(
+          count: 4,
+          hold_for: @hovered ? 10 : 30,
+          repeat: true,
+          repeat_index: 0,
+          tick_count_override: Kernel.tick_count
+        )
+      card_sprite_frame += @anim_seed
+      card_sprite_frame -= 4 if card_sprite_frame > 3
+
+      args.outputs[@card_composite_sprite_ref].primitives << {
+        x: 0,
+        y: 0,
+        w: @w,
+        h: @h,
+        angle: 0,
+        r: 100,
+        g: 0,
+        b: 255,
+        a: prefab_alpha,
+        path: @card_back_img,
+        tile_x: (card_sprite_frame * 128),
+        tile_y: 0,
+        tile_w: 128,
+        tile_h: 128
+      }
+    else
+      super
+    end
+  end
+
   def use()
     GameUtils.sparkle_particle(x: @pos.x + @w / 2, y: @pos.y + @h / 2, r: 0, g: 255, b: 255)
     $AUDIO_SERVICE.play_sound(:loot_grabbed)

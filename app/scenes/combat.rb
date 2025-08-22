@@ -278,7 +278,7 @@ class Combat < Scene
         y: 0,
         w: 1280,
         h: 720,
-        a: 180,
+        a: 100,
         path: "sprites/background_frames/dungeon/dungeon_bg1.png"
         # "sprites/background_frames/dungeon/dungeon_bg#{bg_tile_index + 1}.png"
       }

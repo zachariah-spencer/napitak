@@ -151,12 +151,12 @@ class RewardsScreen < Scene
         y: 0,
         w: 1280,
         h: 720,
-        r: 50,
-        g: 50,
-        b: 50,
+        r: 80,
+        g: 80,
+        b: 80,
         a: 200,
         path:
-          "sprites/background_frames/sketchybackground#{bg_tile_index + 1}.png"
+          "sprites/background_frames/rewardbackground/rewardbackground#{bg_tile_index + 1}.png"
       }
 
       l0 << [background_solid, background]
