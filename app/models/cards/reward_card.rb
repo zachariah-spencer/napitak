@@ -36,14 +36,18 @@ class RewardCard < Card
   end
 
   def use()
-    GameUtils.sparkle_particle(x: @pos.x, y: @pos.y, r: 255, g: 255, b: 0)
+    GameUtils.sparkle_particle(x: @pos.x + @w / 2, y: @pos.y + @h / 2, r: 255, g: 255, b: 0)
+    
     if @id == "s001"
       #inc focus
+      $AUDIO_SERVICE.play_sound(:upgrade_selected)
       $player.maximum_focus += 1
     elsif @id == "s002"
       #inc hp
+      $AUDIO_SERVICE.play_sound(:upgrade_selected)
       $player.maximum_hp += 5
     else
+      $AUDIO_SERVICE.play_sound(:bag_insert)
       $player.ingredients.add(
         IngredientCard.new(
           @id,

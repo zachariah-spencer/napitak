@@ -195,6 +195,7 @@ class Game
 
   def finish_scene_change()
     $announcement_manager.clear_announcements_queue
+    @sparkle_particles.clear
     if @next_scene_instance
       @scene_ref = @next_scene_instance
       @next_scene_instance = nil
@@ -397,9 +398,8 @@ class Game
     end
 
     # for each particle, construct a prefab
-    l4 << @sparkle_particles.each { |particle| particle.prefab }
+    @sparkle_particles.each { |particle| l4 << particle.prefab }
     l4 << @status_labels.map { |particle| status_label_prefab particle }
-
 
     if $player.combat_stats.dead_tick && @mid_run
       banner_f_i =
@@ -623,9 +623,7 @@ class Game
       particle.y += 1.5
     end
 
-    @sparkle_particles.each do |particle|
-      particle.tick
-    end
+    @sparkle_particles.each { |particle| particle.tick }
 
     # reject all particles with an alpha less than equal to 0
     @status_labels.reject! { |particle| particle.a <= 0 }
@@ -658,7 +656,7 @@ class Game
     }
   end
 
-  def sparkle_particle(x:,y:,r:,g:,b:)
+  def sparkle_particle(x:, y:, r:, g:, b:)
     @sparkle_particles << SparkleParticle.new(x: x, y: y, r: r, g: g, b: b)
   end
 

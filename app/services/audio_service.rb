@@ -67,7 +67,7 @@ class AudioService
       },
       bag_insert: {
         input: "sounds/sfx/bag_insert.wav",
-        gain: 0.2,
+        gain: 0.3,
         pitch: 1.15
       },
       bag_remove: {
@@ -145,7 +145,11 @@ class AudioService
       flee_fanfare: {
         input: "sounds/sfx/flee_fanfare.wav",
         gain: 0.4
-      }
+      },
+      upgrade_selected: {
+        input: "sounds/sfx/blessing.wav",
+        gain: 0.1
+      },
     }
 
     @songs = {

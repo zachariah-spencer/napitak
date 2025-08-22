@@ -8,7 +8,11 @@ class RewardsScreen < Scene
     @sc_id = "rewards_screen"
     @picks = picks
     @looting_ingredients = false
+    @looting_upgrades = false
+    @choosing_ended = false
     @alt_upgrades_label_alpha = 255
+    @loot_label_alpha = 255
+    @final_message_alpha = 0
     @loot_label_y = GTK.args.grid.h / 2 - 80
     @choices_y = GTK.args.grid.h / 2 - 256 - 64
 
@@ -39,7 +43,9 @@ class RewardsScreen < Scene
   end
 
   def tick
-    @alt_upgrades_label_alpha = @alt_upgrades_label_alpha.lerp(0, 0.1) if @looting_ingredients
+    @alt_upgrades_label_alpha = @alt_upgrades_label_alpha.lerp(0, 0.08) if @looting_ingredients || @choosing_ended
+    @loot_label_alpha = @loot_label_alpha.lerp(0, 0.08) if @looting_upgrades || @choosing_ended
+    @final_message_alpha = @final_message_alpha.lerp( 255, 0.008) if @choosing_ended
     @loot_label_y = @loot_label_y.lerp(GTK.args.grid.h / 2 + 200, 0.05) if @looting_ingredients
     @choices_y = @choices_y.lerp(GTK.args.grid.h / 2 - 128, 0.05) if @looting_ingredients
     calc_card_positions
@@ -58,17 +64,31 @@ class RewardsScreen < Scene
             @picks -= 1
             @looting_ingredients = true
             @upgrades.each { |id,c| c.mark_for_removal }
-            @upgrades.each { |k,v| puts v.marked_for_removal}
           else
+            @looting_upgrades = true
+            @choices.each { |id,c| c.mark_for_removal }
             @picks = 0
           end
 
-          $game.change_scene(prev_sc: @sc_id, next_scene: "map") if @picks <= 0
+          if @picks <= 0
+            @choosing_ended = true
+            $AUDIO_SERVICE.stop_song
+            $AUDIO_SERVICE.play_sound(:flee_fanfare)
+            @choices.each { |id,c| c.mark_for_removal }
+            @upgrades.each { |id,c| c.mark_for_removal }
+            GTK.on_tick_count(Kernel.tick_count + 4.seconds) { leave }
+            $game.input_locked = true
+          end
         end
       end
     end
 
+    
     calc_entity_removals()
+  end
+
+  def leave
+    $game.change_scene(prev_sc: @sc_id, next_scene: "map")
   end
 
   def get_card_rects
@@ -156,7 +176,8 @@ class RewardsScreen < Scene
         r: 255,
         g: 255,
         b: 255,
-        text: "OR SELECT #{@looting_ingredients ? @picks : 2}",
+        a: @loot_label_alpha,
+        text: "OR SELECT #{@looting_ingredients ? @picks : 2} NEW INGREDIENTS",
         font: $FONT,
         primitive_marker: :label
       }
@@ -175,7 +196,22 @@ class RewardsScreen < Scene
         font: $FONT,
         primitive_marker: :label
       }
-      l4 << [rewards_left_label, alt_upgrade_label]
+
+      final_message = {
+        x: GTK.args.grid.w / 2,
+        y: GTK.args.grid.h / 2,
+        anchor_x: 0.5,
+        anchor_y: 0.5,
+        size_px: 100,
+        r: 255,
+        g: 255,
+        b: 255,
+        a: @final_message_alpha,
+        text: "NOW JOURNEY ONWARD...",
+        font: $FONT,
+        primitive_marker: :label
+      }
+      l4 << [rewards_left_label, alt_upgrade_label, final_message]
       #l4.flatten!
       return l4
     else
