@@ -37,6 +37,7 @@ class RewardCard < Card
 
   def use()
     GameUtils.sparkle_particle(x: @pos.x + @w / 2, y: @pos.y + @h / 2, r: 0, g: 255, b: 255)
+    $AUDIO_SERVICE.play_sound(:loot_grabbed)
     
     if @id == "s001"
       #inc focus

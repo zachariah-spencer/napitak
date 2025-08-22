@@ -67,7 +67,7 @@ class AudioService
       },
       bag_insert: {
         input: "sounds/sfx/bag_insert.wav",
-        gain: 0.3,
+        gain: 0.4,
         pitch: 1.15
       },
       bag_remove: {
@@ -92,7 +92,7 @@ class AudioService
       },
       button_press: {
         input: "sounds/sfx/button_press.wav",
-        gain: 0.1,
+        gain: 0.1
       },
       button_hover: {
         input: "sounds/sfx/button_hover.wav",
@@ -101,7 +101,7 @@ class AudioService
       },
       button_unhover: {
         input: "sounds/sfx/button_hover.wav",
-        gain: 0.15,
+        gain: 0.15
       },
       wolf_start: {
         input: "sounds/sfx/wolf_howl.wav",
@@ -128,19 +128,19 @@ class AudioService
       },
       victory_fanfare: {
         input: "sounds/sfx/victory_fanfare.wav",
-        gain: 0.1,
+        gain: 0.1
       },
       defeat_fanfare: {
         input: "sounds/sfx/defeat_fanfare.wav",
-        gain: 0.1,
+        gain: 0.1
       },
       waterbeam_cast: {
         input: "sounds/sfx/waterbeamcast.wav",
-        gain: 0.8,
+        gain: 0.8
       },
       firelick_cast: {
         input: "sounds/sfx/firelickcast.wav",
-        gain: 0.8,
+        gain: 0.8
       },
       flee_fanfare: {
         input: "sounds/sfx/flee_fanfare.wav",
@@ -148,8 +148,12 @@ class AudioService
       },
       upgrade_selected: {
         input: "sounds/sfx/blessing.wav",
-        gain: 0.17
+        gain: 0.12
       },
+      loot_grabbed: {
+        input: "sounds/sfx/loot_grabbed.wav",
+        gain: 0.2
+      }
     }
 
     @songs = {
@@ -177,6 +181,7 @@ class AudioService
   end
 
   def play_song(song)
+    return if @current_song == @songs[song].dup
     if !@current_song
       # GTK.args.audio[:bg_music] = @songs[song]
       GTK.args.audio[:bg_music] = @songs[song].dup
@@ -195,7 +200,7 @@ class AudioService
   end
 
   def transition_songs(next_song)
-     # get the current bg music and create a new audio entry that represents the crossfade
+    # get the current bg music and create a new audio entry that represents the crossfade
     current_bg_music = GTK.args.audio[:bg_music]
 
     # cross fade audio entry
@@ -221,36 +226,38 @@ class AudioService
 
   def tick
     @playing_sounds.reject! do |psid|
-      $EVENT_BUS.publish(:sound_finished_playback, sound: psid) if GTK.args.audio.none? { |id, s| id == psid }
+      if GTK.args.audio.none? { |id, s| id == psid }
+        $EVENT_BUS.publish(:sound_finished_playback, sound: psid)
+      end
       GTK.args.audio.none? { |id, s| id == psid }
     end
-    
-    @current_song ? process_crossfades : process_fade_out
 
+    @current_song ? process_crossfades : process_fade_out
   end
 
   def process_fade_out
     if GTK.args.audio[:bg_music] && GTK.args.audio[:bg_music].gain > 0.0
       # decrease by 1% every frame
-      GTK.args.audio[:bg_music].gain -= 0.0008
+      GTK.args.audio[:bg_music].gain -= 0.002
       # delete audio when it's at 0%
-      if GTK.args.audio[:bg_music].gain <= 0.0
-        GTK.args.audio[:bg_music] = nil
-      end
+      GTK.args.audio[:bg_music] = nil if GTK.args.audio[:bg_music].gain <= 0.0
     end
   end
 
   def process_crossfades
-    if GTK.args.audio[:bg_music] && GTK.args.audio[:bg_music].gain < @songs[@current_song].gain
+    if GTK.args.audio[:bg_music] &&
+         GTK.args.audio[:bg_music].gain < @songs[@current_song].gain
       # increase the gain 1% every tick until we are at 100%
       GTK.args.audio[:bg_music].gain += 0.007
       # clamp value to 1.0 max value
-      GTK.args.audio[:bg_music].gain = @songs[@current_song].gain if GTK.args.audio[:bg_music].gain > @songs[@current_song].gain
+      GTK.args.audio[:bg_music].gain =
+        @songs[@current_song].gain if GTK.args.audio[:bg_music].gain >
+        @songs[@current_song].gain
     end
 
     # decrease the volume of cross fade bg music until it's 0.0, then delete it
-    if GTK.args.audio[:bg_music_fade] && GTK.args.audio[:bg_music_fade].gain > 0.0
-      
+    if GTK.args.audio[:bg_music_fade] &&
+         GTK.args.audio[:bg_music_fade].gain > 0.0
       # decrease by 1% every frame
       GTK.args.audio[:bg_music_fade].gain -= 0.0008
       # delete audio when it's at 0%
@@ -268,7 +275,9 @@ class AudioService
 
     sound_id_string = sound.to_s
     sound_id_num = 0
-    @playing_sounds.each { |s| sound_id_num += 1 if s.include?(sound_id_string) }
+    @playing_sounds.each do |s|
+      sound_id_num += 1 if s.include?(sound_id_string)
+    end
 
     sound_id_string += sound_id_num.to_s
     sound_id_hash = @sounds[sound].merge(id: sound_id_string)

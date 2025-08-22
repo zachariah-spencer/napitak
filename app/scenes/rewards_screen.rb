@@ -37,6 +37,7 @@ class RewardsScreen < Scene
     end
 
     calc_cards_start_positions
+    $AUDIO_SERVICE.play_song(:loot_encounter)
   end
 
   def cleanup
@@ -73,6 +74,7 @@ class RewardsScreen < Scene
 
           if @picks <= 0
             @choosing_ended = true
+            $AUDIO_SERVICE.stop_song
             @choices.each { |id,c| c.mark_for_removal }
             @upgrades.each { |id,c| c.mark_for_removal }
             GTK.on_tick_count(Kernel.tick_count + 5.seconds) { leave }
@@ -88,7 +90,6 @@ class RewardsScreen < Scene
   end
 
   def on_outro
-    $AUDIO_SERVICE.stop_song
     $AUDIO_SERVICE.play_sound(:flee_fanfare)
     @outroing = true
   end
