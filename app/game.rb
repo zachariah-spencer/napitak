@@ -397,7 +397,7 @@ class Game
     end
 
     # for each particle, construct a prefab
-    puts @sparkle_particles.each { |particle| particle.prefab }
+    l4 << @sparkle_particles.each { |particle| particle.prefab }
     l4 << @status_labels.map { |particle| status_label_prefab particle }
 
 
