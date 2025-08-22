@@ -1,6 +1,11 @@
 # frozen_string_literal: true
 
 module GameUtils
+
+  def self.sparkle_particle(x:,y:,r:,g:,b:)
+    $game.sparkle_particle(x: x,y: y,r: r,g: g,b: b)
+  end
+
   def self.status_label(x, y, text, r, g, b, scale)
     $game.status_label(x, y, text, r, g, b, scale)
   end

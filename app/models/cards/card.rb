@@ -113,8 +113,11 @@ class Card
     calc_render_target(GTK.args)
 
     if @marked_for_removal
+      puts "HERE?"
       @fw = 0
       @fh = 0
+
+      @needs_removed = true if @w <= 10 || @h<= 10 && !@needs_removed
     end
   end
 

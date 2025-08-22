@@ -7,18 +7,31 @@ class RewardsScreen < Scene
     puts "init RewardsScreen"
     @sc_id = "rewards_screen"
     @picks = picks
+    @looting_ingredients = false
+    @alt_upgrades_label_alpha = 255
+    @loot_label_y = GTK.args.grid.h / 2 - 80
+    @choices_y = GTK.args.grid.h / 2 - 256 - 64
+
+    @upgrades = {}
+    hp_upgrade_card = RewardCard.new("s001")
+    focus_upgrade_card = RewardCard.new("s002")
+    @upgrades[hp_upgrade_card.entity_id] = hp_upgrade_card
+    @upgrades[focus_upgrade_card.entity_id] = focus_upgrade_card
+
     @choices = {}
     choices.times.each do
       random_reward_id =
         (
           $REWARD_ITEMS.keys.select do |id|
-            $recipe_book.unlocked_bases.include?(id) || id[0] == "s"
+            $recipe_book.unlocked_bases.include?(id) # || id[0] == "s"
           end
         ).sample
       puts random_reward_id
       random_reward_card = RewardCard.new(random_reward_id)
       @choices[random_reward_card.entity_id] = random_reward_card
     end
+
+    calc_cards_start_positions
   end
 
   def cleanup
@@ -26,6 +39,9 @@ class RewardsScreen < Scene
   end
 
   def tick
+    @alt_upgrades_label_alpha = @alt_upgrades_label_alpha.lerp(0, 0.1) if @looting_ingredients
+    @loot_label_y = @loot_label_y.lerp(GTK.args.grid.h / 2 + 200, 0.05) if @looting_ingredients
+    @choices_y = @choices_y.lerp(GTK.args.grid.h / 2 - 128, 0.05) if @looting_ingredients
     calc_card_positions
     if !$game.input_locked
       $player.hovered_cards =
@@ -36,8 +52,16 @@ class RewardsScreen < Scene
           Geometry.find_intersect_rect inputs.mouse, get_card_rects()
         if clicked_card
           puts "clicked on a card"
-          clicked_card[:ref].use()
-          @picks -= 1
+          clicked_card[:ref].use
+          if clicked_card[:ref].id[0] != "s"
+            puts "HERE"
+            @picks -= 1
+            @looting_ingredients = true
+            @upgrades.each { |id,c| c.mark_for_removal }
+            @upgrades.each { |k,v| puts v.marked_for_removal}
+          else
+            @picks = 0
+          end
 
           $game.change_scene(prev_sc: @sc_id, next_scene: "map") if @picks <= 0
         end
@@ -48,15 +72,24 @@ class RewardsScreen < Scene
   end
 
   def get_card_rects
-    @choices.values.map do |card|
+    choices_with_refs = @choices.values.map do |card|
       r = card.rect.dup
       r[:ref] = card # attach the actual Card instance
       r
     end
+
+    upgrades_with_refs = @upgrades.values.map do |card|
+      r = card.rect.dup
+      r[:ref] = card # attach the actual Card instance
+      r
+    end
+
+    choices_with_refs + upgrades_with_refs
   end
 
   def calc_entity_removals
     @choices.reject! { |id, c| c.needs_removed }
+    @upgrades.reject! { |id, c| c.needs_removed }
   end
 
   def render(layer_num)
@@ -69,40 +102,40 @@ class RewardsScreen < Scene
     cards ||= []
     front_card = []
 
-    @choices.each do |id, c|
+    @choices.merge(@upgrades).each do |id, c|
       c.grabbed ? front_card << c.prefab : cards << c.prefab
     end
 
     case layer_num
     when 0
-      background ||= {
+      background_solid = {
         x: 0,
         y: 0,
-        w: GTK.args.grid.w,
-        h: GTK.args.grid.h,
-        r: 10,
-        g: 10,
-        b: 20,
+        w: 1280,
+        h: 720,
+        r: 0,
+        g: 0,
+        b: 0,
         primitive_marker: :solid
       }
-
-      l0 << [background]
-      #l0.flatten!
-      return l0
-    when 1
-      top_panel ||= {
+      bg_tile_index = 0.frame_index(24, 1.0.seconds, true)
+      background = {
         x: 0,
-        y: GTK.args.grid.h - 150,
-        w: GTK.args.grid.w,
-        h: 150,
+        y: 0,
+        w: 1280,
+        h: 720,
         r: 50,
         g: 50,
         b: 50,
-        a: 50,
-        primitive_marker: :solid
+        a: 200,
+        path:
+          "sprites/background_frames/sketchybackground#{bg_tile_index + 1}.png"
       }
 
-      l1 << [top_panel]
+      l0 << [background_solid, background]
+      #l0.flatten!
+      return l0
+    when 1
       #l1.flatten!
       return l1
     when 2
@@ -116,16 +149,33 @@ class RewardsScreen < Scene
     when 4
       rewards_left_label = {
         x: GTK.args.grid.w / 2,
-        y: 100,
-        alignment_enum: 1,
-        size_px: Math.sin(Kernel.tick_count * 0.08) * 4 + 80,
+        y: @loot_label_y,
+        anchor_x: 0.5,
+        anchor_y: 0.5,
+        size_px: 70,
         r: 255,
         g: 255,
         b: 255,
-        text: "Loot #{@picks}!",
+        text: "OR SELECT #{@looting_ingredients ? @picks : 2}",
+        font: $FONT,
         primitive_marker: :label
       }
-      l4 << [rewards_left_label]
+
+      alt_upgrade_label = {
+        x: GTK.args.grid.w / 2,
+        y: GTK.args.grid.h - 100,
+        anchor_x: 0.5,
+        anchor_y: 0.5,
+        size_px: 70,
+        r: 255,
+        g: 255,
+        b: 255,
+        a: @alt_upgrades_label_alpha,
+        text: "PICK AN UPGRADE",
+        font: $FONT,
+        primitive_marker: :label
+      }
+      l4 << [rewards_left_label, alt_upgrade_label]
       #l4.flatten!
       return l4
     else
@@ -133,9 +183,25 @@ class RewardsScreen < Scene
     end
   end
 
-  def calc_card_positions
+  def calc_cards_start_positions
+    @upgrades.each_with_index do |(id, c), i|
+      c.instant_calc_position @upgrades.length, i, GTK.args.grid.h / 2 + 12
+    end
+
     @choices.each_with_index do |(id, c), i|
-      c.f_pos.y = GTK.args.grid.h / 2 - 80
+      c.instant_calc_position @choices.length, i, @choices_y
+    end
+  end
+
+  def calc_card_positions
+    @upgrades.each_with_index do |(id, c), i|
+      c.f_pos.y = GTK.args.grid.h / 2 + 12
+      c.calc_position @upgrades.length, i
+      c.tick
+    end
+
+    @choices.each_with_index do |(id, c), i|
+      c.f_pos.y = @choices_y
       c.calc_position @choices.length, i
       c.tick
     end

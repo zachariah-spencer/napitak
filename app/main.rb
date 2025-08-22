@@ -17,6 +17,7 @@ require_relative "utils/announcement"
 require_relative "utils/transition"
 require_relative "utils/status_effect_list_widget"
 require_relative "utils/run_once"
+require_relative "utils/sparkle_particle"
 
 # models (just player)
 require_relative "models/player"

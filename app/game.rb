@@ -100,6 +100,7 @@ class Game
     @created_entity_ids = []
     # currently list of status_labels to render to the screen at any given frame
     @status_labels = []
+    @sparkle_particles = []
     # queue of labels to render to the screen
     @status_labels_queue = []
     @status_label_queue_count = Kernel.tick_count
@@ -396,7 +397,9 @@ class Game
     end
 
     # for each particle, construct a prefab
+    puts @sparkle_particles.each { |particle| particle.prefab }
     l4 << @status_labels.map { |particle| status_label_prefab particle }
+
 
     if $player.combat_stats.dead_tick && @mid_run
       banner_f_i =
@@ -620,8 +623,13 @@ class Game
       particle.y += 1.5
     end
 
+    @sparkle_particles.each do |particle|
+      particle.tick
+    end
+
     # reject all particles with an alpha less than equal to 0
     @status_labels.reject! { |particle| particle.a <= 0 }
+    @sparkle_particles.reject! { |particle| particle.color[:a] <= 0 }
   end
 
   def status_label(x, y, t, r, g, b, scale)
@@ -648,6 +656,10 @@ class Game
       angle_anchor_y: 0.5,
       angle_mod: Numeric.rand(-0.2..0.2)
     }
+  end
+
+  def sparkle_particle(x:,y:,r:,g:,b:)
+    @sparkle_particles << SparkleParticle.new(x: x, y: y, r: r, g: g, b: b)
   end
 
   def create_particle_rt!(text, r, g, b, scale, w, h)
