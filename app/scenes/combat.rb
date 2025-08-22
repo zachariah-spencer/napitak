@@ -47,6 +47,14 @@ class Combat < Scene
       text: "PASS",
       font_color: { r: 255, g: 255, b: 255 },
       background_color: { r: 255, g: 255, b: 255 },)
+    @flee_btn = Button.new(
+      x: GTK.args.grid.w - 64,
+      y: 44,
+      w: pass_btn_rect[:w],
+      h: pass_btn_rect[:h],
+      text: "FLEE",
+      font_color: { r: 255, g: 255, b: 255 },
+      background_color: { r: 255, g: 0, b: 0 },)
     @combat_active = true
     @flee_attempts = 0
     @pre_deal_tick = Kernel.tick_count
@@ -101,7 +109,9 @@ class Combat < Scene
 
   def tick
     @pass_btn.tick
+    @flee_btn.tick
     @pass_btn.update_alpha(@pass_btn_alpha)
+    @flee_btn.update_alpha(@flee_btn_alpha)
     run_once(:allow_input_after_dealing_completed) do
       $game.input_locked = false
     end if @done_dealing
@@ -516,7 +526,7 @@ class Combat < Scene
         # pass_button_label,
         @combo_manager.prefab,
         cards,
-        flee_btn
+        @flee_btn.prefab
       ]
       return l2
     when 3
@@ -760,8 +770,7 @@ class Combat < Scene
   def calc_mouse_inputs
     return if $game.input_locked
 
-    if GTK.args.inputs.mouse.click &&
-         Geometry.intersect_rect?(inputs.mouse, flee_btn) && @player.my_turn
+    if @flee_btn.clicked? && @player.my_turn
       puts "clicked on flee_btn"
       attempt_flee
     end
