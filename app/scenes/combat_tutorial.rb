@@ -15,6 +15,7 @@ class CombatTutorial < Scene
     @player.combat_stats.reset!(@player.maximum_hp, @player.maximum_focus)
     @enemy = AbyssalTutorial.new
     @combo_manager = ComboManager.new
+    @turn_num = 1
     setup_tutorial_deck
     @hand_manager =
       CardHandManager.new(
@@ -77,11 +78,26 @@ class CombatTutorial < Scene
     @dealing_time = 1.seconds
     $AUDIO_SERVICE.play_sound(:cards_shuffle)
     $AUDIO_SERVICE.play_song(:combat_encounter)
+
+    $EVENT_BUS.subscribe(:enemy_animation_completed, self) do |p|
+      on_enemy_animation_completed(p)
+    end
+    $EVENT_BUS.subscribe(:potion_animation_completed, self) do |p|
+      on_potion_cast_animation_completed(p)
+    end
+    $EVENT_BUS.subscribe(:potion_animation_impacted, self) do |p|
+      on_potion_animation_impact(p)
+    end
+
+    $EVENT_BUS.subscribe(:enemy_died, self) { |p| on_enemy_died(p) }
+
+    $game.input_locked = true
     @card_hovered_tutorial_played = false
     @second_card_hovered_tutorial_played = false
   end
 
   def ready
+    $game.input_locked = true
     $TUTORIAL_INDEX = 0
     id, text = GameUtils.tutorial_string?($TUTORIAL_INDEX)
 
@@ -108,6 +124,29 @@ class CombatTutorial < Scene
     id, text = GameUtils.tutorial_string?($TUTORIAL_INDEX)
 
     GameUtils.announce(text: text, duration: 6.5.seconds, tutorial_id: id)
+    clear_dragging_state
+  end
+
+  def on_enemy_animation_completed(payload)
+    puts "ENEMY_ANIMATION_COMPLETED"
+    @victory_banner_timer = Kernel.tick_count if @enemy.combat_stats.dead
+  end
+
+  def on_potion_animation_impact(payload)
+    puts "POTION_IMPACTED #{payload[:id]}"
+    @hand_manager.calc_card_effects($PIDS[payload[:id]])
+  end
+
+  def on_potion_cast_animation_completed(payload)
+    puts "POTION CAST COMPLETED"
+    $game.input_locked = false
+    if !@hand_manager.actions_available? && !$game.input_locked
+      begin_turn_stage(@turn_stages[:cleanup])
+    end
+  end
+
+  def on_enemy_died(payload)
+    end_combat
   end
 
   def tick
@@ -198,6 +237,7 @@ class CombatTutorial < Scene
         x: $TUTORIAL_HOVERED_CARD.pos[:x] + 0,
         y: $TUTORIAL_HOVERED_CARD.pos[:y] - 25
       )
+      clear_dragging_state
     end
 
     if $announcement_manager.no_announcements? &&
@@ -219,6 +259,7 @@ class CombatTutorial < Scene
           "You are reinvigorated with a determination to protect your laboratory.",
         duration: 2.0.seconds
       )
+      clear_dragging_state
       begin_turn_stage @turn_stages[:drawing_cards]
     end
   end
@@ -731,6 +772,7 @@ class CombatTutorial < Scene
       text: "There is no escaping the darkness...",
       duration: 2.seconds
     )
+    clear_dragging_state
     @attempting_flee = true
   end
 
@@ -790,7 +832,8 @@ class CombatTutorial < Scene
         }
 
         state.click_hold_time = Kernel.tick_count
-      elsif inputs.mouse.held and state.currently_dragging_card_id
+      elsif inputs.mouse.held && state.mouse_point_inside_square &&
+            state.currently_dragging_card_id
         card_pos = {
           x: inputs.mouse.x - state.mouse_point_inside_square.x,
           y: inputs.mouse.y - state.mouse_point_inside_square.y
@@ -966,7 +1009,7 @@ class CombatTutorial < Scene
           y: 500
         )
       end
-
+      clear_dragging_state
       calc_status_effects(type: :BLIGHT)
       calc_status_effects(type: :BLIND)
       @hand_manager.draw_card
@@ -997,6 +1040,7 @@ class CombatTutorial < Scene
       text: "The creature has fled and disappeared into the cover of night.",
       duration: 3.0.seconds
     )
+    clear_dragging_state
   end
 
   def setup_tutorial_deck

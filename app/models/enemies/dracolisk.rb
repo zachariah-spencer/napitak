@@ -35,7 +35,7 @@ class Dracolisk < Enemy
       },
       25 => {
         name: "Power Attack",
-        attack_id: "a002",
+        id: :first,
         traits: [{ $CARD_TRAITS[:blight] => 1 }]
       },
       10 => {

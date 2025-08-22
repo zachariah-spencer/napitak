@@ -60,7 +60,7 @@ class Enemy
         stacks_y: GTK.args.grid.h - 80,
         resistances: [$DAMAGE_TYPES[:cold]],
         parent: self
-    )
+      )
 
     @attacks = {}
 
@@ -71,11 +71,17 @@ class Enemy
     $EVENT_BUS.subscribe(:enemy_apply_status, self) do |data|
       @combat_stats.apply_status(type: data[:type], stacks: data[:stacks])
     end
-    $EVENT_BUS.subscribe(:enemy_animation_completed, self) { |p| on_enemy_animation_completed }
-    $EVENT_BUS.subscribe(:enemy_animation_impacted, self) { |p| on_attack_animation_impact_frame_reached }
+    $EVENT_BUS.subscribe(:enemy_animation_completed, self) do |p|
+      on_enemy_animation_completed
+    end
+    $EVENT_BUS.subscribe(:enemy_animation_impacted, self) do |p|
+      on_attack_animation_impact_frame_reached
+    end
     $EVENT_BUS.subscribe(:combatant_hurt, self) do |combatant|
       puts "combatant: #{combatant[:combatant]} \n self: #{self} \n animations exists: #{@animations}"
-      @animations.play_animation(:hurt) if combatant[:combatant] == self && @animations
+      if combatant[:combatant] == self && @animations
+        @animations.play_animation(:hurt)
+      end
     end
   end
 
@@ -250,10 +256,12 @@ class Enemy
       calc
 
       unless @enemy.instance_variable_defined?(:@animations)
-        GTK.on_tick_count(Kernel.tick_count + 1) { $EVENT_BUS.publish(:enemy_animation_completed) } if @attacked && @turn_start_timer.elapsed_time >= 1.0.seconds
+        if @attacked && @turn_start_timer.elapsed_time >= 1.0.seconds
+          GTK.on_tick_count(Kernel.tick_count + 1) do
+            $EVENT_BUS.publish(:enemy_animation_completed)
+          end
+        end
       end
-
-      
     elsif @combat_stats.dead
       @combat_stats.calc_status(type: :FROST)
       end_turn
@@ -283,9 +291,10 @@ class Enemy
       @attack_queued = true
       GTK.on_tick_count(@turn_start_timer + 0.4.seconds) do
         select_attack
-        puts "SELECTED: #{@selected_attack[:id]}"
         @animations.play_animation(@selected_attack[:id]) if @animations
-        $EVENT_BUS.publish(:enemy_animation_impacted, @selected_attack[:id]) if !@animations
+        if !@animations
+          $EVENT_BUS.publish(:enemy_animation_impacted, @selected_attack[:id])
+        end
       end
     end
   end
@@ -320,7 +329,6 @@ class Enemy
     val
   end
 
-
   def end_turn
     @attacked = false
     @attack_queued = false
@@ -330,21 +338,19 @@ class Enemy
     $player.combat_stats.calc_status(type: :SCORCH)
   end
 
-
   def on_enemy_animation_completed
     end_turn if @attacked && @my_turn
   end
 
   def prefab
-
     sprite_frame =
-        0.frame_index(
-          count: 3,
-          hold_for: 30,
-          repeat: true,
-          repeat_index: 0,
-          tick_count_override: Kernel.tick_count
-        )
+      0.frame_index(
+        count: 3,
+        hold_for: 30,
+        repeat: true,
+        repeat_index: 0,
+        tick_count_override: Kernel.tick_count
+      )
     enemy_sprite ||= {
       x: @x,
       y: @y,

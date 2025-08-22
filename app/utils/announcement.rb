@@ -71,7 +71,7 @@ class Announcement
         r: 0,
         g: 0,
         b: 0,
-        a: @a / 8,
+        a: 255,
         primitive_marker: :solid
       }
 
