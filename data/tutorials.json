@@ -4,10 +4,10 @@
     "1": "When you begin combat, you will draw 4 cards from your deck to begin. Every subsequent turn you will draw 1 additional card from your deck.",
     "2": "You have a max hand size of 5 by default. If a card is to be drawn but your max hand size is already reached, you will miss out on that draw.",
     
-    "3": "Hovering over a card will give you more information about that card.",
+    "3": "Clicking and holding down LMB on a card will give you more information about that card.",
     "4": "Focus represents the Focus Cost to play this card.",
     "5": "Charges represents the number of times this potion can be played before it needs refilled at an alchemy workbench. Always consider the cost of empty potion bottles in your deck!",
-    "6": "The Potencies list shows all of the effects this potion has when played. Red numbers means the potion does straight damage.",
+    "6": "The Effects list shows all of the effects this potion has when played. Red numbers means the potion does straight damage.",
 
     "7": "At the start of each turn you regain your Focus which you can spend to play potion cards. Each potion card has an associated Focus Cost to play it.",
     

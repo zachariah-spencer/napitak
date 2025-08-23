@@ -216,8 +216,6 @@ class CombatTutorial < Scene
         text: text,
         duration: 5.0.seconds,
         tutorial_id: id,
-        x: $TUTORIAL_HOVERED_CARD.pos[:x] - 220,
-        y: $TUTORIAL_HOVERED_CARD.pos[:y] - 25
       )
       $TUTORIAL_INDEX = 5
       id, text = GameUtils.tutorial_string?($TUTORIAL_INDEX)
@@ -225,8 +223,6 @@ class CombatTutorial < Scene
         text: text,
         duration: 6.0.seconds,
         tutorial_id: id,
-        x: $TUTORIAL_HOVERED_CARD.pos[:x] - 120,
-        y: $TUTORIAL_HOVERED_CARD.pos[:y] - 25
       )
       $TUTORIAL_INDEX = 6
       id, text = GameUtils.tutorial_string?($TUTORIAL_INDEX)
@@ -234,8 +230,6 @@ class CombatTutorial < Scene
         text: text,
         duration: 6.0.seconds,
         tutorial_id: id,
-        x: $TUTORIAL_HOVERED_CARD.pos[:x] + 0,
-        y: $TUTORIAL_HOVERED_CARD.pos[:y] - 25
       )
       clear_dragging_state
     end
