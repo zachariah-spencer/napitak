@@ -684,6 +684,7 @@ class Game
       x: w / 2,
       y: h / 2,
       text: text.to_s,
+      font: $FONT,
       anchor_x: 0.5,
       anchor_y: 0.5,
       size_px: scale,
