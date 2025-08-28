@@ -1,5 +1,5 @@
 * EXCEPTION:
-* ERROR - :each method missing on ~Class~.
+* ERROR - :[]= method missing on ~Class~.
 
 #+begin_src ~Class#inspect~
 NIL
@@ -8,12 +8,16 @@ NIL
 
 
 The method named
-  :each
+  :[]=
+with args
+  [:gain, 0.0]
 doesn't exist on [NilClass].
 
 (suggestions above)
 ** Backtrace:
-*** app/scenes/alchemy_table.rb:442:in render
-*** app/game.rb:395:in render
-*** app/game.rb:335:in tick
+*** app/services/audio_service.rb:226:in transition_songs
+*** app/services/audio_service.rb:194:in play_song
+*** app/game.rb:254:in toggle_pause
+*** app/game.rb:281:in handle_pause
+*** app/game.rb:308:in tick
 *** app/main.rb:91:in tick

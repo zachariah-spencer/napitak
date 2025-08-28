@@ -1,6 +1,7 @@
 class PauseMenu < Scene
   def initialize()
     puts "PAUSED GAME"
+    $AUDIO_SERVICE.play_song(:map_encounter)
     @pause_screen = "main"
     @journal_instance = nil
     @combat_instance = nil

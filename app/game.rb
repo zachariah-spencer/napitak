@@ -36,6 +36,7 @@ class Game
         text: ""
       )
     @paused_scene_ref = nil
+    @paused_music_sym = nil
     @paused = false
     @status_effect_list_widget =
       StatusEffectListWidget.new(
@@ -245,10 +246,12 @@ class Game
     if @paused
       @scene = "pause_menu"
       @paused_scene_ref = paused_scene_ref if paused_scene_ref
+      @paused_music_sym = $AUDIO_SERVICE.current_song
       @scene_ref = PauseMenu.new
     else
       @scene = @paused_scene_ref.sc_id
       @scene_ref.cleanup
+      $AUDIO_SERVICE.play_song(@paused_music_sym)
       @scene_ref = @paused_scene_ref
     end
   end

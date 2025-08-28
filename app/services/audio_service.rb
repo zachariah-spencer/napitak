@@ -1,4 +1,5 @@
 class AudioService
+  attr :current_song
   def initialize()
     $AUDIO_SERVICE = self
     @playing_sounds = []
