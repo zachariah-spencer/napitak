@@ -57,6 +57,8 @@ class AlchemyTable < Scene
           b: 100
         }
       )
+
+    $AUDIO_SERVICE.play_song(:alchemy_encounter)
     @selection
   end
 
