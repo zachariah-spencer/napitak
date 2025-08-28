@@ -1,24 +1,19 @@
 * EXCEPTION:
-* ERROR - :input_locked? method missing on ~Game~.
+* ERROR - :each method missing on ~Class~.
 
-#+begin_src ~Game#inspect~
-#<Game:0x21cc0255720 @mid_run=true, @next_sc="combat_tutorial", @scene_args=[], @pot_col_btn={:x=>946.0, :y=>688, :w=>32.0, :h=>32.0, :anchor_x=>0.5, :anchor_y=>0.5, :path=>"sprites/bottle.png"}, @next_scene_instance=nil, @transition=nil, @ing_col_btn={:x=>324.0, :y=>688, :w=>32.0, :h=>32.0, :anchor_x=>0.5, :anchor_y=>0.5, :path=>"sprites/fire.png"}, @transitioning_scenes=false, @defeat_banner_alpha=0, @pot_btn_label={:x=>946.0, :y=>640, :anchor_x=>0.5, :anchor_y=>0.5, :font=>"fonts/amarante.ttf", :text=>"Potions", :size_px=>18, :r=>255, :g=>255, :b=>255, :a=>8.914697875013578e-25}, @paused_scene_ref=nil, @status_labels=[], @recipe_book=#<RecipeBook:0x21cb03f3d90>, @autosaved=false, @args=#<GTK::Args:0x21cb0432e40>, @created_entity_ids=[], @paused=false, @ing_btn_label={:x=>324.0, :y=>640, :anchor_x=>0.5, :anchor_y=>0.5, :font=>"fonts/amarante.ttf", :text=>"Ingredients", :size_px=>18, :r=>255, :g=>255, :b=>255, :a=>8.914697875013578e-25}, @scene="combat_tutorial", @pause_btn=#<Button:0x21cc0254370>, @status_label_queue_count=0, @created_prefabs={}, @viewing_collection=false, @input_locked=false, @runs_completed=0, @collection_scene_ref=nil, @status_effect_list_widget=#<StatusEffectListWidget:0x21cb03fe500>, @sparkle_particles=[], @scene_ref=#<CombatTutorial:0x21cb048d480>, @player=#<Player:0x21cb03f55c0>, @prev_sc="intro", @status_labels_queue=[]>
-#+end_src ~Game#inspect~
+#+begin_src ~Class#inspect~
+NIL
+#+end_src ~Class#inspect~
 
-** Did you mean?
-Here's a list of methods that kind of look like :input_locked?.
-*** :input_locked
-*** :input_locked=
-*** :inputs
+
 
 The method named
-  :input_locked?
-doesn't exist on [Game, #<Class:#<Game:0x21cc0255720>>, AttrGTK].
+  :each
+doesn't exist on [NilClass].
 
 (suggestions above)
 ** Backtrace:
-*** app/scenes/combat_tutorial.rb:778:in calc_mouse_inputs
-*** app/scenes/combat_tutorial.rb:211:in calc
-*** app/scenes/combat_tutorial.rb:76:in tick
-*** app/game.rb:332:in tick
+*** app/scenes/alchemy_table.rb:442:in render
+*** app/game.rb:395:in render
+*** app/game.rb:335:in tick
 *** app/main.rb:91:in tick

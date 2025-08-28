@@ -10,8 +10,8 @@ class AlchemyLab < Scene
     @uses_left = max_uses
     @max_ingredients = max_ingredients
     @visible_ingredients = {}
-    @selected_ingredients = {}
     @visible_potions = {}
+    @selected_ingredients = {}
     @ingredient_generators = {}
     @ingredients_on_screen = Inventory.new()
     @craftable_potion = nil
@@ -77,7 +77,7 @@ class AlchemyLab < Scene
 
     @ing_menu_widget =
       ScrollListWidget.new(
-        items: [],
+        items: [IngredientCard.new("i005")],
         x: 16,
         y: GTK.args.grid.h / 2 - 245,
         w: 96,
@@ -371,6 +371,7 @@ class AlchemyLab < Scene
   end
 
   def clear_loadout
+    @selected_ingredients.each { |id,c| remove_selection_square(followed_card: c) }
     @selected_ingredients.clear
     @visible_ingredients.clear
     @visible_potions.clear
@@ -443,6 +444,7 @@ class AlchemyLab < Scene
     @visible_ingredients
       .merge(@visible_potions)
       .each do |id, c|
+      prefab = c.prefab
         if GameUtils.is_potion(c)
           prefab = c.prefab
         else
@@ -522,20 +524,7 @@ class AlchemyLab < Scene
         primitive_marker: :sprite
       }
 
-      # low_panel_debug ||= {
-      #   x: 0,
-      #   y: 0,
-      #   w: GTK.args.grid.w,
-      #   h: 110,
-      #   r: 50,
-      #   g: 50,
-      #   b: 50,
-      #   a: 200,
-      #   primitive_marker: :solid
-      # }
-
       l1 << [left_panel_a, right_panel_a]
-      # l1 << [ left_panel_b, right_panel_b,]
       l1 << [@ing_menu_widget.render, @pot_menu_widget.render, generator_cards]
       l1
     when 2
@@ -547,7 +536,7 @@ class AlchemyLab < Scene
         r: 255,
         g: 255,
         b: 255,
-        text: "Alchemy Lab",
+        text: "Laboratory",
         font: $FONT,
         primitive_marker: :label
       }
@@ -560,7 +549,7 @@ class AlchemyLab < Scene
       l2 << [
         encounter_label,
         @leave_btn.prefab,
-        potions_label(),
+        potions_label,
         ingredients_label,
         cards
       ]
@@ -774,120 +763,18 @@ class AlchemyLab < Scene
     prefabs
   end
 
-  # def craft_btn
-  #   craft_btn_frames = 0.frame_index(4, 0.5.seconds, true)
-  #   craft_btn_rect =
-  #     Layout.rect(
-  #       col: Layout.col_count / 2 - 1,
-  #       row: Layout.row_count - 2.25,
-  #       w: 1.5,
-  #       h: 0.75
-  #     )
-  #
-  #   GTK.args.outputs[:craft_btn].w = 96
-  #   GTK.args.outputs[:craft_btn].h = 48
-  #   btn_color = { r: 150, g: 150, b: 150 }
-  #
-  #   GTK.args.outputs[:craft_btn].primitives << craft_btn_rect.merge(
-  #     x: 0,
-  #     y: 0,
-  #     angle: 0,
-  #     path: "sprites/wide_button_frame-sheet-6.png",
-  #     tile_x: 96 * craft_btn_frames,
-  #     tile_y: 0,
-  #     tile_w: 96,
-  #     tile_h: 48,
-  #     r: 255,
-  #     g: 0,
-  #     b: 0,
-  #     primitive_marker: :sprite
-  #   )
-  #
-  #   GTK.args.outputs[:craft_btn].primitives << {
-  #     x: craft_btn_rect[:w] / 2,
-  #     y: craft_btn_rect[:h] / 2 + 6,
-  #     text: "Brew",
-  #     font: $FONT,
-  #     anchor_x: 0.5,
-  #     anchor_y: 0.5,
-  #     r: 255,
-  #     g: 255,
-  #     b: 255,
-  #     size_px: 10
-  #   }
-  #
-  #   GTK.args.outputs[:craft_btn].primitives << {
-  #     x: craft_btn_rect[:w] / 2,
-  #     y: craft_btn_rect[:h] / 2 - 6,
-  #     text: "#{@craftable_potion.data.name}",
-  #     font: $FONT,
-  #     anchor_x: 0.5,
-  #     anchor_y: 0.5,
-  #     r: 255,
-  #     g: 255,
-  #     b: 255,
-  #     size_px: 10
-  #   }
-  #
-  #   craft_btn_rect.merge(
-  #     w: 128,
-  #     h: 64,
-  #     path: :craft_btn,
-  #     primitive_marker: :sprite
-  #   )
-  # end
+  def get_card_rects
+    rects = []
+    @visible_ingredients
+      .merge(@selected_ingredients)
+      .merge(@visible_potions)
+      .each do |id, card|
+        rects << { x: card.pos.x, y: card.pos.y, w: card.w, h: card.h, id: id }
+      end
+    rects
+  end
 
-  # def leave_btn
-  #   leave_btn_frames = 0.frame_index(4, 0.5.seconds, true)
-  #   leave_btn_rect =
-  #     Layout.rect(
-  #       col: Layout.col_count - 1.685,
-  #       row: Layout.row_count - 0.5,
-  #       w: 1.5,
-  #       h: 0.75
-  #     )
-  #
-  #   GTK.args.outputs[:leave_btn].w = 96
-  #   GTK.args.outputs[:leave_btn].h = 48
-  #   btn_color = { r: 150, g: 150, b: 150 }
-  #
-  #   GTK.args.outputs[:leave_btn].primitives << leave_btn_rect.merge(
-  #     x: 0,
-  #     y: 0,
-  #     angle: 0,
-  #     path: "sprites/wide_button_frame-sheet-6.png",
-  #     tile_x: 96 * leave_btn_frames,
-  #     tile_y: 0,
-  #     tile_w: 96,
-  #     tile_h: 48,
-  #     r: 255,
-  #     g: 0,
-  #     b: 0,
-  #     primitive_marker: :sprite
-  #   )
-  #
-  #   GTK.args.outputs[:leave_btn].primitives << {
-  #     x: leave_btn_rect[:w] / 2,
-  #     y: leave_btn_rect[:h] / 2,
-  #     text: "#{@leave_btn_text}",
-  #     font: $FONT,
-  #     anchor_x: 0.5,
-  #     anchor_y: 0.5,
-  #     r: 255,
-  #     g: 255,
-  #     b: 255,
-  #     size_px: 22
-  #   }
-  #
-  #   leave_btn_rect.merge(
-  #     w: 96,
-  #     h: 48,
-  #     path: :leave_btn,
-  #     primitive_marker: :sprite
-  #   )
-  # end
-
-  def get_all_card_rects
+    def get_all_card_rects
     rects = []
     cards =
       @visible_ingredients
@@ -898,17 +785,6 @@ class AlchemyLab < Scene
     cards.each do |id, card|
       rects << { x: card.pos.x, y: card.pos.y, w: card.w, h: card.h, id: id }
     end
-    rects
-  end
-
-  def get_card_rects
-    rects = []
-    @visible_ingredients
-      .merge(@selected_ingredients)
-      .merge(@visible_potions)
-      .each do |id, card|
-        rects << { x: card.pos.x, y: card.pos.y, w: card.w, h: card.h, id: id }
-      end
     rects
   end
 
@@ -972,7 +848,7 @@ class AlchemyLab < Scene
       c_ref = nil
     end
 
-    # try to pop a clicked ingredient from the ing_menu
+    # try to pop a clicked ingredient from the pot_menu
     if clicked = @pot_menu_widget.pop_clicked
       puts "Clicked: #{clicked.name}"
       new_card = @pot_menu_widget.remove_item(clicked)

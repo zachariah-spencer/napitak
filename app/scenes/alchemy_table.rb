@@ -11,7 +11,14 @@ class AlchemyTable < Scene
     @visible_ingredients = {}
     @visible_potions = {}
     @selected_ingredients = {}
+    @ingredients_on_screen = Inventory.new()
     @craftable_potion = nil
+    @leave_btn_text = "LEAVE"
+    @leave_btn_clicks = 0
+    @leave_btn_clicked_tick = nil
+    @leave_btn_message_a = 0
+    @brew_anim_tick = nil
+    @brew_completed = false
 
     @ing_menu_widget =
       ScrollListWidget.new(
@@ -43,7 +50,6 @@ class AlchemyTable < Scene
           b: 0
         }
       )
-
     @brew_btn =
       Button.new(
         x: GTK.args.grid.w / 2,
@@ -57,9 +63,52 @@ class AlchemyTable < Scene
           b: 100
         }
       )
+    @selection_squares = []
 
     $AUDIO_SERVICE.play_song(:alchemy_encounter)
-    @selection
+    update_inventories
+  end
+
+  def play_brew_anim
+    @brew_anim_tick = Kernel.tick_count
+    $AUDIO_SERVICE.play_sound(:brew_action)
+    $game.input_locked = true
+    @brew_completed = false
+  end
+
+  def tick_brew_anim
+    if @brew_anim_tick
+      puts "BREWANIMTICK ELAPSED TIME: #{@brew_anim_tick.elapsed_time}"
+      if @brew_anim_tick.elapsed_time >= 1.0.seconds
+        @brew_anim_tick = nil
+        $game.input_locked = false
+      else
+      end
+    end
+  end
+
+  def render_brew_anim
+    if @brew_anim_tick && @brew_anim_tick.elapsed_time < 1.0.seconds
+      frames = @brew_anim_tick.frame_index(16, (1.0.seconds / 16), false)
+      on_brew_anim_completed if frames == 13 && !@brew_completed
+
+      puts "FRAMES: #{frames}"
+
+      puts "sprites/brew-anim/brew_anim#{frames + 1}.png"
+      {
+        x: 0,
+        y: 0,
+        w: 1280,
+        h: 720,
+        path: "sprites/brew-anim/brewanim#{frames + 1}.png"
+      }
+    end
+  end
+
+  def on_brew_anim_completed
+    craft(@craftable_potion.id)
+    @craftable_potion = nil
+    @brew_completed = true
   end
 
   def cleanup
@@ -67,8 +116,6 @@ class AlchemyTable < Scene
     super
     state.currently_dragging_card_id = nil
     state.mouse_point_inside_square = nil
-    c_ref = nil
-    c_u_m = nil
 
     potions_save_data = []
     @player.potions.all_cards.each { |c| potions_save_data << c.save_data? }
@@ -83,17 +130,31 @@ class AlchemyTable < Scene
   end
 
   def craft(recipe_id)
-    if @recipe_book.can_craft?(recipe_id)
-      potion = @recipe_book.craft(recipe_id)
+    if @recipe_book.can_craft?(
+      recipe_id,
+      ingredients_inventory: @ingredients_on_screen.all_cards
+      )
+      $AUDIO_SERVICE.play_sound(:brew_action_completed)
+      potion = 
+        @recipe_book.craft(
+          recipe_id,
+          ingredients_inventory: @ingredients_on_screen.all_cards
+          )
+      @selected_ingredients.each do |id, c|
+        remove_selection_square(followed_card: c)
+      end
       @selected_ingredients.clear
 
-      if GameUtils.is_potion(potion.id)
-        @pot_menu_widget.add_item(potion)
-      else
-        potion.f_pos.x = GTK.args.grid.w / 2 - (potion.w / 2)
-        potion.f_pos.y = GTK.args.grid.h / 2 - (potion.h / 2)
+      potion.instant_set_position(
+        x: GTK.args.grid.w / 2 - (potion.w / 2),
+        y: GTK.args.grid.h / 2 - (potion.h / 2)
+      )
+      if !GameUtils.is_potion(potion.id)
         @visible_ingredients[potion.entity_id] = potion
         @ingredients_on_screen.add(potion)
+      else
+        potion.free_floating = true
+        @visible_potions[potion.entity_id] = potion
       end
 
       puts "CRAFTED #{potion.name}"
@@ -117,6 +178,26 @@ class AlchemyTable < Scene
 
     puts "USES EXHAUSTED, EXITING ALCHEMY LAB ENCOUNTER"
     leave
+  end
+
+  def calc_selected_positions
+    spacing = 24
+    half_total_width =
+      (@selected_ingredients.keys.length * (150 + spacing)) / 2.0
+    start_x = GTK.args.grid.w / 2 - half_total_width
+    @selected_ingredients.each_with_index do |(id, card), i|
+      card.f_pos.y = 400
+      card.f_pos.x = start_x + (i * (150 + spacing))
+    end
+  end
+
+  def center_elements(elements, center_x, element_width)
+    half_total_width = (elements.length * element_width) / 2.0
+    start_x = center_x - half_total_width
+
+    elements.each_with_index.map do |el, i|
+      { element: el, x: start_x + (i * element_width + spacing) }
+    end
   end
 
   def leave
@@ -147,6 +228,14 @@ class AlchemyTable < Scene
     new_pots.concat(@visible_potions.values)
     new_pots.concat(table_cards.select { |c| GameUtils.is_potion(c.id) })
     new_pots.concat(selected_cards.select { |c| GameUtils.is_potion(c.id) })
+    
+    new_pots.each do |c|
+      c.free_floating = false
+      c.marked_for_removal = false
+      c.needs_removed = false
+      c.fw = 160
+      c.fh = 160
+    end
 
     @player.ingredients = Inventory.new(new_ings)
     @player.potions = Inventory.new(new_pots)
@@ -155,11 +244,15 @@ class AlchemyTable < Scene
   end
 
   def tick
-    @leave_btn.tick
-    @brew_btn.tick
+    tick_brew_anim
     @ing_menu_widget.tick(GTK.args.inputs)
     @pot_menu_widget.tick(GTK.args.inputs)
+    @visible_ingredients.each { |id, c| c.tick }
+    @visible_potions.each { |id, c| c.tick }
+    @selected_ingredients.each { |id, c| c.tick }
     calc
+    @leave_btn.tick
+    @brew_btn.tick
   end
 
   def calc
@@ -170,32 +263,36 @@ class AlchemyTable < Scene
       calc_inputs_locked
     end
     calc_card_positions
+    calc_selected_positions
   end
 
   def calc_inputs_locked
     all_moveable_cards =
       @visible_ingredients.merge(@selected_ingredients).merge(@visible_potions)
 
-    all_moveable_cards.each { |id, c| c.grabbed = false}
+    all_moveable_cards.each { |id, c| c.grabbed = false }
 
     state.currently_dragging_card_id = nil
     state.mouse_point_inside_square = nil
-    c_ref = nil
-    c_u_m = nil
   end
 
 
   def calc_card_positions
-    # @visible_ingredients
-    #   .merge(@selected_ingredients)
-    #   .each_with_index do |(id, c), i|
-    #     c.calc_position(@visible_ingredients.length, i)
-    #   end
     all_cards =
+      @visible_ingredients
+        .merge(@selected_ingredients)
+        .merge(@visible_potions)
+
+    all_moveable_cards =
       @visible_ingredients.merge(@selected_ingredients).merge(@visible_potions)
 
-    all_cards.each do |id, c|
+    all_moveable_cards.each do |id, c|
       c.calc_position(0, 0)
+      if out_of_bounds?(c) && !$game.input_locked && !c.marked_for_removal
+        c.mark_for_removal
+        $AUDIO_SERVICE.play_sound(:remove_ingredient)
+        unselect_cards(c)
+      end
       other_card_rects =
         get_all_card_rects.reject { |other_c| other_c[:id] == c.entity_id }
       collision_rect = Geometry.find_intersect_rect(c.rect, other_card_rects)
@@ -211,7 +308,7 @@ class AlchemyTable < Scene
             Geometry.rect_center_point(c.rect)
           )
 
-        reverse_dist_formula = ((160 - (dist * 1.3)) / 4).clamp(0, 30)
+        reverse_dist_formula = ((160 - (dist * 1.5)) / 2).clamp(0, 30)
 
         nvec = Geometry.vec2_normalize(vec)
         c.vx = nvec.x * -1 * reverse_dist_formula
@@ -231,7 +328,9 @@ class AlchemyTable < Scene
     sel_cards ||= []
     front_card = nil
 
-    @visible_ingredients.each do |id, c|
+    @visible_ingredients
+      .merge(@visible_potions)
+      .each do |id, c|
       prefab = c.prefab
       if GameUtils.is_potion(c)
         prefab = c.prefab
@@ -327,7 +426,7 @@ class AlchemyTable < Scene
         r: 255,
         g: 255,
         b: 255,
-        text: "Alchemy Table",
+        text: "Brew Bench",
         primitive_marker: :label,
         font: $FONT
       }
@@ -339,49 +438,48 @@ class AlchemyTable < Scene
         ingredients_label,
         cards
       ]
+
+      @selection_squares.each do |square|
+        f_i =
+          Numeric.frame_index(
+            start_at: square.start_tick,
+            count: 4,
+            hold_for: 10,
+            repeat: true
+          )
+        l2 << selection_square_prefab(
+          x: square.card_to_follow.pos.x,
+          y: square.card_to_follow.pos.y,
+          f_i: f_i
+        )
+      end
       l2
     when 3
       l3 << [front_card, sel_cards]
       l3
     when 4
-      if @craftable_potion
-        craftable_potion_label ||= {
-          x: GTK.args.grid.w / 2,
-          y: GTK.args.grid.h / 2 + 150,
-          text: "#{@craftable_potion.data.name}",
-          anchor_x: 0.5,
-          anchor_y: 0.5,
-          r: 255,
-          g: 0,
-          b: 0,
-          size_enum: 15,
-          primitive_marker: :label,
-          font: $FONT
-        }
-
-        l4 << [craftable_potion_label, @craft_btn.prefab]
-      end
+      l4 << [@brew_btn.prefab] if @craftable_potion
 
       uses_left_label ||= {
-        x: GTK.args.grid.w / 2,
-        y: 50,
+        x: 64,
+        y: 48,
         alignment_enum: 1,
-        size_enum: 8,
+        size_px: 18,
         r: 255,
         g: 255,
         b: 255,
-        text: "Brewing Capacity: #{@uses_left}",
-        primitive_marker: :label,
-        font: $FONT
+        text: "Brews Left: #{@uses_left}",
+        font: $FONT,
+        primitive_marker: :label
       }
 
       l4 << [uses_left_label]
+      l4 << render_brew_anim
       l4
     else
       # puts "combat.rb: Invalid Render Argument"
     end
   end
-
 
   def potions_label()
     sprite_frames = 6
@@ -491,14 +589,9 @@ class AlchemyTable < Scene
     rects = []
     @visible_ingredients
       .merge(@selected_ingredients)
+      .merge(@visible_potions)
       .each do |id, card|
-        rects << {
-          x: card.pos.x,
-          y: card.pos.y,
-          w: card.fw,
-          h: card.fh,
-          id: id
-        }
+        rects << { x: card.pos.x, y: card.pos.y, w: card.w, h: card.h, id: id }
       end
     rects
   end
@@ -506,7 +599,9 @@ class AlchemyTable < Scene
   def get_all_card_rects
     rects = []
     cards =
-      @visible_ingredients.merge(@selected_ingredients).merge(@visible_potions)
+      @visible_ingredients
+        .merge(@selected_ingredients)
+        .merge(@visible_potions)
 
     cards.each do |id, card|
       rects << { x: card.pos.x, y: card.pos.y, w: card.w, h: card.h, id: id }
@@ -517,7 +612,9 @@ class AlchemyTable < Scene
   def draw_card(card)
     return nil unless card
 
-    @visible_ingredients[card.entity_id] = card
+    @visible_ingredients[card.entity_id] = card if !GameUtils.is_potion(card.id)
+    @visible_potions[card.entity_id] = card if GameUtils.is_potion(card.id)
+    @ingredients_on_screen.add(card)
     card
   end
 
@@ -527,10 +624,9 @@ class AlchemyTable < Scene
       leave
     end
 
-    if @brew_btn.clicked? && @craftable_potion
+    if @craftable_potion && @brew_btn.clicked?
       puts "clicked on craft_btn"
-      craft(@craftable_potion.id)
-      @craftable_potion = nil
+      play_brew_anim
     end
 
     if (clicked = @pot_menu_widget.selected_item)
@@ -545,7 +641,9 @@ class AlchemyTable < Scene
   def calc_card_drag_inputs
     if state.currently_dragging_card_id
       id = state.currently_dragging_card_id
-      c_ref = @visible_ingredients[id] || @selected_ingredients[id]
+      c_ref =
+        @visible_ingredients[id] || @selected_ingredients[id] ||
+          @visible_potions[id]
     else
       c_u_m = Geometry.find_intersect_rect inputs.mouse, get_card_rects
       c_ref = nil
@@ -554,33 +652,42 @@ class AlchemyTable < Scene
     if clicked = @ing_menu_widget.pop_clicked
       puts "Clicked: #{clicked.name}"
       new_card = @ing_menu_widget.remove_item(clicked)
+      $AUDIO_SERVICE.play_sound(:bag_remove)
       if new_card
         c_ref = draw_card(new_card)
         if c_ref
           c_ref.activation_time = Kernel.tick_count
           c_u_m = c_ref.rect
+          c_ref.instant_set_position(
+            x: GTK.args.inputs.mouse.x - 80,
+            y: GTK.args.inputs.mouse.y - 80
+          )
           c_u_m.x = GTK.args.inputs.mouse.x - 80
           c_u_m.y = GTK.args.inputs.mouse.y - 80
-          c_ref.grabbed = true
+          c_ref.grab
         end
       end
+      update_inventories
     end
-
-    if inputs.mouse.click and c_u_m
+    if inputs.mouse.click && c_u_m
       card_id = c_u_m[:id]
       state.currently_dragging_card_id = card_id
-      c_ref = @visible_ingredients[card_id] || @selected_ingredients[card_id]
-      c_ref.grabbed = true
+      c_ref =
+        @visible_ingredients[card_id] || @selected_ingredients[card_id] ||
+          @visible_potions[card_id]
+      c_ref.grab
+
+      reorder_cards(c_ref)
 
       state.mouse_point_inside_square = {
         x: inputs.mouse.x - c_u_m.x,
         y: inputs.mouse.y - c_u_m.y
       }
       state.click_hold_time = Kernel.tick_count
-    elsif inputs.mouse.held and state.currently_dragging_card_id
+    elsif inputs.mouse.held && state.currently_dragging_card_id && c_ref
       c_ref.pos.x = inputs.mouse.x - state.mouse_point_inside_square.x
       c_ref.pos.y = inputs.mouse.y - state.mouse_point_inside_square.y
-    elsif inputs.mouse.up and state.currently_dragging_card_id
+    elsif inputs.mouse.up && state.currently_dragging_card_id
       if state.click_hold_time.elapsed_time < 20 and
            (Geometry.distance c_ref.pos, c_ref.f_pos) < 20 and
            (c_ref.activation_time.elapsed_time > 0.25.seconds)
@@ -588,37 +695,111 @@ class AlchemyTable < Scene
       end
 
       if inputs.mouse.intersect_rect?(@ing_menu_widget.rect) and
-           !@selected_ingredients.values.include?(c_ref)
+           !@selected_ingredients.values.include?(c_ref) &&
+             !GameUtils.is_potion(c_ref.id)
         @ing_menu_widget.add_item(c_ref)
         @visible_ingredients.reject! { |id, c| c == c_ref }
+        $AUDIO_SERVICE.play_sound(:bag_insert)
+        update_inventories
+      end
+
+      @visible_ingredients.reject! { |id, c| c.marked_for_removal && c.w <= 5 }
+      @visible_potions.reject! { |id, c| c.marked_for_removal && c.w <= 5 }
+
+      if inputs.mouse.intersect_rect?(@pot_menu_widget.rect) &&
+           GameUtils.is_potion(c_ref.id)
+        c_ref.free_floating = false
+        @pot_menu_widget.add_item(c_ref)
+        @visible_potions.reject! { |id, c| c == c_ref }
+        $AUDIO_SERVICE.play_sound(:bag_insert)
+        update_inventories
       end
 
       # Re-fetch the card from either group.
-      c_ref.f_pos.x = c_ref.pos.x
-      c_ref.f_pos.y = c_ref.pos.y
-      c_ref.grabbed = false
+      if c_ref
+        c_ref.f_pos.x = c_ref.pos.x
+        c_ref.f_pos.y = c_ref.pos.y
+        c_ref.grabbed = false
+      end
       state.currently_dragging_card_id = nil
     end
   end
 
+  def out_of_bounds?(card)
+    !card.grabbed &&
+      (
+        card.pos.y < 100 || card.pos.y > GTK.args.grid.h - card.h ||
+          card.pos.x < 128 || card.pos.x > GTK.args.grid.w - card.w - 128
+      )
+  end
+
   def use_card(c)
     puts "CALLED USE CARD"
-    toggle_card_selected(c)
+    toggle_card_selected(c) if !GameUtils.is_potion(c.id)
+    craftable_potion?
+
+    if @from_tutorial && @craftable_potion && !@tutorial_steps[:recipe_selected]
+      @tutorial_steps[:recipe_selected] = true
+      $TUTORIAL_INDEX = 17
+      id, text = GameUtils.tutorial_string?($TUTORIAL_INDEX)
+      GameUtils.announce(text: text, duration: 6.5.seconds, tutorial_id: id)
+    end
+  end
+
+  def craftable_potion?
     @craftable_potion = @recipe_book.craftable_potion?(@selected_ingredients)
   end
 
-  def unselect_cards
-    @selected_ingredients.each { |id, c| toggle_card_selected(c) }
+  def unselect_cards(c = nil)
+    if c
+      move_card(c, @visible_ingredients, @selected_ingredients)
+      remove_selection_square(followed_card: c)
+    else
+      @selected_ingredients.each { |id, c| toggle_card_selected(c) }
+    end
   end
 
   def toggle_card_selected(c)
     if !c.selected
+      $AUDIO_SERVICE.play_sound(:select_card)
+      add_selection_square(card_to_follow: c)
       move_card(c, @selected_ingredients, @visible_ingredients)
       c.calc_render_target(GTK.args)
     else
+      $AUDIO_SERVICE.play_sound(:unselect_card)
+      remove_selection_square(followed_card: c)
       move_card(c, @visible_ingredients, @selected_ingredients)
       c.calc_render_target(GTK.args)
     end
+  end
+  
+  def add_selection_square(card_to_follow:)
+    @selection_squares << {
+      card_to_follow: card_to_follow,
+      start_tick: Numeric.rand(-180..0)
+    }
+  end
+  
+  def remove_selection_square(followed_card:)
+    @selection_squares.reject! do |square|
+      square.card_to_follow == followed_card
+    end
+  end
+  
+  def selection_square_prefab(x:, y:, f_i:)
+    puts "FRAME_INDEX: #{f_i}"
+    {
+      x: x - 8,
+      y: y - 12,
+      w: 170,
+      h: 170,
+      a: 255,
+      path: "sprites/selected_card_outline-sheet-4.png",
+      tile_x: 1024 * f_i,
+      tile_y: 0,
+      tile_w: 1024,
+      tile_h: 1024
+    }
   end
 
   def move_card(c, to, from)
@@ -638,12 +819,44 @@ class AlchemyTable < Scene
       c.grabbed = false
       c.padding = 5.0
     end
+
+    craftable_potion?
   end
 
   def calc_keyboard_inputs
     return unless @craftable_potion and inputs.keyboard.key_down.space
 
-    craft(@craftable_potion.id)
-    @craftable_potion = nil
+    play_brew_anim
+  end
+  
+  def reorder_cards(latest_card)
+    if @visible_ingredients.key?(latest_card.entity_id)
+      HashOrderUtils.back(@visible_ingredients, latest_card.entity_id)
+    end
+    if @selected_ingredients.key?(latest_card.entity_id)
+      HashOrderUtils.back(@selected_ingredients, latest_card.entity_id)
+    end
+  end
+
+  def update_inventories
+    # gather all ingredient cards to return to the player's inventory
+    new_ings = []
+
+    if @ing_menu_widget.respond_to?(:items?)
+      new_ings.concat(@ing_menu_widget.items?)
+    else
+      new_ings.concat(@ing_menu_widget.instance_variable_get(:@items))
+    end
+    # gather potions from the potion menu and any visible/selected potion stacks
+    new_pots = []
+
+    if @pot_menu_widget.respond_to?(:items?)
+      new_pots.concat(@pot_menu_widget.items?)
+    else
+      new_pots.concat(@pot_menu_widget.instance_variable_get(:@items))
+    end
+
+    @player.ingredients = Inventory.new(new_ings)
+    @player.potions = Inventory.new(new_pots)
   end
 end
