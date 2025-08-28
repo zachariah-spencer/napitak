@@ -153,6 +153,10 @@ class AudioService
       loot_grabbed: {
         input: "sounds/sfx/loot_grabbed.wav",
         gain: 0.2
+      },
+      potion_recharged: {
+        input: "sounds/sfx/potion_recharge.ogg",
+        gain: 0.2
       }
     }
 

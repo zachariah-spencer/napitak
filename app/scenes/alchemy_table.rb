@@ -16,35 +16,48 @@ class AlchemyTable < Scene
     @ing_menu_widget =
       ScrollListWidget.new(
         items: @player.ingredients.all_cards,
-        x: 20,
-        y: GTK.args.grid.h / 2 - 270,
-        w: 160,
+        x: 16,
+        y: GTK.args.grid.h / 2 - 245,
+        w: 96,
         h: 500
       )
     @pot_menu_widget =
       ScrollListWidget.new(
         items: @player.potions.all_cards,
-        x: GTK.args.grid.w - 20 - 160,
-        y: GTK.args.grid.h / 2 - 270,
-        w: 160,
+        x: GTK.args.grid.w - 16 - 96,
+        y: GTK.args.grid.h / 2 - 245,
+        w: 96,
         h: 500
       )
 
-    @leave_btn = Button.new(
-      x: GTK.args.grid.w - 25 - 150,
-      y: 20,
-      w: 150,
-      h: 75,
-      text: "LEAVE"
-    )
+    @leave_btn =
+      Button.new(
+        x: GTK.args.grid.w - 64,
+        y: 52,
+        w: 64 + 8,
+        h: 32,
+        text: "#{@leave_btn_text}",
+        background_color: {
+          r: 255,
+          g: 0,
+          b: 0
+        }
+      )
 
-    @craft_btn = Button.new(
-      x: GTK.args.grid.w / 2 - 75,
-      y: GTK.args.grid.h - 75 - 100,
-      w: 150,
-      h: 75,
-      text: "CRAFT"
-    )
+    @brew_btn =
+      Button.new(
+        x: GTK.args.grid.w / 2,
+        y: 128 + 32,
+        w: 96,
+        h: 48,
+        text: "Brew",
+        background_color: {
+          r: 0,
+          g: 255,
+          b: 100
+        }
+      )
+    @selection
   end
 
   def cleanup
@@ -90,6 +103,7 @@ class AlchemyTable < Scene
   end
 
   def refresh(potion_card)
+    $AUDIO_SERVICE.play_sound(:potion_recharged)
     potion_card.uses_left = potion_card.max_uses
     potion_card.update_sprite
     update_uses_left
@@ -139,6 +153,8 @@ class AlchemyTable < Scene
   end
 
   def tick
+    @leave_btn.tick
+    @brew_btn.tick
     @ing_menu_widget.tick(GTK.args.inputs)
     @pot_menu_widget.tick(GTK.args.inputs)
     calc
@@ -249,19 +265,18 @@ class AlchemyTable < Scene
         r: 0,
         g: 0,
         b: 0,
-        primitive_marker: :solid,
+        primitive_marker: :solid
       }
       background = {
         x: 0,
         y: 0,
         w: 1280,
         h: 720,
-        r: 50,
-        g: 50,
-        b: 50,
-        a: 200,
-        path:
-          "sprites/background_frames/sketchybackground#{bg_tile_index + 1}.png"
+        r: 255,
+        g: 255,
+        b: 255,
+        a: 80,
+        path: "sprites/alchemy_table_bg.png"
       }
 
       l0 << [background_solid, background]
@@ -271,7 +286,7 @@ class AlchemyTable < Scene
       left_panel_a ||= {
         x: 0,
         y: 0,
-        w: 200,
+        w: 128,
         h: GTK.args.grid.h,
         path: "sprites/sketchypanel02.png",
         tile_x: 0 + (tile_index * 200),
@@ -282,9 +297,9 @@ class AlchemyTable < Scene
       }
 
       right_panel_a ||= {
-        x: GTK.args.grid.w - 200,
+        x: GTK.args.grid.w - 128,
         y: 0,
-        w: 200,
+        w: 128,
         h: GTK.args.grid.h,
         path: "sprites/sketchypanel02.png",
         tile_x: 0 + (tile_index * 200),
@@ -317,7 +332,7 @@ class AlchemyTable < Scene
 
       l2 << [
         encounter_label,
-        leave_btn,
+        @leave_btn.prefab,
         potions_label,
         ingredients_label,
         cards
@@ -342,7 +357,7 @@ class AlchemyTable < Scene
           font: $FONT
         }
 
-        l4 << [craftable_potion_label, craft_btn]
+        l4 << [craftable_potion_label, @craft_btn.prefab]
       end
 
       uses_left_label ||= {
@@ -365,9 +380,6 @@ class AlchemyTable < Scene
     end
   end
 
-  def craft_btn
-    @craft_btn.prefab
-  end
 
   def potions_label()
     sprite_frames = 6
@@ -378,10 +390,10 @@ class AlchemyTable < Scene
     prefabs = []
 
     prefabs << {
-      x: GTK.args.grid.w - 162 - 16,
-      y: GTK.args.grid.h - (114) - (16 * 1.5),
-      w: 162,
-      h: 114,
+      x: GTK.args.grid.w - 96 - 16,
+      y: GTK.args.grid.h - 96,
+      w: 96,
+      h: 64,
       path: "sprites/sketchymodal_162x114.png",
       tile_x: 0 + (tile_index * 162),
       tile_y: 0,
@@ -391,29 +403,31 @@ class AlchemyTable < Scene
     }
 
     prefabs << {
-      x: GTK.args.grid.w - 162 - 12 + (162 / 2),
-      y: GTK.args.grid.h - (114) - (16 * 1.5) + (114 / 2) + 5 + 8,
+      x: GTK.args.grid.w - 64,
+      y: GTK.args.grid.h - 56,
       text: "POTION",
       anchor_x: 0.5,
       anchor_y: 0.5,
+      alignment_enum: 1,
       r: 255,
       g: 255,
       b: 255,
       font: $FONT,
-      size_px: 20
+      size_px: 12
     }
 
     prefabs << {
-      x: GTK.args.grid.w - 162 - 12 + (162 / 2),
-      y: GTK.args.grid.h - (114) - (16 * 1.5) + (114 / 2) + 5 - 12,
+      x: GTK.args.grid.w - 64,
+      y: GTK.args.grid.h - 52 - 16,
       text: "SATCHEL",
       anchor_x: 0.5,
       anchor_y: 0.5,
+      alignment_enum: 1,
       r: 255,
       g: 255,
       b: 255,
       font: $FONT,
-      size_px: 20
+      size_px: 12
     }
 
     prefabs
@@ -429,9 +443,9 @@ class AlchemyTable < Scene
 
     prefabs << {
       x: 16,
-      y: GTK.args.grid.h - (114) - (16 * 1.5),
-      w: 162,
-      h: 114,
+      y: GTK.args.grid.h - 96,
+      w: 96,
+      h: 64,
       path: "sprites/sketchymodal_162x114.png",
       tile_x: 0 + (tile_index * 162),
       tile_y: 0,
@@ -441,36 +455,34 @@ class AlchemyTable < Scene
     }
 
     prefabs << {
-      x: 100,
-      y: GTK.args.grid.h - (114) - (16 * 1.5) + (114 / 2) + 5 + 8,
+      x: 64,
+      y: GTK.args.grid.h - 56,
       text: "INGREDIENT",
       anchor_x: 0.5,
       anchor_y: 0.5,
+      alignment_enum: 1,
       r: 255,
       g: 255,
       b: 255,
       font: $FONT,
-      size_px: 20
+      size_px: 12
     }
 
     prefabs << {
-      x: 100,
-      y: GTK.args.grid.h - (114) - (16 * 1.5) + (114 / 2) + 5 - 12,
+      x: 64,
+      y: GTK.args.grid.h - 52 - 16,
       text: "SATCHEL",
       anchor_x: 0.5,
       anchor_y: 0.5,
+      alignment_enum: 1,
       r: 255,
       g: 255,
       b: 255,
       font: $FONT,
-      size_px: 20
+      size_px: 12
     }
 
     prefabs
-  end
-
-  def leave_btn
-    @leave_btn.prefab
   end
 
   def get_card_rects
@@ -513,7 +525,7 @@ class AlchemyTable < Scene
       leave
     end
 
-    if @craft_btn.clicked? && @craftable_potion
+    if @brew_btn.clicked? && @craftable_potion
       puts "clicked on craft_btn"
       craft(@craftable_potion.id)
       @craftable_potion = nil
