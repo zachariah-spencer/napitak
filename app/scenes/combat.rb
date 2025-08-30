@@ -113,6 +113,7 @@ class Combat < Scene
   def on_potion_animation_impact(payload)
     puts "POTION_IMPACTED #{payload[:id]}"
     @hand_manager.calc_card_effects($PIDS[payload[:id]])
+    GameUtils.camera_shake(intensity: 15, duration: 0.75.seconds)
   end
 
   def on_potion_cast_animation_completed(payload)

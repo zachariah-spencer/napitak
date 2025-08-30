@@ -84,6 +84,7 @@ class EnemyAnimationComponent
     elsif calc_frame_index && anim_has_impact_frame? && impact_frame_reached?
       @animation_impacted = true
       $EVENT_BUS.publish(:enemy_animation_impacted, id: @current_animation)
+      GameUtils.camera_shake(intensity: 15, duration: 0.5.seconds)
     end
     enemy_sprite = {
       x: @x,

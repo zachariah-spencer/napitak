@@ -121,6 +121,15 @@ class Game
     @player.load_upgrades_data
     encounters_completed = $files.save_data&.[]("encounters_completed")
 
+    # camera state
+    @camera = { x: 0.0, y: 0.0, zoom: 1.0 }
+    @cam_shake_active = false
+    @cam_shake_amp = 0.0
+    @cam_shake_end_tick = 0
+    @cam_shake_include_ui = false
+    @cam_shake_offset_x = 0.0
+    @cam_shake_offset_y = 0.0
+
     if @mid_run
       @player.load_feathers_data
       @player.load_run_upgrades_data
@@ -309,6 +318,7 @@ class Game
     calc_view_collection_inputs
     calc_button_inputs
     @status_effect_list_widget.tick
+    update_camera_shake
 
     if $player.combat_stats.dead &&
          $player.combat_stats.dead_tick.elapsed_time >= 3.0.seconds && @mid_run
@@ -381,11 +391,26 @@ class Game
 
   def render
     outputs = GTK.args.outputs
+    l00 = []
     l0 = []
     l1 = []
     l2 = []
     l3 = []
     l4 = []
+    l5 = []
+
+    background_solid = {
+        x: -1024,
+        y: -1024,
+        w: 1280 + 1024,
+        h: 720 + 1024,
+        r: 0,
+        g: 0,
+        b: 0,
+        primitive_marker: :solid
+      }
+      
+    l00 << background_solid
 
     if @scene_ref
       # l0.flatten!
@@ -438,13 +463,11 @@ class Game
 
       l4 << [defeat_banner, defeat_banner_label]
     end
-    # render scene pipeline layers
-    outputs.primitives << [l0, l1, l2, l3, l4]
 
     # render pause button
-    outputs.primitives << @pause_btn.prefab if @scene_ref.sc_id != "collection"
+    l5 << @pause_btn.prefab if @scene_ref.sc_id != "collection"
     if !@viewing_collection && !@paused
-      outputs.primitives << [
+      l5 << [
         @pot_btn_label,
         @pot_col_btn,
         @ing_btn_label,
@@ -456,7 +479,7 @@ class Game
       ]
 
       if !$player.status_effects.empty?
-        outputs.primitives << [
+        l5 << [
           misc_btn,
           @status_effect_list_widget.prefab[:background],
           @status_effect_list_widget.prefab[:label],
@@ -465,9 +488,98 @@ class Game
       end
     end
 
-    outputs.primitives << $announcement_manager&.prefab
+    l5 << $announcement_manager&.prefab
     # render scene transition overlay
-    outputs.primitives << @transition.prefab if @transition
+    l5 << @transition.prefab if @transition
+
+    # render scene pipeline layers
+    all_render_layers = [l0, l1, l2, l3, l4, l5]
+    all_render_layers.each_with_index do |layer, idx|
+      next if layer.nil? || layer.empty?
+      apply_world = idx < 5 # world layers (UI is layer 5)
+      apply_shake = apply_world || @cam_shake_include_ui
+      apply_camera_transform_to_renderables!(layer, apply_world_transform: apply_world, apply_shake: apply_shake)
+    end
+    outputs.primitives << l00
+    outputs.primitives << all_render_layers
+  end
+
+  # Camera/shake control
+  def camera_shake(intensity: 8.0, duration: 0.3.seconds, include_ui: false)
+    @cam_shake_active = true
+    @cam_shake_amp = intensity.to_f
+    @cam_shake_start_tick = Kernel.tick_count
+    @cam_shake_end_tick = Kernel.tick_count + duration.to_i
+    @cam_shake_include_ui = include_ui
+  end
+
+  def update_camera_shake
+    if @cam_shake_active
+      if Kernel.tick_count >= @cam_shake_end_tick
+        @cam_shake_active = false
+        @cam_shake_offset_x = 0.0
+        @cam_shake_offset_y = 0.0
+      else
+        total = (@cam_shake_end_tick - @cam_shake_start_tick).to_f
+        elapsed = (Kernel.tick_count - @cam_shake_start_tick).to_f
+        t = (elapsed / total).clamp(0.0, 1.0)
+        falloff = 1.0 - t # linear falloff
+        amp = @cam_shake_amp * falloff
+        @cam_shake_offset_x = Numeric.rand(-amp..amp)
+        @cam_shake_offset_y = Numeric.rand(-amp..amp)
+      end
+    else
+      @cam_shake_offset_x = 0.0
+      @cam_shake_offset_y = 0.0
+    end
+  end
+
+  def apply_camera_transform_to_renderables!(renderables, apply_world_transform:, apply_shake: true)
+    return if renderables.nil?
+    renderables.map! do |r|
+      if r.is_a?(Array)
+        apply_camera_transform_to_renderables!(r, apply_world_transform: apply_world_transform, apply_shake: apply_shake)
+        r
+      elsif r.is_a?(Hash)
+        apply_camera_transform_to_hash!(r, apply_world_transform: apply_world_transform, apply_shake: apply_shake)
+      else
+        r
+      end
+    end
+  end
+
+  def apply_camera_transform_to_hash!(h, apply_world_transform:, apply_shake: true)
+    return h if h.nil?
+    ox = 0.0
+    oy = 0.0
+    if apply_world_transform
+      ox -= @camera[:x].to_f
+      oy -= @camera[:y].to_f
+    end
+    if apply_shake
+      ox += @cam_shake_offset_x
+      oy += @cam_shake_offset_y
+    end
+
+    if h.key?(:x)
+      h[:x] = h[:x].to_f + ox
+    end
+    if h.key?(:y)
+      h[:y] = h[:y].to_f + oy
+    end
+    if h.key?(:x1)
+      h[:x1] = h[:x1].to_f + ox
+    end
+    if h.key?(:y1)
+      h[:y1] = h[:y1].to_f + oy
+    end
+    if h.key?(:x2)
+      h[:x2] = h[:x2].to_f + ox
+    end
+    if h.key?(:y2)
+      h[:y2] = h[:y2].to_f + oy
+    end
+    h
   end
 
   def calc_button_inputs

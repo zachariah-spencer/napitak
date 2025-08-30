@@ -84,11 +84,35 @@ class CardHandManager
       return if !$player.check_hit?
       potion_info = potion
       potion_traits = potion_info.traits
+
       if @combo_manager.combo_completion_tick
+        $game.input_locked = true
+        combo_effect = @combo_manager.current_combo_sequence_path[:effect]
+
+        GameUtils.status_label(
+          1280 / 2,
+          256,
+          "COMBO COMPLETED",
+          255,
+          0,
+          255,
+          32
+        )
+        
+        # DO COMBO STUFF
+
         if potion_info[:finisher_trait]
           puts "DO A SPECIFIC FINISHER EFFECT"
           puts "#{potion_info[:finisher_trait]}"
           potion_traits = potion_info.traits + [potion_info[:finisher_trait]]
+        end
+
+        @player.combat_stats.focus = @player.combat_stats.max_focus
+
+        case combo_effect
+        when "scorch_doubles"
+          @enemy.combat_stats.hurt(5, $DAMAGE_TYPES[:force])
+        else
         end
       end
 
@@ -135,29 +159,6 @@ class CardHandManager
       @player.combat_stats.channel(channel_trait) if channel_trait
       if blind_trait
         @enemy.combat_stats.apply_status(type: :BLIND, stacks: blind_trait)
-      end
-
-      if @combo_manager.combo_completion_tick
-        $game.input_locked = true
-        combo_effect = @combo_manager.current_combo_sequence_path[:effect]
-
-        GameUtils.status_label(
-          1280 / 2,
-          256,
-          "COMBO COMPLETED",
-          255,
-          0,
-          255,
-          32
-        )
-        # DO COMBO STUFF
-        @player.combat_stats.focus = @player.combat_stats.max_focus
-
-        case combo_effect
-        when "scorch_doubles"
-          @enemy.combat_stats.hurt(5, $DAMAGE_TYPES[:force])
-        else
-        end
       end
     end
   end

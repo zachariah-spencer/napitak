@@ -116,6 +116,7 @@ class AlchemyLab < Scene
     @brew_anim_tick = Kernel.tick_count
     $AUDIO_SERVICE.play_sound(:brew_action)
     $game.input_locked = true
+    GameUtils.camera_shake(intensity: 5, duration: 1.0.seconds)
     @brew_completed = false
   end
 
@@ -150,6 +151,7 @@ class AlchemyLab < Scene
 
   def on_brew_anim_completed
     craft(@craftable_potion.id)
+    GameUtils.camera_shake(intensity: 20, duration: 0.5.seconds)
     @craftable_potion = nil
     @brew_completed = true
   end
@@ -473,10 +475,10 @@ class AlchemyLab < Scene
     case layer_num
     when 0
       background_solid = {
-        x: 0,
-        y: 0,
-        w: 1280,
-        h: 720,
+        x: -1024,
+        y: -1024,
+        w: 1280 + 1024,
+        h: 720 + 1024,
         r: 0,
         g: 0,
         b: 0,

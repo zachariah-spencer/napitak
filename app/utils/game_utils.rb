@@ -84,4 +84,8 @@ module GameUtils
     text = GTK.parse_json(tutorial_json)[i.to_s]
     [i, text]
   end
+
+  def self.camera_shake(intensity: 8.0, duration: 0.3.seconds, include_ui: false)
+    $game.camera_shake(intensity: intensity, duration: duration, include_ui: include_ui)
+  end
 end

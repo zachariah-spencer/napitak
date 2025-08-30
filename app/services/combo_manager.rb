@@ -12,6 +12,7 @@ class ComboManager
     @next_combo_ingredient = ""
     @da = 0
     @a = 0
+    @icons = []
     @combo_completion_tick = nil
     @combat_ended = false
     @possible_sequences = [
@@ -87,22 +88,7 @@ class ComboManager
 
     if current_combo_path_valid? && is_new_path
       @current_combo_images.clear
-      screen_width = 1280
-      icon_w = 64
-      icons = @current_combo_sequence_path[:sequence]
-      total_w = icons.length * icon_w
-      start_x = (screen_width - total_w) / 2
-
-      @current_combo_sequence_path[:sequence].each_with_index do |ing_id, i|
-        @current_combo_images << {
-          x: start_x + i * icon_w,
-          y: 256 - 16,
-          w: 64,
-          h: 64,
-          path: ing_image?(ing_id),
-          primitive_marker: :sprite
-        }
-      end
+      @icons = @current_combo_sequence_path[:sequence]
     end
     next_index = @current_sequence.length || 0
     @next_combo_ingredient = @current_combo_sequence_path[:sequence][next_index]
@@ -126,6 +112,26 @@ class ComboManager
   end
 
   def prefab
+    combo_images = []
+    screen_width = 1280
+    icon_w = 64
+    total_w = @icons.length * icon_w
+    start_x = (screen_width - total_w) / 2
+
+    if current_combo_path_valid?
+      @current_combo_sequence_path[:sequence].each_with_index do |ing_id, i|
+        combo_images << {
+          x: start_x + i * icon_w,
+          y: 256 - 16,
+          w: 64,
+          h: 64,
+          path: ing_image?(ing_id),
+          primitive_marker: :sprite
+        }
+      end
+    end
+
+
     if @combat_ended
       @da = 0
     else
@@ -147,7 +153,7 @@ class ComboManager
 
     @a = @a.lerp(@da, 0.075)
 
-    @current_combo_images.each_with_index do |sprite, i|
+    combo_images.each_with_index do |sprite, i|
       if @combo_completion_tick
         alpha = @a
       else
@@ -157,6 +163,6 @@ class ComboManager
       sprite.merge!(a: alpha)
     end
 
-    [@current_combo_images]
+    [combo_images]
   end
 end
