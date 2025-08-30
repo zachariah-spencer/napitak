@@ -1,5 +1,5 @@
 class AudioService
-  attr :current_song
+  attr :current_song, :volumes
   def initialize()
     $AUDIO_SERVICE = self
     @playing_sounds = []
@@ -203,13 +203,34 @@ class AudioService
         gain: 0.09
       }
     }
+
+    @volumes = {
+      master: 0.5,
+      music: 0.5,
+      sfx: 0.5
+    }
+    # Ensure volumes hash exists without overwriting existing values
+    $files.save_data["settings"]["volumes"] ||= {}
+    vols = $files.save_data["settings"]["volumes"]
+    # Pull from save if present; otherwise default to 0.5
+    @volumes[:master] = vols.key?("master") ? vols["master"] : 0.5
+    @volumes[:music]  = vols.key?("music")  ? vols["music"]  : 0.5
+    @volumes[:sfx]    = vols.key?("sfx")    ? vols["sfx"]    : 0.5
+  end
+
+  def set_volume(channel:, gain:)
+    @volumes[channel] = gain
+
+    GTK.args.audio[:bg_music].gain = calc_song_volume if channel != :sfx
   end
 
   def play_song(song)
     return if @current_song == @songs[song].dup
     if !@current_song
-      # GTK.args.audio[:bg_music] = @songs[song]
+      @current_song = song
       GTK.args.audio[:bg_music] = @songs[song].dup
+      GTK.args.audio[:bg_music].gain = calc_song_volume
+      
     else
       transition_songs(song)
     end
@@ -269,26 +290,25 @@ class AudioService
     end
   end
 
+  def calc_song_volume
+    (@songs[@current_song].gain * @volumes[:music] * @volumes[:master])
+  end
+
   def process_crossfades
     if GTK.args.audio[:bg_music] &&
-         GTK.args.audio[:bg_music].gain < @songs[@current_song].gain
+         GTK.args.audio[:bg_music].gain < calc_song_volume
       # increase the gain 1% every tick until we are at 100%
       GTK.args.audio[:bg_music].gain += 0.007
       # clamp value to 1.0 max value
       GTK.args.audio[:bg_music].gain =
-        @songs[@current_song].gain if GTK.args.audio[:bg_music].gain >
-        @songs[@current_song].gain
+        calc_song_volume if GTK.args.audio[:bg_music].gain >
+        calc_song_volume
     end
 
     # decrease the volume of cross fade bg music until it's 0.0, then delete it
-    if GTK.args.audio[:bg_music_fade] &&
-         GTK.args.audio[:bg_music_fade].gain > 0.0
+    if GTK.args.audio[:bg_music_fade] && GTK.args.audio[:bg_music_fade].gain > 0.0
       # decrease by 1% every frame
       GTK.args.audio[:bg_music_fade].gain -= 0.0008
-      # delete audio when it's at 0%
-      if GTK.args.audio[:bg_music_fade].gain <= 0.0
-        # GTK.args.audio[:bg_music_fade] = nil
-      end
     end
   end
 
@@ -308,6 +328,9 @@ class AudioService
     sound_id_hash = @sounds[sound].merge(id: sound_id_string)
 
     sound_id_hash[:pitch] = Numeric.rand(0.9..1.25) if rand_pitch
+    # Some sounds omit :gain in the base definition; default to 1.0 before scaling
+    base_gain = sound_id_hash[:gain] || 1.0
+    sound_id_hash[:gain] = base_gain * @volumes[:master] * @volumes[:sfx]
 
     @playing_sounds << sound_id_string
     GTK.args.audio[sound_id_string.to_sym] = sound_id_hash

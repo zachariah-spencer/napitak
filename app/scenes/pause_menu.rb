@@ -59,6 +59,18 @@ class PauseMenu < Scene
     )
 
     @buttons = [@journal_btn, @restart_run_btn, @quit_btn, @settings_btn, @help_btn, @back_btn]
+    master_volume = $AUDIO_SERVICE.volumes[:master]
+    music_volume = $AUDIO_SERVICE.volumes[:music]
+    sfx_volume = $AUDIO_SERVICE.volumes[:sfx]
+    
+    @master_fader_handle = fader_handle(0, (GTK.args.grid.h - 48 - 128 - 48 - 9), GTK.args.grid.w / 2 - 128, GTK.args.grid.w / 2 - 4 + 128, :master)
+    @master_fader_handle.x = calc_fader_handle_start_x(@master_fader_handle, master_volume)
+    
+    @music_fader_handle = fader_handle(0, (GTK.args.grid.h - 48 - 128 - 96 - 48 - 9), GTK.args.grid.w / 2 - 128, GTK.args.grid.w / 2 - 4 + 128, :music)
+    @music_fader_handle.x = calc_fader_handle_start_x(@music_fader_handle, music_volume)
+    
+    @sfx_fader_handle = fader_handle(0, (GTK.args.grid.h - 48 - 128 - 96 - 96 - 48 - 9), GTK.args.grid.w / 2 - 128, GTK.args.grid.w / 2 - 4 + 128, :sfx)
+    @sfx_fader_handle.x = calc_fader_handle_start_x(@sfx_fader_handle, sfx_volume)
 
     @l0 = []
     @l1 = []
@@ -69,12 +81,18 @@ class PauseMenu < Scene
 
   def cleanup
     puts "cleanup"
+    check_fader_bounds(@master_fader_handle)
+    check_fader_bounds(@music_fader_handle)
+    check_fader_bounds(@sfx_fader_handle)
     puts "UNPAUSED GAME"
-    save_settings
   end
 
   def tick
-    @buttons.each { |b| b.tick }
+
+    @buttons.each do |b| 
+      b.tick
+      b.active = @pause_screen == "main"
+    end
     screen_tick = "tick_#{@pause_screen}"
     send(screen_tick)
   end
@@ -112,6 +130,12 @@ class PauseMenu < Scene
     if @back_btn.clicked?
       go_back
     end
+
+    calc_fader_handle(@master_fader_handle)
+    calc_fader_handle(@music_fader_handle)
+    calc_fader_handle(@sfx_fader_handle)
+
+    
   end
 
   def tick_journal
@@ -119,6 +143,68 @@ class PauseMenu < Scene
       pre_render("journal")
       @journal_instance.tick
     end
+  end
+
+  def fader_line(y)
+    {
+      x: GTK.args.grid.w / 2 - 128,
+      y: y,
+      w: 256,
+      h: 2,
+      r: 255,
+      g: 255,
+      b: 255,
+      a: 120,
+      primitive_marker: :solid
+    }
+  end
+
+  def fader_handle(x, y, min_x, max_x, control)
+    {
+      x: x,
+      y: y,
+      w: 4,
+      h: 20,
+      r: 255,
+      g: 255,
+      b: 255,
+      a: 255,
+      primitive_marker: :solid,
+      min_x: min_x,
+      max_x: max_x,
+      percentage: ((x - min_x).to_f / (max_x - min_x)),
+      control: control
+    }
+  end
+
+  def calc_fader_handle_start_x(fader, volume)
+    fader.min_x + (volume * (fader.max_x - fader.min_x))
+  end
+
+  def calc_fader_handle(fader)
+    if GTK.args.inputs.mouse.click && GTK.args.inputs.mouse.intersect_rect?(fader)
+      GTK.args.state.selected_ui = fader
+    end
+
+    if GTK.args.inputs.mouse.held && GTK.args.state.selected_ui == fader
+      fader.x = GTK.args.inputs.mouse.x
+      fader.x = fader.max_x if fader.x >= fader.max_x
+      fader.x = fader.min_x if fader.x <= fader.min_x
+      fader.percentage = ((fader.x - fader.min_x).to_f / (fader.max_x - fader.min_x)).round(2)
+      $AUDIO_SERVICE.set_volume(channel: GTK.args.state.selected_ui.control, gain: GTK.args.state.selected_ui.percentage)
+    end
+
+    if GTK.args.inputs.mouse.up && GTK.args.state.selected_ui
+      $files.save_data["settings"]["volumes"][fader.control.to_s] = fader.percentage
+      GTK.args.state.selected_ui = nil
+    end
+  end
+
+  def check_fader_bounds(fader)
+    fader.x = fader.max_x if fader.x >= fader.max_x
+    fader.x = fader.min_x if fader.x <= fader.min_x
+    fader.percentage = ((fader.x - fader.min_x).to_f / (fader.max_x - fader.min_x)).round(2)
+    $AUDIO_SERVICE.set_volume(channel: GTK.args.state.selected_ui.control, gain: GTK.args.state.selected_ui.percentage)
   end
 
   def pre_render(screen)
@@ -175,7 +261,54 @@ class PauseMenu < Scene
       @l3 << [@journal_btn.prefab, @settings_btn.prefab, @quit_btn.prefab, @restart_run_btn.prefab, @help_btn.prefab]
       @back_btn.set_active(false)
     when "settings"
+      master_volume_label = {
+      x: GTK.args.grid.w / 2,
+      y: GTK.args.grid.h - 48 - 128,
+      alignment_enum: 1,
+      size_px: 32,
+      r: 255,
+      g: 255,
+      b: 255,
+      text: "Master Volume",
+      font: $FONT,
+      primitive_marker: :label
+    }
+
+    music_volume_label = {
+      x: GTK.args.grid.w / 2,
+      y: GTK.args.grid.h - 48 - 128 - 96,
+      alignment_enum: 1,
+      size_px: 32,
+      r: 255,
+      g: 255,
+      b: 255,
+      text: "Music Volume",
+      font: $FONT,
+      primitive_marker: :label
+    }
+
+    sfx_volume_label = {
+      x: GTK.args.grid.w / 2,
+      y: GTK.args.grid.h - 48 - 128 - 96 - 96,
+      alignment_enum: 1,
+      size_px: 32,
+      r: 255,
+      g: 255,
+      b: 255,
+      text: "Sound Effects Volume",
+      font: $FONT,
+      primitive_marker: :label
+    }
+
+    fader_lines = [
+      fader_line(GTK.args.grid.h - 48 - 128 - 48), 
+      fader_line(GTK.args.grid.h - 48 - 128 - 96 - 48), 
+      fader_line(GTK.args.grid.h - 48 - 128 - 96 - 96 - 48)
+    ] 
+
+
       @l0 << [background_solid, background]
+      @l1 << [master_volume_label, music_volume_label, sfx_volume_label, fader_lines, @master_fader_handle, @music_fader_handle, @sfx_fader_handle]
       @l4 << [encounter_label]
       @back_btn.set_active(true)
     when "journal"
@@ -207,8 +340,5 @@ class PauseMenu < Scene
     else
       # puts "combat.rb: Invalid Render Argument"
     end
-  end
-
-  def save_settings
   end
 end

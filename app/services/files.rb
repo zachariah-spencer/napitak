@@ -8,6 +8,7 @@ class Files
     read_hash = read
     @save_data = read_hash if read_hash != nil and read_hash != ""
     @save_data["player"] = {} unless save_data["player"]
+    @save_data["settings"] = {} unless save_data["settings"]
     @save_data["player"]["upgrades"] = {} unless save_data["player"]["upgrades"]
     @save_data["player"]["run_upgrades"] = {} unless save_data["player"]["run_upgrades"]
     @save_data["player"]["status_effects"] = [] unless save_data["player"]["status_effects"]
