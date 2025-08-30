@@ -468,7 +468,7 @@ module GameData
       chance: 0
     },
     "alchemy_table" => {
-      name: "Alchemy Workbench",
+      name: "Brew Bench",
       path: "sprites/square/yellow.png",
       is_combat: false,
       chance: 8

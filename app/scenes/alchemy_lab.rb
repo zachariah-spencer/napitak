@@ -19,6 +19,8 @@ class AlchemyLab < Scene
     @leave_btn_clicks = 0
     @leave_btn_clicked_tick = nil
     @leave_btn_message_a = 0
+    @card_tapped_tick = nil
+    @card_tapped = nil
     @brew_anim_tick = nil
     @brew_completed = false
     @leave_btn =
@@ -98,6 +100,29 @@ class AlchemyLab < Scene
     $AUDIO_SERVICE.play_song(:alchemy_encounter)
 
     update_inventories
+  end
+
+  def calc_card_return(card)
+    if @card_tapped_tick && @card_tapped_tick.elapsed_time < 0.25.seconds && @card_tapped == card
+      return if !GameUtils.is_potion(card.id) && @ing_menu_widget.items?.size >= @max_ingredients
+      puts "return card"
+      remove_selection_square(followed_card: card)
+      state.currently_dragging_card_id = nil
+      state.mouse_point_inside_square = nil
+      @visible_potions.reject! { |id,c| c == card }
+      @selected_ingredients.reject! { |id,c| c == card }
+      @visible_ingredients.reject! { |id,c| c == card }
+      if GameUtils.is_potion(card.id)
+        @pot_menu_widget.add_item(card)
+      else
+        @ing_menu_widget.add_item(card)
+      end
+    end
+    if card != @card_tapped
+      @card_tapped = card
+    end
+
+    @card_tapped_tick = Kernel.tick_count
   end
 
   def ready
@@ -935,6 +960,7 @@ class AlchemyLab < Scene
         @visible_ingredients[card_id] || @selected_ingredients[card_id] ||
           @visible_potions[card_id]
       c_ref.grab
+      calc_card_return(c_ref)
 
       reorder_cards(c_ref)
 
