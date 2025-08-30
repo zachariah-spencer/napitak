@@ -196,6 +196,11 @@ class AudioService
         input: "sounds/music/loot_encounter.mp3",
         looping: true,
         gain: 0.09
+      },
+      pause_menu: {
+        input: "sounds/music/pause_menu.ogg",
+        looping: true,
+        gain: 0.09
       }
     }
   end
