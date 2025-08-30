@@ -26,15 +26,22 @@ class PauseMenu < Scene
          h: 48,
          text: "New Run"
        )
-    @quit_btn = Button.new(
+    @help_btn = Button.new(
          x: GTK.args.grid.w / 2,
          y: (GTK.args.grid.h - 100) / 2.5,
+         w: 96,
+         h: 48,
+         text: "Help"
+       )
+    @quit_btn = Button.new(
+         x: GTK.args.grid.w / 2,
+         y: (GTK.args.grid.h - 100) / 3.75,
          w: 96,
          h: 48,
          text: "Quit"
        )
 
-    @buttons = [@journal_btn, @restart_run_btn, @quit_btn, @settings_btn]
+    @buttons = [@journal_btn, @restart_run_btn, @quit_btn, @settings_btn, @help_btn]
 
     @l0 = []
     @l1 = []
@@ -148,7 +155,7 @@ class PauseMenu < Scene
     when "main"
       @l0 << [background_solid, background]
       @l4 << [encounter_label]
-      @l3 << [@journal_btn.prefab, @settings_btn.prefab, @quit_btn.prefab, @restart_run_btn.prefab]
+      @l3 << [@journal_btn.prefab, @settings_btn.prefab, @quit_btn.prefab, @restart_run_btn.prefab, @help_btn.prefab]
     when "settings"
       @l0 << [background_solid, background]
       @l4 << [encounter_label]
@@ -181,36 +188,6 @@ class PauseMenu < Scene
 
   def go_back
     @pause_screen = "main"
-  end
-
-  def journal_btn
-    Button.new(
-      x: GTK.args.grid.w / 2 - 75,
-      y: (GTK.args.grid.h - 100) / 1.5,
-      w: 150,
-      h: 75,
-      text: "Journal"
-    ).prefab
-  end
-
-  def settings_btn
-    Button.new(
-      x: GTK.args.grid.w / 2 - 75,
-      y: (GTK.args.grid.h - 100) / 1.88,
-      w: 150,
-      h: 75,
-      text: "Settings"
-    ).prefab
-  end
-
-  def exit_btn
-    Button.new(
-      x: GTK.args.grid.w / 2 - 75,
-      y: (GTK.args.grid.h - 100) / 2.5,
-      w: 150,
-      h: 75,
-      text: "Quit"
-    ).prefab
   end
 
   def render(layer_num)
