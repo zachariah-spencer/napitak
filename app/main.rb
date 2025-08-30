@@ -49,6 +49,7 @@ require_relative "models/cards/recipe_card"
 require_relative "models/cards/ingredient_generator_card"
 require_relative "models/cards/trash_can_card"
 require_relative "models/cards/shop_item_card"
+require_relative "models/cards/collection_card"
 
 # scenes
 require_relative "scenes/scene"

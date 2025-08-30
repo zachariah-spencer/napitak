@@ -189,7 +189,6 @@ class Journal < Scene
 
   def calc
     if @back_btn.clicked?
-      cleanup
       @pause_menu_instance.go_back
     end
 
@@ -206,6 +205,4 @@ class Journal < Scene
     end
   end
 
-  def cleanup
-  end
 end

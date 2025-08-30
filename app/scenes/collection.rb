@@ -4,7 +4,7 @@ class Collection < Scene
     @title = title
     @recipe_cards = []
     @page = 1
-    @total_pages = ($recipe_book.unlocked_recipes.size / 8).ceil
+    @total_pages = (collection_array.size / 8).ceil
     @total_pages = 1 if @total_pages <= 0
 
     max_col = 4
@@ -14,15 +14,39 @@ class Collection < Scene
     page = 1
     spacing = 50
     start_x = -75
+    @next_pg_btn = Button.new(x: GTK.args.grid.w / 2 - 32 + 128, y: 64 + 16, w: 64, h: 64, text: ">", text_size_px: 64, path: "sprites/button_frame-128x128-sheet-4.png",
+    tile_rect: { x: 128, y: 0, w: 128, h: 128 },
+    frame_length: 4, anchor_y: 0.43, active: false)
+    @prev_pg_btn = Button.new(x: GTK.args.grid.w / 2 - 96, y: 64 + 16, w: 64, h: 64, text: "<", text_size_px: 64, path: "sprites/button_frame-128x128-sheet-4.png",
+    tile_rect: { x: 128, y: 0, w: 128, h: 128 },
+    frame_length: 4, anchor_y: 0.43, active: false)
+    @back_btn = Button.new(
+      x: 64,
+      y: GTK.args.grid.h - 16 - 16,
+      w: 32,
+      h: 32,
+      path: "sprites/back_button-sheet-4.png",
+      text: "",
+      frame_length: 4,
+      tile_rect: {
+        x: 32,
+        y: 0,
+        w: 32,
+        h: 32,
+      }
+    )
 
-    collection_array.each do |card_id|
-      @recipe_cards << RecipeCard.new(
+    @buttons = [@prev_pg_btn, @next_pg_btn, @back_btn]
+
+    collection_array.each do |card|
+      @recipe_cards << CollectionCard.new(
         page: page,
         x: start_x + ((200 + spacing) * col),
         y: (GTK.args.grid.h - 90) - ((285 - spacing) * row),
         w: 185,
         h: 185,
-        id: card_id
+        id: card.id,
+        uses_left: card.uses_left
       )
       if col % max_col == 0
         if row == 2
@@ -38,8 +62,18 @@ class Collection < Scene
   end
 
   def tick
-    @recipe_cards.each { |card| card.tick }
+    @buttons.each { |b| b.tick }
+
+    card_viewed = @recipe_cards.any? { |c| c.viewed }
+    @recipe_cards.each do |card| 
+      card.tick
+      card.faded = (card_viewed && !card.viewed)
+    end
     calc
+  end
+  
+  def card_viewed?
+    @recipe_cards.find { |c| c.viewed }
   end
 
   def render(layer_num)
@@ -116,7 +150,7 @@ class Collection < Scene
         x: GTK.args.grid.w / 2,
         y: GTK.args.grid.h - 50,
         alignment_enum: 1,
-        size_px: 40,
+        size_px: 55,
         r: 255,
         g: 255,
         b: 255,
@@ -136,11 +170,12 @@ class Collection < Scene
         g: 255,
         b: 255,
         text: "#{@page} / #{@total_pages}",
+        font: $FONT,
         primitive_marker: :label
       }
 
-      l3 << [back_btn]
-      l3 << [prev_pg_btn, next_pg_btn, page_count_label] if @total_pages != 1
+      l3 << [@back_btn.prefab]
+      l3 << [@prev_pg_btn.prefab, @next_pg_btn.prefab, page_count_label] if @total_pages != 1
       l3
     when 4
       l4 << []
@@ -150,145 +185,22 @@ class Collection < Scene
     end
   end
 
-  def prev_pg_btn
-    GTK.args.outputs[:prev_pg_btn].w = 150
-    GTK.args.outputs[:prev_pg_btn].h = 75
-
-    GTK.args.outputs[:prev_pg_btn].primitives << {
-      x: 0,
-      y: 0,
-      w: 150,
-      h: 75,
-      angle: 0,
-      r: 0,
-      g: 0,
-      b: 0,
-      primitive_marker: :solid
-    }
-
-    GTK.args.outputs[:prev_pg_btn].primitives << {
-      x: 5,
-      y: 5,
-      w: 140,
-      h: 65,
-      angle: 0,
-      r: 70,
-      g: 70,
-      b: 150,
-      a: 100,
-      primitive_marker: :solid
-    }
-
-    GTK.args.outputs[:prev_pg_btn].primitives << {
-      x: 150 / 2,
-      y: 75 / 2,
-      text: "<<",
-      anchor_x: 0.5,
-      anchor_y: 0.5,
-      r: 255,
-      g: 255,
-      b: 255,
-      size_enum: 3
-    }
-
-    {
-      x: GTK.args.grid.w / 2 - 150 - 100,
-      y: 50,
-      w: 150,
-      h: 75,
-      angle: 0,
-      path: :prev_pg_btn,
-      primitive_marker: :sprite
-    }
-  end
-
-  def next_pg_btn
-    GTK.args.outputs[:next_pg_btn].w = 150
-    GTK.args.outputs[:next_pg_btn].h = 75
-
-    GTK.args.outputs[:next_pg_btn].primitives << {
-      x: 0,
-      y: 0,
-      w: 150,
-      h: 75,
-      angle: 0,
-      r: 0,
-      g: 0,
-      b: 0,
-      primitive_marker: :solid
-    }
-
-    GTK.args.outputs[:next_pg_btn].primitives << {
-      x: 5,
-      y: 5,
-      w: 140,
-      h: 65,
-      angle: 0,
-      r: 70,
-      g: 70,
-      b: 150,
-      a: 100,
-      primitive_marker: :solid
-    }
-
-    GTK.args.outputs[:next_pg_btn].primitives << {
-      x: 150 / 2,
-      y: 75 / 2,
-      text: ">>",
-      anchor_x: 0.5,
-      anchor_y: 0.5,
-      r: 255,
-      g: 255,
-      b: 255,
-      size_enum: 3
-    }
-
-    {
-      x: GTK.args.grid.w / 2 + 0 + 100,
-      y: 50,
-      w: 150,
-      h: 75,
-      angle: 0,
-      path: :next_pg_btn,
-      primitive_marker: :sprite
-    }
-  end
-
-  def back_btn
-    f_i = 0.frame_index(count: 4, hold_for: 15, repeat: true)
-    {
-      x: 48,
-      y: GTK.args.grid.h - 16 - 32,
-      w: 32,
-      h: 32,
-      path: "sprites/back_button-sheet-4.png",
-      tile_x: 32 * f_i,
-      tile_y: 0,
-      tile_w: 32,
-      tile_h: 32,
-      angle: 0
-    }
-  end
-
   def calc
-    if GTK.args.inputs.mouse.click and
-         Geometry.intersect_rect?(GTK.args.inputs.mouse, back_btn)
-      cleanup
+    if @back_btn.clicked?
       $game.toggle_collection
     end
 
-    @page += 1 if (
-      GTK.args.inputs.mouse.click and
-        Geometry.intersect_rect?(GTK.args.inputs.mouse, next_pg_btn) and
-        @page < @total_pages
-    )
-    @page -= 1 if (
-      GTK.args.inputs.mouse.click and
-        Geometry.intersect_rect?(GTK.args.inputs.mouse, prev_pg_btn) and
-        @page > 1
-    )
+    @next_pg_btn.set_active((@page < @total_pages) && !card_viewed?)
+    @prev_pg_btn.set_active((@page > 1) && !card_viewed?)
+
+    if (@next_pg_btn.clicked? && @page < @total_pages)
+      @page += 1 
+      $AUDIO_SERVICE.play_sound(:page_turn)
+    end
+    if (@prev_pg_btn.clicked? && @page > 1)
+      @page -= 1
+      $AUDIO_SERVICE.play_sound(:page_reverse_turn)
+    end
   end
 
-  def cleanup
-  end
 end

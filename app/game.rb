@@ -359,7 +359,7 @@ class Game
         toggle_collection(
           collection_scene_ref: @scene_ref,
           title: "Ingredients",
-          collection: ing_ids
+          collection: $player.ingredients.all_cards
         )
       elsif GTK.args.inputs.keyboard.key_down.shift_left ||
             GTK.args.inputs.mouse.click &&
@@ -373,7 +373,7 @@ class Game
         toggle_collection(
           collection_scene_ref: @scene_ref,
           title: "Potions",
-          collection: pot_ids
+          collection: $player.potions.all_cards
         )
       end
     end
