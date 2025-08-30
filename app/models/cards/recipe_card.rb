@@ -37,9 +37,10 @@ class RecipeCard < Card
       @max_uses = $PIDS[id].max_uses
       @potencies = $PIDS[id].traits
       @potion_image = $PIDS[id].path
+      # Build ingredient image list including duplicates based on required counts
       @ingredient_images = []
-      $PIDS[id].ingredients.keys.each do |iid|
-        @ingredient_images << $IIDS[iid].path
+      $PIDS[id].ingredients.each do |iid, amt|
+        amt.times { @ingredient_images << $IIDS[iid].path }
       end
 
       # Setup for ingredient data
@@ -50,13 +51,13 @@ class RecipeCard < Card
       @max_uses = nil
       @potencies = nil
       @potion_image = $IIDS[id].path
+      # Build ingredient image list including duplicates for craftable ingredients
       @ingredient_images = []
       if not $IIDS[id].base
-        $IIDS[id].ingredients.keys.each do |iid|
-          @ingredient_images << $IIDS[iid].path
+        $IIDS[id].ingredients.each do |iid, amt|
+          amt.times { @ingredient_images << $IIDS[iid].path }
         end
       end
-      puts @ingredient_images
     end
 
     @card_composite_sprite_ref = :"card_composite_#{@entity_id}"

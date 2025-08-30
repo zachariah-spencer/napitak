@@ -4,7 +4,7 @@ class Journal < Scene
   def initialize(pause_menu_instance:)
     @sc_id = "journal"
     @pause_menu_instance = pause_menu_instance
-    @recipe_ids = %w[i001 i002 i003 i004 i005 i006 i007 p001 p002 p003 p004 i004 i005 i006 i004 i005 i006 i004 i005 i006 i004 i005 i006]# $recipe_book.unlocked_recipes
+    @recipe_ids = %w[p001 p002 p003 p004 p005 i007 i006 i005 i004 i003 p007]# $recipe_book.unlocked_recipes
     @recipe_cards = []
     @page = 1
     @total_pages = (@recipe_ids.size / 8).ceil # ($recipe_book.unlocked_recipes.size / 8).ceil
@@ -19,10 +19,10 @@ class Journal < Scene
     start_x = -75
     @next_pg_btn = Button.new(x: GTK.args.grid.w / 2 - 32 + 128, y: 64 + 16, w: 64, h: 64, text: ">", text_size_px: 64, path: "sprites/button_frame-128x128-sheet-4.png",
     tile_rect: { x: 128, y: 0, w: 128, h: 128 },
-    frame_length: 4, anchor_y: 0.43)
+    frame_length: 4, anchor_y: 0.43, active: false)
     @prev_pg_btn = Button.new(x: GTK.args.grid.w / 2 - 96, y: 64 + 16, w: 64, h: 64, text: "<", text_size_px: 64, path: "sprites/button_frame-128x128-sheet-4.png",
     tile_rect: { x: 128, y: 0, w: 128, h: 128 },
-    frame_length: 4, anchor_y: 0.43)
+    frame_length: 4, anchor_y: 0.43, active: false)
     @back_btn = Button.new(
       x: 64,
       y: GTK.args.grid.h - 16 - 16,
@@ -72,6 +72,10 @@ class Journal < Scene
       card.faded = (card_viewed && !card.viewed)
     end
     calc
+  end
+
+  def card_viewed?
+    @recipe_cards.find { |c| c.viewed }
   end
 
   def render(layer_num)
@@ -189,8 +193,8 @@ class Journal < Scene
       @pause_menu_instance.go_back
     end
 
-    @next_pg_btn.set_active((@page < @total_pages))
-    @prev_pg_btn.set_active((@page > 1))
+    @next_pg_btn.set_active((@page < @total_pages) && !card_viewed?)
+    @prev_pg_btn.set_active((@page > 1) && !card_viewed?)
 
     if (@next_pg_btn.clicked? && @page < @total_pages)
       @page += 1 
