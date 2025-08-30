@@ -41,7 +41,24 @@ class PauseMenu < Scene
          text: "Quit"
        )
 
-    @buttons = [@journal_btn, @restart_run_btn, @quit_btn, @settings_btn, @help_btn]
+    @back_btn = Button.new(
+      x: 64,
+      y: GTK.args.grid.h - 16 - 16,
+      w: 32,
+      h: 32,
+      path: "sprites/back_button-sheet-4.png",
+      text: "",
+      frame_length: 4,
+      tile_rect: {
+        x: 32,
+        y: 0,
+        w: 32,
+        h: 32,
+      },
+      active: false
+    )
+
+    @buttons = [@journal_btn, @restart_run_btn, @quit_btn, @settings_btn, @help_btn, @back_btn]
 
     @l0 = []
     @l1 = []
@@ -92,8 +109,7 @@ class PauseMenu < Scene
   end
 
   def calc_settings
-    if GTK.args.inputs.mouse.click and
-         Geometry.intersect_rect?(GTK.args.inputs.mouse, back_btn)
+    if @back_btn.clicked?
       go_back
     end
   end
@@ -140,9 +156,9 @@ class PauseMenu < Scene
 
     encounter_label ||= {
       x: GTK.args.grid.w / 2,
-      y: GTK.args.grid.h - 50,
+      y: GTK.args.grid.h - 48,
       alignment_enum: 1,
-      size_px: 40,
+      size_px: 128,
       r: 255,
       g: 255,
       b: 255,
@@ -151,15 +167,17 @@ class PauseMenu < Scene
       primitive_marker: :label
     }
 
+    @l3 << [@back_btn.prefab]
     case screen
     when "main"
       @l0 << [background_solid, background]
       @l4 << [encounter_label]
       @l3 << [@journal_btn.prefab, @settings_btn.prefab, @quit_btn.prefab, @restart_run_btn.prefab, @help_btn.prefab]
+      @back_btn.set_active(false)
     when "settings"
       @l0 << [background_solid, background]
       @l4 << [encounter_label]
-      @l3 << [back_btn]
+      @back_btn.set_active(true)
     when "journal"
       @l0 << @journal_instance.render(0)
       @l1 << @journal_instance.render(1)
@@ -168,22 +186,6 @@ class PauseMenu < Scene
       @l3 << @journal_instance.render(4)
     else
     end
-  end
-
-  def back_btn
-    f_i = 0.frame_index(count: 4, hold_for: 15, repeat: true)
-    {
-      x: 48,
-      y: GTK.args.grid.h - 16 - 32,
-      w: 32,
-      h: 32,
-      path: "sprites/back_button-sheet-4.png",
-      tile_x: 32 * f_i,
-      tile_y: 0,
-      tile_w: 32,
-      tile_h: 32,
-      angle: 0
-    }
   end
 
   def go_back

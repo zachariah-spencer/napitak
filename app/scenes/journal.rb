@@ -4,7 +4,7 @@ class Journal < Scene
   def initialize(pause_menu_instance:)
     @sc_id = "journal"
     @pause_menu_instance = pause_menu_instance
-    @recipe_ids = %w[i001 i002 i003 i004 i005 i006 i007 p001 p002 p003 p004]# $recipe_book.unlocked_recipes
+    @recipe_ids = %w[i001 i002 i003 i004 i005 i006 i007 p001 p002 p003 p004 i004 i005 i006 i004 i005 i006 i004 i005 i006 i004 i005 i006]# $recipe_book.unlocked_recipes
     @recipe_cards = []
     @page = 1
     @total_pages = (@recipe_ids.size / 8).ceil # ($recipe_book.unlocked_recipes.size / 8).ceil
@@ -23,8 +23,23 @@ class Journal < Scene
     @prev_pg_btn = Button.new(x: GTK.args.grid.w / 2 - 96, y: 64 + 16, w: 64, h: 64, text: "<", text_size_px: 64, path: "sprites/button_frame-128x128-sheet-4.png",
     tile_rect: { x: 128, y: 0, w: 128, h: 128 },
     frame_length: 4, anchor_y: 0.43)
+    @back_btn = Button.new(
+      x: 64,
+      y: GTK.args.grid.h - 16 - 16,
+      w: 32,
+      h: 32,
+      path: "sprites/back_button-sheet-4.png",
+      text: "",
+      frame_length: 4,
+      tile_rect: {
+        x: 32,
+        y: 0,
+        w: 32,
+        h: 32,
+      }
+    )
 
-    @buttons = [@prev_pg_btn, @next_pg_btn]
+    @buttons = [@prev_pg_btn, @next_pg_btn, @back_btn]
 
     @recipe_ids.each do |recipe_id|
       @recipe_cards << RecipeCard.new(
@@ -157,7 +172,7 @@ class Journal < Scene
         primitive_marker: :label
       }
 
-      l3 << [back_btn]
+      l3 << [@back_btn.prefab]
       l3 << [@prev_pg_btn.prefab, @next_pg_btn.prefab, page_count_label] if @total_pages != 1
       l3
     when 4
@@ -168,28 +183,14 @@ class Journal < Scene
     end
   end
 
-  def back_btn
-    f_i = 0.frame_index(count: 4, hold_for: 15, repeat: true)
-    {
-      x: 48,
-      y: GTK.args.grid.h - 16 - 32,
-      w: 32,
-      h: 32,
-      path: "sprites/back_button-sheet-4.png",
-      tile_x: 32 * f_i,
-      tile_y: 0,
-      tile_w: 32,
-      tile_h: 32,
-      angle: 0
-    }
-  end
-
   def calc
-    if GTK.args.inputs.mouse.click and
-         Geometry.intersect_rect?(GTK.args.inputs.mouse, back_btn)
+    if @back_btn.clicked?
       cleanup
       @pause_menu_instance.go_back
     end
+
+    @next_pg_btn.set_active((@page < @total_pages))
+    @prev_pg_btn.set_active((@page > 1))
 
     if (@next_pg_btn.clicked? && @page < @total_pages)
       @page += 1 

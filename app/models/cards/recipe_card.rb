@@ -121,7 +121,7 @@ class RecipeCard < Card
       h: @h,
       angle: @angle,
       path: @card_composite_sprite_ref,
-      a: @faded ? 80 : 255,
+      a: @faded ? 60 : 255,
       primitive_marker: :sprite
     }
     tt_sprite = {

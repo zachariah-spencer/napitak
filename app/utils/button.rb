@@ -1,6 +1,6 @@
 class Button
   attr_gtk
-  attr :text, :background_color
+  attr :text, :background_color, :active
 
   def initialize(
     x: GTK.args.grid / 2,
@@ -14,7 +14,8 @@ class Button
     tile_rect: { x: 96, y: 0, w: 96, h: 48 },
     frame_length: 6,
     text_size_px: nil,
-    anchor_y: 0.5
+    anchor_y: 0.5,
+    active: true
   )
     @id = GameUtils.new_id?
     @x = x
@@ -33,12 +34,22 @@ class Button
     @text = text
     @background_color = background_color
     @a = 255
+    @da = 255
     @font_color = font_color
     @rand_seed = Numeric.rand(0..4)
     @hovered = false
     @anim_speed = 0.5.seconds
     @text_size_px = text_size_px
     @anchor_y = anchor_y
+    @active = active
+    @da = @active ? 255 : 0
+    @a = @active ? 255 : 0
+  end
+
+  def set_active(val)
+    return if @active == val
+    @active = val
+    @da = @active ? 255 : 0
   end
 
   def tick
@@ -60,6 +71,7 @@ class Button
 
       @w = @w.lerp(@fw, 0.2)
       @h = @h.lerp(@fh, 0.2)
+      @a = @a.lerp(@da, 0.2)
     end
   end
 
@@ -129,7 +141,7 @@ class Button
   end
 
   def clicked?
-    return false if $game.input_locked
+    return false if $game.input_locked || !@active
     if Geometry.intersect_rect?(GTK.args.inputs.mouse, hovered_rect) &&
       GTK.args.inputs.mouse.click
       $AUDIO_SERVICE.play_sound(:button_press)
