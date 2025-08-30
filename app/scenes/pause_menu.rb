@@ -6,33 +6,35 @@ class PauseMenu < Scene
     @journal_instance = nil
     @combat_instance = nil
     @journal_btn = Button.new(
-         x: GTK.args.grid.w / 2 - 48,
+         x: GTK.args.grid.w / 2,
          y: (GTK.args.grid.h - 100) / 1.5,
          w: 96,
          h: 48,
          text: "Journal"
        )
     @settings_btn = Button.new(
-         x: GTK.args.grid.w / 2 - 48,
+         x: GTK.args.grid.w / 2,
          y: (GTK.args.grid.h - 100) / 1.88,
          w: 96,
          h: 48,
          text: "Settings"
        )
     @restart_run_btn = Button.new(
-         x: GTK.args.grid.w / 2 - 48,
+         x: GTK.args.grid.w / 2,
          y: (GTK.args.grid.h - 100) / 1.25,
          w: 96,
          h: 48,
          text: "New Run"
        )
     @quit_btn = Button.new(
-         x: GTK.args.grid.w / 2 - 48,
+         x: GTK.args.grid.w / 2,
          y: (GTK.args.grid.h - 100) / 2.5,
          w: 96,
          h: 48,
          text: "Quit"
        )
+
+    @buttons = [@journal_btn, @restart_run_btn, @quit_btn, @settings_btn]
 
     @l0 = []
     @l1 = []
@@ -48,6 +50,7 @@ class PauseMenu < Scene
   end
 
   def tick
+    @buttons.each { |b| b.tick }
     screen_tick = "tick_#{@pause_screen}"
     send(screen_tick)
   end

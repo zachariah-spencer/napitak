@@ -15,6 +15,16 @@ class AudioService
         gain: 0.25,
         pitch: 1.0
       },
+      page_turn: {
+        input: "sounds/sfx/book/book_open.wav",
+        gain: 0.25,
+        pitch: 1.5
+      },
+      page_reverse_turn: {
+        input: "sounds/sfx/book/book_close.wav",
+        gain: 0.25,
+        pitch: 1.5,
+      },
       get_fresh_ingredient: {
         input: "sounds/sfx/get_fresh_ingredient.wav",
         gain: 0.4,
@@ -90,6 +100,11 @@ class AudioService
         input: "sounds/sfx/card/card_grab.wav",
         gain: 0.4,
         pitch: 1.0
+      },
+      card_flip: {
+        input: "sounds/sfx/card/card_flip.ogg",
+        gain: 0.25,
+        pitch: 0.7 
       },
       button_press: {
         input: "sounds/sfx/button_press.wav",

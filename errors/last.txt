@@ -1,23 +1,18 @@
 * EXCEPTION:
-* ERROR - :[]= method missing on ~Class~.
+* ERROR - :each method missing on ~NilClass~.
 
-#+begin_src ~Class#inspect~
-NIL
-#+end_src ~Class#inspect~
+#+begin_src ~NilClass#inspect~
+nil
+#+end_src ~NilClass#inspect~
 
 
 
 The method named
-  :[]=
-with args
-  [:gain, 0.0]
-doesn't exist on [NilClass].
+  :each
+doesn't exist on [NilClass, NilClassFalseClass].
 
 (suggestions above)
 ** Backtrace:
-*** app/services/audio_service.rb:226:in transition_songs
-*** app/services/audio_service.rb:194:in play_song
-*** app/game.rb:254:in toggle_pause
-*** app/game.rb:281:in handle_pause
-*** app/game.rb:308:in tick
+*** app/scenes/pause_menu.rb:53:in tick
+*** app/game.rb:335:in tick
 *** app/main.rb:91:in tick

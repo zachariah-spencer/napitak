@@ -4,10 +4,10 @@ class Journal < Scene
   def initialize(pause_menu_instance:)
     @sc_id = "journal"
     @pause_menu_instance = pause_menu_instance
-    @recipe_ids = $recipe_book.unlocked_recipes
+    @recipe_ids = %w[i001 i002 i003 i004 i005 i006 i007 p001 p002 p003 p004]# $recipe_book.unlocked_recipes
     @recipe_cards = []
     @page = 1
-    @total_pages = ($recipe_book.unlocked_recipes.size / 8).ceil
+    @total_pages = (@recipe_ids.size / 8).ceil # ($recipe_book.unlocked_recipes.size / 8).ceil
     @total_pages = 1 if @total_pages <= 0
 
     max_col = 4
@@ -17,8 +17,16 @@ class Journal < Scene
     page = 1
     spacing = 50
     start_x = -75
+    @next_pg_btn = Button.new(x: GTK.args.grid.w / 2 - 32 + 128, y: 64 + 16, w: 64, h: 64, text: ">", text_size_px: 64, path: "sprites/button_frame-128x128-sheet-4.png",
+    tile_rect: { x: 128, y: 0, w: 128, h: 128 },
+    frame_length: 4, anchor_y: 0.43)
+    @prev_pg_btn = Button.new(x: GTK.args.grid.w / 2 - 96, y: 64 + 16, w: 64, h: 64, text: "<", text_size_px: 64, path: "sprites/button_frame-128x128-sheet-4.png",
+    tile_rect: { x: 128, y: 0, w: 128, h: 128 },
+    frame_length: 4, anchor_y: 0.43)
 
-    $recipe_book.unlocked_recipes.each do |recipe_id|
+    @buttons = [@prev_pg_btn, @next_pg_btn]
+
+    @recipe_ids.each do |recipe_id|
       @recipe_cards << RecipeCard.new(
         page: page,
         x: start_x + ((200 + spacing) * col),
@@ -41,7 +49,13 @@ class Journal < Scene
   end
 
   def tick
-    @recipe_cards.each { |card| card.tick }
+    @buttons.each { |b| b.tick }
+
+    card_viewed = @recipe_cards.any? { |c| c.viewed }
+    @recipe_cards.each do |card| 
+      card.tick
+      card.faded = (card_viewed && !card.viewed)
+    end
     calc
   end
 
@@ -119,7 +133,7 @@ class Journal < Scene
         x: GTK.args.grid.w / 2,
         y: GTK.args.grid.h - 50,
         alignment_enum: 1,
-        size_px: 40,
+        size_px: 55,
         r: 255,
         g: 255,
         b: 255,
@@ -139,11 +153,12 @@ class Journal < Scene
         g: 255,
         b: 255,
         text: "#{@page} / #{@total_pages}",
+        font: $FONT,
         primitive_marker: :label
       }
 
       l3 << [back_btn]
-      l3 << [prev_pg_btn, next_pg_btn, page_count_label] if @total_pages != 1
+      l3 << [@prev_pg_btn.prefab, @next_pg_btn.prefab, page_count_label] if @total_pages != 1
       l3
     when 4
       l4 << []
@@ -151,110 +166,6 @@ class Journal < Scene
     else
       # puts "combat.rb: Invalid Render Argument"
     end
-  end
-
-  def prev_pg_btn
-    GTK.args.outputs[:prev_pg_btn].w = 150
-    GTK.args.outputs[:prev_pg_btn].h = 75
-
-    GTK.args.outputs[:prev_pg_btn].primitives << {
-      x: 0,
-      y: 0,
-      w: 150,
-      h: 75,
-      angle: 0,
-      r: 0,
-      g: 0,
-      b: 0,
-      primitive_marker: :solid
-    }
-
-    GTK.args.outputs[:prev_pg_btn].primitives << {
-      x: 5,
-      y: 5,
-      w: 140,
-      h: 65,
-      angle: 0,
-      r: 70,
-      g: 70,
-      b: 150,
-      a: 100,
-      primitive_marker: :solid
-    }
-
-    GTK.args.outputs[:prev_pg_btn].primitives << {
-      x: 150 / 2,
-      y: 75 / 2,
-      text: "<<",
-      anchor_x: 0.5,
-      anchor_y: 0.5,
-      r: 255,
-      g: 255,
-      b: 255,
-      size_enum: 3
-    }
-
-    {
-      x: GTK.args.grid.w / 2 - 150 - 100,
-      y: 50,
-      w: 150,
-      h: 75,
-      angle: 0,
-      path: :prev_pg_btn,
-      primitive_marker: :sprite
-    }
-  end
-
-  def next_pg_btn
-    GTK.args.outputs[:next_pg_btn].w = 150
-    GTK.args.outputs[:next_pg_btn].h = 75
-
-    GTK.args.outputs[:next_pg_btn].primitives << {
-      x: 0,
-      y: 0,
-      w: 150,
-      h: 75,
-      angle: 0,
-      r: 0,
-      g: 0,
-      b: 0,
-      primitive_marker: :solid
-    }
-
-    GTK.args.outputs[:next_pg_btn].primitives << {
-      x: 5,
-      y: 5,
-      w: 140,
-      h: 65,
-      angle: 0,
-      r: 70,
-      g: 70,
-      b: 150,
-      a: 100,
-      primitive_marker: :solid
-    }
-
-    GTK.args.outputs[:next_pg_btn].primitives << {
-      x: 150 / 2,
-      y: 75 / 2,
-      text: ">>",
-      anchor_x: 0.5,
-      anchor_y: 0.5,
-      r: 255,
-      g: 255,
-      b: 255,
-      size_enum: 3
-    }
-
-    {
-      x: GTK.args.grid.w / 2 + 0 + 100,
-      y: 50,
-      w: 150,
-      h: 75,
-      angle: 0,
-      path: :next_pg_btn,
-      primitive_marker: :sprite
-    }
   end
 
   def back_btn
@@ -280,16 +191,14 @@ class Journal < Scene
       @pause_menu_instance.go_back
     end
 
-    @page += 1 if (
-      GTK.args.inputs.mouse.click and
-        Geometry.intersect_rect?(GTK.args.inputs.mouse, next_pg_btn) and
-        @page < @total_pages
-    )
-    @page -= 1 if (
-      GTK.args.inputs.mouse.click and
-        Geometry.intersect_rect?(GTK.args.inputs.mouse, prev_pg_btn) and
-        @page > 1
-    )
+    if (@next_pg_btn.clicked? && @page < @total_pages)
+      @page += 1 
+      $AUDIO_SERVICE.play_sound(:page_turn)
+    end
+    if (@prev_pg_btn.clicked? && @page > 1)
+      @page -= 1
+      $AUDIO_SERVICE.play_sound(:page_reverse_turn)
+    end
   end
 
   def cleanup

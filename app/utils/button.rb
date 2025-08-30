@@ -12,7 +12,9 @@ class Button
     background_color: { r: 255, g: 255, b: 255 },
     path: "sprites/wide_button_frame-sheet-6.png",
     tile_rect: { x: 96, y: 0, w: 96, h: 48 },
-    frame_length: 6
+    frame_length: 6,
+    text_size_px: nil,
+    anchor_y: 0.5
   )
     @id = GameUtils.new_id?
     @x = x
@@ -35,6 +37,8 @@ class Button
     @rand_seed = Numeric.rand(0..4)
     @hovered = false
     @anim_speed = 0.5.seconds
+    @text_size_px = text_size_px
+    @anchor_y = anchor_y
   end
 
   def tick
@@ -102,12 +106,12 @@ class Button
       y: @h / 2,
       text: @text,
       anchor_x: 0.5,
-      anchor_y: 0.5,
+      anchor_y: @anchor_y,
       r: 255,
       g: 255,
       b: 255,
       a: @a,
-      size_px: @w / 4,
+      size_px: @text_size_px || (@w / 4),
       font: $FONT
     }
 

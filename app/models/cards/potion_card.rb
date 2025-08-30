@@ -29,6 +29,7 @@ class PotionCard < Card
     @desc = $PIDS[id].desc
     @potencies = $PIDS[id].traits
     @flipped = false
+    @flipping_tick = nil
     @grabbed_tick = nil
     @grabbed_pos = { x: 0, y: 0}
   end
@@ -45,6 +46,8 @@ class PotionCard < Card
 
   def flip(flipped)
     @flipped = flipped
+    @flipping_tick = Kernel.tick_count
+    $AUDIO_SERVICE.play_sound(:card_flip)
   end
 
   def release
@@ -76,6 +79,64 @@ class PotionCard < Card
   def calc_hover_audio(was_hovered)
     $AUDIO_SERVICE.play_sound(:card_hover) if was_hovered != @hovered && @hovered && !@grabbed
     $AUDIO_SERVICE.play_sound(:card_unhover) if was_hovered != @hovered && !@hovered && !@grabbed
+  end
+
+  def calc_render_target_background(args, prefab_alpha = 255)
+    card_sprite_frame =
+      0.frame_index(
+        count: 4,
+        hold_for: @hovered ? 10 : 30,
+        repeat: true,
+        repeat_index: 0,
+        tick_count_override: Kernel.tick_count
+      )
+
+    card_sprite_frame += @anim_seed
+    card_sprite_frame -= 4 if card_sprite_frame > 3
+
+    if @flipping_tick
+      flipping_frames = Numeric.frame_index(start_at: @flipping_tick,
+                                            count: 4,
+                                            hold_for: 3,
+                                            repeat: false
+                                          )
+    end
+
+    if flipping_frames
+      args.outputs[@card_composite_sprite_ref].primitives << {
+        x: 0,
+        y: 0,
+        w: @w,
+        h: @h,
+        angle: 0,
+        r: @r,
+        g: @g,
+        b: @b,
+        a: prefab_alpha,
+        path: "sprites/card_flipping-sheet-4.png",
+        tile_x: (flipping_frames * 128),
+        tile_y: 0,
+        tile_w: 128,
+        tile_h: 128
+      }
+    else
+      args.outputs[@card_composite_sprite_ref].primitives << {
+        x: 0,
+        y: 0,
+        w: @w,
+        h: @h,
+        angle: 0,
+        r: @r,
+        g: @g,
+        b: @b,
+        a: prefab_alpha,
+        path: @card_back_img,
+        tile_x: (card_sprite_frame * 128),
+        tile_y: 0,
+        tile_w: 128,
+        tile_h: 128
+      }
+    end
   end
 
   def calc_render_target(args)
