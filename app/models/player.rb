@@ -290,7 +290,7 @@ class Player
             $PIDS[id].fc,
             $PIDS[id].path,
             $PIDS[id].max_uses,
-            uses_left: uses
+            uses_left: $PIDS[id].max_uses
           )
         )
       end

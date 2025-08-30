@@ -385,6 +385,10 @@ class AlchemyLab < Scene
     $player.prev_loadout_potions.all_cards.each do |card|
       @pot_menu_widget.add_item(card)
     end
+
+    @pot_menu_widget.items?.each do |card|
+      card.uses_left = card.max_uses
+    end
     $player.prev_loadout_ingredients.all_cards.each do |card|
       @ing_menu_widget.add_item(card)
     end

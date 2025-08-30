@@ -1,25 +1,23 @@
 * EXCEPTION:
-* ERROR - :* method missing on ~NilClass~.
+* ERROR - :items method missing on ~ScrollListWidget~.
 
-#+begin_src ~NilClass#inspect~
-nil
-#+end_src ~NilClass#inspect~
+#+begin_src ~ScrollListWidget#inspect~
+#<ScrollListWidget:0x27a92de0290 @x=1168, @item_height=96, @hovered_idx=nil, @items=[#<PotionCard:0x27a8252b7c0 @grabbed_pos={:x=>0, :y=>0}, @vy=0.0, @ttw=1000, @dy=0.0, @hovered=false, @entity_id=6782, @tth=1000, @dx=0.0, @padding=-30, @name="Flamelick Potion", @r=255, @anchored=false, @h=160.0, @anim_seed=1, @flipped=false, @b=255, @vx=0.0, @marked_for_removal=false, @g=255, @focus_mod=0, @selected=false, @flipping_tick=3333, @card_composite_sprite_ref=:card_composite_6782, @floating_seed=9.031441646868232, @w=160.0, @card_composite_tooltip_ref=:card_composite_tooltip_6782, @fw=160, @fh=160, @max_uses=5, @tt_a=2.638606636028946e-62, @grabbed=false, @uses_left=0, @potencies=[{0=>{:amount=>5, :type=>1}}], @img="sprites/flamelickbottle.png", @free_floating=false, @card_back_img="sprites/card_sheet.png", @desc="Flames leap from the bottle at foes.", @id="p001", @pos={:x=>535.0000000000002, :y=>30.0}, @angle=-6.66208053923043e-146, @needs_removed=false, @fc=1, @f_angle=0.0, @activation_time=0.0, @tt_f_a=0, @f_pos={:x=>535.0, :y=>30.0}, @grabbed_tick=nil>], @y=115.0, @width=96, @scroll_y=0, @selected_item=nil, @uid=715, @scroll_vel=0, @height=500, @frame_index_start_ticks={6782=>-19}>
+#+end_src ~ScrollListWidget#inspect~
 
-
+** Did you mean?
+Here's a list of methods that kind of look like :items.
+*** :items?
 
 The method named
-  :*
-with args
-  [0.5]
-doesn't exist on [NilClass, NilClassFalseClass].
+  :items
+doesn't exist on [ScrollListWidget, #<Class:#<ScrollListWidget:0x27a92de0290>>].
 
 (suggestions above)
 ** Backtrace:
-*** app/services/audio_service.rb:331:in play_sound
-*** app/services/deck.rb:25:in draw
-*** app/services/inventory.rb:12:in draw
-*** app/services/card_hand_manager.rb:21:in draw_card
-*** app/scenes/combat_tutorial.rb:194:in handle_card_dealing
-*** app/scenes/combat_tutorial.rb:171:in tick
+*** app/scenes/alchemy_lab.rb:389:in config_prev_loadout
+*** app/scenes/alchemy_lab.rb:813:in calc_mouse_inputs
+*** app/scenes/alchemy_lab.rb:356:in calc
+*** app/scenes/alchemy_lab.rb:336:in tick
 *** app/game.rb:345:in tick
 *** app/main.rb:92:in tick
