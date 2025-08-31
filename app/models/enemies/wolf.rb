@@ -73,7 +73,7 @@ class Wolf < Enemy
   def begin_turn
     super
     if !@combat_stats.dead
-      $AUDIO_SERVICE.play_sound("#{@enemy_id}_attack".to_sym, rand_pitch: true)
+      
     end
   end
 

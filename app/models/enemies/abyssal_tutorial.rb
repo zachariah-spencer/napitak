@@ -16,7 +16,7 @@ class AbyssalTutorial < Enemy
     @w = 200
     @h = 200
     $enemy = self
-    @combat_stats.set_stats(hp: 60)
+    @combat_stats.set_stats(hp: 1)
     @sprite = "sprites/triangle/equilateral/red.png"
     @name = "The Abyssal"
     @fled = false

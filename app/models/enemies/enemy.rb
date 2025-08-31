@@ -291,7 +291,10 @@ class Enemy
       @attack_queued = true
       GTK.on_tick_count(@turn_start_timer + 0.4.seconds) do
         select_attack
-        @animations.play_animation(@selected_attack[:id]) if @animations
+        if @animations
+          @animations.play_animation(@selected_attack[:id]) 
+          $AUDIO_SERVICE.play_sound($ENEMY_ANIMATIONS[@enemy_id.to_sym][:attacks][@selected_attack[:id]].sfx, rand_pitch: true)
+        end
         if !@animations
           $EVENT_BUS.publish(:enemy_animation_impacted, @selected_attack[:id])
         end

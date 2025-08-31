@@ -124,8 +124,13 @@ class AudioService
         gain: 1.25,
         pitch: 1.25
       },
-      wolf_attack: {
+      wolf_attack1: {
         input: "sounds/sfx/wolf_snarl.wav",
+        gain: 0.2,
+        pitch: 1.0
+      },
+      wolf_attack3: {
+        input: "sounds/sfx/wolf_attack3.ogg",
         gain: 0.2,
         pitch: 1.0
       },

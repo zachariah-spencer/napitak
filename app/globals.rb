@@ -534,7 +534,7 @@ module GameData
         path: "sprites/wolf-sheet-3.png",
         count: 3,
         hold_for: 30,
-        repeat: true
+        repeat: true,
       },
       hurt: {
         path: "sprites/wolf_death-sheet-15.png",
@@ -554,21 +554,24 @@ module GameData
           count: 4,
           hold_for: 10,
           impact_frame: 1,
-          repeat: false
+          repeat: false,
+          sfx: :wolf_attack1
         },
         special: {
           path: "sprites/wolf_attack2-sheet-4.png",
           count: 4,
           hold_for: 10,
           impact_frame: 1,
-          repeat: false
+          repeat: false,
+          sfx: :wolf_attack1
         },
         apex:  {
           path: "sprites/wolf_attack3-sheet-14.png",
           count: 14,
           hold_for: 10,
           impact_frame: 10,
-          repeat: false
+          repeat: false,
+          sfx: :wolf_attack3
         },
       },
     }
