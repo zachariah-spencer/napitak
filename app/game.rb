@@ -319,6 +319,7 @@ class Game
   end
 
   def tick
+    $player.inc_focus_shards if GTK.args.inputs.keyboard.key_down.n
     $AUDIO_SERVICE.tick
     handle_pause
     calc_view_collection_inputs

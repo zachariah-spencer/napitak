@@ -37,6 +37,8 @@ class Player
     @maximum_hp = 100
     @starting_inventory_size = 5
     @start_maximum_hp = 100
+    @hp_shards = 0
+    @focus_shards = 0
     @start_maximum_focus = 4
     @alchemy_table_uses = 2
     @shop_discount = 0 # out of 100 (integer percentile) (CURRENTLY UNUSED)
@@ -99,6 +101,8 @@ class Player
     @my_turn = true
     @feathers = 0
     @status_effects = []
+    @hp_shards = 0
+    @focus_shards = 0
 
     save_feathers_data
     save_upgrades_data
@@ -148,11 +152,37 @@ class Player
   def save_run_upgrades_data
     $files.save_data["player"]["run_upgrades"]["maximum_focus"] = @maximum_focus
     $files.save_data["player"]["run_upgrades"]["maximum_hp"] = @maximum_hp
+    $files.save_data["player"]["run_upgrades"]["hp_shards"] = @hp_shards
+    $files.save_data["player"]["run_upgrades"]["focus_shards"] = @focus_shards
+  end
+
+  def inc_hp_shards
+    @hp_shards = (@hp_shards || 0) + 1
+    save_run_upgrades_data
+    return unless @hp_shards >= 3
+
+    @hp_shards = 0
+    @maximum_hp += 5
+    save_run_upgrades_data
+  end
+
+  def inc_focus_shards
+    @focus_shards = (@focus_shards || 0) + 1
+    save_run_upgrades_data
+    return unless @focus_shards >= 3
+
+    @focus_shards = 0
+    @maximum_focus += 1
+    save_run_upgrades_data
   end
 
   def load_run_upgrades_data
-    @maximum_focus = $files.save_data["player"]["run_upgrades"]["maximum_focus"]
-    @maximum_hp = $files.save_data["player"]["run_upgrades"]["maximum_hp"]
+    run = $files.save_data["player"]["run_upgrades"] || {}
+    # Fallback to current values if not present (handles older saves)
+    @maximum_focus = run["maximum_focus"] || @maximum_focus
+    @maximum_hp = run["maximum_hp"] || @maximum_hp
+    @hp_shards = run.key?("hp_shards") ? run["hp_shards"] : 0
+    @focus_shards = run.key?("focus_shards") ? run["focus_shards"] : 0
   end
 
   def get_inventory_save_data
