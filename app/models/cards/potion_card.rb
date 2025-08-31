@@ -45,6 +45,8 @@ class PotionCard < Card
   end
 
   def flip(flipped)
+    # Only trigger animation/sound if state actually changes
+    return if @flipped == flipped
     @flipped = flipped
     @flipping_tick = Kernel.tick_count
     $AUDIO_SERVICE.play_sound(:card_flip)
@@ -54,7 +56,8 @@ class PotionCard < Card
     @grabbed = false
     @grabbed_tick = nil
     @grabbed_pos = { x: 0, y: 0 }
-    flip(false)
+    # Only flip back if it was flipped
+    flip(false) if @flipped
   end
 
   def save_data?

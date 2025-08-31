@@ -4,7 +4,7 @@ class Journal < Scene
   def initialize(pause_menu_instance:)
     @sc_id = "journal"
     @pause_menu_instance = pause_menu_instance
-    @recipe_ids = %w[p001 p002 p003 p004 p005 i007 i006 i005 i004 i003 p007]# $recipe_book.unlocked_recipes
+    @recipe_ids = $recipe_book.unlocked_recipes
     @recipe_cards = []
     @page = 1
     @total_pages = (@recipe_ids.size / 8).ceil # ($recipe_book.unlocked_recipes.size / 8).ceil

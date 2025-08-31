@@ -62,15 +62,22 @@ class PauseMenu < Scene
     master_volume = $AUDIO_SERVICE.volumes[:master]
     music_volume = $AUDIO_SERVICE.volumes[:music]
     sfx_volume = $AUDIO_SERVICE.volumes[:sfx]
-    
-    @master_fader_handle = fader_handle(0, (GTK.args.grid.h - 48 - 128 - 48 - 9), GTK.args.grid.w / 2 - 128, GTK.args.grid.w / 2 - 4 + 128, :master)
-    @master_fader_handle.x = calc_fader_handle_start_x(@master_fader_handle, master_volume)
-    
-    @music_fader_handle = fader_handle(0, (GTK.args.grid.h - 48 - 128 - 96 - 48 - 9), GTK.args.grid.w / 2 - 128, GTK.args.grid.w / 2 - 4 + 128, :music)
-    @music_fader_handle.x = calc_fader_handle_start_x(@music_fader_handle, music_volume)
-    
-    @sfx_fader_handle = fader_handle(0, (GTK.args.grid.h - 48 - 128 - 96 - 96 - 48 - 9), GTK.args.grid.w / 2 - 128, GTK.args.grid.w / 2 - 4 + 128, :sfx)
-    @sfx_fader_handle.x = calc_fader_handle_start_x(@sfx_fader_handle, sfx_volume)
+
+    # Precompute bounds and start positions to avoid any first-frame flicker
+    master_min_x = GTK.args.grid.w / 2 - 128
+    master_max_x = GTK.args.grid.w / 2 - 4 + 128
+    master_start_x = master_min_x + (master_volume * (master_max_x - master_min_x))
+    @master_fader_handle = fader_handle(master_start_x, (GTK.args.grid.h - 48 - 128 - 48 - 9), master_min_x, master_max_x, :master)
+
+    music_min_x = GTK.args.grid.w / 2 - 128
+    music_max_x = GTK.args.grid.w / 2 - 4 + 128
+    music_start_x = music_min_x + (music_volume * (music_max_x - music_min_x))
+    @music_fader_handle = fader_handle(music_start_x, (GTK.args.grid.h - 48 - 128 - 96 - 48 - 9), music_min_x, music_max_x, :music)
+
+    sfx_min_x = GTK.args.grid.w / 2 - 128
+    sfx_max_x = GTK.args.grid.w / 2 - 4 + 128
+    sfx_start_x = sfx_min_x + (sfx_volume * (sfx_max_x - sfx_min_x))
+    @sfx_fader_handle = fader_handle(sfx_start_x, (GTK.args.grid.h - 48 - 128 - 96 - 96 - 48 - 9), sfx_min_x, sfx_max_x, :sfx)
 
     @l0 = []
     @l1 = []
@@ -204,7 +211,8 @@ class PauseMenu < Scene
     fader.x = fader.max_x if fader.x >= fader.max_x
     fader.x = fader.min_x if fader.x <= fader.min_x
     fader.percentage = ((fader.x - fader.min_x).to_f / (fader.max_x - fader.min_x)).round(2)
-    $AUDIO_SERVICE.set_volume(channel: GTK.args.state.selected_ui.control, gain: GTK.args.state.selected_ui.percentage)
+    # Apply the clamped value to the correct channel
+    $AUDIO_SERVICE.set_volume(channel: fader.control, gain: fader.percentage)
   end
 
   def pre_render(screen)
