@@ -1,7 +1,7 @@
 class ScrollListWidget
   attr_reader :selected_item
 
-  def initialize(items:, x:, y:, w:, h:, item_height: 96)
+  def initialize(items:, x:, y:, w:, h:, item_height: 96, stores_cards: true)
     @items = items
     @x, @y = x, y
     @width = w
@@ -13,6 +13,7 @@ class ScrollListWidget
     @selected_item = nil
     @uid = GameUtils.new_id?
     @frame_index_start_ticks = {}
+    @stores_cards = stores_cards
 
     @items.each { |item| @frame_index_start_ticks[item.entity_id] = Numeric.rand(-30..0) }
   end
@@ -104,61 +105,76 @@ class ScrollListWidget
         tile_h: 128
       }
 
-      # label
+      if @stores_cards
+        # label
+        if GameUtils.is_potion(item.id)
+          GTK.args.outputs[path].labels << {
+            x: local_x + @width / 2,
+            y: local_y + (@item_height / 2) + 34,
+            text: item.name,
+            size_px: 12,
+            r: 255,
+            g: 255,
+            b: 255,
+            font: $FONT,
+            alignment_enum: 1
+          }
+          # uses left label for potions
+          GTK.args.outputs[path].labels << {
+            x: local_x + @width / 2,
+            y: local_y + (@item_height / 2) - 22,
+            text: "#{item.uses_left}/#{item.max_uses}",
+            alignment_enum: 1,
+            r: 255,
+            g: 255,
+            b: 255,
+            size_px: 16,
+            font: $FONT
+          }
 
-      if GameUtils.is_potion(item.id)
-        GTK.args.outputs[path].labels << {
-          x: local_x + @width / 2,
-          y: local_y + (@item_height / 2) + 34,
-          text: item.name,
-          size_px: 12,
-          r: 255,
-          g: 255,
-          b: 255,
-          font: $FONT,
-          alignment_enum: 1
-        }
-        # uses left label for potions
-        GTK.args.outputs[path].labels << {
-          x: local_x + @width / 2,
-          y: local_y + (@item_height / 2) - 22,
-          text: "#{item.uses_left}/#{item.max_uses}",
-          alignment_enum: 1,
-          r: 255,
-          g: 255,
-          b: 255,
-          size_px: 16,
-          font: $FONT
-        }
-
-        # icon for potions
-        GTK.args.outputs[path].sprites << {
-          x: local_x + @width / 2 - 16,
-          y: local_y + (@item_height / 2) - 16,
-          w: 32,
-          h: 32,
-          path: item.img
-        }
+          # icon for potions
+          GTK.args.outputs[path].sprites << {
+            x: local_x + @width / 2 - 16,
+            y: local_y + (@item_height / 2) - 16,
+            w: 32,
+            h: 32,
+            path: item.img
+          }
+        else
+          GTK.args.outputs[path].labels << {
+            x: local_x + @width / 2,
+            y: local_y + (@item_height / 2) - 15,
+            text: item.name,
+            size_px: 12,
+            font: $FONT,
+            r: 255,
+            g: 255,
+            b: 255,
+            alignment_enum: 1
+          }
+          # icon
+          GTK.args.outputs[path].sprites << {
+            x: local_x + @width / 2 - 16,
+            y: local_y + (@item_height / 2) - 8,
+            w: 32,
+            h: 32,
+            path: item.img
+          }
+        end
       else
         GTK.args.outputs[path].labels << {
-          x: local_x + @width / 2,
-          y: local_y + (@item_height / 2) - 15,
-          text: item.name,
-          size_px: 12,
-          font: $FONT,
-          r: 255,
-          g: 255,
-          b: 255,
-          alignment_enum: 1
-        }
-        # icon
-        GTK.args.outputs[path].sprites << {
-          x: local_x + @width / 2 - 16,
-          y: local_y + (@item_height / 2) - 8,
-          w: 32,
-          h: 32,
-          path: item.img
-        }
+            x: local_x + @width / 2,
+            y: local_y + @item_height / 2,
+            text: item["name"],
+            alignment_enum: 1,
+            anchor_x: 0.5,
+            anchor_y: 0.5,
+            r: 255,
+            g: 255,
+            b: 255,
+            size_px: 16,
+            font: $FONT
+          }
       end
     end
 

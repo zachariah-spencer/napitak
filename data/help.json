@@ -1,0 +1,50 @@
+[
+    {
+        "name" : "Basic Combat",
+        "data" : "You will always go first in combat. On your turn you can choose to play cards, attempt to flee, or pass your turn. Turns will alternate until someone's HP is reduced to 0. When you begin combat, you will draw 4 cards from your deck to begin. Every subsequent turn you will draw 1 additional card from your deck. You have a max hand size of 5 by default. If a card is to be drawn but your max hand size is already reached, you will miss out on that draw."
+    },
+    {
+        "name" : "Combat Focus",
+        "data" : "At the start of each turn you regain your Focus which you can spend to play potion cards. Each potion card has an associated Focus Cost to play it. If you pass your turn with your maximum focus still available, that focus is used to draw an extra card. This is useful if you are running out of cards in your hand to play."
+    },
+    {
+        "name" : "Card Details",
+        "data" : "Clicking and holding down LMB on a card will give you more information about that card. Focus represents the Focus Cost to play this card. Charges represents the number of times this potion can be played before it needs refilled at an alchemy workbench. Always consider the cost of empty potion bottles in your deck! The Effects list shows all of the effects this potion has when played. Red numbers means the potion does straight damage."
+    },
+    {
+        "name" : "Combos",
+        "data" : "Every potion card has a primary base ingredient associated with it and each base ingredient has a unique combo sequence. There are many advantages in combat to playing combos. Firstly, cards that are next in a combo sequence cost 1 less Focus to play! Secondly, completing a combo sequence fully restores your Focus for that turn. Finally, combo completion grants an additional bonus combat effect dependent on which combo you completed."
+    },
+    {
+        "name" : "Fleeing",
+        "data" : "At any point in combat you have the option to try to consume all of your focus to flee. Your chance to get away successfully increases the lower your enemies HP gets. If your attempt to flee fails then you lose your turn, however, any failed attempt to flee increases the base percentage of a successful escape by 5%."
+    },
+    {
+        "name" : "Resistance/Vulnerability",
+        "data" : "Some creatures have resistances or vulnerabilities to certain damage types. Resistance means that damage of that type is halved. Vulnerability means that damage of that type is doubled. Many enemies are resistant or vulnerable to certain damage types. All damage from any source has a type. Damage's type depends on the potion that deals it and is indicated on the potion's tooltip."
+    },
+    {
+        "name" : "Scorch",
+        "data" : "That last attack afflicted you with Scorch! The Scorch status effect can stack. Scorch will deal the number of stacks that is applied on a creature at the end of every combatants turn as Heat damage. Every time damage is dealt, the number of stacks is reduced by 1. There are many status effects in this world all with different effects and tempos."
+    },
+    {
+        "name" : "Frost",
+        "data" : "The FROST status effect is unique in that it afflicts you and enemies differently. When applied to you, each stack reduces a focus point from your max focus cost. When an enemy is afflicted with FROST, it skips one of their turns for each stack applied to them. Stacks decrease at a rate of 1 per turn."
+    },
+    {
+        "name" : "Blight",
+        "data" : "The BLIGHT status effect causes the afflicted creature to take damage at the every round equal to the number of stacks applied to them. Stacks of BLIGHT remain for the duration of that combat."
+    },
+    {
+        "name" : "Ward",
+        "data" : "The WARD status effect functions as a shield from damage to a creature's HP. Stacks operate as bonus HP but with the added bonus that damage is WARDs are resistant to all damage types. Stacks remain until the ward takes damage."
+    },
+    {
+        "name" : "Restoration",
+        "data" : "The RESTORATION status effect heals the afflicted creature at the beginning of that creature's turns equivalent to the number of RESTORATION stacks the creature has applied to them. RESTORATION stacks decrease at a rate of 1 per turn."
+    },
+    {
+        "name" : "Shroud",
+        "data" : "The SHROUD status effect lowers the percentage chance for the afflicted creature's attacks to hit by the number of SHROUD stacks the creature has applied to them. SHROUD stacks decrease at a rate of 5 per turn."
+    }
+]

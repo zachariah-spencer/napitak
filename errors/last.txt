@@ -1,9 +1,17 @@
-* EXCEPTION: comparison of Integer with NilClass failed
+* EXCEPTION:
+* ERROR - :combat_stats method missing on ~NilClass~.
+
+#+begin_src ~NilClass#inspect~
+nil
+#+end_src ~NilClass#inspect~
+
+
+
+The method named
+  :combat_stats
+doesn't exist on [NilClass, NilClassFalseClass].
+
+(suggestions above)
 ** Backtrace:
-*** app/scenes/alchemy_table.rb:172:in calc_card_return
-*** app/scenes/alchemy_table.rb:704:in calc_card_drag_inputs
-*** app/scenes/alchemy_table.rb:663:in calc_mouse_inputs
-*** app/scenes/alchemy_table.rb:286:in calc
-*** app/scenes/alchemy_table.rb:278:in tick
-*** app/game.rb:345:in tick
-*** app/main.rb:92:in tick
+*** app/game.rb:323:in tick
+*** app/main.rb:91:in tick

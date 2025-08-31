@@ -58,6 +58,22 @@ class PauseMenu < Scene
       active: false
     )
 
+    help_json = GTK.read_file("data/help.json")
+    @help_articles_array = GTK.parse_json(help_json)
+    puts @help_articles_array
+
+    @tutorials_scroll_list = ScrollListWidget.new(
+      items: @help_articles_array, 
+      x: 64, 
+      y: GTK.args.grid.h / 2 - 256, 
+      w: 196 - 32, 
+      h: 512, 
+      item_height: 64,
+      stores_cards: false
+    )
+
+    @displayed_help_article = "Select a topic from the list to read more about Napitak's core game systems."
+
     @buttons = [@journal_btn, @restart_run_btn, @quit_btn, @settings_btn, @help_btn, @back_btn]
     master_volume = $AUDIO_SERVICE.volumes[:master]
     music_volume = $AUDIO_SERVICE.volumes[:music]
@@ -123,6 +139,10 @@ class PauseMenu < Scene
       @pause_screen = "settings"
     end
 
+    if @help_btn.clicked?
+      @pause_screen = "help"
+    end
+
     if @quit_btn.clicked?
       GTK.request_quit
     end
@@ -149,6 +169,24 @@ class PauseMenu < Scene
     if @journal_instance
       pre_render("journal")
       @journal_instance.tick
+    end
+  end
+
+  def tick_help
+    pre_render("help")
+    calc_help
+  end
+
+  def calc_help
+    if @back_btn.clicked?
+      go_back
+    end
+
+    @tutorials_scroll_list.tick(GTK.args.inputs)
+
+    if tutorial = @tutorials_scroll_list.pop_clicked
+      @displayed_help_article = tutorial["data"]
+      puts @displayed_help_article
     end
   end
 
@@ -202,7 +240,7 @@ class PauseMenu < Scene
     end
 
     if GTK.args.inputs.mouse.up && GTK.args.state.selected_ui
-      $files.save_data["settings"]["volumes"][fader.control.to_s] = fader.percentage
+      $files.save_data["settings"]["volumes"][GTK.args.state.selected_ui.control.to_s] = GTK.args.state.selected_ui.percentage
       GTK.args.state.selected_ui = nil
     end
   end
@@ -318,6 +356,43 @@ class PauseMenu < Scene
       @l0 << [background_solid, background]
       @l1 << [master_volume_label, music_volume_label, sfx_volume_label, fader_lines, @master_fader_handle, @music_fader_handle, @sfx_fader_handle]
       @l4 << [encounter_label]
+      @back_btn.set_active(true)
+    when "help"
+      @l0 << background
+      @l1 << @tutorials_scroll_list.render
+
+      @l2 << {
+        x: GTK.args.grid.w / 2,
+        y: GTK.args.grid.h - 50,
+        alignment_enum: 1,
+        size_px: 55,
+        r: 255,
+        g: 255,
+        b: 255,
+        text: "Help",
+        font: $FONT,
+        primitive_marker: :label
+      }
+
+      msg_lines = []
+      wrapped_msg = String.wrapped_lines @displayed_help_article, 65
+      msg_lines << wrapped_msg.map_with_index do |s, i|
+        {
+          x: GTK.args.grid.w / 2,
+          y: 512 + 32,
+          text: "#{s}",
+          anchor_x: 0.5,
+          anchor_y: i,
+          r: 255,
+          g: 255,
+          b: 255,
+          size_px: 32,
+          font: $FONT,
+          primitive_marker: :label
+        }
+      end
+
+      @l2 << msg_lines
       @back_btn.set_active(true)
     when "journal"
       @l0 << @journal_instance.render(0)

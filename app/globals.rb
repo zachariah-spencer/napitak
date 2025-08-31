@@ -74,7 +74,7 @@ module GameData
       r: 150,
       g: 150,
       b: 150,
-      message: "BLINDED"
+      message: "SHROUDED"
     }
   }.freeze
   DAMAGE_TYPE_COLORS = {

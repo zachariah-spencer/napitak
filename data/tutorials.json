@@ -55,6 +55,6 @@
     "36": "The RESTORATION status effect heals the afflicted creature at the beginning of that creature's turns equivalent to the number of RESTORATION stacks the creature has applied to them.",
     "37": "RESTORATION stacks decrease at a rate of 1 per turn.",
 
-    "38": "The BLIND status effect lowers the percentage chance for the afflicted creature's attacks to hit by the number of BLIND stacks the creature has applied to them.",
-    "39": "BLIND stacks decrease at a rate of 5 per turn."
+    "38": "The SHROUD status effect lowers the percentage chance for the afflicted creature's attacks to hit by the number of SHROUD stacks the creature has applied to them.",
+    "39": "SHROUD stacks decrease at a rate of 5 per turn."
 }
