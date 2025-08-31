@@ -130,6 +130,11 @@ class Game
     @cam_shake_offset_x = 0.0
     @cam_shake_offset_y = 0.0
 
+    @hp_shard_label_a = 0
+    @hp_shard_label_da = 0
+    @focus_shard_label_a = 0
+    @focus_shard_label_da = 0
+
     if @mid_run
       @player.load_feathers_data
       @player.load_run_upgrades_data
@@ -147,7 +152,8 @@ class Game
     $encounter_manager.reset!
     @player.reset!
 
-    if $files.save_data["settings"].key?("replay_tutorial") && $files.save_data["settings"]["replay_tutorial"]
+    if $files.save_data["settings"].key?("replay_tutorial") &&
+         $files.save_data["settings"]["replay_tutorial"]
       @input_locked = true
       change_scene(prev_sc: "", next_scene: "intro", quick: true)
       return
@@ -319,7 +325,8 @@ class Game
   end
 
   def tick
-    $player.inc_focus_shards if GTK.args.inputs.keyboard.key_down.n
+    $player.inc_hp_shards if GTK.args.inputs.keyboard.key_down.n
+    $player.inc_focus_shards if GTK.args.inputs.keyboard.key_down.m
     $AUDIO_SERVICE.tick
     handle_pause
     calc_view_collection_inputs
@@ -407,16 +414,16 @@ class Game
     l5 = []
 
     background_solid = {
-        x: -1024,
-        y: -1024,
-        w: 1280 + 1024,
-        h: 720 + 1024,
-        r: 0,
-        g: 0,
-        b: 0,
-        primitive_marker: :solid
-      }
-      
+      x: -1024,
+      y: -1024,
+      w: 1280 + 1024,
+      h: 720 + 1024,
+      r: 0,
+      g: 0,
+      b: 0,
+      primitive_marker: :solid
+    }
+
     l00 << background_solid
 
     if @scene_ref
@@ -484,7 +491,6 @@ class Game
         focus_label[:icon],
         focus_label[:label]
       ]
-
       if !$player.status_effects.empty?
         l5 << [
           misc_btn,
@@ -493,6 +499,13 @@ class Game
           @status_effect_list_widget.prefab[:list]
         ]
       end
+      @hp_shard_label_da = ($player.hp_shards > 0) ? 180 : 0
+      @hp_shard_label_a = @hp_shard_label_a.lerp(@hp_shard_label_da, 0.2)
+      @focus_shard_label_da = ($player.focus_shards > 0) ? 180 : 0
+      @focus_shard_label_a = @focus_shard_label_a.lerp(@focus_shard_label_da, 0.2)
+
+      l5 << hp_shards_label
+      l5 << focus_shards_label
     end
 
     l5 << $announcement_manager&.prefab
@@ -505,7 +518,11 @@ class Game
       next if layer.nil? || layer.empty?
       apply_world = idx < 5 # world layers (UI is layer 5)
       apply_shake = apply_world || @cam_shake_include_ui
-      apply_camera_transform_to_renderables!(layer, apply_world_transform: apply_world, apply_shake: apply_shake)
+      apply_camera_transform_to_renderables!(
+        layer,
+        apply_world_transform: apply_world,
+        apply_shake: apply_shake
+      )
     end
     outputs.primitives << l00
     outputs.primitives << all_render_layers
@@ -541,21 +558,37 @@ class Game
     end
   end
 
-  def apply_camera_transform_to_renderables!(renderables, apply_world_transform:, apply_shake: true)
+  def apply_camera_transform_to_renderables!(
+    renderables,
+    apply_world_transform:,
+    apply_shake: true
+  )
     return if renderables.nil?
     renderables.map! do |r|
       if r.is_a?(Array)
-        apply_camera_transform_to_renderables!(r, apply_world_transform: apply_world_transform, apply_shake: apply_shake)
+        apply_camera_transform_to_renderables!(
+          r,
+          apply_world_transform: apply_world_transform,
+          apply_shake: apply_shake
+        )
         r
       elsif r.is_a?(Hash)
-        apply_camera_transform_to_hash!(r, apply_world_transform: apply_world_transform, apply_shake: apply_shake)
+        apply_camera_transform_to_hash!(
+          r,
+          apply_world_transform: apply_world_transform,
+          apply_shake: apply_shake
+        )
       else
         r
       end
     end
   end
 
-  def apply_camera_transform_to_hash!(h, apply_world_transform:, apply_shake: true)
+  def apply_camera_transform_to_hash!(
+    h,
+    apply_world_transform:,
+    apply_shake: true
+  )
     return h if h.nil?
     ox = 0.0
     oy = 0.0
@@ -568,24 +601,12 @@ class Game
       oy += @cam_shake_offset_y
     end
 
-    if h.key?(:x)
-      h[:x] = h[:x].to_f + ox
-    end
-    if h.key?(:y)
-      h[:y] = h[:y].to_f + oy
-    end
-    if h.key?(:x1)
-      h[:x1] = h[:x1].to_f + ox
-    end
-    if h.key?(:y1)
-      h[:y1] = h[:y1].to_f + oy
-    end
-    if h.key?(:x2)
-      h[:x2] = h[:x2].to_f + ox
-    end
-    if h.key?(:y2)
-      h[:y2] = h[:y2].to_f + oy
-    end
+    h[:x] = h[:x].to_f + ox if h.key?(:x)
+    h[:y] = h[:y].to_f + oy if h.key?(:y)
+    h[:x1] = h[:x1].to_f + ox if h.key?(:x1)
+    h[:y1] = h[:y1].to_f + oy if h.key?(:y1)
+    h[:x2] = h[:x2].to_f + ox if h.key?(:x2)
+    h[:y2] = h[:y2].to_f + oy if h.key?(:y2)
     h
   end
 
@@ -646,6 +667,23 @@ class Game
     }
   end
 
+  def hp_shards_label
+    {
+      x: GTK.args.grid.w / 2 - 32 - 80 + 16 - 32,
+      y: GTK.args.grid.h - 20,
+      size_px: 18,
+      font: $FONT,
+      text: "+#{$player.hp_shards}/3",
+      anchor_x: 0.5,
+      anchor_y: 0.5,
+      r: 255,
+      g: 0,
+      b: 255,
+      a: @hp_shard_label_a,
+      primitive_marker: :label
+    }
+  end
+
   def hp_label
     f_i = 0.frame_index(count: 4, hold_for: 15, repeat: true)
     icon = {
@@ -686,6 +724,23 @@ class Game
     }
 
     { icon: icon, label: label }
+  end
+
+  def focus_shards_label
+    {
+      x: GTK.args.grid.w / 2 + 32 + 48 + 16 - 32,
+      y: GTK.args.grid.h - 20,
+      size_px: 18,
+      font: $FONT,
+      text: "+#{$player.focus_shards}/3",
+      anchor_x: 0.5,
+      anchor_y: 0.5,
+      r: 255,
+      g: 0,
+      b: 255,
+      a: @focus_shard_label_a,
+      primitive_marker: :label
+    }
   end
 
   def focus_label

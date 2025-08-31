@@ -26,7 +26,9 @@ class Player
        :prev_loadout_potions,
        :feathers,
        :status_effects,
-       :potion_animations
+       :potion_animations,
+       :hp_shards,
+       :focus_shards
 
   def initialize
     $player = self

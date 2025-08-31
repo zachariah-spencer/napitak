@@ -22,7 +22,8 @@ class RewardCard < Card
         @fw = 150
         @fh = 150
         @f_pos.y =
-          @f_pos.y + (Math.sin(@floating_seed + Kernel.tick_count * 0.01) * 0.15)
+          @f_pos.y +
+            (Math.sin(@floating_seed + Kernel.tick_count * 0.01) * 0.15)
         @f_angle = Math.sin(@floating_seed + Kernel.tick_count * 0.01) * 2
       end
     end
@@ -70,17 +71,23 @@ class RewardCard < Card
   end
 
   def use()
-    GameUtils.sparkle_particle(x: @pos.x + @w / 2, y: @pos.y + @h / 2, r: 0, g: 255, b: 255)
+    GameUtils.sparkle_particle(
+      x: @pos.x + @w / 2,
+      y: @pos.y + @h / 2,
+      r: 0,
+      g: 255,
+      b: 255
+    )
     $AUDIO_SERVICE.play_sound(:loot_grabbed)
-    
+
     if @id == "s001"
       #inc focus
       $AUDIO_SERVICE.play_sound(:upgrade_selected)
-      $player.maximum_focus += 1
+      $player.inc_focus_shards
     elsif @id == "s002"
       #inc hp
       $AUDIO_SERVICE.play_sound(:upgrade_selected)
-      $player.maximum_hp += 5
+      $player.inc_hp_shards
     else
       $AUDIO_SERVICE.play_sound(:bag_insert)
       $player.ingredients.add(
