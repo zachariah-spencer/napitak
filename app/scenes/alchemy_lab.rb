@@ -79,7 +79,7 @@ class AlchemyLab < Scene
 
     @ing_menu_widget =
       ScrollListWidget.new(
-        items: [IngredientCard.new("i005")],
+        items: [],
         x: 16,
         y: GTK.args.grid.h / 2 - 245,
         w: 96,
