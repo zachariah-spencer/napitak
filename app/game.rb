@@ -147,6 +147,12 @@ class Game
     $encounter_manager.reset!
     @player.reset!
 
+    if $files.save_data["settings"].key?("replay_tutorial") && $files.save_data["settings"]["replay_tutorial"]
+      @input_locked = true
+      change_scene(prev_sc: "", next_scene: "intro", quick: true)
+      return
+    end
+
     # if it is not the players first time playing
     if @runs_completed && @runs_completed > 0 || @tutorial_completed
       change_scene(prev_sc: "", next_scene: "map", quick: true)

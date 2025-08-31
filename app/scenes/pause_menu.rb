@@ -95,6 +95,9 @@ class PauseMenu < Scene
     sfx_start_x = sfx_min_x + (sfx_volume * (sfx_max_x - sfx_min_x))
     @sfx_fader_handle = fader_handle(sfx_start_x, (GTK.args.grid.h - 48 - 128 - 96 - 96 - 48 - 9), sfx_min_x, sfx_max_x, :sfx)
 
+    @replay_tutorial_checked = $files.save_data["settings"].key?("replay_tutorial") ? $files.save_data["settings"]["replay_tutorial"] : false
+    @checkbox_a = @replay_tutorial_checked ? 180 : 0
+    @checkbox_da = @replay_tutorial_checked ? 180 : 0
     @l0 = []
     @l1 = []
     @l2 = []
@@ -128,6 +131,12 @@ class PauseMenu < Scene
   def calc_main
     if @restart_run_btn.clicked?
       $game.new_run
+    end
+
+    if Geometry.intersect_rect?(GTK.args.inputs.mouse, replay_tutorial_checkbox_rect) && GTK.args.inputs.mouse.click
+      @replay_tutorial_checked = !@replay_tutorial_checked
+      $files.save_data["settings"]["replay_tutorial"] = @replay_tutorial_checked
+      puts $files.save_data
     end
 
     if @journal_btn.clicked?
@@ -253,6 +262,15 @@ class PauseMenu < Scene
     $AUDIO_SERVICE.set_volume(channel: fader.control, gain: fader.percentage)
   end
 
+  def replay_tutorial_checkbox_rect
+    [
+      96 - 16,
+      32,
+      32,
+      32,
+    ]
+  end
+
   def pre_render(screen)
     # Clear buffers
     @l0.clear
@@ -302,8 +320,62 @@ class PauseMenu < Scene
     @l3 << [@back_btn.prefab]
     case screen
     when "main"
+      replay_tutorial_label = {
+      x: 96,
+      y: 64 + 32,
+      alignment_enum: 1,
+      anchor_x: 0.5,
+      anchor_y: 0.5,
+      size_px: 18,
+      r: 255,
+      g: 255,
+      b: 255,
+      text: "Replay Tutorial",
+      font: $FONT,
+      primitive_marker: :label
+    }
+
+    checkbox_frames = Numeric.frame_index(
+      start_at: 0,
+      hold_for: 10,
+      count: 4,
+      repeat: true
+    )
+
+    replay_tutorial_checkbox_border = {
+      x: 96 - 16,
+      y: 32,
+      w: 32,
+      h: 32,
+      angle: 0,
+      r: 255,
+      g: 255,
+      b: 255,
+      a: 255,
+      path: "sprites/button_frame-128x128-sheet-4.png",
+      primitive_marker: :sprite,
+      tile_x: 128 * checkbox_frames,
+      tile_y: 0,
+      tile_w: 128,
+      tile_h: 128
+    }
+    @checkbox_da = @replay_tutorial_checked ? 180 : 0
+    @checkbox_a = @checkbox_a.lerp(@checkbox_da, 0.2)
+    replay_tutorial_checkbox = {
+      x: 96 - 9,
+      y: 32 + 7,
+      w: 18,
+      h: 18,
+      angle: 0,
+      r: 255,
+      g: 255,
+      b: 255,
+      a: @checkbox_a,
+      primitive_marker: :solid
+    }
+
       @l0 << [background_solid, background]
-      @l4 << [encounter_label]
+      @l4 << [encounter_label, replay_tutorial_label, replay_tutorial_checkbox_border, replay_tutorial_checkbox]
       @l3 << [@journal_btn.prefab, @settings_btn.prefab, @quit_btn.prefab, @restart_run_btn.prefab, @help_btn.prefab]
       @back_btn.set_active(false)
     when "settings"
