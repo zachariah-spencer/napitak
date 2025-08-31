@@ -15,7 +15,7 @@ class RewardsScreen < Scene
     @loot_label_alpha = 255
     @final_message_alpha = 0
     @loot_label_y = GTK.args.grid.h / 2 - 80
-    @choices_y = GTK.args.grid.h / 2 - 256 - 64
+    @choices_y = GTK.args.grid.h / 2 - 256 - 64 + 80
 
     @upgrades = {}
     hp_upgrade_card = RewardCard.new("s001")
@@ -49,7 +49,7 @@ class RewardsScreen < Scene
     @loot_label_alpha = @loot_label_alpha.lerp(0, 0.08) if @looting_upgrades || @choosing_ended
     @final_message_alpha = @final_message_alpha.lerp( 255, 0.008) if @outroing
     @loot_label_y = @loot_label_y.lerp(GTK.args.grid.h / 2 + 200, 0.05) if @looting_ingredients
-    @choices_y = @choices_y.lerp(GTK.args.grid.h / 2 - 128, 0.05) if @looting_ingredients
+    @choices_y = @choices_y.lerp(GTK.args.grid.h / 2, 0.05) if @looting_ingredients
     calc_card_positions
     if !$game.input_locked
       $player.hovered_cards =
@@ -238,7 +238,7 @@ class RewardsScreen < Scene
 
   def calc_card_positions
     @upgrades.each_with_index do |(id, c), i|
-      c.f_pos.y = GTK.args.grid.h / 2 + 12
+      c.f_pos.y = GTK.args.grid.h / 2 + 12 + 80
       c.calc_position @upgrades.length, i
       c.tick
     end
