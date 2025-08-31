@@ -113,7 +113,7 @@ class CollectionCard < Card
   end
 
   def rect
-    { id: @entity_id, x: @pos.x, y: @pos.y, w: @w, h: @h, angle: @angle }
+    { id: @entity_id, x: @pos.x, y: @pos.y, w: @w, h: @h, angle: @angle, anchor_x: 0.5, anchor_y: 0.5 }
   end
 
   def prefab
@@ -124,6 +124,8 @@ class CollectionCard < Card
       h: @h,
       angle: @angle,
       path: @card_composite_sprite_ref,
+      anchor_x: 0.5,
+      anchor_y: 0.5,
       a: @faded ? 60 : 255,
       primitive_marker: :sprite
     }
@@ -164,8 +166,8 @@ class CollectionCard < Card
     else
       @w = @w.lerp 512, 0.2
       @h = @h.lerp 512, 0.2
-      @pos.x = @pos.x.lerp GTK.args.grid.w / 2 - 256, 0.2
-      @pos.y = @pos.y.lerp GTK.args.grid.h / 2 - 256, 0.2
+      @pos.x = @pos.x.lerp GTK.args.grid.w / 2, 0.2
+      @pos.y = @pos.y.lerp GTK.args.grid.h / 2, 0.2
     end
 
   end
@@ -492,8 +494,8 @@ end
       @card_composite_sprite_ref
     ].primitives << parsed_name.map_with_index do |s, i|
       {
-        x: @w / 2,
-        y: @h - 128,
+        x: (@w / 2),
+        y: (@h - 128),
         text: "#{s}",
         font: $FONT,
         anchor_x: 0.5,

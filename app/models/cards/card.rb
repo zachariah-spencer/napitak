@@ -113,7 +113,6 @@ class Card
     calc_render_target(GTK.args)
 
     if @marked_for_removal
-      puts "HERE?"
       @fw = 0
       @fh = 0
 
@@ -130,7 +129,7 @@ class Card
   end
 
   def rect
-    { id: @entity_id, x: @pos.x, y: @pos.y, w: @w, h: @h, angle: @angle }
+    { id: @entity_id, x: @pos.x, y: @pos.y, w: @w, h: @h, angle: @angle, anchor_x: 0.5, anchor_y: 0.5 }
   end
 
   def calc_hover
@@ -169,6 +168,8 @@ class Card
       y: @pos.y,
       w: @w,
       h: @h,
+      anchor_x: 0.5,
+      anchor_y: 0.5,
       angle: @angle,
       path: @card_composite_sprite_ref,
       primitive_marker: :sprite

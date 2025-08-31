@@ -104,6 +104,8 @@ class RewardCard < Card
       h: @h,
       angle: @angle,
       path: @card_composite_sprite_ref,
+      anchor_x: 0.5,
+      anchor_y: 0.5,
       primitive_marker: :sprite
     }
     return card_sprite

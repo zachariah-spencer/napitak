@@ -365,7 +365,7 @@ class Game
   end
 
   def calc_view_collection_inputs()
-    if !@paused
+    if !@paused && !$game.input_locked
       if GTK.args.inputs.keyboard.key_down.tab ||
            GTK.args.inputs.mouse.click &&
              GTK.args.inputs.mouse.intersect_rect?(@ing_col_btn) &&

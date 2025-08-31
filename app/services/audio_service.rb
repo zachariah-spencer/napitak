@@ -225,12 +225,15 @@ class AudioService
 
   def set_volume(channel:, gain:)
     @volumes[channel] = gain
-
-    GTK.args.audio[:bg_music].gain = calc_song_volume if channel != :sfx
+    # Only adjust bg music if present and not an sfx-only change
+    if channel != :sfx && GTK.args.audio[:bg_music]
+      GTK.args.audio[:bg_music].gain = calc_song_volume
+    end
   end
 
   def play_song(song)
-    return if @current_song == @songs[song].dup
+    # If already playing this song, do nothing
+    return if @current_song == song && GTK.args.audio[:bg_music]
     if !@current_song
       @current_song = song
       GTK.args.audio[:bg_music] = @songs[song].dup
@@ -244,9 +247,9 @@ class AudioService
 
   def stop_song
     #FIXME: Implement method here
-    if GTK.args.audio[:bg_music]
-      GTK.args.audio[:bg_music] = GTK.args.audio[:bg_music].dup
-    end
+    # Immediately stop and clear bg music entries
+    GTK.args.audio[:bg_music] = nil if GTK.args.audio[:bg_music]
+    GTK.args.audio[:bg_music_fade] = nil if GTK.args.audio[:bg_music_fade]
     @current_song = nil
   end
 
@@ -291,11 +294,14 @@ class AudioService
       # decrease by 1% every frame
       GTK.args.audio[:bg_music].gain -= 0.002
       # delete audio when it's at 0%
-      GTK.args.audio[:bg_music] = nil if GTK.args.audio[:bg_music].gain <= 0.0
+      if GTK.args.audio[:bg_music].gain <= 0.0
+        GTK.args.audio[:bg_music] = nil
+      end
     end
   end
 
   def calc_song_volume
+    return 0.0 unless @current_song && @songs[@current_song]
     (@songs[@current_song].gain * @volumes[:music] * @volumes[:master])
   end
 
@@ -311,9 +317,11 @@ class AudioService
     end
 
     # decrease the volume of cross fade bg music until it's 0.0, then delete it
-    if GTK.args.audio[:bg_music_fade] && GTK.args.audio[:bg_music_fade].gain > 0.0
-      # decrease by 1% every frame
-      GTK.args.audio[:bg_music_fade].gain -= 0.0008
+    if GTK.args.audio[:bg_music_fade]
+      GTK.args.audio[:bg_music_fade].gain -= 0.0008 if GTK.args.audio[:bg_music_fade].gain && GTK.args.audio[:bg_music_fade].gain > 0.0
+      if !GTK.args.audio[:bg_music_fade].gain || GTK.args.audio[:bg_music_fade].gain <= 0.0
+        GTK.args.audio[:bg_music_fade] = nil
+      end
     end
   end
 

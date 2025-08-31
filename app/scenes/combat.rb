@@ -875,14 +875,14 @@ class Combat < Scene
               .sort_by { |card| card.pos.x }
               .map { |card| card.entity_id }
 
-          # Calculate the center position of the dragged card.
-          dragged_center = c_ref.pos[:x] + (c_ref.w / 2)
+          # Calculate the center position of the dragged card (pos is center).
+          dragged_center = c_ref.pos[:x]
 
           # Determine where to insert the dragged card.
           new_index =
             sorted_ids.find_index do |card_id|
               card = @hand_manager.hand[card_id]
-              dragged_center < (card.pos.x + (card.w / 2))
+              dragged_center < card.pos.x
             end
           new_index ||= sorted_ids.length
           sorted_ids.insert(new_index, state.currently_dragging_card_id)

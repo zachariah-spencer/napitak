@@ -29,8 +29,9 @@ class Map < Scene
 
     @choices.each_with_index do |c, idx|
       c.instant_set_position(
-        x: (start_x + spacing * idx) - (c.fw / 2),
-        y: GTK.args.grid.h / 2 - 112.5
+        # pos is center; no need to subtract half width
+        x: (start_x + spacing * idx),
+        y: GTK.args.grid.h / 2
       )
     end
 
@@ -61,8 +62,9 @@ class Map < Scene
       if c == @selected_card_ref && @selection_made_tick.elapsed_time >= 0.1.seconds
         c.fw = 300
         c.fh = 300
-        c.f_pos.x = GTK.args.grid.w / 2 - (c.fw / 2)
-        c.f_pos.y = GTK.args.grid.h / 2 - (c.fh / 2)
+        # pos is center (anchor 0.5)
+        c.f_pos.x = GTK.args.grid.w / 2
+        c.f_pos.y = GTK.args.grid.h / 2
       end
     end
 

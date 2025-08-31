@@ -70,10 +70,10 @@ class AlchemyLab < Scene
     card_size = 80
     start_x =
       GTK.args.grid.w / 2 -
-        (((padding + card_size) / 2) * @recipe_book.unlocked_bases.size)
+        ((((padding + (card_size)) / 2) - 13)* @recipe_book.unlocked_bases.size)
     @recipe_book.unlocked_bases.each_with_index do |base_id, i|
       c = IngredientGeneratorCard.new(base_id)
-      c.instant_set_position(x: start_x + (i * (padding + card_size)), y: 20)
+      c.instant_set_position(x: start_x + (i * (padding + card_size)), y: 60)
       @ingredient_generators[c.id] = c
     end
 
@@ -225,8 +225,8 @@ class AlchemyLab < Scene
       @selected_ingredients.clear
 
       potion.instant_set_position(
-        x: GTK.args.grid.w / 2 - (potion.w / 2),
-        y: GTK.args.grid.h / 2 - (potion.h / 2)
+        x: GTK.args.grid.w / 2,
+        y: GTK.args.grid.h / 2
       )
 
       if !GameUtils.is_potion(potion.id)
@@ -287,12 +287,16 @@ class AlchemyLab < Scene
 
   def calc_selected_positions
     spacing = 24
-    half_total_width =
-      (@selected_ingredients.keys.length * (150 + spacing)) / 2.0
-    start_x = GTK.args.grid.w / 2 - half_total_width
+    card_w = 150
+    count = @selected_ingredients.keys.length
+    return if count <= 0
+
+    total_width = (count * card_w) + ((count - 1) * spacing)
+    start_x = GTK.args.grid.w / 2 - (total_width / 2.0) + (card_w / 2.0)
+
     @selected_ingredients.each_with_index do |(id, card), i|
       card.f_pos.y = 400
-      card.f_pos.x = start_x + (i * (150 + spacing))
+      card.f_pos.x = start_x + (i * (card_w + spacing))
     end
   end
 
@@ -602,6 +606,31 @@ class AlchemyLab < Scene
       l2
     when 3
       l3 << [front_card, sel_cards]
+
+      padding = 40
+      card_size = 80
+      start_x =
+        GTK.args.grid.w / 2 -
+          (((padding + card_size) / 2) * @recipe_book.unlocked_bases.size)
+      hotkey_labels = [] 
+      ($recipe_book.unlocked_bases.size).times_with_index do |i|
+        hotkey_labels << {
+          x: start_x + 40 + (i * (padding + card_size)),
+          y: 115,
+          alignment_enum: 1,
+          anchor_x: 0.5,
+          anchor_y: 0.5,
+          size_px: 16,
+          r: 255,
+          g: 255,
+          b: 255,
+          text: "[#{(i + 1)}]",
+          font: $FONT,
+          primitive_marker: :label
+        }
+      end
+
+      l3 << hotkey_labels if GTK.args.gtk.platform?(:desktop)
       l3
     when 4
       l4 << [@brew_btn.prefab] if @craftable_potion
@@ -800,7 +829,9 @@ class AlchemyLab < Scene
       .merge(@selected_ingredients)
       .merge(@visible_potions)
       .each do |id, card|
-        rects << { x: card.pos.x, y: card.pos.y, w: card.w, h: card.h, id: id }
+        r = card.rect.dup
+        r[:id] = id
+        rects << r
       end
     rects
   end
@@ -814,7 +845,9 @@ class AlchemyLab < Scene
         .merge(@ingredient_generators)
 
     cards.each do |id, card|
-      rects << { x: card.pos.x, y: card.pos.y, w: card.w, h: card.h, id: id }
+      r = card.rect.dup
+      r[:id] = id
+      rects << r
     end
     rects
   end
@@ -892,11 +925,11 @@ class AlchemyLab < Scene
           c_ref.activation_time = Kernel.tick_count
           c_u_m = c_ref.rect
           c_ref.instant_set_position(
-            x: GTK.args.inputs.mouse.x - 80,
-            y: GTK.args.inputs.mouse.y - 80
+            x: GTK.args.inputs.mouse.x,
+            y: GTK.args.inputs.mouse.y
           )
-          c_u_m.x = GTK.args.inputs.mouse.x - 80
-          c_u_m.y = GTK.args.inputs.mouse.y - 80
+          c_u_m.x = GTK.args.inputs.mouse.x
+          c_u_m.y = GTK.args.inputs.mouse.y
           c_ref.grab
         end
       end
@@ -915,11 +948,11 @@ class AlchemyLab < Scene
           c_ref.activation_time = Kernel.tick_count
           c_u_m = c_ref.rect
           c_ref.instant_set_position(
-            x: GTK.args.inputs.mouse.x - 80,
-            y: GTK.args.inputs.mouse.y - 80
+            x: GTK.args.inputs.mouse.x,
+            y: GTK.args.inputs.mouse.y
           )
-          c_u_m.x = GTK.args.inputs.mouse.x - 80
-          c_u_m.y = GTK.args.inputs.mouse.y - 80
+          c_u_m.x = GTK.args.inputs.mouse.x
+          c_u_m.y = GTK.args.inputs.mouse.y
           c_ref.grab
         end
       end
@@ -942,11 +975,11 @@ class AlchemyLab < Scene
           c_ref.activation_time = Kernel.tick_count
           c_u_m = c_ref.rect
           c_ref.instant_set_position(
-            x: GTK.args.inputs.mouse.x - 80,
-            y: GTK.args.inputs.mouse.y - 80
+            x: GTK.args.inputs.mouse.x,
+            y: GTK.args.inputs.mouse.y
           )
-          c_u_m.x = GTK.args.inputs.mouse.x - 80
-          c_u_m.y = GTK.args.inputs.mouse.y - 80
+          c_u_m.x = GTK.args.inputs.mouse.x
+          c_u_m.y = GTK.args.inputs.mouse.y
           c_ref.grab
           draw_card(c_ref)
         end
@@ -1099,10 +1132,11 @@ class AlchemyLab < Scene
   end
 
   def selection_square_prefab(x:, y:, f_i:)
-    puts "FRAME_INDEX: #{f_i}"
     {
-      x: x - 8,
-      y: y - 12,
+      x: x,
+      y: y,
+      anchor_x: 0.5,
+      anchor_y: 0.5,
       w: 170,
       h: 170,
       a: 255,
@@ -1136,9 +1170,33 @@ class AlchemyLab < Scene
   end
 
   def calc_keyboard_inputs
-    return unless @craftable_potion and inputs.keyboard.key_down.space
+    kb = GTK.args.inputs.keyboard
 
+    if kb.key_down.one
+      gen_ing_center("i001")
+    elsif kb.key_down.two
+      gen_ing_center("i002")
+    elsif kb.key_down.three
+      gen_ing_center("i003")
+    elsif kb.key_down.four && $recipe_book.unlocked_bases.include?("i004")
+      gen_ing_center("i004")
+    elsif kb.key_down.five && $recipe_book.unlocked_bases.include?("i005")
+      gen_ing_center("i005")
+    end
+    
+    return unless @craftable_potion and inputs.keyboard.key_down.space
     play_brew_anim
+  end
+
+  def gen_ing_center(ing_id_string)
+    $AUDIO_SERVICE.play_sound(:get_fresh_ingredient)
+    c_ref = GameUtils.gen_new_card(ing_id_string)
+    c_ref.instant_set_position(
+      x: GTK.args.grid.w / 2,
+      y: GTK.args.grid.h / 2
+    )
+    draw_card(c_ref)
+    puts "ingredients on screen: #{@ingredients_on_screen.all_cards}"
   end
 
   def reorder_cards(latest_card)

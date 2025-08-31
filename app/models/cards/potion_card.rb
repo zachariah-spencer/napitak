@@ -510,12 +510,14 @@ end
       if @flipped
         @fw = 256 + 64
         @fh = 256 + 64
-        @f_pos.x = GTK.args.grid.w / 2 - 128 - 32
-        @f_pos.y = GTK.args.grid.h / 2 - 128 - 32
+        # Position flipped card centered on screen (pos is center; anchor is 0.5)
+        @f_pos.x = GTK.args.grid.w / 2
+        @f_pos.y = GTK.args.grid.h / 2
       else
         @fw = 128 + 32
         @fh = 128 + 32
-        x_s = (GTK.args.grid.w / 2) - (num_cards * ((@w + @padding) / 2))
+        # Start x for evenly spaced centers around screen center
+        x_s = (GTK.args.grid.w / 2) - ((num_cards - 1) * ((@w + @padding) / 2.0))
         if !@grabbed
           @f_pos.x = x_s + (index * (@w + @padding)) - 40 # slight offset to x position if cards are "fanned" because the angling makes them look off-center otherwise
           max_angle = -15.0 # Maximum rotation in degrees for the extreme cards
@@ -525,22 +527,22 @@ end
           normalized_distance = (index - center_index).abs / center_index
           if num_cards == 2
             @f_angle = (relative_index / center_index) * max_angle
-            @f_pos.y = max_y
+            @f_pos.y = max_y + (@h / 2)
           elsif num_cards == 3
             @f_angle = (relative_index / center_index) * 0.75 * max_angle
-            @f_pos.y = max_y * (1 - (1 * (normalized_distance)**2)) + 25
+            @f_pos.y = max_y * (1 - (1 * (normalized_distance)**2)) + 25 + (@h / 2)
           elsif num_cards == 4
             @f_angle = (relative_index / center_index) * max_angle
-            @f_pos.y = max_y * (1 - (1.5 * (normalized_distance)**2)) + 50
+            @f_pos.y = max_y * (1 - (1.5 * (normalized_distance)**2)) + 50 + (@h / 2)
           elsif num_cards > 1
             # Calculate the card's rotation as a fraction of the maximum angle
             @f_angle = (relative_index / center_index) * max_angle
             @f_pos.y =
               max_y * (1 - (2 * (normalized_distance)**2)) +
-                (0.75 * (12.5 * num_cards)) # +  ( 2 * (normalized_distance)**3 ) ) )# LINEAR: ((1 - normalized_distance) * max_y)
+                (0.75 * (12.5 * num_cards)) + (@h / 2)# +  ( 2 * (normalized_distance)**3 ) ) )# LINEAR: ((1 - normalized_distance) * max_y)
           else
             @f_angle = 0.0
-            @f_pos.y = max_y
+            @f_pos.y = max_y + (@h / 2)
           end
         else
           @f_angle = 0

@@ -39,12 +39,15 @@ class Collection < Scene
     @buttons = [@prev_pg_btn, @next_pg_btn, @back_btn]
 
     collection_array.each do |card|
+      w = 185
+      h = 185
       @recipe_cards << CollectionCard.new(
         page: page,
-        x: start_x + ((200 + spacing) * col),
-        y: (GTK.args.grid.h - 90) - ((285 - spacing) * row),
-        w: 185,
-        h: 185,
+        # adjust to center-based card position (anchor 0.5)
+        x: start_x + ((200 + spacing) * col) + (w / 2),
+        y: (GTK.args.grid.h - 90) - ((285 - spacing) * row) + (h / 2),
+        w: w,
+        h: h,
         id: card.id,
         uses_left: card.uses_left
       )

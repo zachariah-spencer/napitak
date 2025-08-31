@@ -148,8 +148,8 @@ class AlchemyTable < Scene
       @selected_ingredients.clear
 
       potion.instant_set_position(
-        x: GTK.args.grid.w / 2 - (potion.w / 2),
-        y: GTK.args.grid.h / 2 - (potion.h / 2)
+        x: GTK.args.grid.w / 2,
+        y: GTK.args.grid.h / 2
       )
       if !GameUtils.is_potion(potion.id)
         @visible_ingredients[potion.entity_id] = potion
@@ -206,12 +206,16 @@ class AlchemyTable < Scene
 
   def calc_selected_positions
     spacing = 24
-    half_total_width =
-      (@selected_ingredients.keys.length * (150 + spacing)) / 2.0
-    start_x = GTK.args.grid.w / 2 - half_total_width
+    card_w = 150
+    count = @selected_ingredients.keys.length
+    return if count <= 0
+
+    total_width = (count * card_w) + ((count - 1) * spacing)
+    start_x = GTK.args.grid.w / 2 - (total_width / 2.0) + (card_w / 2.0)
+
     @selected_ingredients.each_with_index do |(id, card), i|
       card.f_pos.y = 400
-      card.f_pos.x = start_x + (i * (150 + spacing))
+      card.f_pos.x = start_x + (i * (card_w + spacing))
     end
   end
 
@@ -615,7 +619,9 @@ class AlchemyTable < Scene
       .merge(@selected_ingredients)
       .merge(@visible_potions)
       .each do |id, card|
-        rects << { x: card.pos.x, y: card.pos.y, w: card.w, h: card.h, id: id }
+        r = card.rect.dup
+        r[:id] = id
+        rects << r
       end
     rects
   end
@@ -628,7 +634,9 @@ class AlchemyTable < Scene
         .merge(@visible_potions)
 
     cards.each do |id, card|
-      rects << { x: card.pos.x, y: card.pos.y, w: card.w, h: card.h, id: id }
+      r = card.rect.dup
+      r[:id] = id
+      rects << r
     end
     rects
   end
@@ -683,11 +691,11 @@ class AlchemyTable < Scene
           c_ref.activation_time = Kernel.tick_count
           c_u_m = c_ref.rect
           c_ref.instant_set_position(
-            x: GTK.args.inputs.mouse.x - 80,
-            y: GTK.args.inputs.mouse.y - 80
+            x: GTK.args.inputs.mouse.x,
+            y: GTK.args.inputs.mouse.y
           )
-          c_u_m.x = GTK.args.inputs.mouse.x - 80
-          c_u_m.y = GTK.args.inputs.mouse.y - 80
+          c_u_m.x = GTK.args.inputs.mouse.x
+          c_u_m.y = GTK.args.inputs.mouse.y
           c_ref.grab
         end
       end
@@ -814,8 +822,10 @@ class AlchemyTable < Scene
   def selection_square_prefab(x:, y:, f_i:)
     puts "FRAME_INDEX: #{f_i}"
     {
-      x: x - 8,
-      y: y - 12,
+      x: x,
+      y: y,
+      anchor_x: 0.5,
+      anchor_y: 0.5,
       w: 170,
       h: 170,
       a: 255,

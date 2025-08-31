@@ -77,12 +77,14 @@ class ShopItemCard < Card
       h: @h,
       angle: @angle,
       path: @card_composite_sprite_ref,
+      anchor_x: 0.5,
+      anchor_y: 0.5,
       primitive_marker: :sprite
     }
   end
 
   def rect
-    { id: @entity_id, x: @pos.x, y: @pos.y, w: @w, h: @h, angle: @angle }
+    { id: @entity_id, x: @pos.x, y: @pos.y, w: @w, h: @h, angle: @angle, anchor_x: 0.5, anchor_y: 0.5 }
   end
 
   def calc_position(num_cards, index)

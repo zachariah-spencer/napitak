@@ -26,9 +26,10 @@ class Shop < Scene
     start_x = (GTK.args.grid.w - row_width) / 2           # 256px when grid.w = 1280
     @items.each_with_index do |item, i|
       if i < (@items.length / 2)
-        item.instant_set_position(x: item.pos.x, y: 512 - 128)
+        # pos is center (anchor 0.5), so place at row center
+        item.instant_set_position(x: item.pos.x, y: 512 - 64)
       else
-        item.instant_set_position(x: item.pos.x, y: 256 - 128)
+        item.instant_set_position(x: item.pos.x, y: 256 - 64)
       end
       row_i = i
       if row_i >= 5
@@ -38,6 +39,7 @@ class Shop < Scene
       x_pos = start_x + ((128 + spacing) * row_i)
       puts "INDEX: #{row_i}\nPOSITION SET RESULT X VAL: #{x_pos}"
 
+      # pos is center; x_pos is already the center x
       item.instant_set_position(x: x_pos, y: item.pos.y)
     end
   end
