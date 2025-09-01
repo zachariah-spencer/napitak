@@ -15,6 +15,34 @@ class EncounterCard < Card
     @fading = true
   end
 
+  def interpolate_attributes
+    @w = @w.lerp @fw, 0.2
+    @h = @h.lerp @fh, 0.2
+    if @grabbed && !@flipped
+      @vx = 0.0
+      @vy = 0.0
+      return
+    end
+
+    if @anchored
+      dx = @f_pos.x
+      dy = @f_pos.y
+    else
+      dx = (@f_pos.x + @vx)
+      dy = (@f_pos.y + @vy)
+    end
+
+    @f_pos.x = dx
+    @f_pos.y = dy
+    @pos.x = @pos.x.lerp @f_pos.x, 0.2
+    @pos.y = @pos.y.lerp @f_pos.y, 0.2
+    @angle = @angle.lerp @f_angle, 0.2
+    @tt_a = @tt_a.lerp(@tt_f_a, 0.2) if @tt_a && @tt_f_a
+
+    @vx = @vx.lerp(0, 0.4)
+    @vy = @vy.lerp(0, 0.4)
+  end
+
   def tick
     if !$game.input_locked
       calc_hover

@@ -19,18 +19,19 @@ class Map < Scene
     end
 
     count = @choices.size
-    spacing = 256 - 16
+    spacing = 64
+    card_width = @choices[0].w
     center = GTK.args.grid.w / 2
 
     # total span from first to last card
-    total_span = spacing * (count - 1)
+    total_span = (spacing + card_width) * (count - 1)
     # x-coordinate of the first card
     start_x = center - (total_span / 2.0)
 
     @choices.each_with_index do |c, idx|
       c.instant_set_position(
         # pos is center; no need to subtract half width
-        x: (start_x + spacing * idx),
+        x: (start_x + ((spacing + card_width) * idx)),
         y: GTK.args.grid.h / 2
       )
     end

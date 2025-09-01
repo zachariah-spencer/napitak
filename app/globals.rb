@@ -451,11 +451,11 @@ module GameData
   }.freeze
   SHOP_ITEMS = {
     "s001" => {
-      name: "Increased Focus",
+      name: "Focus Shard",
       path: "sprites/hexagon/blue.png"
     },
     "s002" => {
-      name: "Increased HP",
+      name: "HP Shard",
       path: "sprites/hexagon/red.png"
     }
   }.merge(IIDS)
