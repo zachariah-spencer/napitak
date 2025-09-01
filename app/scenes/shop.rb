@@ -4,13 +4,14 @@ class Shop < Scene
   def initialize()
     puts "init Shop Screen"
     @sc_id = "shop"
+    $AUDIO_SERVICE.play_song(:shop_encounter)
 
     @leave_btn =
       Button.new(
-        x: GTK.args.grid.w - 25 - 150,
-        y: 20,
-        w: 150,
-        h: 75,
+        x: GTK.args.grid.w - 64 - 32,
+        y: 64,
+        w: 96,
+        h: 48,
         text: "Leave"
       )
 
@@ -19,11 +20,12 @@ class Shop < Scene
       @items << ShopItemCard.new($SHOP_ITEMS.keys.sample)
     end
 
-    spacing = 32
+    spacing = 50
 
     num_per_row = @items.length / 2             # => 5
     row_width = (128 + spacing) * num_per_row - spacing  # 768px total
-    start_x = (GTK.args.grid.w - row_width) / 2           # 256px when grid.w = 1280
+    start_x = (GTK.args.grid.w / 2) - (row_width / 2)
+    start_x += 64    # 256px when grid.w = 1280
     @items.each_with_index do |item, i|
       if i < (@items.length / 2)
         # pos is center (anchor 0.5), so place at row center
@@ -53,6 +55,7 @@ class Shop < Scene
 
   def tick
     @items.each { |item| item.tick }
+    @leave_btn.tick
     @items.reject! { |item| item.bought_tick && item.bought_tick.elapsed_time >= 0.5.seconds}
     calc
   end
@@ -79,65 +82,36 @@ class Shop < Scene
 
     case layer_num
     when 0
-      background ||= {
+
+      bg_tile_index = 0.frame_index(24, 1.0.seconds, true)
+
+      background = {
         x: 0,
         y: 0,
-        w: GTK.args.grid.w,
-        h: GTK.args.grid.h,
+        w: 1280,
+        h: 720,
         r: 50,
         g: 50,
-        b: 70,
-        primitive_marker: :solid
+        b: 50,
+        a: 200,
+        path:
+          "sprites/background_frames/sketchybackground#{bg_tile_index + 1}.png"
       }
 
       l0 << [background]
       return l0
     when 1
-      top_panel ||= {
-        x: 0,
-        y: GTK.args.grid.h - 150,
-        w: GTK.args.grid.w,
-        h: 150,
-        r: 100,
-        g: 100,
-        b: 110,
-        a: 50,
-        primitive_marker: :solid
-      }
-
-      feathers_icon ||= {
-        x: 100,
-        y: GTK.args.grid.h - 75 - 40,
-        w: 80,
-        h: 80,
-        path: "sprites/hexagon/white.png",
-        primitive_marker: :sprite
-      }
-
-      feathers_amount ||= {
-        x: 200,
-        y: GTK.args.grid.h - 75,
-        size_enum: 3,
-        alignment_enum: 0,
-        anchor_y: 0.5,
-        text: "#{$player.feathers}",
-        r: 255,
-        g: 180,
-        b: 255,
-        primitive_marker: :label
-      }
-
-      l1 << [top_panel, feathers_icon, feathers_amount]
       return l1
     when 2
       encounter_label ||= {
         x: GTK.args.grid.w / 2,
-        y: GTK.args.grid.h - 50,
+        y: GTK.args.grid.h - 96,
         alignment_enum: 1,
-        size_px: Math.sin(Kernel.tick_count * 0.08) * 4 + 40,
+        size_px: 64,
         r: 255,
         g: 255,
         b: 255,
+        font: $FONT,
         text: "Trader",
         primitive_marker: :label
       }

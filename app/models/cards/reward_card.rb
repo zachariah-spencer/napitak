@@ -77,8 +77,8 @@ class RewardCard < Card
 
   def use()
     GameUtils.sparkle_particle(
-      x: @pos.x + @w / 2,
-      y: @pos.y + @h / 2,
+      x: @pos.x,
+      y: @pos.y,
       r: 0,
       g: 255,
       b: 255

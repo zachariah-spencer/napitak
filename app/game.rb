@@ -45,7 +45,7 @@ class Game
         hover_rect: misc_btn
       )
     @pot_col_btn = {
-      x: GTK.args.grid.w / 2 - 16 + 300 + 22,
+      x: GTK.args.grid.w / 2 - 16 + 200,
       y: GTK.args.grid.h - 32,
       w: 32,
       h: 32,
@@ -54,7 +54,7 @@ class Game
       path: "sprites/bottle.png"
     }
     @ing_col_btn = {
-      x: GTK.args.grid.w / 2 - 16 - 300,
+      x: GTK.args.grid.w / 2 - 16 - 175,
       y: GTK.args.grid.h - 32,
       w: 32,
       h: 32,
@@ -63,7 +63,7 @@ class Game
       path: "sprites/fire.png"
     }
     @pot_btn_label = {
-      x: GTK.args.grid.w / 2 - 16 + 300 + 22,
+      x: GTK.args.grid.w / 2 - 16 + 200,
       y: GTK.args.grid.h - 80,
       anchor_x: 0.5,
       anchor_y: 0.5,
@@ -76,7 +76,7 @@ class Game
       a: 255
     }
     @ing_btn_label = {
-      x: GTK.args.grid.w / 2 - 16 - 300,
+      x: GTK.args.grid.w / 2 - 16 - 175,
       y: GTK.args.grid.h - 80,
       anchor_x: 0.5,
       anchor_y: 0.5,
@@ -325,8 +325,7 @@ class Game
   end
 
   def tick
-    $player.inc_hp_shards if GTK.args.inputs.keyboard.key_down.n
-    $player.inc_focus_shards if GTK.args.inputs.keyboard.key_down.m
+    $player.feathers += 1 if GTK.args.inputs.keyboard.key_down.m
     $AUDIO_SERVICE.tick
     handle_pause
     calc_view_collection_inputs
@@ -507,6 +506,33 @@ class Game
       l5 << hp_shards_label
       l5 << focus_shards_label
     end
+
+    feathers_icon = {
+      x: GTK.args.grid.w / 2,
+      anchor_x: 0.5,
+      y: GTK.args.grid.h - 32 - 16,
+      w: 32,
+      h: 32,
+      a: 180,
+      path: "sprites/hexagon/indigo.png",
+      primitive_marker: :sprite
+    }
+
+    feathers_amount = {
+      x: GTK.args.grid.w / 2,
+      anchor_x: 0.5,
+      y: GTK.args.grid.h - 32,
+      size_px: 18,
+      anchor_y: 0.5,
+      text: "#{$player.feathers}",
+      r: 255,
+      g: 255,
+      b: 255,
+      font: $FONT,
+      primitive_marker: :label
+    }
+
+    l5 << [feathers_icon, feathers_amount]
 
     l5 << $announcement_manager&.prefab
     # render scene transition overlay
@@ -704,7 +730,7 @@ class Game
     label = {
       x: GTK.args.grid.w / 2 - 32 - 80 + 16,
       y: GTK.args.grid.h - 32,
-      size_px: 22,
+      size_px: 18,
       font: $FONT,
       text:
         (

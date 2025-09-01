@@ -483,7 +483,7 @@ module GameData
       name: "Trader",
       path: "sprites/square/white.png",
       is_combat: false,
-      chance: 2
+      chance: 500 # 2
     },
     # basic enemy
     "wolf" => {

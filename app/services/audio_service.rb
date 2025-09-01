@@ -206,6 +206,11 @@ class AudioService
         input: "sounds/music/pause_menu.ogg",
         looping: true,
         gain: 0.09
+      },
+      shop_encounter: {
+        input: "sounds/music/shop_encounter.ogg",
+        looping: true,
+        gain: 0.09
       }
     }
 

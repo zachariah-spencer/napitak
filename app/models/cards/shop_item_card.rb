@@ -22,10 +22,6 @@ class ShopItemCard < Card
     calc_render_target(GTK.args)
   end
 
-  def calc_hover
-    @hovered = Geometry.intersect_rect?(GTK.args.inputs.mouse, rect)
-  end
-
   def calc_click
     if (
          Geometry.intersect_rect?(GTK.args.inputs.mouse, rect) and
@@ -46,15 +42,24 @@ class ShopItemCard < Card
     return if $player.feathers < @price && !@bought_tick
     puts "BOUGHT #{@name}"
 
+    GameUtils.sparkle_particle(
+      x: @pos.x,
+      y: @pos.y,
+      r: 0,
+      g: 255,
+      b: 255
+    )
+    $AUDIO_SERVICE.play_sound(:loot_grabbed)
+
     $player.feathers -= @price
     @bought_tick = Kernel.tick_count
 
     if @id == "s001"
       #inc focus
-      $player.maximum_focus += 1
+      $player.inc_focus_shards
     elsif @id == "s002"
       #inc hp
-      $player.maximum_hp += 5
+      $player.inc_hp_shards
     else
       $player.ingredients.add(
         IngredientCard.new(
