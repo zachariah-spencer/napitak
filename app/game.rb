@@ -507,14 +507,23 @@ class Game
       l5 << focus_shards_label
     end
 
+    feathers_icon_fi = Numeric.frame_index(
+      start_at: 0,
+      hold_for: 10,
+      count: 4,
+      repeat: true
+    )
     feathers_icon = {
       x: GTK.args.grid.w / 2,
       anchor_x: 0.5,
       y: GTK.args.grid.h - 32 - 16,
       w: 32,
       h: 32,
-      a: 180,
-      path: "sprites/hexagon/indigo.png",
+      a: 255,
+      path: "sprites/feathers_icon-sheet-128x128-4.png",
+      tile_x: 128 * feathers_icon_fi,
+      tile_w: 128,
+      tile_h: 128,
       primitive_marker: :sprite
     }
 
