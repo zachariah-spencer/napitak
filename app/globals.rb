@@ -463,7 +463,7 @@ module GameData
   ENCOUNTERS = {
     "alchemy_lab" => {
       name: "Laboratory",
-      path: "sprites/square/indigo.png",
+      path: "sprites/laboratory_icon-sheet-512x512-3.png",
       is_combat: false,
       chance: 0
     },
