@@ -133,15 +133,15 @@ class AlchemyTable < Scene
 
   def craft(recipe_id)
     if @recipe_book.can_craft?(
-      recipe_id,
-      ingredients_inventory: @ingredients_on_screen.all_cards
-      )
+         recipe_id,
+         ingredients_inventory: @ingredients_on_screen.all_cards
+       )
       $AUDIO_SERVICE.play_sound(:brew_action_completed)
-      potion = 
+      potion =
         @recipe_book.craft(
           recipe_id,
           ingredients_inventory: @ingredients_on_screen.all_cards
-          )
+        )
       @selected_ingredients.each do |id, c|
         remove_selection_square(followed_card: c)
       end
@@ -168,23 +168,22 @@ class AlchemyTable < Scene
   end
 
   def calc_card_return(card)
-    if @card_tapped_tick && @card_tapped_tick.elapsed_time < 0.25.seconds && @card_tapped == card
+    if @card_tapped_tick && @card_tapped_tick.elapsed_time < 0.25.seconds &&
+         @card_tapped == card
       puts "return card"
       remove_selection_square(followed_card: card)
       state.currently_dragging_card_id = nil
       state.mouse_point_inside_square = nil
-      @visible_potions.reject! { |id,c| c == card }
-      @selected_ingredients.reject! { |id,c| c == card }
-      @visible_ingredients.reject! { |id,c| c == card }
+      @visible_potions.reject! { |id, c| c == card }
+      @selected_ingredients.reject! { |id, c| c == card }
+      @visible_ingredients.reject! { |id, c| c == card }
       if GameUtils.is_potion(card.id)
         @pot_menu_widget.add_item(card)
       else
         @ing_menu_widget.add_item(card)
       end
     end
-    if card != @card_tapped
-      @card_tapped = card
-    end
+    @card_tapped = card if card != @card_tapped
 
     @card_tapped_tick = Kernel.tick_count
   end
@@ -229,44 +228,8 @@ class AlchemyTable < Scene
   end
 
   def leave
-    # gather all ingredient cards to return to the player's inventory
-    new_ings = []
+    update_inventories(called_on_cleanup: true)
 
-    if @ing_menu_widget.respond_to?(:items?)
-      new_ings.concat(@ing_menu_widget.items?)
-    else
-      new_ings.concat(@ing_menu_widget.instance_variable_get(:@items))
-    end
-
-    # split cards currently on the table into ingredients and potions
-    table_cards = @visible_ingredients.values
-    selected_cards = @selected_ingredients.values
-    new_ings.concat(table_cards.reject { |c| GameUtils.is_potion(c.id) })
-    new_ings.concat(selected_cards.reject { |c| GameUtils.is_potion(c.id) })
-
-    # gather potions from the potion menu and any visible/selected potion stacks
-    new_pots = []
-
-    if @pot_menu_widget.respond_to?(:items?)
-      new_pots.concat(@pot_menu_widget.items?)
-    else
-      new_pots.concat(@pot_menu_widget.instance_variable_get(:@items))
-    end
-
-    new_pots.concat(@visible_potions.values)
-    new_pots.concat(table_cards.select { |c| GameUtils.is_potion(c.id) })
-    new_pots.concat(selected_cards.select { |c| GameUtils.is_potion(c.id) })
-    
-    new_pots.each do |c|
-      c.free_floating = false
-      c.marked_for_removal = false
-      c.needs_removed = false
-      c.fw = 160
-      c.fh = 160
-    end
-
-    @player.ingredients = Inventory.new(new_ings)
-    @player.potions = Inventory.new(new_pots)
 
     $game.change_scene(prev_sc: @sc_id, next_scene: "map")
   end
@@ -304,12 +267,9 @@ class AlchemyTable < Scene
     state.mouse_point_inside_square = nil
   end
 
-
   def calc_card_positions
     all_cards =
-      @visible_ingredients
-        .merge(@selected_ingredients)
-        .merge(@visible_potions)
+      @visible_ingredients.merge(@selected_ingredients).merge(@visible_potions)
 
     all_moveable_cards =
       @visible_ingredients.merge(@selected_ingredients).merge(@visible_potions)
@@ -320,6 +280,11 @@ class AlchemyTable < Scene
         c.mark_for_removal
         $AUDIO_SERVICE.play_sound(:remove_ingredient)
         unselect_cards(c)
+        if $player.ingredients.all_cards.include?(c)
+          $player.ingredients.remove(c)
+        end
+        $player.potions.remove(c) if $player.potions.all_cards.include?(c)
+        update_inventories
       end
       other_card_rects =
         get_all_card_rects.reject { |other_c| other_c[:id] == c.entity_id }
@@ -359,20 +324,20 @@ class AlchemyTable < Scene
     @visible_ingredients
       .merge(@visible_potions)
       .each do |id, c|
-      prefab = c.prefab
-      if GameUtils.is_potion(c)
         prefab = c.prefab
-      else
-        prefab, tooltip_prefab = c.prefab
+        if GameUtils.is_potion(c)
+          prefab = c.prefab
+        else
+          prefab, tooltip_prefab = c.prefab
+        end
+        if c.grabbed
+          front_card = prefab
+        else
+          cards.append prefab
+        end
       end
-      if c.grabbed
-        front_card = prefab
-      else
-        cards.append prefab
-      end
-    end
 
-    @selected_ingredients.each do |id, c| 
+    @selected_ingredients.each do |id, c|
       if GameUtils.is_potion(c)
         sel_cards.append(c.prefab)
       else
@@ -629,9 +594,7 @@ class AlchemyTable < Scene
   def get_all_card_rects
     rects = []
     cards =
-      @visible_ingredients
-        .merge(@selected_ingredients)
-        .merge(@visible_potions)
+      @visible_ingredients.merge(@selected_ingredients).merge(@visible_potions)
 
     cards.each do |id, card|
       r = card.rect.dup
@@ -647,6 +610,7 @@ class AlchemyTable < Scene
     @visible_ingredients[card.entity_id] = card if !GameUtils.is_potion(card.id)
     @visible_potions[card.entity_id] = card if GameUtils.is_potion(card.id)
     @ingredients_on_screen.add(card)
+    update_inventories
     card
   end
 
@@ -736,9 +700,13 @@ class AlchemyTable < Scene
         update_inventories
       end
 
-      @visible_ingredients.reject! { |id, c| c.marked_for_removal && c.w <= 5 }
-      @visible_potions.reject! { |id, c| c.marked_for_removal && c.w <= 5 }
-
+      removed_ings =
+        @visible_ingredients.reject! do |id, c|
+          c.marked_for_removal && c.w <= 5
+        end
+      removed_pots =
+        @visible_potions.reject! { |id, c| c.marked_for_removal && c.w <= 5 }
+      update_inventories if removed_ings || removed_pots
       if inputs.mouse.intersect_rect?(@pot_menu_widget.rect) &&
            GameUtils.is_potion(c_ref.id)
         c_ref.free_floating = false
@@ -793,7 +761,7 @@ class AlchemyTable < Scene
   end
 
   def toggle_card_selected(c)
-    if !c.selected
+    if !c.selected && !c.marked_for_removal
       $AUDIO_SERVICE.play_sound(:select_card)
       add_selection_square(card_to_follow: c)
       move_card(c, @selected_ingredients, @visible_ingredients)
@@ -805,20 +773,20 @@ class AlchemyTable < Scene
       c.calc_render_target(GTK.args)
     end
   end
-  
+
   def add_selection_square(card_to_follow:)
     @selection_squares << {
       card_to_follow: card_to_follow,
       start_tick: Numeric.rand(-180..0)
     }
   end
-  
+
   def remove_selection_square(followed_card:)
     @selection_squares.reject! do |square|
       square.card_to_follow == followed_card
     end
   end
-  
+
   def selection_square_prefab(x:, y:, f_i:)
     puts "FRAME_INDEX: #{f_i}"
     {
@@ -863,7 +831,7 @@ class AlchemyTable < Scene
 
     play_brew_anim
   end
-  
+
   def reorder_cards(latest_card)
     if @visible_ingredients.key?(latest_card.entity_id)
       HashOrderUtils.back(@visible_ingredients, latest_card.entity_id)
@@ -873,7 +841,7 @@ class AlchemyTable < Scene
     end
   end
 
-  def update_inventories
+  def update_inventories(called_on_cleanup: false)
     # gather all ingredient cards to return to the player's inventory
     new_ings = []
 
@@ -882,6 +850,19 @@ class AlchemyTable < Scene
     else
       new_ings.concat(@ing_menu_widget.instance_variable_get(:@items))
     end
+    # split cards currently on the table into ingredients and potions
+    # ignore anything flagged for removal so it doesn't linger in inventories
+    table_cards =
+      @visible_ingredients.values.reject do |c|
+        c.marked_for_removal || c.needs_removed
+      end
+    selected_cards =
+      @selected_ingredients.values.reject do |c|
+        c.marked_for_removal || c.needs_removed
+      end
+    new_ings.concat(table_cards.reject { |c| GameUtils.is_potion(c.id) })
+    new_ings.concat(selected_cards.reject { |c| GameUtils.is_potion(c.id) })
+
     # gather potions from the potion menu and any visible/selected potion stacks
     new_pots = []
 
@@ -889,6 +870,24 @@ class AlchemyTable < Scene
       new_pots.concat(@pot_menu_widget.items?)
     else
       new_pots.concat(@pot_menu_widget.instance_variable_get(:@items))
+    end
+
+    new_pots.concat(
+      @visible_potions.values.reject do |c|
+        c.marked_for_removal || c.needs_removed
+      end
+    )
+    new_pots.concat(table_cards.select { |c| GameUtils.is_potion(c.id) })
+    new_pots.concat(selected_cards.select { |c| GameUtils.is_potion(c.id) })
+
+    if called_on_cleanup
+      new_pots.each do |c|
+        c.free_floating = false
+        c.marked_for_removal = false
+        c.needs_removed = false
+        c.fw = 160
+        c.fh = 160
+      end
     end
 
     @player.ingredients = Inventory.new(new_ings)

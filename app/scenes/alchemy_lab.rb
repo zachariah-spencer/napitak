@@ -70,7 +70,10 @@ class AlchemyLab < Scene
     card_size = 80
     start_x =
       GTK.args.grid.w / 2 -
-        ((((padding + (card_size)) / 2) - 13)* @recipe_book.unlocked_bases.size)
+        (
+          (((padding + (card_size)) / 2) - 13) *
+            @recipe_book.unlocked_bases.size
+        )
     @recipe_book.unlocked_bases.each_with_index do |base_id, i|
       c = IngredientGeneratorCard.new(base_id)
       c.instant_set_position(x: start_x + (i * (padding + card_size)), y: 60)
@@ -103,24 +106,26 @@ class AlchemyLab < Scene
   end
 
   def calc_card_return(card)
-    if @card_tapped_tick && @card_tapped_tick.elapsed_time < 0.25.seconds && @card_tapped == card
-      return if !GameUtils.is_potion(card.id) && @ing_menu_widget.items?.size >= @max_ingredients
+    if @card_tapped_tick && @card_tapped_tick.elapsed_time < 0.25.seconds &&
+         @card_tapped == card
+      if !GameUtils.is_potion(card.id) &&
+           @ing_menu_widget.items?.size >= @max_ingredients
+        return
+      end
       puts "return card"
       remove_selection_square(followed_card: card)
       state.currently_dragging_card_id = nil
       state.mouse_point_inside_square = nil
-      @visible_potions.reject! { |id,c| c == card }
-      @selected_ingredients.reject! { |id,c| c == card }
-      @visible_ingredients.reject! { |id,c| c == card }
+      @visible_potions.reject! { |id, c| c == card }
+      @selected_ingredients.reject! { |id, c| c == card }
+      @visible_ingredients.reject! { |id, c| c == card }
       if GameUtils.is_potion(card.id)
         @pot_menu_widget.add_item(card)
       else
         @ing_menu_widget.add_item(card)
       end
     end
-    if card != @card_tapped
-      @card_tapped = card
-    end
+    @card_tapped = card if card != @card_tapped
 
     @card_tapped_tick = Kernel.tick_count
   end
@@ -365,7 +370,9 @@ class AlchemyLab < Scene
   end
 
   def clear_loadout
-    @selected_ingredients.each { |id,c| remove_selection_square(followed_card: c) }
+    @selected_ingredients.each do |id, c|
+      remove_selection_square(followed_card: c)
+    end
     @selected_ingredients.clear
     @visible_ingredients.clear
     @visible_potions.clear
@@ -378,9 +385,7 @@ class AlchemyLab < Scene
       @pot_menu_widget.add_item(card)
     end
 
-    @pot_menu_widget.items?.each do |card|
-      card.uses_left = card.max_uses
-    end
+    @pot_menu_widget.items?.each { |card| card.uses_left = card.max_uses }
     $player.prev_loadout_ingredients.all_cards.each do |card|
       @ing_menu_widget.add_item(card)
     end
@@ -402,7 +407,9 @@ class AlchemyLab < Scene
         c.mark_for_removal
         $AUDIO_SERVICE.play_sound(:remove_ingredient)
         unselect_cards(c)
-        $player.ingredients.remove(c) if $player.ingredients.all_cards.include?(c)
+        if $player.ingredients.all_cards.include?(c)
+          $player.ingredients.remove(c)
+        end
         $player.potions.remove(c) if $player.potions.all_cards.include?(c)
         update_inventories
       end
@@ -445,7 +452,7 @@ class AlchemyLab < Scene
     @visible_ingredients
       .merge(@visible_potions)
       .each do |id, c|
-      prefab = c.prefab
+        prefab = c.prefab
         if GameUtils.is_potion(c)
           prefab = c.prefab
         else
@@ -578,7 +585,7 @@ class AlchemyLab < Scene
       start_x =
         GTK.args.grid.w / 2 -
           (((padding + card_size) / 2) * @recipe_book.unlocked_bases.size)
-      hotkey_labels = [] 
+      hotkey_labels = []
       ($recipe_book.unlocked_bases.size).times_with_index do |i|
         hotkey_labels << {
           x: start_x + 40 + (i * (padding + card_size)),
@@ -802,7 +809,7 @@ class AlchemyLab < Scene
     rects
   end
 
-    def get_all_card_rects
+  def get_all_card_rects
     rects = []
     cards =
       @visible_ingredients
@@ -1003,8 +1010,12 @@ class AlchemyLab < Scene
       end
 
       # Remove any cards that finished their shrink-out animation.
-      removed_ings = @visible_ingredients.reject! { |id, c| c.marked_for_removal && c.w <= 5 }
-      removed_pots = @visible_potions.reject! { |id, c| c.marked_for_removal && c.w <= 5 }
+      removed_ings =
+        @visible_ingredients.reject! do |id, c|
+          c.marked_for_removal && c.w <= 5
+        end
+      removed_pots =
+        @visible_potions.reject! { |id, c| c.marked_for_removal && c.w <= 5 }
       # If anything actually got removed from the table, sync player inventories.
       update_inventories if removed_ings || removed_pots
 
@@ -1075,7 +1086,7 @@ class AlchemyLab < Scene
         id, text = GameUtils.tutorial_string?($TUTORIAL_INDEX)
         GameUtils.announce(text: text, duration: 6.5.seconds, tutorial_id: id)
       end
-      if !c.selected
+      if !c.selected && !c.marked_for_removal
         $AUDIO_SERVICE.play_sound(:select_card)
         add_selection_square(card_to_follow: c)
         move_card(c, @selected_ingredients, @visible_ingredients)
@@ -1154,7 +1165,7 @@ class AlchemyLab < Scene
     elsif kb.key_down.five && $recipe_book.unlocked_bases.include?("i005")
       gen_ing_center("i005")
     end
-    
+
     return unless @craftable_potion and inputs.keyboard.key_down.space
     play_brew_anim
   end
@@ -1162,10 +1173,7 @@ class AlchemyLab < Scene
   def gen_ing_center(ing_id_string)
     $AUDIO_SERVICE.play_sound(:get_fresh_ingredient)
     c_ref = GameUtils.gen_new_card(ing_id_string)
-    c_ref.instant_set_position(
-      x: GTK.args.grid.w / 2,
-      y: GTK.args.grid.h / 2
-    )
+    c_ref.instant_set_position(x: GTK.args.grid.w / 2, y: GTK.args.grid.h / 2)
     draw_card(c_ref)
     puts "ingredients on screen: #{@ingredients_on_screen.all_cards}"
   end
@@ -1191,8 +1199,14 @@ class AlchemyLab < Scene
 
     # split cards currently on the table into ingredients and potions
     # ignore anything flagged for removal so it doesn't linger in inventories
-    table_cards = @visible_ingredients.values.reject { |c| c.marked_for_removal || c.needs_removed }
-    selected_cards = @selected_ingredients.values.reject { |c| c.marked_for_removal || c.needs_removed }
+    table_cards =
+      @visible_ingredients.values.reject do |c|
+        c.marked_for_removal || c.needs_removed
+      end
+    selected_cards =
+      @selected_ingredients.values.reject do |c|
+        c.marked_for_removal || c.needs_removed
+      end
     new_ings.concat(table_cards.reject { |c| GameUtils.is_potion(c.id) })
     new_ings.concat(selected_cards.reject { |c| GameUtils.is_potion(c.id) })
 
@@ -1205,7 +1219,11 @@ class AlchemyLab < Scene
       new_pots.concat(@pot_menu_widget.instance_variable_get(:@items))
     end
 
-    new_pots.concat(@visible_potions.values.reject { |c| c.marked_for_removal || c.needs_removed })
+    new_pots.concat(
+      @visible_potions.values.reject do |c|
+        c.marked_for_removal || c.needs_removed
+      end
+    )
     new_pots.concat(table_cards.select { |c| GameUtils.is_potion(c.id) })
     new_pots.concat(selected_cards.select { |c| GameUtils.is_potion(c.id) })
 
