@@ -7,6 +7,9 @@ class RewardsScreen < Scene
     puts "init RewardsScreen"
     @sc_id = "rewards_screen"
     @picks = picks
+    @init_tick = Kernel.tick_count
+    @feather_count = 0
+    @feather_target_count = 0
     @looting_ingredients = false
     @looting_upgrades = false
     @choosing_ended = false
@@ -40,11 +43,18 @@ class RewardsScreen < Scene
     $AUDIO_SERVICE.play_song(:loot_encounter)
   end
 
+  def ready
+    @feather_target_count = $player.previous_enemy_feathers_value
+  end
+
   def cleanup
     puts "cleanup"
   end
 
   def tick
+    @feather_count = (@feather_count.lerp(@feather_target_count, 0.1)) if @init_tick && @init_tick.elapsed_time >= 1.0.seconds
+    
+
     @alt_upgrades_label_alpha = @alt_upgrades_label_alpha.lerp(0, 0.08) if @looting_ingredients || @choosing_ended
     @loot_label_alpha = @loot_label_alpha.lerp(0, 0.08) if @looting_upgrades || @choosing_ended
     @final_message_alpha = @final_message_alpha.lerp( 255, 0.008) if @outroing
@@ -218,7 +228,43 @@ class RewardsScreen < Scene
         font: $FONT,
         primitive_marker: :label
       }
-      l4 << [rewards_left_label, alt_upgrade_label, final_message]
+
+      feathers_icon_fi = Numeric.frame_index(
+        start_at: 0,
+        hold_for: 10,
+        count: 4,
+        repeat: true
+      )
+      feathers_icon = {
+        x: 128,
+        anchor_x: 0.5,
+        anchor_y: 0.5,
+        y: GTK.args.grid.h / 2 + 32,
+        w: 64,
+        h: 64,
+        a: @loot_label_alpha,
+        path: "sprites/feathers_icon-sheet-128x128-4.png",
+        tile_x: 128 * feathers_icon_fi,
+        tile_w: 128,
+        tile_h: 128,
+        primitive_marker: :sprite
+      }
+
+      feather_counter = {
+        x: 128,
+        y: GTK.args.grid.h / 2 - 32,
+        anchor_x: 0.5,
+        anchor_y: 0.5,
+        size_px: 64,
+        r: 255,
+        g: 255,
+        b: 255,
+        a: @loot_label_alpha,
+        text: "+#{@feather_count.round(0)}",
+        font: $FONT,
+        primitive_marker: :label
+      }
+      l4 << [rewards_left_label, alt_upgrade_label, final_message, feather_counter, feathers_icon]
       #l4.flatten!
       return l4
     else

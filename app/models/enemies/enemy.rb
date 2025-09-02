@@ -30,7 +30,7 @@ class Enemy
     @name = nil
     @is_boss = false
     @accuracy = 90.0
-    @value = 1
+    @value = 10
     @floating_seed = Numeric.rand(0.0..100.0)
     @damage_flash_tick = nil
     @selected_attack = nil

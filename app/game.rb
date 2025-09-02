@@ -541,7 +541,21 @@ class Game
       primitive_marker: :label
     }
 
-    l5 << [feathers_icon, feathers_amount]
+    encounters_amount = {
+      x: 128 + 80,
+      anchor_x: 0.5,
+      y: GTK.args.grid.h - 32,
+      size_px: 22,
+      anchor_y: 0.5,
+      text: "-#{$encounter_manager.encounters_completed}-",
+      r: 255,
+      g: 255,
+      b: 255,
+      font: $FONT,
+      primitive_marker: :label
+    }
+
+    l5 << [feathers_icon, feathers_amount, encounters_amount]
 
     l5 << $announcement_manager&.prefab
     # render scene transition overlay

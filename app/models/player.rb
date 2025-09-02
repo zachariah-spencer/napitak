@@ -28,7 +28,8 @@ class Player
        :status_effects,
        :potion_animations,
        :hp_shards,
-       :focus_shards
+       :focus_shards,
+       :previous_enemy_feathers_value
 
   def initialize
     $player = self
@@ -77,6 +78,7 @@ class Player
     @hovered_cards = []
     @died = false
     @feathers = load_feathers_data || 0
+    @previous_enemy_feathers_value = 0
     save_feathers_data
 
     @ingredients = Inventory.new()
@@ -102,6 +104,7 @@ class Player
     @died = false
     @my_turn = true
     @feathers = 0
+    @previous_enemy_feathers_value = 0
     @status_effects = []
     @hp_shards = 0
     @focus_shards = 0
@@ -166,6 +169,12 @@ class Player
     @hp_shards = 0
     @maximum_hp += 5
     save_run_upgrades_data
+  end
+
+  def reward_feathers(amt)
+    @feathers += amt
+    @previous_enemy_feathers_value = amt
+    save_feathers_data
   end
 
   def inc_focus_shards
