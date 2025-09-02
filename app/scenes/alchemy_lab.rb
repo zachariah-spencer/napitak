@@ -310,44 +310,7 @@ class AlchemyLab < Scene
   end
 
   def leave
-    # gather all ingredient cards to return to the player's inventory
-    new_ings = []
-
-    if @ing_menu_widget.respond_to?(:items?)
-      new_ings.concat(@ing_menu_widget.items?)
-    else
-      new_ings.concat(@ing_menu_widget.instance_variable_get(:@items))
-    end
-
-    # split cards currently on the table into ingredients and potions
-    table_cards = @visible_ingredients.values
-    selected_cards = @selected_ingredients.values
-    new_ings.concat(table_cards.reject { |c| GameUtils.is_potion(c.id) })
-    new_ings.concat(selected_cards.reject { |c| GameUtils.is_potion(c.id) })
-
-    # gather potions from the potion menu and any visible/selected potion stacks
-    new_pots = []
-
-    if @pot_menu_widget.respond_to?(:items?)
-      new_pots.concat(@pot_menu_widget.items?)
-    else
-      new_pots.concat(@pot_menu_widget.instance_variable_get(:@items))
-    end
-
-    new_pots.concat(@visible_potions.values)
-    new_pots.concat(table_cards.select { |c| GameUtils.is_potion(c.id) })
-    new_pots.concat(selected_cards.select { |c| GameUtils.is_potion(c.id) })
-
-    new_pots.each do |c|
-      c.free_floating = false
-      c.marked_for_removal = false
-      c.needs_removed = false
-      c.fw = 160
-      c.fh = 160
-    end
-
-    @player.ingredients = Inventory.new(new_ings)
-    @player.potions = Inventory.new(new_pots)
+    update_inventories(called_on_cleanup: true)
 
     $files.save_data["tutorials"]["alchemy_lab_tutorial"] = true
 
@@ -439,6 +402,9 @@ class AlchemyLab < Scene
         c.mark_for_removal
         $AUDIO_SERVICE.play_sound(:remove_ingredient)
         unselect_cards(c)
+        $player.ingredients.remove(c) if $player.ingredients.all_cards.include?(c)
+        $player.potions.remove(c) if $player.potions.all_cards.include?(c)
+        update_inventories
       end
       other_card_rects =
         get_all_card_rects.reject { |other_c| other_c[:id] == c.entity_id }
@@ -858,6 +824,7 @@ class AlchemyLab < Scene
     @visible_ingredients[card.entity_id] = card if !GameUtils.is_potion(card.id)
     @visible_potions[card.entity_id] = card if GameUtils.is_potion(card.id)
     @ingredients_on_screen.add(card)
+    update_inventories
     card
   end
 
@@ -869,6 +836,7 @@ class AlchemyLab < Scene
          )
       clear_loadout
       config_prev_loadout
+      update_inventories
     end
 
     if @leave_btn.clicked?
@@ -1034,8 +1002,11 @@ class AlchemyLab < Scene
         end
       end
 
-      @visible_ingredients.reject! { |id, c| c.marked_for_removal && c.w <= 5 }
-      @visible_potions.reject! { |id, c| c.marked_for_removal && c.w <= 5 }
+      # Remove any cards that finished their shrink-out animation.
+      removed_ings = @visible_ingredients.reject! { |id, c| c.marked_for_removal && c.w <= 5 }
+      removed_pots = @visible_potions.reject! { |id, c| c.marked_for_removal && c.w <= 5 }
+      # If anything actually got removed from the table, sync player inventories.
+      update_inventories if removed_ings || removed_pots
 
       if inputs.mouse.intersect_rect?(@pot_menu_widget.rect) &&
            GameUtils.is_potion(c_ref.id)
@@ -1208,7 +1179,7 @@ class AlchemyLab < Scene
     end
   end
 
-  def update_inventories
+  def update_inventories(called_on_cleanup: false)
     # gather all ingredient cards to return to the player's inventory
     new_ings = []
 
@@ -1217,6 +1188,14 @@ class AlchemyLab < Scene
     else
       new_ings.concat(@ing_menu_widget.instance_variable_get(:@items))
     end
+
+    # split cards currently on the table into ingredients and potions
+    # ignore anything flagged for removal so it doesn't linger in inventories
+    table_cards = @visible_ingredients.values.reject { |c| c.marked_for_removal || c.needs_removed }
+    selected_cards = @selected_ingredients.values.reject { |c| c.marked_for_removal || c.needs_removed }
+    new_ings.concat(table_cards.reject { |c| GameUtils.is_potion(c.id) })
+    new_ings.concat(selected_cards.reject { |c| GameUtils.is_potion(c.id) })
+
     # gather potions from the potion menu and any visible/selected potion stacks
     new_pots = []
 
@@ -1224,6 +1203,20 @@ class AlchemyLab < Scene
       new_pots.concat(@pot_menu_widget.items?)
     else
       new_pots.concat(@pot_menu_widget.instance_variable_get(:@items))
+    end
+
+    new_pots.concat(@visible_potions.values.reject { |c| c.marked_for_removal || c.needs_removed })
+    new_pots.concat(table_cards.select { |c| GameUtils.is_potion(c.id) })
+    new_pots.concat(selected_cards.select { |c| GameUtils.is_potion(c.id) })
+
+    if called_on_cleanup
+      new_pots.each do |c|
+        c.free_floating = false
+        c.marked_for_removal = false
+        c.needs_removed = false
+        c.fw = 160
+        c.fh = 160
+      end
     end
 
     @player.ingredients = Inventory.new(new_ings)
