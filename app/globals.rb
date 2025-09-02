@@ -469,19 +469,19 @@ module GameData
     },
     "alchemy_table" => {
       name: "Brew Bench",
-      path: "sprites/square/yellow.png",
+      path: "sprites/brewbench_icon-sheet-512x512-3.png",
       is_combat: false,
       chance: 8
     },
     "rp_encounter" => {
       name: "Event",
-      path: "sprites/square/blue.png",
+      path: "sprites/event_icon-sheet-512x512-3.png",
       is_combat: false,
       chance: 4
     },
     "shop" => {
       name: "Trader",
-      path: "sprites/square/white.png",
+      path: "sprites/trader_icon-sheet-512x512-3.png",
       is_combat: false,
       chance: 500 # 2
     },
