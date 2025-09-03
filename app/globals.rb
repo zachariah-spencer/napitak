@@ -155,7 +155,15 @@ module GameData
       fc: 4,
       max_uses: 2,
       primary_base_ingredient_id: "i003",
-      path: "sprites/circle/orange.png",
+      path: "sprites/combustiblebottle.png",
+      cast_animation: {
+        id: "p002",
+        path: "sprites/combustiblecast-sheet-256x720-25.png",
+        count: 25,
+        hold_for: 4,
+        impact_frame: 13,
+        repeat: false,
+      },
       ingredients: {
         "i001" => 1,
         "i003" => 1,
