@@ -164,6 +164,7 @@ module GameData
         impact_frame: 13,
         repeat: false,
       },
+      cast_sfx: :combustiblecast,
       ingredients: {
         "i001" => 1,
         "i003" => 1,

@@ -178,6 +178,10 @@ class AudioService
       potion_recharged: {
         input: "sounds/sfx/potion_recharge.ogg",
         gain: 0.2
+      },
+      combustiblecast: {
+        input: "sounds/sfx/explode.ogg",
+        gain: 0.2
       }
     }
 
