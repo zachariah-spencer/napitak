@@ -583,6 +583,52 @@ module GameData
           sfx: :wolf_attack3
         },
       },
+    },
+    bat: {
+      idle: {
+        path: "sprites/bat_idle_512x512-sheet-6.png",
+        count: 6,
+        hold_for: 8,
+        repeat: true,
+      },
+      hurt: {
+        path: "sprites/wolf_death-sheet-15.png",
+        count: 4,
+        hold_for: 5,
+        repeat: false,
+      },
+      death: {
+        path: "sprites/wolf_death-sheet-15.png",
+        count: 15,
+        hold_for: 5,
+        repeat: false
+      },
+      attacks: {
+        basic: {
+          path: "sprites/wolf_attack1-sheet-4.png",
+          count: 4,
+          hold_for: 10,
+          impact_frame: 1,
+          repeat: false,
+          sfx: :wolf_attack1
+        },
+        special: {
+          path: "sprites/wolf_attack2-sheet-4.png",
+          count: 4,
+          hold_for: 10,
+          impact_frame: 1,
+          repeat: false,
+          sfx: :wolf_attack1
+        },
+        apex:  {
+          path: "sprites/wolf_attack3-sheet-14.png",
+          count: 14,
+          hold_for: 10,
+          impact_frame: 10,
+          repeat: false,
+          sfx: :wolf_attack3
+        },
+      },
     }
   }.freeze
 end
