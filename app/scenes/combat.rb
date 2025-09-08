@@ -76,6 +76,8 @@ class Combat < Scene
         }
       )
     @combat_active = true
+    @previous_attack_missed = false
+    @waiting_for_enemy_reaction = false
     @flee_attempts = 0
     @pre_deal_tick = Kernel.tick_count
     @pre_deal_time = 1.seconds
@@ -95,6 +97,10 @@ class Combat < Scene
       on_potion_animation_impact(p)
     end
 
+    $EVENT_BUS.subscribe(:attack_missed, self) do |p|
+      @previous_attack_missed = true
+    end
+
     $EVENT_BUS.subscribe(:enemy_died, self) { |p| on_enemy_died(p) }
 
     $game.input_locked = true
@@ -108,6 +114,16 @@ class Combat < Scene
   def on_enemy_animation_completed(payload)
     puts "ENEMY_ANIMATION_COMPLETED"
     @victory_banner_timer = Kernel.tick_count if @enemy.combat_stats.dead
+
+    return if @victory_banner_timer
+
+    if payload[:id] == :hurt || @previous_attack_missed
+      if @turn_stage == @turn_stages[:cleanup]
+        on_enemy_attack_reaction_completed
+      else
+        @waiting_for_enemy_reaction = true
+      end
+    end
   end
 
   def on_potion_animation_impact(payload)
@@ -813,6 +829,7 @@ class Combat < Scene
           @hand_manager.draw_card
         end
         begin_turn_stage @turn_stages[:cleanup]
+        on_enemy_attack_reaction_completed
       end
     end
 
@@ -907,6 +924,7 @@ class Combat < Scene
 
     if new_stage == @turn_stages[:drawing_cards]
       puts "start drawing_cards stage"
+      @previous_attack_missed = false
       @player.potions.check_for_reshuffle
       if @player.stunned_turns > 0
         skip_turn
@@ -923,11 +941,18 @@ class Combat < Scene
     elsif new_stage == @turn_stages[:cleanup]
       puts "start cleanup stage"
       @player.my_turn = false
-      calc_status_effects(type: :SCORCH)
-      begin_turn_stage @turn_stages[:enemy_turn]
+      if @waiting_for_enemy_reaction
+        @waiting_for_enemy_reaction = false
+        on_enemy_attack_reaction_completed
+      end
     elsif new_stage == @turn_stages[:enemy_turn]
       @enemy.begin_turn
     end
+  end
+
+  def on_enemy_attack_reaction_completed
+    calc_status_effects(type: :SCORCH)
+    begin_turn_stage @turn_stages[:enemy_turn]
   end
 
   def end_combat

@@ -188,6 +188,26 @@ class EncounterCard < Card
         tile_w: 128,
         tile_h: 128,
       }
+    elsif @name == "Bat"
+      sprite_frame = 0.frame_index(
+                      count: 6,
+                      hold_for: 8,
+                      repeat: true,
+                      repeat_index: 0,
+                      tick_count_override: Kernel.tick_count)
+      args.outputs[@card_composite_sprite_ref].primitives << {
+        x: @w / 4,
+        y: @h / 4,
+        w: @w / 2,
+        h: @h / 2,
+        angle: 0,
+        a: prefab_alpha,
+        path: @img,
+        tile_x: (sprite_frame * 512),
+        tile_y: 0,
+        tile_w: 512,
+        tile_h: 512,
+      }
     elsif @name == "Laboratory"
       sprite_frame = 0.frame_index(
                       count: 3,

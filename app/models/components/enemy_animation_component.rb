@@ -31,6 +31,7 @@ class EnemyAnimationComponent
     if animation != :idle
       @sprite_frame_start_ticks[animation] = Kernel.tick_count
       @playing_one_shot = true
+      @previous_animation = animation
 
       @dead = true if animation == :death
     end
@@ -58,7 +59,7 @@ class EnemyAnimationComponent
       if f_i
         return f_i
       else
-        $EVENT_BUS.publish(:enemy_animation_completed) if @playing_one_shot
+        $EVENT_BUS.publish(:enemy_animation_completed, { id: @current_animation }) if @playing_one_shot
         @playing_one_shot = false
         return(@animations[@current_animation][:count] - 1)
       end
@@ -77,8 +78,9 @@ class EnemyAnimationComponent
     return unless @current_animation
 
     if @current_animation && !(calc_frame_index) && !@dead
+      just_finished = @current_animation
       @current_animation = :idle
-      $EVENT_BUS.publish(:enemy_animation_completed) if @playing_one_shot
+      $EVENT_BUS.publish(:enemy_animation_completed, id: just_finished) if @playing_one_shot
       @playing_one_shot = false
       @animation_impacted = false
     elsif calc_frame_index && anim_has_impact_frame? && impact_frame_reached?

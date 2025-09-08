@@ -348,6 +348,7 @@ class Player
     if hit_roll <= modified_accuracy?
       true
     else
+      $EVENT_BUS.publish(:attack_missed)
       GameUtils.status_label(
         GTK.args.grid.w / 2,
         GTK.args.grid.h - 500,

@@ -1,5 +1,5 @@
 * EXCEPTION:
-* ERROR - :sfx method missing on ~Class~.
+* ERROR - :combat_stats method missing on ~Class~.
 
 #+begin_src ~Class#inspect~
 NIL
@@ -8,9 +8,10 @@ NIL
 
 
 The method named
-  :sfx
+  :combat_stats
 doesn't exist on [NilClass].
 
 (suggestions above)
 ** Backtrace:
-*** app/models/enemies/enemy.rb:296:in calc
+*** app/game.rb:336:in tick
+*** app/main.rb:91:in tick

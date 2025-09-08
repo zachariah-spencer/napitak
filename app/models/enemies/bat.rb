@@ -60,6 +60,10 @@ class Bat < Enemy
       },
     }
 
+    def calc_death_anim
+      run_once(:death_animation) { @animations.play_animation(:death) }
+    end
+
     def prefab
     enemy_sprite = @animations.prefab
 

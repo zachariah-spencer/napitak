@@ -504,7 +504,7 @@ module GameData
     # basic enemy
     "bat" => {
       name: "Bat",
-      path: "sprites/isometric/black.png",
+      path: "sprites/bat_idle_512x512-sheet-6.png",
       is_combat: true,
       chance: 15
     },
@@ -592,41 +592,33 @@ module GameData
         repeat: true,
       },
       hurt: {
-        path: "sprites/wolf_death-sheet-15.png",
-        count: 4,
+        path: "sprites/bat_hurt_512x512_sheet_17.png",
+        count: 17,
         hold_for: 5,
         repeat: false,
       },
       death: {
-        path: "sprites/wolf_death-sheet-15.png",
-        count: 15,
-        hold_for: 5,
+        path: "sprites/bat_death_512x512_sheet_9.png",
+        count: 9,
+        hold_for: 8,
         repeat: false
       },
       attacks: {
         basic: {
-          path: "sprites/wolf_attack1-sheet-4.png",
-          count: 4,
-          hold_for: 10,
-          impact_frame: 1,
+          path: "sprites/bat_attack_2_512x512_sheet_13.png",
+          count: 13,
+          hold_for: 8,
+          impact_frame: 5,
           repeat: false,
           sfx: :wolf_attack1
         },
         special: {
-          path: "sprites/wolf_attack2-sheet-4.png",
-          count: 4,
-          hold_for: 10,
-          impact_frame: 1,
+          path: "sprites/bat_attack_2_512x512_sheet_13.png",
+          count: 13,
+          hold_for: 8,
+          impact_frame: 5,
           repeat: false,
           sfx: :wolf_attack1
-        },
-        apex:  {
-          path: "sprites/wolf_attack3-sheet-14.png",
-          count: 14,
-          hold_for: 10,
-          impact_frame: 10,
-          repeat: false,
-          sfx: :wolf_attack3
         },
       },
     }

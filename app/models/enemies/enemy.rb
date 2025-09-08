@@ -90,6 +90,7 @@ class Enemy
     if hit_roll <= modified_accuracy?
       handle_attack_effects(@selected_attack)
     else
+      $EVENT_BUS.publish(:attack_missed)
       GameUtils.status_label(
         GTK.args.grid.w / 2,
         GTK.args.grid.h - 250,
