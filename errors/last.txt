@@ -1,17 +1,14 @@
 * EXCEPTION:
-* ERROR - :combat_stats method missing on ~Class~.
-
-#+begin_src ~Class#inspect~
-NIL
-#+end_src ~Class#inspect~
+* ERROR:
+NilClass doesn't look like an Array.
 
 
 
-The method named
-  :combat_stats
-doesn't exist on [NilClass].
+Attempted to invoke :+ against something that doesn't look like an Array (it's a(n) NilClass). Did you mean to use << instead of :+? The :<< function adds a single item, while the :+ function adds multiple items and expects an Array.
 
-(suggestions above)
+
 ** Backtrace:
-*** app/game.rb:336:in tick
+*** app/services/combo_manager.rb:37:in tick
+*** app/scenes/combat.rb:161:in tick
+*** app/game.rb:358:in tick
 *** app/main.rb:91:in tick

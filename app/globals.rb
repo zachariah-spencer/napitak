@@ -605,9 +605,9 @@ module GameData
       },
       attacks: {
         basic: {
-          path: "sprites/bat_attack_2_512x512_sheet_13.png",
-          count: 13,
-          hold_for: 8,
+          path: "sprites/bat_attack_1_512x512_sheet_9.png",
+          count: 9,
+          hold_for: 6,
           impact_frame: 5,
           repeat: false,
           sfx: :wolf_attack1

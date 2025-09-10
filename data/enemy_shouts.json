@@ -32,8 +32,22 @@
         ]
     },
     "bat": {
-        "offense": ["..."],
-        "defense": ["..."]
+        "offense": ["I strike from the dark!",
+                    "Your heartbeat betrays you.",
+                    "My shadow wraps around you!",
+                    "Your eyes are blind in my dark!",
+                    "Flesh tears sweetest at nightfall.",
+                    "Surrender to my fluttering doom!",
+                    "Screech and scatter!",
+                    "The night feeds on you!"],
+        "defense": ["A wing torn… but not broken!",
+                    "Every wound is merely a song in the cave!",
+                    "Pain sharpens my fangs!",
+                    "The night wills me to endure!",
+                    "Even bleeding, I still fly!",
+                    "You pierce me, but not the dark.",
+                    "Every wound is a song in the cave!",
+                    "Wounded wings still strike!"]
     },
     "dracolisk": {
         "offense": [
