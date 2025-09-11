@@ -59,6 +59,8 @@ class Bat < Enemy
         ]
       },
     }
+    $AUDIO_SERVICE.play_sound("#{@enemy_id}_start".to_sym)
+  end
 
     def calc_death_anim
       run_once(:death_animation) { @animations.play_animation(:death) }
@@ -134,5 +136,4 @@ class Bat < Enemy
 
     array
   end
-end
 end

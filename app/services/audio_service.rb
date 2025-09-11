@@ -142,6 +142,21 @@ class AudioService
         input: "sounds/sfx/wolf_death.wav",
         gain: 0.6
       },
+      bat_start: {
+        input: "sounds/sfx/bat_start.ogg",
+        gain: 0.5,
+        pitch: 1.0
+      },
+      bat_hurt: {
+        input: "sounds/sfx/bat_hurt.ogg",
+        gain: 1.0,
+        pitch: 1.0
+      },
+      bat_death: {
+        input: "sounds/sfx/bat_death.ogg",
+        gain: 1.0,
+        pitch: 1.0
+      },
       hit_impact: {
         input: "sounds/sfx/hit_impact.wav",
         gain: 0.8,
