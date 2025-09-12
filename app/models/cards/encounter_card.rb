@@ -191,7 +191,7 @@ class EncounterCard < Card
     elsif @name == "Bat"
       sprite_frame = 0.frame_index(
                       count: 6,
-                      hold_for: 8,
+                      hold_for: 30,
                       repeat: true,
                       repeat_index: 0,
                       tick_count_override: Kernel.tick_count)

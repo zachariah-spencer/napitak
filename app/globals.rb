@@ -204,7 +204,7 @@ module GameData
       fc: 2,
       max_uses: 3,
       primary_base_ingredient_id: "i002",
-      path: "sprites/circle/blue.png",
+      path: "sprites/cloudy_potion.png",
       ingredients: {
         "i001" => 1,
         "i002" => 1,
@@ -509,12 +509,12 @@ module GameData
       chance: 15
     },
     # frost guy
-    "wraith" => {
-      name: "Wraith",
-      path: "sprites/wraith.png",
-      is_combat: true,
-      chance: 3
-    },
+    # "wraith" => {
+    #   name: "Wraith",
+    #   path: "sprites/wraith.png",
+    #   is_combat: true,
+    #   chance: 3
+    # },
     # first boss encounter, uses
     "dracolisk" => {
       name: "Crystal Dracolisk",
@@ -523,19 +523,19 @@ module GameData
       chance: 0
     },
     # ward earth guy
-    "sentinel" => {
-      name: "Ironroot Sentinel",
-      path: "sprites/triangle/equilateral/green.png",
-      is_combat: true,
-      chance: 2
-    },
+    # "sentinel" => {
+    #   name: "Ironroot Sentinel",
+    #   path: "sprites/triangle/equilateral/green.png",
+    #   is_combat: true,
+    #   chance: 2
+    # },
     # fire guy
-    "mawfiend" => {
-      name: "Abyssal Mawfiend",
-      path: "sprites/triangle/equilateral/orange.png",
-      is_combat: true,
-      chance: 2
-    }
+    # "mawfiend" => {
+    #   name: "Abyssal Mawfiend",
+    #   path: "sprites/triangle/equilateral/orange.png",
+    #   is_combat: true,
+    #   chance: 2
+    # }
   }.freeze
   ENEMY_ANIMATIONS = {
     wolf: {

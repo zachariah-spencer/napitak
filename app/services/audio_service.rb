@@ -144,22 +144,22 @@ class AudioService
       },
       bat_start: {
         input: "sounds/sfx/bat_start.ogg",
-        gain: 0.5,
+        gain: 0.35,
         pitch: 1.0
       },
       bat_hurt: {
         input: "sounds/sfx/bat_hurt.ogg",
-        gain: 1.0,
+        gain: 0.8,
         pitch: 1.0
       },
       bat_death: {
         input: "sounds/sfx/bat_death.ogg",
-        gain: 1.0,
+        gain: 1.25,
         pitch: 1.0
       },
       bat_attack_1: {
         input: "sounds/sfx/bat_attack_1.ogg",
-        gain: 1.0,
+        gain: 0.8,
         pitch: 1.0
       },
       bat_attack_2: {
