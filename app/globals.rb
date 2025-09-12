@@ -610,7 +610,7 @@ module GameData
           hold_for: 6,
           impact_frame: 5,
           repeat: false,
-          sfx: :wolf_attack1
+          sfx: :bat_attack_1
         },
         special: {
           path: "sprites/bat_attack_2_512x512_sheet_13.png",
@@ -618,7 +618,7 @@ module GameData
           hold_for: 8,
           impact_frame: 5,
           repeat: false,
-          sfx: :wolf_attack1
+          sfx: :bat_attack_2
         },
       },
     }

@@ -157,6 +157,16 @@ class AudioService
         gain: 1.0,
         pitch: 1.0
       },
+      bat_attack_1: {
+        input: "sounds/sfx/bat_attack_1.ogg",
+        gain: 1.0,
+        pitch: 1.0
+      },
+      bat_attack_2: {
+        input: "sounds/sfx/bat_attack_2.ogg",
+        gain: 1.0,
+        pitch: 1.0
+      },
       hit_impact: {
         input: "sounds/sfx/hit_impact.wav",
         gain: 0.8,
