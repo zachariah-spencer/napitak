@@ -218,7 +218,7 @@ module GameData
       fc: 3,
       max_uses: 2,
       primary_base_ingredient_id: "i002",
-      path: "sprites/circle/indigo.png",
+      path: "sprites/steamblast_potion.png",
       ingredients: {
         "i001" => 1,
         "i006" => 2
