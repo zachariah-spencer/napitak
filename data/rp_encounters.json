@@ -34,36 +34,6 @@
                         }
                     },
                     {
-                        "text": "Inspect the cluster of bioluminescent mushrooms",
-                        "dc": 14,
-                        "outcome_messages": {
-                            "GOOD": {
-                                "flavor": "One mushroom crumbles easily in your hand, revealing a sweet, restorative sap. You feel invigorated.",
-                                "consequence": "[+10 Max HP - 5 Encounters]"
-                            },
-                            "NEUTRAL": {
-                                "flavor": "You examine the fungi but decide they’re edible only to creatures of the deep woods. No change in your condition.",
-                                "consequence": ""
-                            },
-                            "BAD": {
-                                "flavor": "A faint whisper coaxes you to eat more. When you resist, you’re struck by sudden dizziness.",
-                                "consequence": "[-2 Max Focus - 2 Encounters]"
-                            }
-                        },
-                        "outcomes": {
-                            "GOOD": {
-                                "effect": "modify_max_hp",
-                                "value": 10,
-                                "duration": 5
-                            },
-                            "BAD": {
-                                "effect": "modify_max_focus",
-                                "value": -2,
-                                "duration": 2
-                            }
-                        }
-                    },
-                    {
                         "text": "Move stealthily around the clearing",
                         "dc": 16,
                         "outcome_messages": {

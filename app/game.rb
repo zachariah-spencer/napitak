@@ -557,6 +557,8 @@ class Game
 
     l5 << [feathers_icon, feathers_amount, encounters_amount]
 
+    l5 << web_performance_warning_prefab if GTK.platform?(:web) && Kernel.tick_count < 5.3.seconds
+
     l5 << $announcement_manager&.prefab
     # render scene transition overlay
     l5 << @transition.prefab if @transition
@@ -959,5 +961,38 @@ class Game
         angle: s_l.angle
       }
     end
+  end
+
+  def web_performance_warning_prefab
+    [
+      {
+        x: 640,
+        y: 380,
+        alignment_enum: 1,
+        vertical_alignment_enum: 1,
+        size_px: 22,
+        text: "Note! This is the web build! It will run slowly!",
+        font: $FONT,
+        r: 255,
+        g: 255,
+        b: 255,
+        a: (Math.sin(Kernel.tick_count / 30.0) * 0.5 + 0.5) * 255,
+        primitive_marker: :label
+      },
+      {
+        x: 640,
+        y: 340,
+        alignment_enum: 1,
+        vertical_alignment_enum: 1,
+        size_px: 22,
+        text: "For better performance, please try the compatible Windows/Mac/Linux build!",
+        font: $FONT,
+        r: 255,
+        g: 255,
+        b: 255,
+        a: (Math.sin(Kernel.tick_count / 30.0) * 0.5 + 0.5) * 255,
+        primitive_marker: :label
+      }
+    ]
   end
 end
