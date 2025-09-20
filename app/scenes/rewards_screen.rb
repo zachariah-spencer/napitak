@@ -52,16 +52,25 @@ class RewardsScreen < Scene
   end
 
   def tick
-    @feather_count = (@feather_count.lerp(@feather_target_count, 0.1)) if @init_tick && @init_tick.elapsed_time >= 1.0.seconds
-    
+    @feather_count =
+      (@feather_count.lerp(@feather_target_count, 0.1)) if @init_tick &&
+      @init_tick.elapsed_time >= 1.0.seconds
 
-    @alt_upgrades_label_alpha = @alt_upgrades_label_alpha.lerp(0, 0.08) if @looting_ingredients || @choosing_ended
-    @loot_label_alpha = @loot_label_alpha.lerp(0, 0.08) if @looting_upgrades || @choosing_ended
-    @final_message_alpha = @final_message_alpha.lerp( 255, 0.008) if @outroing
-    @loot_label_y = @loot_label_y.lerp(GTK.args.grid.h / 2 + 200, 0.05) if @looting_ingredients
-    @choices_y = @choices_y.lerp(GTK.args.grid.h / 2, 0.05) if @looting_ingredients
+    @alt_upgrades_label_alpha =
+      @alt_upgrades_label_alpha.lerp(0, 0.08) if @looting_ingredients ||
+      @choosing_ended
+    @loot_label_alpha = @loot_label_alpha.lerp(0, 0.08) if @looting_upgrades ||
+      @choosing_ended
+    @final_message_alpha = @final_message_alpha.lerp(255, 0.008) if @outroing
+    @loot_label_y =
+      @loot_label_y.lerp(
+        GTK.args.grid.h / 2 + 200,
+        0.05
+      ) if @looting_ingredients
+    @choices_y =
+      @choices_y.lerp(GTK.args.grid.h / 2, 0.05) if @looting_ingredients
     calc_card_positions
-    if !$game.input_locked
+    if !$GAME.input_locked
       $player.hovered_cards =
         Geometry.find_all_intersect_rect inputs.mouse, get_card_rects
 
@@ -75,27 +84,26 @@ class RewardsScreen < Scene
             puts "HERE"
             @picks -= 1
             @looting_ingredients = true
-            @upgrades.each { |id,c| c.mark_for_removal }
+            @upgrades.each { |id, c| c.mark_for_removal }
           else
             @looting_upgrades = true
-            @choices.each { |id,c| c.mark_for_removal }
+            @choices.each { |id, c| c.mark_for_removal }
             @picks = 0
           end
 
           if @picks <= 0
             @choosing_ended = true
             $AUDIO_SERVICE.stop_song
-            @choices.each { |id,c| c.mark_for_removal }
-            @upgrades.each { |id,c| c.mark_for_removal }
+            @choices.each { |id, c| c.mark_for_removal }
+            @upgrades.each { |id, c| c.mark_for_removal }
             GTK.on_tick_count(Kernel.tick_count + 5.seconds) { leave }
             GTK.on_tick_count(Kernel.tick_count + 1.seconds) { on_outro }
-            $game.input_locked = true
+            $GAME.input_locked = true
           end
         end
       end
     end
 
-    
     calc_entity_removals()
   end
 
@@ -105,21 +113,23 @@ class RewardsScreen < Scene
   end
 
   def leave
-    $game.change_scene(prev_sc: @sc_id, next_scene: "map")
+    $GAME.change_scene(prev_sc: @sc_id, next_scene: "map")
   end
 
   def get_card_rects
-    choices_with_refs = @choices.values.map do |card|
-      r = card.rect.dup
-      r[:ref] = card # attach the actual Card instance
-      r
-    end
+    choices_with_refs =
+      @choices.values.map do |card|
+        r = card.rect.dup
+        r[:ref] = card # attach the actual Card instance
+        r
+      end
 
-    upgrades_with_refs = @upgrades.values.map do |card|
-      r = card.rect.dup
-      r[:ref] = card # attach the actual Card instance
-      r
-    end
+    upgrades_with_refs =
+      @upgrades.values.map do |card|
+        r = card.rect.dup
+        r[:ref] = card # attach the actual Card instance
+        r
+      end
 
     choices_with_refs + upgrades_with_refs
   end
@@ -139,9 +149,9 @@ class RewardsScreen < Scene
     cards ||= []
     front_card = []
 
-    @choices.merge(@upgrades).each do |id, c|
-      c.grabbed ? front_card << c.prefab : cards << c.prefab
-    end
+    @choices
+      .merge(@upgrades)
+      .each { |id, c| c.grabbed ? front_card << c.prefab : cards << c.prefab }
 
     case layer_num
     when 0
@@ -229,12 +239,8 @@ class RewardsScreen < Scene
         primitive_marker: :label
       }
 
-      feathers_icon_fi = Numeric.frame_index(
-        start_at: 0,
-        hold_for: 10,
-        count: 4,
-        repeat: true
-      )
+      feathers_icon_fi =
+        Numeric.frame_index(start_at: 0, hold_for: 10, count: 4, repeat: true)
       feathers_icon = {
         x: 128,
         anchor_x: 0.5,
@@ -264,7 +270,13 @@ class RewardsScreen < Scene
         font: $FONT,
         primitive_marker: :label
       }
-      l4 << [rewards_left_label, alt_upgrade_label, final_message, feather_counter, feathers_icon]
+      l4 << [
+        rewards_left_label,
+        alt_upgrade_label,
+        final_message,
+        feather_counter,
+        feathers_icon
+      ]
       #l4.flatten!
       return l4
     else

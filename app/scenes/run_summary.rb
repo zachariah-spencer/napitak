@@ -5,26 +5,42 @@ class RunSummary < Scene
     puts "init Run Summary Screen"
     @sc_id = "run_summary"
 
-    @shop_btn = Button.new(x: GTK.args.grid.w / 2 - 75, y: 50, w: 150, h: 75, text: "Shop")
+    @shop_btn =
+      Button.new(
+        x: GTK.args.grid.w / 2 - 75,
+        y: 50,
+        w: 150,
+        h: 75,
+        text: "Shop"
+      )
 
     $files.save_data["mid_run"] = false
-    $game.increment_runs_completed
+    $GAME.increment_runs_completed
   end
 
-  def cleanup; end
+  def cleanup
+  end
 
   def tick
     calc
   end
 
   def calc
-    calc_buttons if !$game.input_locked
+    calc_buttons if !$GAME.input_locked
   end
 
   def calc_buttons
-    $game.change_scene(prev_sc: @sc_id, next_scene: "meta_shop") if @shop_btn.clicked?
-    GTK.request_quit if GTK.args.inputs.mouse.click and Geometry.intersect_rect?(GTK.args.inputs.mouse, quit_btn)
-    $game.new_run if GTK.args.inputs.mouse.click and Geometry.intersect_rect?(GTK.args.inputs.mouse, new_run_btn)
+    if @shop_btn.clicked?
+      $GAME.change_scene(prev_sc: @sc_id, next_scene: "meta_shop")
+    end
+    if GTK.args.inputs.mouse.click and
+         Geometry.intersect_rect?(GTK.args.inputs.mouse, quit_btn)
+      GTK.request_quit
+    end
+    if GTK.args.inputs.mouse.click and
+         Geometry.intersect_rect?(GTK.args.inputs.mouse, new_run_btn)
+      $GAME.new_run
+    end
   end
 
   def render(layer_num)
@@ -85,7 +101,8 @@ class RunSummary < Scene
         r: 255,
         g: 255,
         b: 255,
-        text: "Encounters Completed: #{$encounter_manager.encounters_completed}",
+        text:
+          "Encounters Completed: #{$encounter_manager.encounters_completed}",
         primitive_marker: :label
       }
 
@@ -113,13 +130,18 @@ class RunSummary < Scene
         primitive_marker: :label
       }
 
-      l2 << [ encounter_label, encounters_completed_label, enemies_slain_label, anodyne_earned_label]
+      l2 << [
+        encounter_label,
+        encounters_completed_label,
+        enemies_slain_label,
+        anodyne_earned_label
+      ]
       return l2
     when 3
-      l3 << [ new_run_btn, quit_btn, @shop_btn.prefab ]
+      l3 << [new_run_btn, quit_btn, @shop_btn.prefab]
       return l3
     when 4
-      l4 << [ ]
+      l4 << []
       return l4
     else
       # puts "combat.rb: Invalid Render Argument"
@@ -169,7 +191,7 @@ class RunSummary < Scene
 
     {
       x: GTK.args.grid.w / 2 - 150 - 100,
-      y: 50 ,
+      y: 50,
       w: 150,
       h: 75,
       angle: 0,
@@ -221,7 +243,7 @@ class RunSummary < Scene
 
     {
       x: GTK.args.grid.w / 2 + 100,
-      y: 50 ,
+      y: 50,
       w: 150,
       h: 75,
       angle: 0,

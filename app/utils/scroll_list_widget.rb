@@ -15,7 +15,9 @@ class ScrollListWidget
     @frame_index_start_ticks = {}
     @stores_cards = stores_cards
 
-    @items.each { |item| @frame_index_start_ticks[item.entity_id] = Numeric.rand(-30..0) }
+    @items.each do |item|
+      @frame_index_start_ticks[item.entity_id] = Numeric.rand(-30..0)
+    end
   end
 
   def rect
@@ -44,7 +46,7 @@ class ScrollListWidget
 
   # update scroll, clear last click, then detect a new one
   def tick(inputs)
-    if !$game.input_locked
+    if !$GAME.input_locked
       handle_scroll(inputs)
       @selected_item = nil # ← reset every frame
       detect_click(inputs)
@@ -76,10 +78,15 @@ class ScrollListWidget
 
     @items.each_with_index do |item, idx|
       start = @frame_index_start_ticks[item.entity_id] ||= Kernel.tick_count
-      f_i = (Numeric.frame_index(start_at: start,
-                              count: 4,
-                              hold_for: 0.5.seconds,
-                              repeat: true))
+      f_i =
+        (
+          Numeric.frame_index(
+            start_at: start,
+            count: 4,
+            hold_for: 0.5.seconds,
+            repeat: true
+          )
+        )
 
       local_x = 0
       local_y = @height - ((idx + 1) * @item_height) - @scroll_y
@@ -88,7 +95,8 @@ class ScrollListWidget
       next if local_y > @height
 
       # slot
-      color = (@hovered_idx == idx) ? [255, 255, 255, 255] : [255, 255, 255, 255]
+      color =
+        (@hovered_idx == idx) ? [255, 255, 255, 255] : [255, 255, 255, 255]
       GTK.args.outputs[path].sprites << {
         x: local_x + 5,
         y: local_y + 5,
@@ -163,18 +171,18 @@ class ScrollListWidget
         end
       else
         GTK.args.outputs[path].labels << {
-            x: local_x + @width / 2,
-            y: local_y + @item_height / 2,
-            text: item["name"],
-            alignment_enum: 1,
-            anchor_x: 0.5,
-            anchor_y: 0.5,
-            r: 255,
-            g: 255,
-            b: 255,
-            size_px: 16,
-            font: $FONT
-          }
+          x: local_x + @width / 2,
+          y: local_y + @item_height / 2,
+          text: item["name"],
+          alignment_enum: 1,
+          anchor_x: 0.5,
+          anchor_y: 0.5,
+          r: 255,
+          g: 255,
+          b: 255,
+          size_px: 16,
+          font: $FONT
+        }
       end
     end
 

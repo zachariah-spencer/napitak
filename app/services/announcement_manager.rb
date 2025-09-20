@@ -33,7 +33,9 @@ class AnnouncementManager
     @current_announcement&.tick
     if @current_announcement
       # created_tick.elapsed_time check prevents a race condition for many click skip events
-      if @current_announcement.message_completed? || GTK.args.inputs.mouse.click && @current_announcement.created_tick.elapsed_time >= 1
+      if @current_announcement.message_completed? ||
+           GTK.args.inputs.mouse.click &&
+             @current_announcement.created_tick.elapsed_time >= 1
         display_next_announcement
         @completed_announcement = true
       end
@@ -43,11 +45,11 @@ class AnnouncementManager
   def display_next_announcement
     if @announcements.empty?
       @current_announcement = nil
-      #$game.input_locked = false
+      #$GAME.input_locked = false
     else
       @current_announcement = @announcements.shift
       @current_announcement.start_message
-      #$game.input_locked = true
+      #$GAME.input_locked = true
     end
   end
 

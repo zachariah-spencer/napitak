@@ -53,14 +53,18 @@ class Button
   end
 
   def tick
-    if $game.input_locked
+    if $GAME.input_locked
       hovered_last_tick = false
       @hovered = false
     else
       hovered_last_tick = @hovered
       @hovered = GTK.args.inputs.mouse.intersect_rect?(rect)
-      $AUDIO_SERVICE.play_sound(:button_hover) if @hovered != hovered_last_tick && @hovered && @active
-      $AUDIO_SERVICE.play_sound(:button_unhover) if @hovered != hovered_last_tick && !@hovered && @active
+      if @hovered != hovered_last_tick && @hovered && @active
+        $AUDIO_SERVICE.play_sound(:button_hover)
+      end
+      if @hovered != hovered_last_tick && !@hovered && @active
+        $AUDIO_SERVICE.play_sound(:button_unhover)
+      end
 
       @anim_speed = @hovered ? 0.1.seconds : 0.5.seconds
       @fw = @hovered ? @hovered_w : @normal_w
@@ -88,10 +92,13 @@ class Button
   end
 
   def prefab
-    f_i = 0.frame_index(start_at: @rand_seed,
-                              count: @frame_length,
-                              hold_for: @anim_speed,
-                              repeat: true)
+    f_i =
+      0.frame_index(
+        start_at: @rand_seed,
+        count: @frame_length,
+        hold_for: @anim_speed,
+        repeat: true
+      )
     GTK.args.outputs[@id.to_s].w = @w
     GTK.args.outputs[@id.to_s].h = @h
 
@@ -141,9 +148,9 @@ class Button
   end
 
   def clicked?
-    return false if $game.input_locked || !@active
+    return false if $GAME.input_locked || !@active
     if Geometry.intersect_rect?(GTK.args.inputs.mouse, hovered_rect) &&
-      GTK.args.inputs.mouse.click
+         GTK.args.inputs.mouse.click
       $AUDIO_SERVICE.play_sound(:button_press)
       true
     else

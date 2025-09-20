@@ -3,16 +3,22 @@ class ShopItemCard < Card
   attr :f_pos, :selected, :fw, :bought_tick
 
   def initialize(id)
-    super(id, GameUtils.new_id?, $SHOP_ITEMS[id][:name], -1, $SHOP_ITEMS[id][:path])
-  @selected = nil
-  @anchored = true
-  @price = Numeric.rand(1..4)
-  @rot_speed = Numeric.rand(0.01..0.04)
-  @bought_tick = nil
+    super(
+      id,
+      GameUtils.new_id?,
+      $SHOP_ITEMS[id][:name],
+      -1,
+      $SHOP_ITEMS[id][:path]
+    )
+    @selected = nil
+    @anchored = true
+    @price = Numeric.rand(1..4)
+    @rot_speed = Numeric.rand(0.01..0.04)
+    @bought_tick = nil
   end
 
   def tick
-    if !$game.input_locked
+    if !$GAME.input_locked
       calc_hover
       calc_click
     else
@@ -42,13 +48,7 @@ class ShopItemCard < Card
     return if $player.feathers < @price && !@bought_tick
     puts "BOUGHT #{@name}"
 
-    GameUtils.sparkle_particle(
-      x: @pos.x,
-      y: @pos.y,
-      r: 0,
-      g: 255,
-      b: 255
-    )
+    GameUtils.sparkle_particle(x: @pos.x, y: @pos.y, r: 0, g: 255, b: 255)
     $AUDIO_SERVICE.play_sound(:loot_grabbed)
 
     $player.feathers -= @price
@@ -63,15 +63,14 @@ class ShopItemCard < Card
     else
       $player.ingredients.add(
         IngredientCard.new(
-            @id,
-            GameUtils.new_id?,
-            $IIDS[@id].name,
-            -1,
-            $IIDS[@id].path
-          )
+          @id,
+          GameUtils.new_id?,
+          $IIDS[@id].name,
+          -1,
+          $IIDS[@id].path
+        )
       )
     end
-
   end
 
   def prefab
@@ -89,7 +88,16 @@ class ShopItemCard < Card
   end
 
   def rect
-    { id: @entity_id, x: @pos.x, y: @pos.y, w: @w, h: @h, angle: @angle, anchor_x: 0.5, anchor_y: 0.5 }
+    {
+      id: @entity_id,
+      x: @pos.x,
+      y: @pos.y,
+      w: @w,
+      h: @h,
+      angle: @angle,
+      anchor_x: 0.5,
+      anchor_y: 0.5
+    }
   end
 
   def calc_position(num_cards, index)

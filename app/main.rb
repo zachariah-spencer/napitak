@@ -85,10 +85,10 @@ require_relative "services/audio_service"
 def tick(args)
   purge_old_version_saves_from_web_build(args)
   $files ||= Files.new
-  $game ||= Game.new
-  
-  $game.args ||= args
-  $game.tick if $game != nil
+  $GAME ||= Game.new
+
+  $GAME.args ||= args
+  $GAME.tick if $GAME != nil
 end
 
 # reset is a top-level function that DR is aware of
@@ -99,12 +99,12 @@ def reset(_args)
 end
 
 def purge_old_version_saves_from_web_build(args)
-    return unless args.gtk.platform? :win
+  return unless args.gtk.platform? :win
 
-    file_info = args.gtk.stat_file("data/save_data.json")
-    return unless file_info
-    date = 1754542800
-    args.gtk.delete_file("data/save_data.json") if file_info[:mod_time] < date
+  file_info = args.gtk.stat_file("data/save_data.json")
+  return unless file_info
+  date = 1_754_542_800
+  args.gtk.delete_file("data/save_data.json") if file_info[:mod_time] < date
 end
 
 GTK.reset

@@ -95,7 +95,7 @@ class ComboManager
   end
 
   def reset_sequence(end_of_combo = false)
-    # $game.input_locked = false
+    # $GAME.input_locked = false
     @current_combo_sequence_path = {}
     @combo_completion_tick = nil
     last_value = @current_sequence.last
@@ -131,16 +131,16 @@ class ComboManager
       end
     end
 
-
     if @combat_ended
       @da = 0
     else
       if (
-         (@current_combo_sequence_path && @current_combo_sequence_path != {}) &&
-           !@combo_completion_tick
-       ) ||
-         @combo_completion_tick &&
-           @combo_completion_tick.elapsed_time < 0.5.seconds
+           (
+             @current_combo_sequence_path && @current_combo_sequence_path != {}
+           ) && !@combo_completion_tick
+         ) ||
+           @combo_completion_tick &&
+             @combo_completion_tick.elapsed_time < 0.5.seconds
         @da = 255
       elsif @combo_completion_tick &&
             @combo_completion_tick.elapsed_time >= 0.5.seconds
@@ -149,7 +149,6 @@ class ComboManager
         @da = 0
       end
     end
-    
 
     @a = @a.lerp(@da, 0.075)
 

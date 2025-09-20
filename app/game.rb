@@ -5,20 +5,85 @@ class Game
   attr :scene, :input_locked, :runs_completed, :transitioning_scenes
 
   def initialize
-    $game = self
+    $GAME = self
+    @input_locked = false
+    AudioService.new
+    AnnouncementManager.new
+    EventBus.new
+    Player.new
+    RecipeBook.new
+    EncounterManager.new
+    initialize_transition_vars
+    initialize_ui_widgets
+    initialize_particle_system_vars
+    initialize_save_data_vars
+    initialize_camera_vars
+    if @mid_run
+      change_scene(prev_sc: "", next_scene: @scene, quick: true)
+    else
+      new_run
+    end
+  end
+
+  def initialize_particle_system_vars
+    @status_labels = []
+    @sparkle_particles = []
+    @status_labels_queue = []
+    @status_label_queue_count = Kernel.tick_count
+    @created_prefabs = {}
+  end
+
+  def initialize_transition_vars
     @prev_sc
     @next_sc
     @next_scene_instance
     @scene_args
-    @transitioning_scenes = false
-    @defeat_banner_alpha = 0
-    @autosaved = false
-    @input_locked = false
     @scene = $files.save_data&.[]("scene")
-    @runs_completed = $files.save_data["runs_completed"] ||= 0
+    @transitioning_scenes = false
+    @transition = nil
     @scene_ref = nil
     @collection_scene_ref = nil
     @viewing_collection = false
+    @paused_scene_ref = nil
+    @paused_music_sym = nil
+    @paused = false
+  end
+
+  def initialize_save_data_vars
+    @autosaved = false
+    @runs_completed = $files.save_data["runs_completed"] ||= 0
+    @mid_run = $files.save_data&.[]("mid_run") || false
+    @tutorial_completed =
+      $files.save_data["tutorials"]["alchemy_lab_tutorial"] ||
+        false if $files.save_data["tutorials"]["alchemy_lab_tutorial"]
+
+    $player.load_inventory_data
+    $player.load_upgrades_data
+    encounters_completed = $files.save_data&.[]("encounters_completed")
+
+    if @mid_run
+      $player.load_feathers_data
+      $player.load_run_upgrades_data
+    end
+  end
+
+  def initialize_camera_vars
+    # camera state
+    @camera = { x: 0.0, y: 0.0, zoom: 1.0 }
+    @cam_shake_active = false
+    @cam_shake_amp = 0.0
+    @cam_shake_end_tick = 0
+    @cam_shake_include_ui = false
+    @cam_shake_offset_x = 0.0
+    @cam_shake_offset_y = 0.0
+  end
+
+  def initialize_ui_widgets
+    @defeat_banner_alpha = 0
+    @hp_shard_label_a = 0
+    @hp_shard_label_da = 0
+    @focus_shard_label_a = 0
+    @focus_shard_label_da = 0
     @pause_btn =
       Button.new(
         x: 128 + 16 + 8,
@@ -35,9 +100,6 @@ class Game
         frame_length: 4,
         text: ""
       )
-    @paused_scene_ref = nil
-    @paused_music_sym = nil
-    @paused = false
     @status_effect_list_widget =
       StatusEffectListWidget.new(
         x: misc_btn[:x] - 128 + 16,
@@ -88,60 +150,6 @@ class Game
       b: 255,
       a: 255
     }
-    AudioService.new
-    # AnimationService.new
-    # AnimationManager.new
-    AnnouncementManager.new
-    EventBus.new
-
-    @transition = nil
-    @mid_run = $files.save_data&.[]("mid_run") || false
-
-    # keeps track of whether an entity with a specific entity_id has been created already
-    @created_entity_ids = []
-    # currently list of status_labels to render to the screen at any given frame
-    @status_labels = []
-    @sparkle_particles = []
-    # queue of labels to render to the screen
-    @status_labels_queue = []
-    @status_label_queue_count = Kernel.tick_count
-    # keeps track of whether a render target for the specific number has been created already
-    @created_prefabs = {}
-    # the game's official instantiation of a Player for an individual game.
-    @player = Player.new()
-    # the game's official instantiation of a RecipeBook, persists between runs
-    @recipe_book = RecipeBook.new()
-    EncounterManager.new()
-
-    @tutorial_completed =
-      $files.save_data["tutorials"]["alchemy_lab_tutorial"] ||
-        false if $files.save_data["tutorials"]["alchemy_lab_tutorial"]
-
-    @player.load_inventory_data
-    @player.load_upgrades_data
-    encounters_completed = $files.save_data&.[]("encounters_completed")
-
-    # camera state
-    @camera = { x: 0.0, y: 0.0, zoom: 1.0 }
-    @cam_shake_active = false
-    @cam_shake_amp = 0.0
-    @cam_shake_end_tick = 0
-    @cam_shake_include_ui = false
-    @cam_shake_offset_x = 0.0
-    @cam_shake_offset_y = 0.0
-
-    @hp_shard_label_a = 0
-    @hp_shard_label_da = 0
-    @focus_shard_label_a = 0
-    @focus_shard_label_da = 0
-
-    if @mid_run
-      @player.load_feathers_data
-      @player.load_run_upgrades_data
-      change_scene(prev_sc: "", next_scene: @scene, quick: true)
-    else
-      new_run
-    end
   end
 
   # reset vars for new run
@@ -150,7 +158,7 @@ class Game
     @mid_run = true
     $files.save_data["mid_run"] = true
     $encounter_manager.reset!
-    @player.reset!
+    $player.reset!
 
     if $files.save_data["settings"].key?("replay_tutorial") &&
          $files.save_data["settings"]["replay_tutorial"]
@@ -338,7 +346,7 @@ class Game
       end_run
     elsif $player.combat_stats.dead &&
           $player.combat_stats.dead_tick.elapsed_time < 3.0.seconds
-      $game.input_locked = true
+      $GAME.input_locked = true
       @defeat_banner_alpha = @defeat_banner_alpha.lerp(255, 0.04)
     end
 
@@ -372,7 +380,7 @@ class Game
   end
 
   def calc_view_collection_inputs()
-    if !@paused && !$game.input_locked
+    if !@paused && !$GAME.input_locked
       if GTK.args.inputs.keyboard.key_down.tab ||
            GTK.args.inputs.mouse.click &&
              GTK.args.inputs.mouse.intersect_rect?(@ing_col_btn) &&
@@ -501,18 +509,15 @@ class Game
       @hp_shard_label_da = ($player.hp_shards > 0) ? 180 : 0
       @hp_shard_label_a = @hp_shard_label_a.lerp(@hp_shard_label_da, 0.2)
       @focus_shard_label_da = ($player.focus_shards > 0) ? 180 : 0
-      @focus_shard_label_a = @focus_shard_label_a.lerp(@focus_shard_label_da, 0.2)
+      @focus_shard_label_a =
+        @focus_shard_label_a.lerp(@focus_shard_label_da, 0.2)
 
       l5 << hp_shards_label
       l5 << focus_shards_label
     end
 
-    feathers_icon_fi = Numeric.frame_index(
-      start_at: 0,
-      hold_for: 10,
-      count: 4,
-      repeat: true
-    )
+    feathers_icon_fi =
+      Numeric.frame_index(start_at: 0, hold_for: 10, count: 4, repeat: true)
     feathers_icon = {
       x: GTK.args.grid.w / 2,
       anchor_x: 0.5,
@@ -557,7 +562,9 @@ class Game
 
     l5 << [feathers_icon, feathers_amount, encounters_amount]
 
-    l5 << web_performance_warning_prefab if GTK.platform?(:web) && Kernel.tick_count < 5.3.seconds
+    if GTK.platform?(:web) && Kernel.tick_count < 5.3.seconds
+      l5 << web_performance_warning_prefab
+    end
 
     l5 << $announcement_manager&.prefab
     # render scene transition overlay
@@ -841,7 +848,7 @@ class Game
     $files.save_data["mid_run"] = false
     $player.anodyne += $encounter_manager.calc_anodyne_earnings
     $player.save_upgrades_data
-    $game.change_scene(prev_sc: @sc_id, next_scene: "run_summary")
+    $GAME.change_scene(prev_sc: @sc_id, next_scene: "run_summary")
   end
 
   def calc_particles
@@ -985,7 +992,8 @@ class Game
         alignment_enum: 1,
         vertical_alignment_enum: 1,
         size_px: 22,
-        text: "For better performance, please try the compatible Windows/Mac/Linux build!",
+        text:
+          "For better performance, please try the compatible Windows/Mac/Linux build!",
         font: $FONT,
         r: 255,
         g: 255,

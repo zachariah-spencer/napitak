@@ -145,7 +145,7 @@ class AlchemyLab < Scene
   def play_brew_anim
     @brew_anim_tick = Kernel.tick_count
     $AUDIO_SERVICE.play_sound(:brew_action)
-    $game.input_locked = true
+    $GAME.input_locked = true
     GameUtils.camera_shake(intensity: 5, duration: 1.0.seconds)
     @brew_completed = false
   end
@@ -155,7 +155,7 @@ class AlchemyLab < Scene
       puts "BREWANIMTICK ELAPSED TIME: #{@brew_anim_tick.elapsed_time}"
       if @brew_anim_tick.elapsed_time >= 1.0.seconds
         @brew_anim_tick = nil
-        $game.input_locked = false
+        $GAME.input_locked = false
       else
       end
     end
@@ -319,7 +319,7 @@ class AlchemyLab < Scene
 
     $files.save_data["tutorials"]["alchemy_lab_tutorial"] = true
 
-    $game.change_scene(prev_sc: @sc_id, next_scene: "map")
+    $GAME.change_scene(prev_sc: @sc_id, next_scene: "map")
   end
 
   def tick
@@ -348,7 +348,7 @@ class AlchemyLab < Scene
   end
 
   def calc
-    if !$game.input_locked
+    if !$GAME.input_locked
       calc_keyboard_inputs
       calc_mouse_inputs
     else
@@ -403,7 +403,7 @@ class AlchemyLab < Scene
 
     all_moveable_cards.each do |id, c|
       c.calc_position(0, 0)
-      if out_of_bounds?(c) && !$game.input_locked && !c.marked_for_removal
+      if out_of_bounds?(c) && !$GAME.input_locked && !c.marked_for_removal
         c.mark_for_removal
         $AUDIO_SERVICE.play_sound(:remove_ingredient)
         unselect_cards(c)

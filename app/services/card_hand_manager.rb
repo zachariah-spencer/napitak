@@ -73,7 +73,7 @@ class CardHandManager
       potion_traits = potion_info.traits
 
       if potion_info.cast_animation
-        $game.input_locked = true
+        $GAME.input_locked = true
         $player.potion_animations.play_animation(potion_info.cast_animation)
       end
 
@@ -86,7 +86,7 @@ class CardHandManager
       potion_traits = potion_info.traits
 
       if @combo_manager.combo_completion_tick
-        $game.input_locked = true
+        $GAME.input_locked = true
         combo_effect = @combo_manager.current_combo_sequence_path[:effect]
 
         GameUtils.status_label(
@@ -98,7 +98,7 @@ class CardHandManager
           255,
           32
         )
-        
+
         # DO COMBO STUFF
 
         if potion_info[:finisher_trait]

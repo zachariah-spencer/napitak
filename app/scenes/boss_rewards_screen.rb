@@ -19,7 +19,6 @@ class BossRewardsScreen < Scene
       $recipe_book.unlock_base("i005")
       @reward_cards << RewardCard.new("i004")
       @reward_cards << RewardCard.new("i005")
-
     end
   end
 
@@ -30,7 +29,7 @@ class BossRewardsScreen < Scene
   def tick
     calc_card_positions
     if GTK.args.inputs.mouse.click
-      $game.change_scene(prev_sc: @sc_id, next_scene: "rewards_screen")
+      $GAME.change_scene(prev_sc: @sc_id, next_scene: "rewards_screen")
     end
   end
 
@@ -94,14 +93,13 @@ class BossRewardsScreen < Scene
         r: 255,
         g: 255,
         b: 255,
-        text: "Congratulations, you've successfully recovered new base ingredients!",
+        text:
+          "Congratulations, you've successfully recovered new base ingredients!",
         font: $FONT,
         primitive_marker: :label
       }
 
-      @reward_cards.each do |c|
-        l4 << c.prefab
-      end
+      @reward_cards.each { |c| l4 << c.prefab }
       l4 << [rewards_left_label]
       return l4
     else

@@ -91,13 +91,13 @@ class CombatTutorial < Scene
 
     $EVENT_BUS.subscribe(:enemy_died, self) { |p| on_enemy_died(p) }
 
-    $game.input_locked = true
+    $GAME.input_locked = true
     @card_hovered_tutorial_played = false
     @second_card_hovered_tutorial_played = false
   end
 
   def ready
-    $game.input_locked = true
+    $GAME.input_locked = true
     $TUTORIAL_INDEX = 0
     id, text = GameUtils.tutorial_string?($TUTORIAL_INDEX)
 
@@ -139,8 +139,8 @@ class CombatTutorial < Scene
 
   def on_potion_cast_animation_completed(payload)
     puts "POTION CAST COMPLETED"
-    $game.input_locked = false
-    if !@hand_manager.actions_available? && !$game.input_locked
+    $GAME.input_locked = false
+    if !@hand_manager.actions_available? && !$GAME.input_locked
       begin_turn_stage(@turn_stages[:cleanup])
     end
   end
@@ -155,7 +155,7 @@ class CombatTutorial < Scene
     @pass_btn.update_alpha(@pass_btn_alpha)
     @flee_btn.update_alpha(@flee_btn_alpha)
     run_once(:allow_input_after_dealing_completed) do
-      $game.input_locked = false
+      $GAME.input_locked = false
     end if @done_dealing
     if @victory_banner_timer &&
          @victory_banner_timer.elapsed_time >= 3.25.seconds
@@ -203,7 +203,7 @@ class CombatTutorial < Scene
 
   def handle_hover_tooltip_tutorial
     if $announcement_manager.no_announcements? &&
-         !@card_hovered_tutorial_played && !$game.input_locked &&
+         !@card_hovered_tutorial_played && !$GAME.input_locked &&
          @turn_num >= 2 && card_hovered?
       @card_hovered_tutorial_played = true
 
@@ -212,31 +212,19 @@ class CombatTutorial < Scene
       GameUtils.announce(text: text, duration: 5.0.seconds, tutorial_id: id)
       $TUTORIAL_INDEX = 4
       id, text = GameUtils.tutorial_string?($TUTORIAL_INDEX)
-      GameUtils.announce(
-        text: text,
-        duration: 5.0.seconds,
-        tutorial_id: id,
-      )
+      GameUtils.announce(text: text, duration: 5.0.seconds, tutorial_id: id)
       $TUTORIAL_INDEX = 5
       id, text = GameUtils.tutorial_string?($TUTORIAL_INDEX)
-      GameUtils.announce(
-        text: text,
-        duration: 6.0.seconds,
-        tutorial_id: id,
-      )
+      GameUtils.announce(text: text, duration: 6.0.seconds, tutorial_id: id)
       $TUTORIAL_INDEX = 6
       id, text = GameUtils.tutorial_string?($TUTORIAL_INDEX)
-      GameUtils.announce(
-        text: text,
-        duration: 6.0.seconds,
-        tutorial_id: id,
-      )
+      GameUtils.announce(text: text, duration: 6.0.seconds, tutorial_id: id)
       clear_dragging_state
     end
 
     if $announcement_manager.no_announcements? &&
          !@second_card_hovered_tutorial_played && card_hovered? &&
-         !$game.input_locked && @turn_num >= 3
+         !$GAME.input_locked && @turn_num >= 3
       @second_card_hovered_tutorial_played = true
       #MORE TUT MESSAGES
     end
@@ -274,7 +262,7 @@ class CombatTutorial < Scene
     @victory_banner_timer = nil
     @defeat_banner_timer = nil
     @flee_banner_timer = nil
-    $game.change_scene(
+    $GAME.change_scene(
       prev_sc: @sc_id,
       next_scene: "alchemy_lab",
       args: [{ tutorial: true }]
@@ -284,7 +272,7 @@ class CombatTutorial < Scene
   def calc
     @hand_manager.calc_card_positions
 
-    if $game.input_locked
+    if $GAME.input_locked
       clear_dragging_state
     elsif @player.my_turn? && !@fled
       calc_mouse_inputs
@@ -783,7 +771,7 @@ class CombatTutorial < Scene
   end
 
   def calc_mouse_inputs
-    return if $game.input_locked
+    return if $GAME.input_locked
 
     if @flee_btn.clicked? && @player.my_turn
       puts "clicked on flee_btn"
@@ -855,7 +843,7 @@ class CombatTutorial < Scene
             @hand_manager.use_card(c_ref)
           end
           end_combat if @enemy.combat_stats.dead
-          if !@hand_manager.actions_available? && !$game.input_locked
+          if !@hand_manager.actions_available? && !$GAME.input_locked
             begin_turn_stage(@turn_stages[:cleanup])
           end
         end

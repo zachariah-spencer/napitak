@@ -4,7 +4,7 @@ class TrashCanCard < Card
   end
 
   def tick
-    if !$game.input_locked
+    if !$GAME.input_locked
       calc_hover
     else
       @hovered = false
@@ -25,11 +25,9 @@ class TrashCanCard < Card
       @fw = 90
       @fh = 90
       @f_pos.x =
-        @f_pos.x +
-          (Math.cos(@floating_seed + Kernel.tick_count * 0.01) * 0.01)
+        @f_pos.x + (Math.cos(@floating_seed + Kernel.tick_count * 0.01) * 0.01)
       @f_pos.y =
-        @f_pos.y +
-          (Math.sin(@floating_seed + Kernel.tick_count * 0.01) * 0.01)
+        @f_pos.y + (Math.sin(@floating_seed + Kernel.tick_count * 0.01) * 0.01)
       @f_angle = Math.sin(@floating_seed + Kernel.tick_count * 0.01) * 2
     end
     super

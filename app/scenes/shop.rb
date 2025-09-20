@@ -16,16 +16,14 @@ class Shop < Scene
       )
 
     @items = []
-    10.times do 
-      @items << ShopItemCard.new($SHOP_ITEMS.keys.sample)
-    end
+    10.times { @items << ShopItemCard.new($SHOP_ITEMS.keys.sample) }
 
     spacing = 50
 
-    num_per_row = @items.length / 2             # => 5
-    row_width = (128 + spacing) * num_per_row - spacing  # 768px total
+    num_per_row = @items.length / 2 # => 5
+    row_width = (128 + spacing) * num_per_row - spacing # 768px total
     start_x = (GTK.args.grid.w / 2) - (row_width / 2)
-    start_x += 64    # 256px when grid.w = 1280
+    start_x += 64 # 256px when grid.w = 1280
     @items.each_with_index do |item, i|
       if i < (@items.length / 2)
         # pos is center (anchor 0.5), so place at row center
@@ -34,9 +32,7 @@ class Shop < Scene
         item.instant_set_position(x: item.pos.x, y: 256 - 64)
       end
       row_i = i
-      if row_i >= 5
-        row_i -= 5
-      end
+      row_i -= 5 if row_i >= 5
 
       x_pos = start_x + ((128 + spacing) * row_i)
       puts "INDEX: #{row_i}\nPOSITION SET RESULT X VAL: #{x_pos}"
@@ -56,12 +52,14 @@ class Shop < Scene
   def tick
     @items.each { |item| item.tick }
     @leave_btn.tick
-    @items.reject! { |item| item.bought_tick && item.bought_tick.elapsed_time >= 0.5.seconds}
+    @items.reject! do |item|
+      item.bought_tick && item.bought_tick.elapsed_time >= 0.5.seconds
+    end
     calc
   end
 
   def calc
-    calc_mouse_inputs if !$game.input_locked
+    calc_mouse_inputs if !$GAME.input_locked
   end
 
   def calc_mouse_inputs
@@ -70,7 +68,9 @@ class Shop < Scene
         item.buy
       end
     end
-    $game.change_scene(prev_sc: "shop", next_scene: "map") if @leave_btn.clicked?
+    if @leave_btn.clicked?
+      $GAME.change_scene(prev_sc: "shop", next_scene: "map")
+    end
   end
 
   def render(layer_num)
@@ -82,7 +82,6 @@ class Shop < Scene
 
     case layer_num
     when 0
-
       bg_tile_index = 0.frame_index(24, 1.0.seconds, true)
 
       background = {
@@ -116,7 +115,6 @@ class Shop < Scene
         primitive_marker: :label
       }
 
-
       l2 << [encounter_label, @leave_btn.prefab]
       return l2
     when 3
@@ -124,7 +122,7 @@ class Shop < Scene
       return l3
     when 4
       cards = []
-      @items.each do |item| 
+      @items.each do |item|
         card, tooltip = item.prefab
         cards << card
       end

@@ -43,7 +43,7 @@ class Intro < Scene
       when 4
         # STEP 4
         @steps_completed = 5
-        $game.change_scene(prev_sc: @sc_id, next_scene: "combat_tutorial")
+        $GAME.change_scene(prev_sc: @sc_id, next_scene: "combat_tutorial")
       end
     end
 
@@ -75,9 +75,10 @@ class Intro < Scene
     @skipping_tick = Kernel.tick_count if GTK.args.inputs.mouse.down
     @skipping_tick = nil if GTK.args.inputs.mouse.up
 
-    if @skipping_tick && @skipping_tick.elapsed_time >= 1.0.seconds && !@cutscene_skipped
+    if @skipping_tick && @skipping_tick.elapsed_time >= 1.0.seconds &&
+         !@cutscene_skipped
       @cutscene_skipped = true
-      $game.change_scene(prev_sc: @sc_id, next_scene: "combat_tutorial")
+      $GAME.change_scene(prev_sc: @sc_id, next_scene: "combat_tutorial")
     end
   end
 
@@ -131,7 +132,7 @@ class Intro < Scene
           primitive_marker: :solid,
           r: 255,
           g: 255,
-          b: 255,
+          b: 255
         }
         skip_bar_end ||= {
           x: 210,
@@ -141,7 +142,7 @@ class Intro < Scene
           primitive_marker: :solid,
           r: 255,
           g: 255,
-          b: 255,
+          b: 255
         }
         skip_bar ||= {
           x: 175,
@@ -151,7 +152,7 @@ class Intro < Scene
           primitive_marker: :solid,
           r: 255,
           g: 255,
-          b: 255,
+          b: 255
         }
 
         l2 << [skip_bar, skip_bar_end]

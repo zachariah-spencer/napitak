@@ -108,7 +108,6 @@ class Card
   end
 
   def tick()
-    
     calc_hover
     calc_render_target(GTK.args)
 
@@ -116,7 +115,7 @@ class Card
       @fw = 0
       @fh = 0
 
-      @needs_removed = true if @w <= 10 || @h<= 10 && !@needs_removed
+      @needs_removed = true if @w <= 10 || @h <= 10 && !@needs_removed
     end
   end
 
@@ -129,12 +128,21 @@ class Card
   end
 
   def rect
-    { id: @entity_id, x: @pos.x, y: @pos.y, w: @w, h: @h, angle: @angle, anchor_x: 0.5, anchor_y: 0.5 }
+    {
+      id: @entity_id,
+      x: @pos.x,
+      y: @pos.y,
+      w: @w,
+      h: @h,
+      angle: @angle,
+      anchor_x: 0.5,
+      anchor_y: 0.5
+    }
   end
 
   def calc_hover
     was_hovered = @hovered
-    if !$game.input_locked
+    if !$GAME.input_locked
       @hovered = Geometry.intersect_rect?(GTK.args.inputs.mouse, rect)
     else
       @hovered = false
@@ -242,18 +250,18 @@ class Card
     }
 
     args.outputs[@card_composite_sprite_ref].primitives << {
-        x: @w / 2,
-        y: @h / 1.25,
-        text: "#{@name}",
-        anchor_x: 0.5,
-        anchor_y: 0.5,
-        r: 255,
-        g: 255,
-        b: 255,
-        size_px: @free_floating ? 16 : 20,
-        a: prefab_alpha,
-        font: $FONT
-      }
+      x: @w / 2,
+      y: @h / 1.25,
+      text: "#{@name}",
+      anchor_x: 0.5,
+      anchor_y: 0.5,
+      r: 255,
+      g: 255,
+      b: 255,
+      size_px: @free_floating ? 16 : 20,
+      a: prefab_alpha,
+      font: $FONT
+    }
 
     if GameUtils.is_potion(self.id)
       args.outputs[@card_composite_sprite_ref].primitives << {

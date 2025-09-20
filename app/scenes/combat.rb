@@ -103,11 +103,11 @@ class Combat < Scene
 
     $EVENT_BUS.subscribe(:enemy_died, self) { |p| on_enemy_died(p) }
 
-    $game.input_locked = true
+    $GAME.input_locked = true
   end
 
   def ready
-    $game.input_locked = true
+    $GAME.input_locked = true
     @tutorial_service.handle_combat_start
   end
 
@@ -134,8 +134,8 @@ class Combat < Scene
 
   def on_potion_cast_animation_completed(payload)
     puts "POTION CAST COMPLETED"
-    $game.input_locked = false
-    if !@hand_manager.actions_available? && !$game.input_locked
+    $GAME.input_locked = false
+    if !@hand_manager.actions_available? && !$GAME.input_locked
       begin_turn_stage(@turn_stages[:cleanup])
     end
   end
@@ -150,7 +150,7 @@ class Combat < Scene
     @pass_btn.update_alpha(@pass_btn_alpha)
     @flee_btn.update_alpha(@flee_btn_alpha)
     run_once(:allow_input_after_dealing_completed) do
-      $game.input_locked = false
+      $GAME.input_locked = false
     end if @done_dealing
     if @victory_banner_timer &&
          @victory_banner_timer.elapsed_time >= 3.25.seconds
@@ -226,25 +226,25 @@ class Combat < Scene
       @player.reward_feathers(@enemy.value)
       $encounter_manager.inc_combats_won
       if @enemy.is_boss
-        $game.change_scene(
+        $GAME.change_scene(
           prev_sc: @sc_id,
           next_scene: "boss_rewards_screen",
           args: [@enemy.enemy_id]
         )
       else
-        $game.change_scene(prev_sc: @sc_id, next_scene: "rewards_screen")
+        $GAME.change_scene(prev_sc: @sc_id, next_scene: "rewards_screen")
       end
     when :defeat
-      $game.end_run
+      $GAME.end_run
     when :flee
-      $game.change_scene(prev_sc: @sc_id, next_scene: "map")
+      $GAME.change_scene(prev_sc: @sc_id, next_scene: "map")
     end
   end
 
   def calc
     @hand_manager.calc_card_positions
 
-    if $game.input_locked
+    if $GAME.input_locked
       clear_dragging_state
     elsif @player.my_turn? && !@fled
       calc_mouse_inputs
@@ -801,7 +801,7 @@ class Combat < Scene
   end
 
   def calc_mouse_inputs
-    return if $game.input_locked
+    return if $GAME.input_locked
 
     if @flee_btn.clicked? && @player.my_turn
       puts "clicked on flee_btn"
@@ -873,7 +873,7 @@ class Combat < Scene
             @hand_manager.use_card(c_ref)
           end
           end_combat if @enemy.combat_stats.dead
-          if !@hand_manager.actions_available? && !$game.input_locked
+          if !@hand_manager.actions_available? && !$GAME.input_locked
             begin_turn_stage(@turn_stages[:cleanup])
           end
         end

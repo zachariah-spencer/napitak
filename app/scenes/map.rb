@@ -40,7 +40,7 @@ class Map < Scene
   end
 
   def tick
-    calc_input if !$game.input_locked
+    calc_input if !$GAME.input_locked
     handle_selection_animation if @selection_made_tick
     @choices.each { |c| c.tick }
   end
@@ -51,7 +51,7 @@ class Map < Scene
         @selection = c.pop_clicked
         @selected_card_ref = c
         @selection_made_tick = Kernel.tick_count
-        $game.input_locked = true
+        $GAME.input_locked = true
       end
     end
   end
@@ -60,7 +60,8 @@ class Map < Scene
     @choices.each do |c|
       c.fade_out if c != @selected_card_ref
 
-      if c == @selected_card_ref && @selection_made_tick.elapsed_time >= 0.1.seconds
+      if c == @selected_card_ref &&
+           @selection_made_tick.elapsed_time >= 0.1.seconds
         c.fw = 300
         c.fh = 300
         # pos is center (anchor 0.5)
@@ -69,20 +70,22 @@ class Map < Scene
       end
     end
 
-    handle_selection if @selection_made_tick.elapsed_time >= 1.0.seconds && !@selection_handled
+    if @selection_made_tick.elapsed_time >= 1.0.seconds && !@selection_handled
+      handle_selection
+    end
   end
 
   def handle_selection
     @selection_handled = true
-    
+
     if $ENCOUNTERS[@selection[:id]].is_combat
-          $game.change_scene(
-            prev_sc: "map",
-            next_scene: "combat",
-            args: [@selection[:id]]
-          )
-        else
-          $game.change_scene(prev_sc: "map", next_scene: @selection[:id])
+      $GAME.change_scene(
+        prev_sc: "map",
+        next_scene: "combat",
+        args: [@selection[:id]]
+      )
+    else
+      $GAME.change_scene(prev_sc: "map", next_scene: @selection[:id])
     end
   end
 

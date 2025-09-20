@@ -74,7 +74,7 @@ class AlchemyTable < Scene
   def play_brew_anim
     @brew_anim_tick = Kernel.tick_count
     $AUDIO_SERVICE.play_sound(:brew_action)
-    $game.input_locked = true
+    $GAME.input_locked = true
     @brew_completed = false
   end
 
@@ -83,7 +83,7 @@ class AlchemyTable < Scene
       puts "BREWANIMTICK ELAPSED TIME: #{@brew_anim_tick.elapsed_time}"
       if @brew_anim_tick.elapsed_time >= 1.0.seconds
         @brew_anim_tick = nil
-        $game.input_locked = false
+        $GAME.input_locked = false
       else
       end
     end
@@ -230,8 +230,7 @@ class AlchemyTable < Scene
   def leave
     update_inventories(called_on_cleanup: true)
 
-
-    $game.change_scene(prev_sc: @sc_id, next_scene: "map")
+    $GAME.change_scene(prev_sc: @sc_id, next_scene: "map")
   end
 
   def tick
@@ -247,7 +246,7 @@ class AlchemyTable < Scene
   end
 
   def calc
-    if !$game.input_locked
+    if !$GAME.input_locked
       calc_keyboard_inputs
       calc_mouse_inputs
     else
@@ -276,7 +275,7 @@ class AlchemyTable < Scene
 
     all_moveable_cards.each do |id, c|
       c.calc_position(0, 0)
-      if out_of_bounds?(c) && !$game.input_locked && !c.marked_for_removal
+      if out_of_bounds?(c) && !$GAME.input_locked && !c.marked_for_removal
         c.mark_for_removal
         $AUDIO_SERVICE.play_sound(:remove_ingredient)
         unselect_cards(c)

@@ -15,7 +15,7 @@ class IngredientCard < Card
 
   def calc_position(num_cards, index)
     if !@marked_for_removal
-      @f_pos.y = 110 if @pos.y < 110 && $game.scene == "alchemy_lab"
+      @f_pos.y = 110 if @pos.y < 110 && $GAME.scene == "alchemy_lab"
 
       if @selected
         @fw = 150

@@ -12,7 +12,7 @@ class IngredientGeneratorCard < Card
   end
 
   def tick
-    if !$game.input_locked
+    if !$GAME.input_locked
       calc_hover
       calc_click
     else
@@ -25,8 +25,12 @@ class IngredientGeneratorCard < Card
   def calc_hover
     hovered_last_tick = @hovered
     @hovered = Geometry.intersect_rect?(GTK.args.inputs.mouse, rect)
-    $AUDIO_SERVICE.play_sound(:hover_ingredient_generator, rand_pitch: true) if @hovered != hovered_last_tick && @hovered
-    $AUDIO_SERVICE.play_sound(:unhover_ingredient_generator) if @hovered != hovered_last_tick && !@hovered
+    if @hovered != hovered_last_tick && @hovered
+      $AUDIO_SERVICE.play_sound(:hover_ingredient_generator, rand_pitch: true)
+    end
+    if @hovered != hovered_last_tick && !@hovered
+      $AUDIO_SERVICE.play_sound(:unhover_ingredient_generator)
+    end
   end
 
   def calc_click

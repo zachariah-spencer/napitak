@@ -14,27 +14,60 @@ class Collection < Scene
     page = 1
     spacing = 50
     start_x = -75
-    @next_pg_btn = Button.new(x: GTK.args.grid.w / 2 - 32 + 128, y: 64 + 16, w: 64, h: 64, text: ">", text_size_px: 64, path: "sprites/button_frame-128x128-sheet-4.png",
-    tile_rect: { x: 128, y: 0, w: 128, h: 128 },
-    frame_length: 4, anchor_y: 0.43, active: false)
-    @prev_pg_btn = Button.new(x: GTK.args.grid.w / 2 - 96, y: 64 + 16, w: 64, h: 64, text: "<", text_size_px: 64, path: "sprites/button_frame-128x128-sheet-4.png",
-    tile_rect: { x: 128, y: 0, w: 128, h: 128 },
-    frame_length: 4, anchor_y: 0.43, active: false)
-    @back_btn = Button.new(
-      x: 64,
-      y: GTK.args.grid.h - 16 - 16,
-      w: 32,
-      h: 32,
-      path: "sprites/back_button-sheet-4.png",
-      text: "",
-      frame_length: 4,
-      tile_rect: {
-        x: 32,
-        y: 0,
+    @next_pg_btn =
+      Button.new(
+        x: GTK.args.grid.w / 2 - 32 + 128,
+        y: 64 + 16,
+        w: 64,
+        h: 64,
+        text: ">",
+        text_size_px: 64,
+        path: "sprites/button_frame-128x128-sheet-4.png",
+        tile_rect: {
+          x: 128,
+          y: 0,
+          w: 128,
+          h: 128
+        },
+        frame_length: 4,
+        anchor_y: 0.43,
+        active: false
+      )
+    @prev_pg_btn =
+      Button.new(
+        x: GTK.args.grid.w / 2 - 96,
+        y: 64 + 16,
+        w: 64,
+        h: 64,
+        text: "<",
+        text_size_px: 64,
+        path: "sprites/button_frame-128x128-sheet-4.png",
+        tile_rect: {
+          x: 128,
+          y: 0,
+          w: 128,
+          h: 128
+        },
+        frame_length: 4,
+        anchor_y: 0.43,
+        active: false
+      )
+    @back_btn =
+      Button.new(
+        x: 64,
+        y: GTK.args.grid.h - 16 - 16,
         w: 32,
         h: 32,
-      }
-    )
+        path: "sprites/back_button-sheet-4.png",
+        text: "",
+        frame_length: 4,
+        tile_rect: {
+          x: 32,
+          y: 0,
+          w: 32,
+          h: 32
+        }
+      )
 
     @buttons = [@prev_pg_btn, @next_pg_btn, @back_btn]
 
@@ -68,13 +101,13 @@ class Collection < Scene
     @buttons.each { |b| b.tick }
 
     card_viewed = @recipe_cards.any? { |c| c.viewed }
-    @recipe_cards.each do |card| 
+    @recipe_cards.each do |card|
       card.tick
       card.faded = (card_viewed && !card.viewed)
     end
     calc
   end
-  
+
   def card_viewed?
     @recipe_cards.find { |c| c.viewed }
   end
@@ -178,7 +211,9 @@ class Collection < Scene
       }
 
       l3 << [@back_btn.prefab]
-      l3 << [@prev_pg_btn.prefab, @next_pg_btn.prefab, page_count_label] if @total_pages != 1
+      if @total_pages != 1
+        l3 << [@prev_pg_btn.prefab, @next_pg_btn.prefab, page_count_label]
+      end
       l3
     when 4
       l4 << []
@@ -189,15 +224,13 @@ class Collection < Scene
   end
 
   def calc
-    if @back_btn.clicked?
-      $game.toggle_collection
-    end
+    $GAME.toggle_collection if @back_btn.clicked?
 
     @next_pg_btn.set_active((@page < @total_pages) && !card_viewed?)
     @prev_pg_btn.set_active((@page > 1) && !card_viewed?)
 
     if (@next_pg_btn.clicked? && @page < @total_pages)
-      @page += 1 
+      @page += 1
       $AUDIO_SERVICE.play_sound(:page_turn)
     end
     if (@prev_pg_btn.clicked? && @page > 1)
@@ -205,5 +238,4 @@ class Collection < Scene
       $AUDIO_SERVICE.play_sound(:page_reverse_turn)
     end
   end
-
 end

@@ -1,24 +1,49 @@
 # frozen_string_literal: true
 
 module GameUtils
-
-  def self.sparkle_particle(x:,y:,r:,g:,b:)
-    $game.sparkle_particle(x: x,y: y,r: r,g: g,b: b)
+  def self.sparkle_particle(x:, y:, r:, g:, b:)
+    $GAME.sparkle_particle(x: x, y: y, r: r, g: g, b: b)
   end
 
   def self.status_label(x, y, text, r, g, b, scale)
-    $game.status_label(x, y, text, r, g, b, scale)
+    $GAME.status_label(x, y, text, r, g, b, scale)
   end
 
-  def self.announce(text: "debug", duration: 1.0.seconds, x: Grid.w / 2 - 200, y: Grid.h - 125 - 50, tutorial_id: -1)
+  def self.announce(
+    text: "debug",
+    duration: 1.0.seconds,
+    x: Grid.w / 2 - 200,
+    y: Grid.h - 125 - 50,
+    tutorial_id: -1
+  )
     $announcement_manager.add_announcement(
-      Announcement.new(text: text, duration: duration, x: x, y: y, large: false, tutorial_id: tutorial_id)
+      Announcement.new(
+        text: text,
+        duration: duration,
+        x: x,
+        y: y,
+        large: false,
+        tutorial_id: tutorial_id
+      )
     )
   end
 
-  def self.announce_lg(text: "debug", duration: 1.0.seconds, x: Grid.w / 2 - 400, y: Grid.h - 250 - 50, tutorial_id: -1)
+  def self.announce_lg(
+    text: "debug",
+    duration: 1.0.seconds,
+    x: Grid.w / 2 - 400,
+    y: Grid.h - 250 - 50,
+    tutorial_id: -1
+  )
     $announcement_manager.add_announcement(
-      Announcement.new(text: text, duration: duration, x: x, y: y, large: true, tutorial_id: tutorial_id)
+      Announcement.new(
+        text: text,
+        duration: duration,
+        x: x,
+        y: y,
+        large: true,
+        tutorial_id: tutorial_id
+      )
     )
   end
 
@@ -85,7 +110,15 @@ module GameUtils
     [i, text]
   end
 
-  def self.camera_shake(intensity: 8.0, duration: 0.3.seconds, include_ui: false)
-    $game.camera_shake(intensity: intensity, duration: duration, include_ui: include_ui)
+  def self.camera_shake(
+    intensity: 8.0,
+    duration: 0.3.seconds,
+    include_ui: false
+  )
+    $GAME.camera_shake(
+      intensity: intensity,
+      duration: duration,
+      include_ui: include_ui
+    )
   end
 end

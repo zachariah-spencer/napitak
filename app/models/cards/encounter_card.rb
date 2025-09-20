@@ -44,7 +44,7 @@ class EncounterCard < Card
   end
 
   def tick
-    if !$game.input_locked
+    if !$GAME.input_locked
       calc_hover
       calc_click
     else
@@ -91,22 +91,31 @@ class EncounterCard < Card
   end
 
   def prefab
-      {
-        x: @pos.x,
-        y: @pos.y,
-        w: @w,
-        h: @h,
-        a: @a,
-        angle: @angle,
-        path: @card_composite_sprite_ref,
-        anchor_x: 0.5,
-        anchor_y: 0.5,
-        primitive_marker: :sprite
-      }
+    {
+      x: @pos.x,
+      y: @pos.y,
+      w: @w,
+      h: @h,
+      a: @a,
+      angle: @angle,
+      path: @card_composite_sprite_ref,
+      anchor_x: 0.5,
+      anchor_y: 0.5,
+      primitive_marker: :sprite
+    }
   end
 
   def rect
-    { id: @entity_id, x: @pos.x, y: @pos.y, w: @w, h: @h, angle: @angle, anchor_x: 0.5, anchor_y: 0.5 }
+    {
+      id: @entity_id,
+      x: @pos.x,
+      y: @pos.y,
+      w: @w,
+      h: @h,
+      angle: @angle,
+      anchor_x: 0.5,
+      anchor_y: 0.5
+    }
   end
 
   def calc_position(num_cards, index)
@@ -167,14 +176,15 @@ class EncounterCard < Card
       tile_h: 128
     }
 
-    
     if @name == "Wolf"
-      sprite_frame = 0.frame_index(
-                      count: 3,
-                      hold_for: 30,
-                      repeat: true,
-                      repeat_index: 0,
-                      tick_count_override: Kernel.tick_count)
+      sprite_frame =
+        0.frame_index(
+          count: 3,
+          hold_for: 30,
+          repeat: true,
+          repeat_index: 0,
+          tick_count_override: Kernel.tick_count
+        )
       args.outputs[@card_composite_sprite_ref].primitives << {
         x: @w / 4,
         y: @h / 4,
@@ -186,15 +196,17 @@ class EncounterCard < Card
         tile_x: (sprite_frame * 128),
         tile_y: 0,
         tile_w: 128,
-        tile_h: 128,
+        tile_h: 128
       }
     elsif @name == "Bat"
-      sprite_frame = 0.frame_index(
-                      count: 6,
-                      hold_for: 30,
-                      repeat: true,
-                      repeat_index: 0,
-                      tick_count_override: Kernel.tick_count)
+      sprite_frame =
+        0.frame_index(
+          count: 6,
+          hold_for: 30,
+          repeat: true,
+          repeat_index: 0,
+          tick_count_override: Kernel.tick_count
+        )
       args.outputs[@card_composite_sprite_ref].primitives << {
         x: @w / 4,
         y: @h / 4,
@@ -206,15 +218,17 @@ class EncounterCard < Card
         tile_x: (sprite_frame * 512),
         tile_y: 0,
         tile_w: 512,
-        tile_h: 512,
+        tile_h: 512
       }
     elsif @name == "Laboratory"
-      sprite_frame = 0.frame_index(
-                      count: 3,
-                      hold_for: 30,
-                      repeat: true,
-                      repeat_index: 0,
-                      tick_count_override: Kernel.tick_count)
+      sprite_frame =
+        0.frame_index(
+          count: 3,
+          hold_for: 30,
+          repeat: true,
+          repeat_index: 0,
+          tick_count_override: Kernel.tick_count
+        )
       args.outputs[@card_composite_sprite_ref].primitives << {
         x: @w / 4,
         y: @h / 4,
@@ -226,15 +240,17 @@ class EncounterCard < Card
         tile_x: (sprite_frame * 512),
         tile_y: 0,
         tile_w: 512,
-        tile_h: 512,
+        tile_h: 512
       }
     elsif @name == "Brew Bench"
-      sprite_frame = 0.frame_index(
-                      count: 3,
-                      hold_for: 30,
-                      repeat: true,
-                      repeat_index: 0,
-                      tick_count_override: Kernel.tick_count)
+      sprite_frame =
+        0.frame_index(
+          count: 3,
+          hold_for: 30,
+          repeat: true,
+          repeat_index: 0,
+          tick_count_override: Kernel.tick_count
+        )
       args.outputs[@card_composite_sprite_ref].primitives << {
         x: @w / 4,
         y: @h / 4,
@@ -246,15 +262,17 @@ class EncounterCard < Card
         tile_x: (sprite_frame * 512),
         tile_y: 0,
         tile_w: 512,
-        tile_h: 512,
+        tile_h: 512
       }
     elsif @name == "Trader"
-      sprite_frame = 0.frame_index(
-                      count: 3,
-                      hold_for: 30,
-                      repeat: true,
-                      repeat_index: 0,
-                      tick_count_override: Kernel.tick_count)
+      sprite_frame =
+        0.frame_index(
+          count: 3,
+          hold_for: 30,
+          repeat: true,
+          repeat_index: 0,
+          tick_count_override: Kernel.tick_count
+        )
       args.outputs[@card_composite_sprite_ref].primitives << {
         x: @w / 4,
         y: @h / 4,
@@ -266,15 +284,17 @@ class EncounterCard < Card
         tile_x: (sprite_frame * 512),
         tile_y: 0,
         tile_w: 512,
-        tile_h: 512,
+        tile_h: 512
       }
     elsif @name == "Event"
-      sprite_frame = 0.frame_index(
-                      count: 3,
-                      hold_for: 30,
-                      repeat: true,
-                      repeat_index: 0,
-                      tick_count_override: Kernel.tick_count)
+      sprite_frame =
+        0.frame_index(
+          count: 3,
+          hold_for: 30,
+          repeat: true,
+          repeat_index: 0,
+          tick_count_override: Kernel.tick_count
+        )
       args.outputs[@card_composite_sprite_ref].primitives << {
         x: @w / 4,
         y: @h / 4,
@@ -286,7 +306,7 @@ class EncounterCard < Card
         tile_x: (sprite_frame * 512),
         tile_y: 0,
         tile_w: 512,
-        tile_h: 512,
+        tile_h: 512
       }
     else
       args.outputs[@card_composite_sprite_ref].primitives << {
@@ -296,7 +316,7 @@ class EncounterCard < Card
         h: @h / 3,
         angle: 0,
         a: prefab_alpha,
-        path: @img,
+        path: @img
       }
     end
 
