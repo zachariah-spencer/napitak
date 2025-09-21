@@ -17,6 +17,7 @@ require_relative "utils/transition"
 require_relative "utils/status_effect_list_widget"
 require_relative "utils/run_once"
 require_relative "utils/sparkle_particle"
+require_relative "utils/hud"
 
 # models (just player)
 require_relative "models/player"
@@ -81,11 +82,14 @@ require_relative "services/tutorial_service"
 require_relative "services/event_bus"
 require_relative "services/combo_manager"
 require_relative "services/audio_service"
+require_relative "services/scene_manager"
+require_relative "services/camera_controller"
+require_relative "services/particle_system"
 
 def tick(args)
   purge_old_version_saves_from_web_build(args)
-  $files ||= Files.new
-  $GAME ||= Game.new
+  Files.new if !$files
+  Game.new if !$GAME
 
   $GAME.args ||= args
   $GAME.tick if $GAME != nil
@@ -108,3 +112,4 @@ def purge_old_version_saves_from_web_build(args)
 end
 
 GTK.reset
+
