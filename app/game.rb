@@ -679,27 +679,19 @@ class Game
   end
 
   def calc_button_inputs
-    pot_hovered = GTK.args.inputs.mouse.intersect_rect?(@pot_col_btn)
-    if pot_hovered
-      @pot_col_btn[:w] = @pot_col_btn[:w].lerp(HOVERED_COLLECTION_BUTTON_SIZE, HOVER_LERP_SPEED)
-      @pot_col_btn[:h] = @pot_col_btn[:h].lerp(HOVERED_COLLECTION_BUTTON_SIZE, HOVER_LERP_SPEED)
-      @pot_btn_label[:a] = @pot_btn_label[:a].lerp(COLLECTION_LABEL_VISIBLE_ALPHA, HOVER_LERP_SPEED)
-    else
-      @pot_col_btn[:w] = @pot_col_btn[:w].lerp(COLLECTION_BUTTON_SIZE, HOVER_LERP_SPEED)
-      @pot_col_btn[:h] = @pot_col_btn[:h].lerp(COLLECTION_BUTTON_SIZE, HOVER_LERP_SPEED)
-      @pot_btn_label[:a] = @pot_btn_label[:a].lerp(COLLECTION_LABEL_HIDDEN_ALPHA, HOVER_LERP_SPEED)
-    end
+    animate_hover!(@pot_col_btn, @pot_btn_label, HOVERED_COLLECTION_BUTTON_SIZE)
+    animate_hover!(@ing_col_btn, @ing_btn_label, HOVERED_COLLECTION_BUTTON_SIZE)
+  end
 
-    ing_hovered = GTK.args.inputs.mouse.intersect_rect?(@ing_col_btn)
-    if ing_hovered
-      @ing_col_btn[:w] = @ing_col_btn[:w].lerp(HOVERED_COLLECTION_BUTTON_SIZE, HOVER_LERP_SPEED)
-      @ing_col_btn[:h] = @ing_col_btn[:h].lerp(HOVERED_COLLECTION_BUTTON_SIZE, HOVER_LERP_SPEED)
-      @ing_btn_label[:a] = @ing_btn_label[:a].lerp(COLLECTION_LABEL_VISIBLE_ALPHA, HOVER_LERP_SPEED)
-    else
-      @ing_col_btn[:w] = @ing_col_btn[:w].lerp(COLLECTION_BUTTON_SIZE, HOVER_LERP_SPEED)
-      @ing_col_btn[:h] = @ing_col_btn[:h].lerp(COLLECTION_BUTTON_SIZE, HOVER_LERP_SPEED)
-      @ing_btn_label[:a] = @ing_btn_label[:a].lerp(COLLECTION_LABEL_HIDDEN_ALPHA, HOVER_LERP_SPEED)
-    end
+  def animate_hover!(button_hash, label_hash, hover_target_size)
+    hovered = GTK.args.inputs.mouse.intersect_rect?(button_hash)
+    target_size = hovered ? hover_target_size : COLLECTION_BUTTON_SIZE
+    target_alpha =
+      hovered ? COLLECTION_LABEL_VISIBLE_ALPHA : COLLECTION_LABEL_HIDDEN_ALPHA
+
+    button_hash[:w] = button_hash[:w].lerp(target_size, HOVER_LERP_SPEED)
+    button_hash[:h] = button_hash[:h].lerp(target_size, HOVER_LERP_SPEED)
+    label_hash[:a] = label_hash[:a].lerp(target_alpha, HOVER_LERP_SPEED)
   end
 
   def misc_btn
@@ -1014,3 +1006,4 @@ class Game
     ]
   end
 end
+
