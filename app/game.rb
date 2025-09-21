@@ -4,6 +4,16 @@ class Game
   attr_gtk
   attr :scene, :input_locked, :runs_completed, :transitioning_scenes
 
+  UI_TOP_MARGIN = 32
+  PAUSE_BUTTON_SIZE = 32
+  COLLECTION_BUTTON_SIZE = 32
+  HOVERED_COLLECTION_BUTTON_SIZE = 64
+  HOVER_LERP_SPEED = 0.2
+  COLLECTION_LABEL_VISIBLE_ALPHA = 255
+  COLLECTION_LABEL_HIDDEN_ALPHA = 0
+  COLLECTION_LABEL_FONT_SIZE = 18
+  COLLECTION_LABEL_Y_OFFSET = 80
+
   def initialize
     $GAME = self
     @input_locked = false
@@ -87,15 +97,15 @@ class Game
     @pause_btn =
       Button.new(
         x: 128 + 16 + 8,
-        y: GTK.args.grid.h - 32,
-        w: 32,
-        h: 32,
+        y: GTK.args.grid.h - UI_TOP_MARGIN,
+        w: PAUSE_BUTTON_SIZE,
+        h: PAUSE_BUTTON_SIZE,
         path: "sprites/pause_button-sheet-4.png",
         tile_rect: {
-          x: 32,
+          x: PAUSE_BUTTON_SIZE,
           y: 0,
-          w: 32,
-          h: 32
+          w: PAUSE_BUTTON_SIZE,
+          h: PAUSE_BUTTON_SIZE
         },
         frame_length: 4,
         text: ""
@@ -108,47 +118,47 @@ class Game
       )
     @pot_col_btn = {
       x: GTK.args.grid.w / 2 - 16 + 200,
-      y: GTK.args.grid.h - 32,
-      w: 32,
-      h: 32,
+      y: GTK.args.grid.h - UI_TOP_MARGIN,
+      w: COLLECTION_BUTTON_SIZE,
+      h: COLLECTION_BUTTON_SIZE,
       anchor_x: 0.5,
       anchor_y: 0.5,
       path: "sprites/bottle.png"
     }
     @ing_col_btn = {
       x: GTK.args.grid.w / 2 - 16 - 175,
-      y: GTK.args.grid.h - 32,
-      w: 32,
-      h: 32,
+      y: GTK.args.grid.h - UI_TOP_MARGIN,
+      w: COLLECTION_BUTTON_SIZE,
+      h: COLLECTION_BUTTON_SIZE,
       anchor_x: 0.5,
       anchor_y: 0.5,
       path: "sprites/fire.png"
     }
     @pot_btn_label = {
       x: GTK.args.grid.w / 2 - 16 + 200,
-      y: GTK.args.grid.h - 80,
+      y: GTK.args.grid.h - COLLECTION_LABEL_Y_OFFSET,
       anchor_x: 0.5,
       anchor_y: 0.5,
       font: $FONT,
       text: "Potions",
-      size_px: 18,
+      size_px: COLLECTION_LABEL_FONT_SIZE,
       r: 255,
       g: 255,
       b: 255,
-      a: 255
+      a: COLLECTION_LABEL_VISIBLE_ALPHA
     }
     @ing_btn_label = {
       x: GTK.args.grid.w / 2 - 16 - 175,
-      y: GTK.args.grid.h - 80,
+      y: GTK.args.grid.h - COLLECTION_LABEL_Y_OFFSET,
       anchor_x: 0.5,
       anchor_y: 0.5,
       font: $FONT,
       text: "Ingredients",
-      size_px: 18,
+      size_px: COLLECTION_LABEL_FONT_SIZE,
       r: 255,
       g: 255,
       b: 255,
-      a: 255
+      a: COLLECTION_LABEL_VISIBLE_ALPHA
     }
   end
 
@@ -671,24 +681,24 @@ class Game
   def calc_button_inputs
     pot_hovered = GTK.args.inputs.mouse.intersect_rect?(@pot_col_btn)
     if pot_hovered
-      @pot_col_btn[:w] = @pot_col_btn[:w].lerp(64, 0.2)
-      @pot_col_btn[:h] = @pot_col_btn[:h].lerp(64, 0.2)
-      @pot_btn_label[:a] = @pot_btn_label[:a].lerp(255, 0.2)
+      @pot_col_btn[:w] = @pot_col_btn[:w].lerp(HOVERED_COLLECTION_BUTTON_SIZE, HOVER_LERP_SPEED)
+      @pot_col_btn[:h] = @pot_col_btn[:h].lerp(HOVERED_COLLECTION_BUTTON_SIZE, HOVER_LERP_SPEED)
+      @pot_btn_label[:a] = @pot_btn_label[:a].lerp(COLLECTION_LABEL_VISIBLE_ALPHA, HOVER_LERP_SPEED)
     else
-      @pot_col_btn[:w] = @pot_col_btn[:w].lerp(32, 0.2)
-      @pot_col_btn[:h] = @pot_col_btn[:h].lerp(32, 0.2)
-      @pot_btn_label[:a] = @pot_btn_label[:a].lerp(0, 0.2)
+      @pot_col_btn[:w] = @pot_col_btn[:w].lerp(COLLECTION_BUTTON_SIZE, HOVER_LERP_SPEED)
+      @pot_col_btn[:h] = @pot_col_btn[:h].lerp(COLLECTION_BUTTON_SIZE, HOVER_LERP_SPEED)
+      @pot_btn_label[:a] = @pot_btn_label[:a].lerp(COLLECTION_LABEL_HIDDEN_ALPHA, HOVER_LERP_SPEED)
     end
 
     ing_hovered = GTK.args.inputs.mouse.intersect_rect?(@ing_col_btn)
     if ing_hovered
-      @ing_col_btn[:w] = @ing_col_btn[:w].lerp(64, 0.2)
-      @ing_col_btn[:h] = @ing_col_btn[:h].lerp(64, 0.2)
-      @ing_btn_label[:a] = @ing_btn_label[:a].lerp(255, 0.2)
+      @ing_col_btn[:w] = @ing_col_btn[:w].lerp(HOVERED_COLLECTION_BUTTON_SIZE, HOVER_LERP_SPEED)
+      @ing_col_btn[:h] = @ing_col_btn[:h].lerp(HOVERED_COLLECTION_BUTTON_SIZE, HOVER_LERP_SPEED)
+      @ing_btn_label[:a] = @ing_btn_label[:a].lerp(COLLECTION_LABEL_VISIBLE_ALPHA, HOVER_LERP_SPEED)
     else
-      @ing_col_btn[:w] = @ing_col_btn[:w].lerp(32, 0.2)
-      @ing_col_btn[:h] = @ing_col_btn[:h].lerp(32, 0.2)
-      @ing_btn_label[:a] = @ing_btn_label[:a].lerp(0, 0.2)
+      @ing_col_btn[:w] = @ing_col_btn[:w].lerp(COLLECTION_BUTTON_SIZE, HOVER_LERP_SPEED)
+      @ing_col_btn[:h] = @ing_col_btn[:h].lerp(COLLECTION_BUTTON_SIZE, HOVER_LERP_SPEED)
+      @ing_btn_label[:a] = @ing_btn_label[:a].lerp(COLLECTION_LABEL_HIDDEN_ALPHA, HOVER_LERP_SPEED)
     end
   end
 
