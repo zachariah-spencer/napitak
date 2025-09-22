@@ -1,0 +1,66 @@
+{
+  "types": {
+    "force": 0,
+    "heat": 1,
+    "cold": 2,
+    "light": 3,
+    "dark": 4,
+    "spark": 5,
+    "disease": 6
+  },
+  "colors": {
+    "0": {
+      "r": 255,
+      "g": 0,
+      "b": 0
+    },
+    "1": {
+      "r": 255,
+      "g": 100,
+      "b": 0
+    },
+    "2": {
+      "r": 0,
+      "g": 255,
+      "b": 255
+    },
+    "3": {
+      "r": 255,
+      "g": 255,
+      "b": 255
+    },
+    "4": {
+      "r": 0,
+      "g": 0,
+      "b": 0
+    },
+    "5": {
+      "r": 255,
+      "g": 255,
+      "b": 0
+    },
+    "6": {
+      "r": 120,
+      "g": 150,
+      "b": 60
+    }
+  },
+  "type_names": {
+    "0": "FORCE",
+    "1": "HEAT",
+    "2": "COLD",
+    "3": "LIGHT",
+    "4": "DARK",
+    "5": "SPARK",
+    "6": "DISEASE"
+  },
+  "sprites": {
+    "0": "sprites/square/indigo.png",
+    "1": "sprites/square/orange.png",
+    "2": "sprites/square/blue.png",
+    "3": "sprites/square/white.png",
+    "4": "sprites/square/black.png",
+    "5": "sprites/square/yellow.png",
+    "6": "sprites/square/green.png"
+  }
+}

@@ -1,4 +1,43 @@
 class Bat < Enemy
+  ANIMATIONS = {
+    idle: {
+      path: "sprites/bat_idle_512x512-sheet-6.png",
+      count: 6,
+      hold_for: 8,
+      repeat: true
+    },
+    hurt: {
+      path: "sprites/bat_hurt_512x512_sheet_17.png",
+      count: 17,
+      hold_for: 5,
+      repeat: false
+    },
+    death: {
+      path: "sprites/bat_death_512x512_sheet_9.png",
+      count: 9,
+      hold_for: 8,
+      repeat: false
+    },
+    attacks: {
+      basic: {
+        path: "sprites/bat_attack_1_512x512_sheet_9.png",
+        count: 9,
+        hold_for: 6,
+        impact_frame: 5,
+        repeat: false,
+        sfx: :bat_attack_1
+      },
+      special: {
+        path: "sprites/bat_attack_2_512x512_sheet_13.png",
+        count: 13,
+        hold_for: 8,
+        impact_frame: 5,
+        repeat: false,
+        sfx: :bat_attack_2
+      }
+    }
+  }.freeze
+
   attr_gtk
   attr :hp,
        :max_hp,
@@ -17,7 +56,6 @@ class Bat < Enemy
     @combat_stats.set_stats(hp: 25, vulnerabilities: [$DAMAGE_TYPES[:heat]])
     @animations =
       EnemyAnimationComponent.new(
-        enemy_id_sym: :bat,
         x: @x,
         y: @y,
         w: @w,
@@ -25,7 +63,8 @@ class Bat < Enemy
         tx: 0,
         ty: 0,
         tw: 512,
-        th: 512
+        th: 512,
+        animations: ANIMATIONS
       )
     @sprite = "sprites/isometric/black.png"
     @name = "Bat"
@@ -62,11 +101,11 @@ class Bat < Enemy
     $AUDIO_SERVICE.play_sound("#{@enemy_id}_start".to_sym)
   end
 
-    def calc_death_anim
-      run_once(:death_animation) { @animations.play_animation(:death) }
-    end
+  def calc_death_anim
+    run_once(:death_animation) { @animations.play_animation(:death) }
+  end
 
-    def prefab
+  def prefab
     enemy_sprite = @animations.prefab
 
     enemy_hp_label ||= {

@@ -1,0 +1,48 @@
+{
+  "types": {
+    "SCORCH": 1,
+    "BLIGHT": 2,
+    "FROST": 3,
+    "WARD": 4,
+    "RESTORATION": 5,
+    "BLIND": 6
+  },
+  "colors": {
+    "1": {
+      "r": 255,
+      "g": 100,
+      "b": 0,
+      "message": "SCORCHED"
+    },
+    "2": {
+      "r": 120,
+      "g": 150,
+      "b": 60,
+      "message": "BLIGHTED"
+    },
+    "3": {
+      "r": 0,
+      "g": 255,
+      "b": 255,
+      "message": "FROSTED"
+    },
+    "4": {
+      "r": 255,
+      "g": 255,
+      "b": 50,
+      "message": "WARDED"
+    },
+    "5": {
+      "r": 0,
+      "g": 255,
+      "b": 0,
+      "message": "RESTORED"
+    },
+    "6": {
+      "r": 150,
+      "g": 150,
+      "b": 150,
+      "message": "SHROUDED"
+    }
+  }
+}

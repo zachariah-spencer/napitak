@@ -1,0 +1,303 @@
+{
+  "p001": {
+    "name": "Flamelick Potion",
+    "desc": "Flames leap from the bottle at foes.",
+    "fc": 1,
+    "max_uses": 5,
+    "primary_base_ingredient_id": "i003",
+    "path": "sprites/flamelickbottle.png",
+    "ingredients": {
+      "i001": 1,
+      "i003": 2
+    },
+    "cast_animation": {
+      "id": "p001",
+      "path": "sprites/flamelickcast-sheet-19.png",
+      "count": 19,
+      "hold_for": 4,
+      "impact_frame": 8,
+      "repeat": false
+    },
+    "cast_sfx": "firelick_cast",
+    "finisher_trait": {
+      "5": 5
+    },
+    "traits": [
+      {
+        "0": {
+          "amount": 5,
+          "type": 1
+        }
+      }
+    ]
+  },
+  "p002": {
+    "name": "Combustible Potion",
+    "desc": "Explodes upon throwing causing destruction to nearby creatures.",
+    "fc": 4,
+    "max_uses": 2,
+    "primary_base_ingredient_id": "i003",
+    "path": "sprites/combustiblebottle.png",
+    "cast_animation": {
+      "id": "p002",
+      "path": "sprites/combustiblecast-sheet-256x720-25.png",
+      "count": 25,
+      "hold_for": 4,
+      "impact_frame": 13,
+      "repeat": false
+    },
+    "cast_sfx": "combustiblecast",
+    "ingredients": {
+      "i001": 1,
+      "i003": 1,
+      "i006": 1
+    },
+    "traits": [
+      {
+        "0": {
+          "amount": 15,
+          "type": 1
+        }
+      }
+    ]
+  },
+  "p003": {
+    "name": "Waterbeam Potion",
+    "desc": "Sprays water at high pressure at foes.",
+    "fc": 0,
+    "max_uses": 5,
+    "primary_base_ingredient_id": "i002",
+    "path": "sprites/waterbeambottle.png",
+    "ingredients": {
+      "i001": 1,
+      "i002": 2
+    },
+    "cast_animation": {
+      "id": "p003",
+      "path": "sprites/waterbeamcast-sheet-23.png",
+      "count": 23,
+      "hold_for": 4,
+      "impact_frame": 9,
+      "repeat": false
+    },
+    "cast_sfx": "waterbeam_cast",
+    "traits": [
+      {
+        "0": {
+          "amount": 2,
+          "type": 2
+        }
+      }
+    ]
+  },
+  "p004": {
+    "name": "Cloudy Potion",
+    "desc": "A sip of the clouds lifts ones' spirits and heals them.",
+    "fc": 2,
+    "max_uses": 3,
+    "primary_base_ingredient_id": "i002",
+    "path": "sprites/cloudy_potion.png",
+    "ingredients": {
+      "i001": 1,
+      "i002": 1,
+      "i006": 1
+    },
+    "traits": [
+      {
+        "6": 10
+      }
+    ]
+  },
+  "p005": {
+    "name": "Steamblast Potion",
+    "desc": "A hot blast of steam projects towards foes.",
+    "fc": 3,
+    "max_uses": 2,
+    "primary_base_ingredient_id": "i002",
+    "path": "sprites/steamblast_potion.png",
+    "ingredients": {
+      "i001": 1,
+      "i006": 2
+    },
+    "traits": [
+      {
+        "3": 6
+      },
+      {
+        "0": {
+          "amount": 4,
+          "type": 1
+        }
+      }
+    ]
+  },
+  "p006": {
+    "name": "Rock Potion",
+    "desc": "Liquid solidifies as it is thrown out of the bottle, slamming into foes.",
+    "fc": 0,
+    "max_uses": 5,
+    "primary_base_ingredient_id": "i004",
+    "path": "sprites/circle/green.png",
+    "ingredients": {
+      "i001": 1,
+      "i004": 2
+    },
+    "traits": [
+      {
+        "0": {
+          "amount": 1,
+          "type": 0
+        }
+      },
+      {
+        "5": 1
+      }
+    ]
+  },
+  "p007": {
+    "name": "Wind Potion",
+    "desc": "A gust of wind bursts out of the bottle at foes.",
+    "fc": 3,
+    "max_uses": 3,
+    "primary_base_ingredient_id": "i005",
+    "path": "sprites/circle/white.png",
+    "ingredients": {
+      "i001": 1,
+      "i005": 2
+    },
+    "traits": [
+      {
+        "0": {
+          "amount": 7,
+          "type": 0
+        }
+      },
+      {
+        "1": 5
+      }
+    ]
+  },
+  "p009": {
+    "name": "Sandstone Potion",
+    "desc": "Reinforced dust globs out of the bottle forming a wall betwixt you and foes.",
+    "fc": 5,
+    "max_uses": 3,
+    "primary_base_ingredient_id": "i004",
+    "path": "sprites/circle/yellow.png",
+    "ingredients": {
+      "i001": 1,
+      "i004": 1,
+      "i007": 1
+    },
+    "traits": [
+      {
+        "5": 15
+      }
+    ]
+  },
+  "p010": {
+    "name": "Sandstorm Potion",
+    "desc": "Sand gusts out of the bottle creating a vortex of sand that swirls towards foes.",
+    "fc": 5,
+    "max_uses": 4,
+    "primary_base_ingredient_id": "i005",
+    "path": "sprites/circle/yellow.png",
+    "ingredients": {
+      "i001": 1,
+      "i005": 1,
+      "i007": 1
+    },
+    "traits": [
+      {
+        "0": {
+          "amount": 8,
+          "type": 0
+        }
+      },
+      {
+        "3": 5
+      }
+    ]
+  },
+  "p011": {
+    "name": "Dune Potion",
+    "desc": "A desert dune blossoms from the bottle enveloping foes.",
+    "fc": 4,
+    "max_uses": 1,
+    "primary_base_ingredient_id": "i004",
+    "path": "sprites/circle/yellow.png",
+    "ingredients": {
+      "i001": 1,
+      "i007": 2
+    },
+    "traits": [
+      {
+        "3": 10
+      },
+      {
+        "6": 5
+      },
+      {
+        "5": 5
+      }
+    ]
+  },
+  "p012": {
+    "name": "Quicksand Potion",
+    "desc": "Creates a puddle of quicksand below enemies that envelop them.",
+    "fc": 3,
+    "max_uses": 6,
+    "primary_base_ingredient_id": "i004",
+    "path": "sprites/circle/yellow.png",
+    "ingredients": {
+      "i001": 1,
+      "i002": 1,
+      "i007": 1
+    },
+    "traits": [
+      {
+        "0": {
+          "amount": 8,
+          "type": 0
+        }
+      }
+    ]
+  },
+  "p013": {
+    "name": "Brickwall Potion",
+    "desc": "Creates a brickwall betwixt you and foes.",
+    "fc": 6,
+    "max_uses": 4,
+    "primary_base_ingredient_id": "i004",
+    "path": "sprites/circle/red.png",
+    "ingredients": {
+      "i001": 1,
+      "i009": 2
+    },
+    "traits": [
+      {
+        "5": 20
+      }
+    ]
+  },
+  "p014": {
+    "name": "Lightning Potion",
+    "desc": "Strikes an arc of lightning at foes.",
+    "fc": 2,
+    "max_uses": 4,
+    "primary_base_ingredient_id": "i005",
+    "path": "sprites/circle/yellow.png",
+    "ingredients": {
+      "i001": 1,
+      "i008": 2
+    },
+    "traits": [
+      {
+        "0": {
+          "amount": 6,
+          "type": 5
+        }
+      }
+    ]
+  }
+}

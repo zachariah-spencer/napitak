@@ -1,5 +1,5 @@
 class EnemyAnimationComponent
-  def initialize(x:, y:, w:, h:, tx:, ty:, tw:, th:, enemy_id_sym:)
+  def initialize(x:, y:, w:, h:, tx:, ty:, tw:, th:, animations:)
     @x = x
     @y = y
     @w = w
@@ -10,15 +10,14 @@ class EnemyAnimationComponent
     @th = th
     @dead = false
 
-    # Load anims from global hash and do some light parsing to eliminate organizational sub-hashes so we have flat k,v pairs to work with
-    @animations = $ENEMY_ANIMATIONS[enemy_id_sym]
-      .merge($ENEMY_ANIMATIONS[enemy_id_sym][:attacks])
-      .reject! { |id, anim| id == :attacks}
+    @raw_animations = animations
+    @attack_animations = @raw_animations.fetch(:attacks, {})
+    @animations = build_animation_lookup(@raw_animations)
 
     @current_animation = :idle
     @playing_one_shot = false
     @animation_impacted = false
-    @sprite_frame_start_ticks = { idle: 0, attack: 0 }
+    @sprite_frame_start_ticks = Hash.new(0)
   end
 
   def tick(x: @x, y: @y)
@@ -74,6 +73,14 @@ class EnemyAnimationComponent
     @animations[@current_animation].key?(:impact_frame)
   end
 
+  def attack_animation(id)
+    @attack_animations[id]
+  end
+
+  def sfx_for(animation_id)
+    attack_animation(animation_id)&.[](:sfx)
+  end
+
   def prefab()
     return unless @current_animation
 
@@ -102,5 +109,17 @@ class EnemyAnimationComponent
     }
 
     enemy_sprite
+  end
+
+  private
+
+  def build_animation_lookup(data)
+    data.each_with_object({}) do |(key, value), memo|
+      if key == :attacks
+        value.each { |attack_id, attack_data| memo[attack_id] = attack_data }
+      else
+        memo[key] = value
+      end
+    end
   end
 end

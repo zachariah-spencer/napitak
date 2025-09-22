@@ -1,6 +1,53 @@
 class Wolf < Enemy
   include RunOnce
 
+  ANIMATIONS = {
+    idle: {
+      path: "sprites/wolf-sheet-3.png",
+      count: 3,
+      hold_for: 30,
+      repeat: true
+    },
+    hurt: {
+      path: "sprites/wolf_death-sheet-15.png",
+      count: 4,
+      hold_for: 5,
+      repeat: false
+    },
+    death: {
+      path: "sprites/wolf_death-sheet-15.png",
+      count: 15,
+      hold_for: 5,
+      repeat: false
+    },
+    attacks: {
+      basic: {
+        path: "sprites/wolf_attack1-sheet-4.png",
+        count: 4,
+        hold_for: 10,
+        impact_frame: 1,
+        repeat: false,
+        sfx: :wolf_attack1
+      },
+      special: {
+        path: "sprites/wolf_attack2-sheet-4.png",
+        count: 4,
+        hold_for: 10,
+        impact_frame: 1,
+        repeat: false,
+        sfx: :wolf_attack1
+      },
+      apex: {
+        path: "sprites/wolf_attack3-sheet-14.png",
+        count: 14,
+        hold_for: 10,
+        impact_frame: 10,
+        repeat: false,
+        sfx: :wolf_attack3
+      }
+    }
+  }.freeze
+
   attr_gtk
   attr :hp,
        :max_hp,
@@ -19,7 +66,6 @@ class Wolf < Enemy
     @combat_stats.set_stats(hp: 20, resistances: [$DAMAGE_TYPES[:cold]])
     @animations =
       EnemyAnimationComponent.new(
-        enemy_id_sym: :wolf,
         x: @x,
         y: @y,
         w: @w,
@@ -27,7 +73,8 @@ class Wolf < Enemy
         tx: 0,
         ty: 0,
         tw: 128,
-        th: 128
+        th: 128,
+        animations: ANIMATIONS
       )
     @sprite = "sprites/wolf-sheet-3.png"
     @name = "Wolf"

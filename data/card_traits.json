@@ -1,0 +1,11 @@
+{
+  "damage": 0,
+  "restoration": 1,
+  "blight": 2,
+  "scorch": 3,
+  "frost": 4,
+  "ward": 5,
+  "mend": 6,
+  "channel": 7,
+  "blind": 8
+}
