@@ -107,7 +107,7 @@ class Card
     @marked_for_removal = true
   end
 
-  def tick()
+  def tick
     calc_hover
     calc_render_target(GTK.args)
 
@@ -537,8 +537,8 @@ class Card
     @f_pos.y = 0 if @pos.y < 0
     @f_pos.y = GTK.args.grid.h - @h if @pos.y > GTK.args.grid.h - @h
 
-    @f_pos.x = 128 if @pos.x < 128
-    @f_pos.x = GTK.args.grid.w - @w - 128 if @pos.x > GTK.args.grid.w - @w - 128
+    @f_pos.x = 128 + (@w / 2) if @pos.x < 128 + (@w / 2)
+    @f_pos.x = GTK.args.grid.w - (@w / 2) - 128 if @pos.x > GTK.args.grid.w - (@w / 2) - 128
 
     @vx = @vx.lerp(0, 0.4)
     @vy = @vy.lerp(0, 0.4)

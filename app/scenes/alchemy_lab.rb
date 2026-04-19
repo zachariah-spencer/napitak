@@ -1041,8 +1041,7 @@ class AlchemyLab < Scene
   def out_of_bounds?(card)
     !card.grabbed &&
       (
-        card.pos.y < 100 || card.pos.y > GTK.args.grid.h - card.h ||
-          card.pos.x < 128 || card.pos.x > GTK.args.grid.w - card.w - 128
+        card.pos.y < 100 || card.pos.y > GTK.args.grid.h - card.h
       )
   end
 
