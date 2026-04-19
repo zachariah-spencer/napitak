@@ -193,47 +193,43 @@ class RoleplayEncounter < Scene
     case @outcome
     when @OUTCOMES[:undetermined]
       {
-        x: 256,
-        y: 256,
-        w: GTK.args.grid.w - 512,
-        h: GTK.args.grid.h - 512,
-        r: 100,
-        g: 100,
-        b: 100,
-        primitive_marker: :solid
+        x: 0,
+        y: 0,
+        w: 1280,
+        h: 720,
+        a: 120,
+        path: "sprites/events/event_woods_prompt_2560x1440.png",
+        primitive_marker: :sprite
       }
     when @OUTCOMES[:bad]
       {
-        x: 256,
-        y: 256,
-        w: GTK.args.grid.w - 512,
-        h: GTK.args.grid.h - 512,
-        r: 255,
-        g: 100,
-        b: 100,
-        primitive_marker: :solid
+        x: 0,
+        y: 0,
+        w: 1280,
+        h: 720,
+        a: 120,
+        path: "sprites/events/event_bad_2560x1440.png",
+        primitive_marker: :sprite
       }
     when @OUTCOMES[:neutral]
       {
-        x: 256,
-        y: 256,
-        w: GTK.args.grid.w - 512,
-        h: GTK.args.grid.h - 512,
-        r: 255,
-        g: 100,
-        b: 255,
-        primitive_marker: :solid
+        x: 0,
+        y: 0,
+        w: 1280,
+        h: 720,
+        a: 120,
+        path: "sprites/events/event_neutral_2560x1440.png",
+        primitive_marker: :sprite
       }
     when @OUTCOMES[:good]
       {
-        x: 256,
-        y: 256,
-        w: GTK.args.grid.w - 512,
-        h: GTK.args.grid.h - 512,
-        r: 100,
-        g: 255,
-        b: 100,
-        primitive_marker: :solid
+        x: 0,
+        y: 0,
+        w: 1280,
+        h: 720,
+        a: 120,
+        path: "sprites/events/event_good_2560x1440.png",
+        primitive_marker: :sprite
       }
     end
   end
