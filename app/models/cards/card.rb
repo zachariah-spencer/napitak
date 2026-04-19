@@ -509,8 +509,10 @@ class Card
   end
 
   def interpolate_attributes
-    @w = @w.lerp @fw, 0.2
-    @h = @h.lerp @fh, 0.2
+    size_scaling_speed = 0.2
+    size_scaling_speed = 0.3 if @marked_for_removal
+    @w = @w.lerp @fw, size_scaling_speed
+    @h = @h.lerp @fh, size_scaling_speed
     if @grabbed && !@flipped
       @vx = 0.0
       @vy = 0.0

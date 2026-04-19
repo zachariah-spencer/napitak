@@ -1,9 +1,28 @@
 * EXCEPTION:
-* ERROR: Exception while requiring app/main.rb.
-* ERROR: Exception while requiring app/ui/hud.rb.
-app/ui/hud.rb does not exist.
+* ERROR:
+** method_missing: if
+** instance:       0
+** on class:       Integer
+** with modules:   [NumericDeprecated, ValueType, Comparable, Kernel]
+** with values:    0
+** given args:     [[false]]
+** exception:      can't define singleton
+** backtrace:
+app/models/cards/card.rb:513:in interpolate_attributes
+app/models/cards/card.rb:127:in calc_position
+app/models/cards/ingredient_generator_card.rb:65:in calc_position
+app/models/cards/ingredient_generator_card.rb:21:in tick
+app/scenes/alchemy_lab.rb:329:in tick
+app/scenes/alchemy_lab.rb:329:in tick
+app/game.rb:133:in tick
+app/main.rb:95:in tick
+
 ** Backtrace:
-*** app/main.rb:87
-** Backtrace:
-*** app/main.rb:87
-** Backtrace:
+*** app/models/cards/card.rb:513:in interpolate_attributes
+*** app/models/cards/card.rb:127:in calc_position
+*** app/models/cards/ingredient_generator_card.rb:65:in calc_position
+*** app/models/cards/ingredient_generator_card.rb:21:in tick
+*** app/scenes/alchemy_lab.rb:329:in tick
+*** app/scenes/alchemy_lab.rb:329:in tick
+*** app/game.rb:133:in tick
+*** app/main.rb:95:in tick
