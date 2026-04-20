@@ -36,6 +36,8 @@ class RoleplayEncounter < Scene
     @message_completed = false
     @result_message_completed = false
 
+    @prompt_artwork_path
+
     load_encounter_from_json
   end
 
@@ -44,6 +46,7 @@ class RoleplayEncounter < Scene
     encounters_hash = GTK.parse_json(encounters_json)
     specific_encounter_hash = encounters_hash[encounters_hash.keys.sample]
 
+    @prompt_artwork_path = specific_encounter_hash["artwork_path"]
     @options = specific_encounter_hash["options"]
     @options.shuffle!
     play_message(specific_encounter_hash["prompt"])
@@ -198,7 +201,7 @@ class RoleplayEncounter < Scene
         w: 1280,
         h: 720,
         a: 120,
-        path: "sprites/events/event_woods_prompt_2560x1440.png",
+        path: @prompt_artwork_path,
         primitive_marker: :sprite
       }
     when @OUTCOMES[:bad]
