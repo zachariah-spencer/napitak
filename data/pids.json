@@ -119,6 +119,14 @@
       "i001": 1,
       "i006": 2
     },
+    "cast_animation": {
+      "id": "p005",
+      "path": "sprites/steamblastcast-sheet-256x720-17.png",
+      "count": 17,
+      "hold_for": 4,
+      "impact_frame": 9,
+      "repeat": false
+    },
     "traits": [
       {
         "3": 6
