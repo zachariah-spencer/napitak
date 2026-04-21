@@ -1,6 +1,7 @@
 class Transition
   attr_gtk
   attr :completed, :start_midway
+  attr_accessor :duration
 
   def initialize(start_midway: false)
     @start_midway = start_midway

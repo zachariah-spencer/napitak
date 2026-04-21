@@ -175,6 +175,7 @@ class Game
       l2 << scene_ref.render(2)
       l3 << scene_ref.render(3)
       l4 << scene_ref.render(4)
+      sub_transitions = scene_ref.render(5)
     end
 
     @particle_system.sparkle_prefabs.each { |prefab| l4 << prefab }
@@ -240,6 +241,7 @@ class Game
 
     outputs.primitives << l00
     outputs.primitives << all_render_layers
+    outputs.primitives << sub_transitions if sub_transitions
   end
 
   def camera_shake(intensity: 8.0, duration: 0.3.seconds, include_ui: false)

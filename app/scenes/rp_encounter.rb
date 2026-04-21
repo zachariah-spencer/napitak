@@ -36,6 +36,9 @@ class RoleplayEncounter < Scene
     @message_completed = false
     @result_message_completed = false
 
+    @transition = nil
+    @transition_midway_steps_done = false
+
     @prompt_artwork_path
 
     load_encounter_from_json
@@ -90,10 +93,11 @@ class RoleplayEncounter < Scene
   end
 
   def tick
+    calc_transitions
+
     if GTK.args.inputs.mouse.click && !$GAME.input_locked
       @options.each_with_index do |o, i|
         if o["rect"] && GTK.args.inputs.mouse.inside_rect?(o["rect"])
-          puts "ROLLING PROBABILITY MATH FOR #{o["text"]}"
           determine_outcome(o)
         end
       end
@@ -145,6 +149,10 @@ class RoleplayEncounter < Scene
 
     @options.each { |o| o["rect"] = nil }
     @option_selected_tick = Kernel.tick_count
+
+    @transition = Transition.new
+    @transition.duration = 0.8.seconds
+    $GAME.input_locked = true
   end
 
   def calc_outcome
@@ -192,7 +200,32 @@ class RoleplayEncounter < Scene
     end
   end
 
+  def calc_transitions
+    return unless @transition
+
+    @transition.tick
+    if !@transition_midway_steps_done && @transition.past_midway?
+      @transition_midway_steps_done = true
+
+    end
+    if @transition.completed
+      @transition = nil
+      $GAME.input_locked = false
+
+    end
+  end
+
   def render_splash_art
+    return {
+      x: 0,
+      y: 0,
+      w: 1280,
+      h: 720,
+      a: 120,
+      path: @prompt_artwork_path,
+      primitive_marker: :sprite
+    } if !@transition_midway_steps_done
+
     case @outcome
     when @OUTCOMES[:undetermined]
       {
@@ -243,6 +276,7 @@ class RoleplayEncounter < Scene
     l2 = []
     l3 = []
     l4 = []
+    l5 = []
 
     bg_tile_index = 0.frame_index(24, 1.0.seconds, true)
 
@@ -277,23 +311,23 @@ class RoleplayEncounter < Scene
       l1 << []
       return l1
     when 2
+      l2 << []
+      return l2
+    when 3
       encounter_label ||= {
         x: GTK.args.grid.w / 2,
         y: GTK.args.grid.h - 50,
         alignment_enum: 1,
-        size_px: Math.sin(Kernel.tick_count * 0.08) * 4 + 40,
+        size_enum: 8,
         r: 255,
         g: 255,
         b: 255,
+        a: 255,
         text: "Event",
         font: $FONT,
         primitive_marker: :label
       }
-
-      l2 << [encounter_label]
-      return l2
-    when 3
-      l3 << [render_splash_art]
+      l3 << [render_splash_art, encounter_label]
       return l3
     when 4
       msg_loc = Layout.rect(row: 10, col: 10, w: 4, h: 1).center
@@ -377,6 +411,8 @@ class RoleplayEncounter < Scene
 
       l4 << [msg_lines]
       return l4
+    when 5
+      l5 << @transition.prefab if @transition
     else
       # puts "combat.rb: Invalid Render Argument"
     end
