@@ -41,6 +41,8 @@ class RoleplayEncounter < Scene
 
     @prompt_artwork_path
 
+    $AUDIO_SERVICE.play_song(:event_encounter)
+
     load_encounter_from_json
   end
 

@@ -244,6 +244,11 @@ class AudioService
         input: "sounds/music/shop_encounter.ogg",
         looping: true,
         gain: 0.09
+      },
+      event_encounter: {
+        input: "sounds/music/event_encounter.mp3",
+        looping: true,
+        gain: 0.09
       }
     }
 
