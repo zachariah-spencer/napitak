@@ -27,6 +27,8 @@ class RoleplayEncounter < Scene
     @outcome = @OUTCOMES[:undetermined]
     @consequence = {}
 
+    @mouse_on_button = false
+
     @options
     @options_alpha = 0
     @option_selected_tick = nil
@@ -52,6 +54,7 @@ class RoleplayEncounter < Scene
     specific_encounter_hash = encounters_hash[encounters_hash.keys.sample]
 
     @prompt_artwork_path = specific_encounter_hash["artwork_path"]
+    $AUDIO_SERVICE.play_sound(specific_encounter_hash["sfx"].to_sym)
     @options = specific_encounter_hash["options"]
     @options.each_with_index { |o, i| @options[i]["scale"] = 1.0 }
 
@@ -99,9 +102,30 @@ class RoleplayEncounter < Scene
   def tick
     calc_transitions
 
+    mouse_on_any_button = false
+    @options.each_with_index do |o, i|
+      if o["rect"] && GTK.args.inputs.mouse.inside_rect?(o["rect"]) 
+        mouse_on_any_button = true
+      end
+    end
+
+    if mouse_on_any_button && !@mouse_on_button
+      puts "mouse wasn't on a button but now it is"
+      $AUDIO_SERVICE.play_sound(:button_hover)
+      @mouse_on_button = true
+    end
+
+    if !mouse_on_any_button && @mouse_on_button
+      puts "mouse was on a button but now it is not"
+      $AUDIO_SERVICE.play_sound(:button_unhover)
+      @mouse_on_button = false
+    end
+    
+
     if GTK.args.inputs.mouse.click && !$GAME.input_locked
       @options.each_with_index do |o, i|
         if o["rect"] && GTK.args.inputs.mouse.inside_rect?(o["rect"])
+          $AUDIO_SERVICE.play_sound(:button_press)
           determine_outcome(o)
         end
       end
@@ -124,6 +148,8 @@ class RoleplayEncounter < Scene
     if roll >= dc
       @outcome = @OUTCOMES[:good]
       @consequence = option["outcomes"]["GOOD"]
+      puts "HERE"
+      $AUDIO_SERVICE.play_sound(:event_good)
       msg =
         option["outcome_messages"]["GOOD"]["flavor"] +
           option["outcome_messages"]["GOOD"]["consequence"]
@@ -137,6 +163,7 @@ class RoleplayEncounter < Scene
       play_message(msg, is_outcome: true)
     elsif roll < dc && dc - roll <= 5
       @outcome = @OUTCOMES[:neutral]
+      $AUDIO_SERVICE.play_sound(:event_neutral)
       play_message(
         option["outcome_messages"]["NEUTRAL"]["flavor"],
         is_outcome: true
@@ -145,6 +172,7 @@ class RoleplayEncounter < Scene
       roll < dc && dc - roll > 5
       @outcome = @OUTCOMES[:bad]
       @consequence = option["outcomes"]["BAD"]
+      $AUDIO_SERVICE.play_sound(:event_bad)
       msg =
         option["outcome_messages"]["BAD"]["flavor"] + " " +
           option["outcome_messages"]["BAD"]["consequence"]

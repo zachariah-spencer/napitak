@@ -211,6 +211,26 @@ class AudioService
       combustiblecast: {
         input: "sounds/sfx/explode.ogg",
         gain: 0.2
+      },
+      event_prompt_woods: {
+        input: "sounds/sfx/event/event_prompt_forest.ogg",
+        gain: 0.6
+      },
+      event_prompt_cave: {
+        input: "sounds/sfx/event/event_prompt_cave.ogg",
+        gain: 1.2
+      },
+      event_good: {
+        input: "sounds/sfx/event/event_good.ogg",
+        gain: 0.4
+      },
+      event_bad: {
+        input: "sounds/sfx/event/event_bad.ogg",
+        gain: 1.2
+      },
+      event_neutral: {
+        input: "sounds/sfx/event/event_neutral.ogg",
+        gain: 1.2
       }
     }
 

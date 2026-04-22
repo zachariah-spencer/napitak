@@ -2,6 +2,7 @@
     "woods": {
         "probability": "10",
         "artwork_path": "sprites/events/event_woods_prompt_2560x1440.png",
+        "sfx": "event_prompt_woods",
         "prompt": "You push through a veil of ferns into a moonlit grove. Ancient trees loom overhead, their twisted branches silhouetted against a silver sky. A distant, lilting melody drifts on the breeze, and the soft glow of fireflies dances among the undergrowth.",
         "options": [
                     {
@@ -69,6 +70,7 @@
     "cave": {
         "probability": "10",
         "artwork_path": "sprites/events/event_cave_prompt_2560x1440.png",
+        "sfx": "event_prompt_cave",
         "prompt": "Your lantern’s glow dances off damp stone as you descend into a vaulted cavern. Stalactites drip rhythmically, and somewhere deeper you hear a low rumble, like distant thunder beneath the earth.",
         "options": [
                     {
