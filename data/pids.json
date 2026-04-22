@@ -127,6 +127,7 @@
       "impact_frame": 9,
       "repeat": false
     },
+    "cast_sfx": "steamblast_cast",
     "traits": [
       {
         "3": 6

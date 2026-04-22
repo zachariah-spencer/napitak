@@ -51,6 +51,8 @@ class RoleplayEncounter < Scene
 
     @prompt_artwork_path = specific_encounter_hash["artwork_path"]
     @options = specific_encounter_hash["options"]
+    @options.each_with_index { |o, i| @options[i]["scale"] = 1.0 }
+
     @options.shuffle!
     play_message(specific_encounter_hash["prompt"])
   end
@@ -279,6 +281,7 @@ class RoleplayEncounter < Scene
     l5 = []
 
     bg_tile_index = 0.frame_index(24, 1.0.seconds, true)
+    button_tile_index = -10.frame_index(3, 1.0.seconds, true)
 
     case layer_num
     when 0
@@ -357,31 +360,40 @@ class RoleplayEncounter < Scene
 
           @options[i]["rect"] = options_rect
 
+          
+          @options[i]["scale"] = @options[i]["scale"].lerp(1.0, 0.2) 
+          @options[i]["scale"] = @options[i]["scale"].lerp(1.25, 0.2) if @options[i]["rect"] && GTK.args.inputs.mouse.inside_rect?(@options[i]["rect"])
+
           options_background = {
-            x: options_rect[:x],
-            y: options_rect[:y],
-            w: options_rect[:w],
-            h: options_rect[:h],
-            primitive_marker: :solid,
-            r: 0,
-            g: 0,
-            b: 0,
-            a: @options_alpha / 2
+            x: options_rect.center[:x],
+            y: options_rect.center[:y],
+            w: options_rect[:w] * @options[i]["scale"],
+            h: options_rect[:h] * @options[i]["scale"],
+            anchor_x: 0.5,
+            anchor_y: 0.5,
+            tile_x: button_tile_index * 2048,
+            tile_y: 0,
+            tile_w: 2048,
+            tile_h: 512,
+            primitive_marker: :sprite,
+            path: "sprites/events/event_option_button_2048x512_sheet_3.png",
+            a: @options_alpha
           }
 
           options_text = o["text"]
           options_lines = []
           wrapped_options = String.wrapped_lines options_text, 50
-          options_lines << wrapped_options.map_with_index do |s, i|
+          options_lines << wrapped_options.map_with_index do |s, idx|
             options_loc.merge(
+              y: options_rect.center[:y] - 12,
               text: "#{s}",
               anchor_x: 0.5,
-              anchor_y: i,
+              anchor_y: idx,
               r: 255,
               g: 255,
               b: 255,
               a: @options_alpha,
-              size_px: 22,
+              size_px: 22 * @options[i]["scale"],
               font: $FONT,
               primitive_marker: :label
             )
