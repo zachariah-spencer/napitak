@@ -208,7 +208,7 @@ class AudioService
         input: "sounds/sfx/potion_recharge.ogg",
         gain: 0.2
       },
-      combustiblecast: {
+      combustible_cast: {
         input: "sounds/sfx/explode.ogg",
         gain: 0.2
       },
@@ -231,6 +231,14 @@ class AudioService
       event_neutral: {
         input: "sounds/sfx/event/event_neutral.ogg",
         gain: 1.2
+      },
+      cloudy_cast: {
+        input: "sounds/sfx/cloudycast.ogg",
+        gain: 0.9
+      },
+      wind_cast: {
+        input: "sounds/sfx/windcast.ogg",
+        gain: 0.9
       }
     }
 

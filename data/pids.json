@@ -46,7 +46,7 @@
       "impact_frame": 13,
       "repeat": false
     },
-    "cast_sfx": "combustiblecast",
+    "cast_sfx": "combustible_cast",
     "ingredients": {
       "i001": 1,
       "i003": 1,
@@ -110,6 +110,7 @@
       "impact_frame": 12,
       "repeat": false
     },
+    "cast_sfx": "cloudy_cast",
     "traits": [
       {
         "6": 10
@@ -177,11 +178,20 @@
     "fc": 3,
     "max_uses": 3,
     "primary_base_ingredient_id": "i005",
-    "path": "sprites/circle/white.png",
+    "path": "sprites/wind_potion.png",
     "ingredients": {
       "i001": 1,
       "i005": 2
     },
+    "cast_animation": {
+      "id": "p007",
+      "path": "sprites/windcast-sheet-256x720-25.png",
+      "count": 25,
+      "hold_for": 4,
+      "impact_frame": 9,
+      "repeat": false
+    },
+    "cast_sfx": "wind_cast",
     "traits": [
       {
         "0": {

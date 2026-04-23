@@ -21,7 +21,7 @@
   },
   "i005": {
     "name": "Air",
-    "path": "sprites/hexagon/indigo.png",
+    "path": "sprites/air.png",
     "base": true
   },
   "i006": {
