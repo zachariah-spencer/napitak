@@ -102,6 +102,14 @@
       "i002": 1,
       "i006": 1
     },
+    "cast_animation": {
+      "id": "p004",
+      "path": "sprites/cloudycast-sheet-256x720-25.png",
+      "count": 25,
+      "hold_for": 4,
+      "impact_frame": 12,
+      "repeat": false
+    },
     "traits": [
       {
         "6": 10
