@@ -21,7 +21,7 @@ class RecipeBook
       "unlocked_recipes"
     ]
 
-    @unlocked_bases = %w[i001 i002 i003]
+    @unlocked_bases = %w[i001 i002 i003 i004 i005]
     @unlocked_bases = $files.save_data["unlocked_bases"] if $files.save_data[
       "unlocked_bases"
     ]

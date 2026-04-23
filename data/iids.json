@@ -16,7 +16,7 @@
   },
   "i004": {
     "name": "Earth",
-    "path": "sprites/hexagon/green.png",
+    "path": "sprites/earth.png",
     "base": true
   },
   "i005": {
