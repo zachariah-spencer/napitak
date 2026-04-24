@@ -35,7 +35,7 @@
   },
   "i007": {
     "name": "Sand",
-    "path": "sprites/hexagon/yellow.png",
+    "path": "sprites/sand.png",
     "base": false,
     "ingredients": {
       "i004": 1,
