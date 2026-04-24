@@ -239,7 +239,11 @@ class AudioService
       wind_cast: {
         input: "sounds/sfx/windcast.ogg",
         gain: 0.9
-      }
+      },
+      rock_cast: {
+        input: "sounds/sfx/rockcast.ogg",
+        gain: 0.9
+      },
     }
 
     @songs = {

@@ -151,15 +151,24 @@
   },
   "p006": {
     "name": "Rock Potion",
-    "desc": "Liquid solidifies as it is thrown out of the bottle, slamming into foes.",
+    "desc": "This is definitely a potion.",
     "fc": 0,
     "max_uses": 5,
     "primary_base_ingredient_id": "i004",
-    "path": "sprites/circle/green.png",
+    "path": "sprites/rock_potion.png",
     "ingredients": {
       "i001": 1,
       "i004": 2
     },
+    "cast_animation": {
+      "id": "p006",
+      "path": "sprites/rockcast-sheet-256x720-12.png",
+      "count": 12,
+      "hold_for": 4,
+      "impact_frame": 9,
+      "repeat": false
+    },
+    "cast_sfx": "rock_cast",
     "traits": [
       {
         "0": {
