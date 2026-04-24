@@ -244,6 +244,10 @@ class AudioService
         input: "sounds/sfx/rockcast.ogg",
         gain: 0.9
       },
+      sandstone_cast: {
+        input: "sounds/sfx/sandstonecast.ogg",
+        gain: 0.9
+      },
     }
 
     @songs = {

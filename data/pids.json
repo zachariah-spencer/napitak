@@ -216,7 +216,7 @@
   "p009": {
     "name": "Sandstone Potion",
     "desc": "Reinforced dust globs out of the bottle forming a wall betwixt you and foes.",
-    "fc": 5,
+    "fc": 4,
     "max_uses": 3,
     "primary_base_ingredient_id": "i004",
     "path": "sprites/sandstone_potion.png",
@@ -225,6 +225,15 @@
       "i004": 1,
       "i007": 1
     },
+    "cast_animation": {
+      "id": "p009",
+      "path": "sprites/sandstonecast-sheet-256x720-24.png",
+      "count": 24,
+      "hold_for": 5,
+      "impact_frame": 20,
+      "repeat": false
+    },
+    "cast_sfx": "sandstone_cast",
     "traits": [
       {
         "5": 15
