@@ -21,6 +21,7 @@ class Enemy
     $enemy = self
     # @enemy_id must be implemented on every enemy
     @shout_component = ShoutComponent.new(enemy_id: @enemy_id)
+    @sprite_scale = 128
     @turn_start_timer = 0
     @attacked = false
     @combat_stats = nil
@@ -365,10 +366,10 @@ class Enemy
       h: @h,
       r: @r,
       path: @sprite,
-      tile_x: (sprite_frame * 128),
+      tile_x: (sprite_frame * @sprite_scale),
       tile_y: 0,
-      tile_w: 128,
-      tile_h: 128,
+      tile_w: @sprite_scale,
+      tile_h: @sprite_scale,
       primitive_marker: :sprite
     }
     enemy_sprite ||= {

@@ -36,8 +36,8 @@
     "chance": 15
   },
   "dracolisk": {
-    "name": "Crystal Dracolisk",
-    "path": "sprites/triangle/equilateral/violet.png",
+    "name": "Afflicted Dracolisk",
+    "path": "sprites/dracolisk_idle-sheet-512x512-3.png",
     "is_combat": true,
     "chance": 0
   }
