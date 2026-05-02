@@ -446,7 +446,7 @@ end
         args.outputs[@card_composite_sprite_ref].primitives << {
           x: 24,
           y: @free_floating ? 20 : 28,
-          text: "#{@fc + @focus_mod}",
+          text: "#{[@fc + @focus_mod, 0].max}",
           anchor_x: 0.5,
           anchor_y: 0.5,
           r: 0,

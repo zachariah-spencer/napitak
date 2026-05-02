@@ -427,4 +427,14 @@ class AudioService
     @playing_sounds << sound_id_string
     GTK.args.audio[sound_id_string.to_sym] = sound_id_hash
   end
+
+  def stop_sound(sound)
+    if !@sounds[sound]
+      puts "ERROR: Sound not found in AudioService sounds hash."
+      return
+    end
+
+    exact_sound_id = GTK.args.audio.keys.find { |k| k.to_s.include?("flee_fanfare") }
+    GTK.args.audio.delete(exact_sound_id)
+  end
 end

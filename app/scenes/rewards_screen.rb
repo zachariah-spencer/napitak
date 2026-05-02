@@ -14,6 +14,7 @@ class RewardsScreen < Scene
     @looting_upgrades = false
     @choosing_ended = false
     @outroing = false
+    @leaving = false
     @alt_upgrades_label_alpha = 255
     @loot_label_alpha = 255
     @final_message_alpha = 0
@@ -52,6 +53,9 @@ class RewardsScreen < Scene
   end
 
   def tick
+    leave if @picks <= 0 && GTK.args.inputs.mouse.click && !@leaving
+
+
     @feather_count =
       (@feather_count.lerp(@feather_target_count, 0.1)) if @init_tick &&
       @init_tick.elapsed_time >= 1.0.seconds
@@ -96,7 +100,9 @@ class RewardsScreen < Scene
             $AUDIO_SERVICE.stop_song
             @choices.each { |id, c| c.mark_for_removal }
             @upgrades.each { |id, c| c.mark_for_removal }
-            GTK.on_tick_count(Kernel.tick_count + 5.seconds) { leave }
+            GTK.on_tick_count(Kernel.tick_count + 5.seconds) do 
+              leave if !@leaving
+            end  
             GTK.on_tick_count(Kernel.tick_count + 1.seconds) { on_outro }
             $GAME.input_locked = true
           end
@@ -108,11 +114,15 @@ class RewardsScreen < Scene
   end
 
   def on_outro
+    return if @leaving
     $AUDIO_SERVICE.play_sound(:flee_fanfare)
     @outroing = true
   end
 
   def leave
+    @leaving = true
+    $GAME.input_locked = true
+    $AUDIO_SERVICE.stop_sound(:flee_fanfare)
     $GAME.change_scene(prev_sc: @sc_id, next_scene: "map")
   end
 
