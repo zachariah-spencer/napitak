@@ -67,6 +67,7 @@ class Game
   end
 
   def new_run
+    @scene_manager.toggle_pause(paused_scene_ref: @scene_manager.scene_ref) if @scene_manager.paused?
     @mid_run = true
     $files.save_data["mid_run"] = true
     $encounter_manager.reset!
@@ -89,10 +90,6 @@ class Game
 
   def change_scene(**kwargs)
     @scene_manager.change_scene(**kwargs)
-  end
-
-  def toggle_pause(paused_scene_ref: nil)
-    @scene_manager.toggle_pause(paused_scene_ref: paused_scene_ref)
   end
 
   def toggle_collection(collection_scene_ref: nil, title: "", collection: [])

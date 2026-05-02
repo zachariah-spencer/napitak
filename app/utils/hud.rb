@@ -30,7 +30,7 @@ module Ui
       primitives = []
       scene_ref = @scene_manager.scene_ref
 
-      primitives << @pause_btn.prefab if scene_ref && scene_ref.sc_id != "collection"
+      primitives << @pause_btn.prefab if scene_ref && scene_ref.sc_id != "collection" && scene_ref.sc_id != "intro"
 
       return primitives if @scene_manager.viewing_collection? || @scene_manager.paused?
 
@@ -147,7 +147,7 @@ module Ui
     def handle_pause_input
       scene_ref = @scene_manager.scene_ref
       return unless scene_ref
-      return if scene_ref.sc_id == "collection"
+      return if scene_ref.sc_id == "collection" || scene_ref.sc_id == "intro"
 
       if GTK.args.inputs.keyboard.key_down.escape || @pause_btn.clicked?
         @scene_manager.toggle_pause(paused_scene_ref: scene_ref)

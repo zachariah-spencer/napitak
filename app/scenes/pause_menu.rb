@@ -172,7 +172,10 @@ class PauseMenu < Scene
   end
 
   def calc_main
-    $GAME.new_run if @restart_run_btn.clicked?
+    if @restart_run_btn.clicked?
+      
+      $GAME.new_run 
+    end
 
     if Geometry.intersect_rect?(
          GTK.args.inputs.mouse,
