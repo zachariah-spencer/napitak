@@ -107,7 +107,7 @@ def purge_old_version_saves_from_web_build(args)
 
   file_info = args.gtk.stat_file("data/save_data.json")
   return unless file_info
-  date = 1_754_542_800
+  date = 1_777_754_486
   args.gtk.delete_file("data/save_data.json") if file_info[:mod_time] < date
 end
 
