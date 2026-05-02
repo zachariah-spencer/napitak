@@ -136,6 +136,7 @@ class Combat < Scene
     puts "POTION CAST COMPLETED"
     $GAME.input_locked = false
     if !@hand_manager.actions_available? && !$GAME.input_locked
+      puts "TEST STUB"
       begin_turn_stage(@turn_stages[:cleanup])
     end
   end
@@ -943,8 +944,10 @@ class Combat < Scene
       @player.my_turn = false
       if @waiting_for_enemy_reaction
         @waiting_for_enemy_reaction = false
-        on_enemy_attack_reaction_completed
+        
       end
+      on_enemy_attack_reaction_completed
+      
     elsif new_stage == @turn_stages[:enemy_turn]
       @enemy.begin_turn
     end
