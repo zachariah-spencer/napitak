@@ -508,6 +508,7 @@ end
           @f_angle = 0
         end
       else
+       #  puts "#{@entity_id} is gravbbed? #{@grabbed}"
         if @flipped
           @fw = 256 + 64
           @fh = 256 + 64

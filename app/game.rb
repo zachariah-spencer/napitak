@@ -68,6 +68,7 @@ class Game
 
   def new_run
     @scene_manager.toggle_pause(paused_scene_ref: @scene_manager.scene_ref) if @scene_manager.paused?
+    $AUDIO_SERVICE.stop_song
     @mid_run = true
     $files.save_data["mid_run"] = true
     $encounter_manager.reset!

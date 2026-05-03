@@ -226,7 +226,8 @@ class Combat < Scene
     when :victory
       @player.reward_feathers(@enemy.value)
       $encounter_manager.inc_combats_won
-      if @enemy.is_boss
+      puts "THING: #{}"
+      if @enemy.is_boss && !$recipe_book.unlocked_bases.include?("i004") && !$recipe_book.unlocked_bases.include?("i005")
         $GAME.change_scene(
           prev_sc: @sc_id,
           next_scene: "boss_rewards_screen",
@@ -798,7 +799,8 @@ class Combat < Scene
 
   def card_usable?(card)
     potion_info = $PIDS[card.id]
-    @player.combat_stats.focus >= potion_info.fc && card.uses_left > 0
+    applied_fc = [(potion_info.fc + card.focus_mod), 0].max
+    @player.combat_stats.focus >= applied_fc && card.uses_left > 0
   end
 
   def calc_mouse_inputs

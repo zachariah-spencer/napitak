@@ -20,6 +20,7 @@ class CardHandManager
     if @player.potions.all_cards.size > 0 && @hand.size < @max_hand_size
       card = @player.potions.draw(true)
       card.free_floating = false
+      card.grabbed = false
       card.instant_set_position(x: 64, y: 64)
       @hand[card.entity_id] = card
     end
@@ -52,6 +53,7 @@ class CardHandManager
   def consume_card(card)
     potion_info = $PIDS[card.id]
     applied_fc = (potion_info.fc + card.focus_mod)
+    puts applied_fc
     if @player.combat_stats.focus >= applied_fc && card.uses_left > 0
       @player.combat_stats.focus -= applied_fc
       card.uses_left -= 1

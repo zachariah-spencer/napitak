@@ -7,34 +7,66 @@ class Dracolisk < Enemy
       repeat: true
     },
     hurt: {
-      path: "sprites/bat_hurt_512x512_sheet_17.png",
-      count: 17,
+      path: "sprites/dracolisk_idle-sheet-512x512-3.png",
+      count: 3,
       hold_for: 5,
       repeat: false
     },
     death: {
-      path: "sprites/bat_death_512x512_sheet_9.png",
-      count: 9,
-      hold_for: 8,
+      path: "sprites/dracolisk_idle-sheet-512x512-3.png",
+      count: 3,
+      hold_for: 5,
       repeat: false
     },
     attacks: {
-      basic: {
-        path: "sprites/bat_attack_1_512x512_sheet_9.png",
-        count: 9,
-        hold_for: 6,
-        impact_frame: 5,
-        repeat: false,
-        sfx: :bat_attack_1
-      },
-      special: {
-        path: "sprites/bat_attack_2_512x512_sheet_13.png",
-        count: 13,
+      one: {
+        path: "sprites/dracolisk_idle-sheet-512x512-3.png",
+        count: 3,
         hold_for: 8,
-        impact_frame: 5,
+        impact_frame:1,
         repeat: false,
-        sfx: :bat_attack_2
-      }
+        sfx: :event_neutral
+      },
+      two: {
+        path: "sprites/dracolisk_idle-sheet-512x512-3.png",
+        count: 3,
+        hold_for: 8,
+        impact_frame:1,
+        repeat: false,
+        sfx: :event_neutral
+      },
+      three: {
+        path: "sprites/dracolisk_idle-sheet-512x512-3.png",
+        count: 3,
+        hold_for: 8,
+        impact_frame:1,
+        repeat: false,
+        sfx: :event_neutral
+      },
+      four: {
+        path: "sprites/dracolisk_idle-sheet-512x512-3.png",
+        count: 3,
+        hold_for: 8,
+        impact_frame:1,
+        repeat: false,
+        sfx: :event_neutral
+      },
+      five: {
+        path: "sprites/dracolisk_idle-sheet-512x512-3.png",
+        count: 3,
+        hold_for: 8,
+        impact_frame:1,
+        repeat: false,
+        sfx: :event_neutral
+      },
+      six: {
+        path: "sprites/dracolisk_idle-sheet-512x512-3.png",
+        count: 3,
+        hold_for: 8,
+        impact_frame:1,
+        repeat: false,
+        sfx: :event_neutral
+      },
     }
   }.freeze
 
@@ -55,7 +87,7 @@ class Dracolisk < Enemy
     super
     @is_boss = true
     $enemy = self
-    @combat_stats.set_stats(hp: 80,         resistances: [$DAMAGE_TYPES[:force]],
+    @combat_stats.set_stats(hp: 80, resistances: [$DAMAGE_TYPES[:force]],
         vulnerabilities: [$DAMAGE_TYPES[:spark]])
     @animations =
       EnemyAnimationComponent.new(
@@ -74,7 +106,8 @@ class Dracolisk < Enemy
     @sprite_scale = 512
     @attacks = {
       45 => {
-        name: "Basic Attack",
+        id: :one,
+        name: "Damage",
         attack_id: "a001",
         traits: [
           {
@@ -86,18 +119,21 @@ class Dracolisk < Enemy
         ]
       },
       25 => {
-        name: "Power Attack",
-        id: :first,
+        id: :two,
+        name: "Blight",
+        attack_id: "a002",
         traits: [{ $CARD_TRAITS[:blight] => 1 }]
       },
       10 => {
-        name: "Ultimate Attack",
+        id: :three,
+        name: "Blight and Ward",
         attack_id: "a003",
         traits: [{ $CARD_TRAITS[:blight] => 1 }, { $CARD_TRAITS[:ward] => 1 }]
       },
       10 => {
-        name: "Ultimate Attack",
-        attack_id: "a003",
+        id: :four,
+        name: "Blight and Damage",
+        attack_id: "a004",
         traits: [
           { $CARD_TRAITS[:blight] => 1 },
           {
@@ -109,13 +145,15 @@ class Dracolisk < Enemy
         ]
       },
       5 => {
-        name: "Ultimate Attack",
-        attack_id: "a003",
+        id: :five,
+        name: "Heavy Ward",
+        attack_id: "a005",
         traits: [{ $CARD_TRAITS[:ward] => 4 }]
       },
       5 => {
-        name: "Ultimate Attack",
-        attack_id: "a003",
+        id: :six,
+        name: "Heal and Damage",
+        attack_id: "a006",
         traits: [
           { $CARD_TRAITS[:mend] => 1 },
           {
