@@ -519,7 +519,7 @@ end
           @fw = 128 + 32
           @fh = 128 + 32
           # Start x for evenly spaced centers around screen center
-          x_s = (GTK.args.grid.w / 2) - ((num_cards - 1) * ((@w + @padding) / 2.0))
+          x_s = (GTK.args.grid.w / 2) - ((num_cards - 1) * ((@w  / 2.0) + @padding))
           if !@grabbed
             @f_pos.x = x_s + (index * (@w + @padding)) - 40 # slight offset to x position if cards are "fanned" because the angling makes them look off-center otherwise
             max_angle = -15.0 # Maximum rotation in degrees for the extreme cards

@@ -38,7 +38,7 @@ class Enemy
 
     @ang = 0
     @fx = GTK.args.grid.w / 2 - 100
-    @fy = GTK.args.grid.h - 250
+    @fy = GTK.args.grid.h / 1.25 - 100
     @x = @fx
     @y = @fy
     @w = 200
@@ -84,6 +84,13 @@ class Enemy
         @animations.play_animation(:hurt)
       end
     end
+  end
+
+  def set_scale(scale)
+    @w = scale
+    @h = scale
+    @fx = GTK.args.grid.w / 2 - (scale / 2)
+    @fy = GTK.args.grid.h / 1.25 - 50 - (scale / 2)
   end
 
   def attack
@@ -385,7 +392,7 @@ class Enemy
 
     enemy_hp_label ||= {
       x: GTK.args.grid.w / 2,
-      y: GTK.args.grid.h - 270,
+      y: GTK.args.grid.h / 1.25 - scale - 200,
       alignment_enum: 1,
       size_px: 20,
       r: 150,

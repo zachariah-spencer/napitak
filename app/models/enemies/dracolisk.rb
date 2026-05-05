@@ -7,8 +7,8 @@ class Dracolisk < Enemy
       repeat: true
     },
     hurt: {
-      path: "sprites/dracolisk_idle-sheet-512x512-3.png",
-      count: 3,
+      path: "sprites/dracolisk_hurt_512x512_sheet_18.png",
+      count: 18,
       hold_for: 5,
       repeat: false
     },
@@ -89,6 +89,8 @@ class Dracolisk < Enemy
     $enemy = self
     @combat_stats.set_stats(hp: 80, resistances: [$DAMAGE_TYPES[:force]],
         vulnerabilities: [$DAMAGE_TYPES[:spark]])
+
+    set_scale(250)
     @animations =
       EnemyAnimationComponent.new(
         x: @x,
@@ -167,12 +169,17 @@ class Dracolisk < Enemy
     }
   end
 
+  def tick
+    @animations.tick(x: @x, y: @y)
+    super
+  end
+
   def prefab
     enemy_sprite = @animations.prefab
 
     enemy_hp_label ||= {
       x: GTK.args.grid.w / 2,
-      y: GTK.args.grid.h - 270,
+      y: GTK.args.grid.h / 1.25 - 50 - (@w / 2),
       alignment_enum: 1,
       size_px: 20,
       r: 150,
