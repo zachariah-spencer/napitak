@@ -13,9 +13,9 @@ class Dracolisk < Enemy
       repeat: false
     },
     death: {
-      path: "sprites/dracolisk_idle-sheet-512x512-3.png",
-      count: 3,
-      hold_for: 5,
+      path: "sprites/dracolisk_death_512x512_sheet_14.png",
+      count: 14,
+      hold_for: 8,
       repeat: false
     },
     attacks: {
@@ -87,7 +87,7 @@ class Dracolisk < Enemy
     super
     @is_boss = true
     $enemy = self
-    @combat_stats.set_stats(hp: 80, resistances: [$DAMAGE_TYPES[:force]],
+    @combat_stats.set_stats(hp: 5, resistances: [$DAMAGE_TYPES[:force]],
         vulnerabilities: [$DAMAGE_TYPES[:spark]])
 
     set_scale(250)
@@ -172,6 +172,10 @@ class Dracolisk < Enemy
   def tick
     @animations.tick(x: @x, y: @y)
     super
+  end
+
+  def calc_death_anim
+    run_once(:death_animation) { @animations.play_animation(:death) }
   end
 
   def prefab
