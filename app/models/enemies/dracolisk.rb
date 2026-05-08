@@ -28,42 +28,42 @@ class Dracolisk < Enemy
         sfx: :event_neutral
       },
       two: {
-        path: "sprites/dracolisk_attack_1_512x512_sheet_12.png",
-        count: 12,
+        path: "sprites/dracolisk_attack_2_512x512_sheet_9.png",
+        count: 9,
         hold_for: 4,
-        impact_frame:7,
+        impact_frame:4,
         repeat: false,
         sfx: :event_neutral
       },
       three: {
-        path: "sprites/dracolisk_attack_1_512x512_sheet_12.png",
-        count: 12,
-        hold_for: 4,
-        impact_frame:7,
+        path: "sprites/dracolisk_attack_3_512x512_sheet_7.png",
+        count: 7,
+        hold_for: 6,
+        impact_frame:4,
         repeat: false,
         sfx: :event_neutral
       },
       four: {
-        path: "sprites/dracolisk_attack_1_512x512_sheet_12.png",
-        count: 12,
+        path: "sprites/dracolisk_attack_4_512x512_sheet_14.png",
+        count: 14,
         hold_for: 4,
-        impact_frame:7,
+        impact_frame:6,
         repeat: false,
         sfx: :event_neutral
       },
       five: {
-        path: "sprites/dracolisk_attack_1_512x512_sheet_12.png",
-        count: 12,
+        path: "sprites/dracolisk_attack_4_512x512_sheet_14.png",
+        count: 14,
         hold_for: 4,
-        impact_frame:7,
+        impact_frame:6,
         repeat: false,
         sfx: :event_neutral
       },
       six: {
-        path: "sprites/dracolisk_attack_1_512x512_sheet_12.png",
-        count: 12,
+        path: "sprites/dracolisk_attack_4_512x512_sheet_14.png",
+        count: 14,
         hold_for: 4,
-        impact_frame:7,
+        impact_frame:6,
         repeat: false,
         sfx: :event_neutral
       },

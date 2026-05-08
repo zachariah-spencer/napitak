@@ -88,7 +88,7 @@
     }
   },
   "i013": {
-    "name": "Electricity",
+    "name": "Lightning",
     "path": "sprites/hexagon/yellow.png",
     "base": false,
     "ingredients": {
