@@ -52,18 +52,18 @@ class Dracolisk < Enemy
         sfx: :event_neutral
       },
       five: {
-        path: "sprites/dracolisk_attack_4_512x512_sheet_14.png",
-        count: 14,
-        hold_for: 4,
-        impact_frame:6,
+        path: "sprites/dracolisk_attack_5_512x512_sheet_18.png",
+        count: 18,
+        hold_for: 5,
+        impact_frame:15,
         repeat: false,
         sfx: :event_neutral
       },
       six: {
-        path: "sprites/dracolisk_attack_4_512x512_sheet_14.png",
+        path: "sprites/dracolisk_attack_6_512x512_sheet_14.png",
         count: 14,
-        hold_for: 4,
-        impact_frame:6,
+        hold_for: 6,
+        impact_frame:7,
         repeat: false,
         sfx: :event_neutral
       },
