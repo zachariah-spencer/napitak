@@ -51,10 +51,24 @@
     },
     "dracolisk": {
         "offense": [
-            "..."
+            "Your bones remember me before your mind does.",
+            "Breathe deep. The venom likes warm lungs.",
+            "Your flesh is already negotiating with my poison.",
+            "You stand too still for something that fears death.",
+            "The stars screamed when they made me.",
+            "I will hollow you until even your shadow leaks.",
+            "Every wound I leave keeps growing after you die.",
+            "I was rotting civilizations before your species learned fear."
         ],
         "defense": [
-            "..."
+            "Pain? Ah… you finally speak my language.",
+            "You carve the surface and miss the abyss beneath.",
+            "Good. Bleed me. Watch what crawls out.",
+            "The green leaking from me is not blood. It is invitation.",
+            "Even shattered, I continue to grow stronger.",
+            "Strike harder. The poison wakes when angered.",
+            "You think the spikes are part of me?",
+            "Even broken, I continue spreading."
         ]
     },
     "sentinel": {
