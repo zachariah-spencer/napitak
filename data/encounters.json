@@ -35,8 +35,14 @@
     "is_combat": true,
     "chance": 15
   },
+  "wraith": {
+    "name": "Wraith",
+    "path": "sprites/wraith_idle_sheet_512x512_3.png",
+    "is_combat": true,
+    "chance": 15
+  },
   "dracolisk": {
-    "name": "Afflicted Dracolisk",
+    "name": "Dracolisk",
     "path": "sprites/dracolisk_idle-sheet-512x512-3.png",
     "is_combat": true,
     "chance": 0

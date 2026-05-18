@@ -87,7 +87,7 @@ class Dracolisk < Enemy
     super
     @is_boss = true
     $enemy = self
-    @combat_stats.set_stats(hp: 5, resistances: [$DAMAGE_TYPES[:force]],
+    @combat_stats.set_stats(hp: 50, resistances: [$DAMAGE_TYPES[:force]],
         vulnerabilities: [$DAMAGE_TYPES[:spark]])
 
     set_scale(250)
@@ -104,7 +104,7 @@ class Dracolisk < Enemy
         animations: ANIMATIONS
       )
     @sprite = "sprites/dracolisk.png"
-    @name = "Crystal Dracolisk"
+    @name = "Dracolisk"
     @sprite_scale = 512
     @attacks = {
       45 => {

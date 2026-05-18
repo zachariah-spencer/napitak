@@ -165,6 +165,7 @@ class Combat < Scene
 
     if dealing?
       handle_card_dealing
+      @enemy.tick
     else
       @done_dealing = true if @dealing_tick &&
         @dealing_tick.elapsed_time >= @dealing_time
