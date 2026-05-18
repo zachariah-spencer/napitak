@@ -7,15 +7,15 @@ class Wraith < Enemy
       repeat: true
     },
     hurt: {
-      path: "sprites/dracolisk_hurt_512x512_sheet_18.png",
-      count: 18,
+      path: "sprites/wraith_hurt_sheet_512x512_13.png",
+      count: 13,
       hold_for: 5,
       repeat: false
     },
     death: {
-      path: "sprites/dracolisk_death_512x512_sheet_14.png",
-      count: 14,
-      hold_for: 8,
+      path: "sprites/wraith_death_sheet_512x512_15.png",
+      count: 15,
+      hold_for: 6,
       repeat: false
     },
     attacks: {
