@@ -61,7 +61,7 @@ class Wraith < Enemy
     @enemy_id = "wraith"
     super
     $enemy = self
-    @combat_stats.set_stats(hp: 20,
+    @combat_stats.set_stats(hp: 35,
       vulnerabilities: [
           $DAMAGE_TYPES[:heat],
           $DAMAGE_TYPES[:cold],
