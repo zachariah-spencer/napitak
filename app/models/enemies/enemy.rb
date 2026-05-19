@@ -20,6 +20,7 @@ class Enemy
   def initialize()
     $enemy = self
     # @enemy_id must be implemented on every enemy
+    @shouts_enabled = true
     @shout_component = ShoutComponent.new(enemy_id: @enemy_id)
     @sprite_scale = 128
     @turn_start_timer = 0
@@ -86,6 +87,10 @@ class Enemy
     end
   end
 
+  def shouts_enabled?
+    @shouts_enabled
+  end
+
   def set_scale(scale)
     @w = scale
     @h = scale
@@ -119,7 +124,7 @@ class Enemy
   end
 
   def hurt(amt, type)
-    @shout_component.shout_defensively
+    @shout_component.shout_defensively if shouts_enabled?
     $AUDIO_SERVICE.play_sound("#{@enemy_id}_hurt".to_sym, rand_pitch: true)
     @combat_stats.hurt(amt, type)
   end
@@ -253,7 +258,7 @@ class Enemy
       @combat_stats.calc_status(type: :FROST)
       end_turn
     else
-      @shout_component.shout_offensively
+      @shout_component.shout_offensively if shouts_enabled?
       @my_turn = true
       @turn_start_timer = Kernel.tick_count
     end
@@ -403,7 +408,7 @@ class Enemy
       primitive_marker: :label
     }
 
-    if !@combat_stats.dead && @shout_component.prefab
+    if shouts_enabled? && !@combat_stats.dead && @shout_component.prefab
       enemy_shout = @shout_component.prefab
     else
       enemy_shout = nil

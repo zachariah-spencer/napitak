@@ -68,6 +68,7 @@ class AbyssalTutorial < Enemy
   def initialize()
     @enemy_id = "abyssal"
     super
+    @shouts_enabled = false
     @w = 200
     @h = 200
     $enemy = self
