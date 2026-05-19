@@ -80,7 +80,7 @@ hd_letterbox=true
 # You can specify the maximum scale for your game. hd_max_scale's default value is 0 which
 # means "stretch to fit" (while retaining a 16:9 aspect ratio). This scaling method is not
 # pixel perfect, but is a reasonable default for most games.
-hd_max_scale=400
+hd_max_scale=0
 
 # hd_max_scale values other than 0 *will* be pixel perfect. Resolutions higher than your max scale
 # will give more area outside of your safe area that can be rendered to (if hd_letterbox=false)

@@ -28,10 +28,10 @@ class Wraith < Enemy
         sfx: :event_neutral
       },
       two: {
-        path: "sprites/wraith_attack_1_sheet_512x512_11.png",
-        count: 11,
-        hold_for: 6,
-        impact_frame:7,
+        path: "sprites/wraith_attack_2_sheet_512x512_16.png",
+        count: 16,
+        hold_for: 5,
+        impact_frame: 10,
         repeat: false,
         sfx: :event_neutral
       },
