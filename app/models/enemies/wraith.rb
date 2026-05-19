@@ -20,26 +20,26 @@ class Wraith < Enemy
     },
     attacks: {
       one: {
-        path: "sprites/dracolisk_attack_1_512x512_sheet_12.png",
-        count: 12,
-        hold_for: 4,
+        path: "sprites/wraith_attack_1_sheet_512x512_11.png",
+        count: 11,
+        hold_for: 6,
         impact_frame:7,
         repeat: false,
         sfx: :event_neutral
       },
       two: {
-        path: "sprites/dracolisk_attack_2_512x512_sheet_9.png",
-        count: 9,
-        hold_for: 4,
-        impact_frame:4,
+        path: "sprites/wraith_attack_1_sheet_512x512_11.png",
+        count: 11,
+        hold_for: 6,
+        impact_frame:7,
         repeat: false,
         sfx: :event_neutral
       },
       three: {
-        path: "sprites/dracolisk_attack_3_512x512_sheet_7.png",
-        count: 7,
+        path: "sprites/wraith_attack_3_sheet_512x512_13.png",
+        count: 13,
         hold_for: 6,
-        impact_frame:4,
+        impact_frame: 7,
         repeat: false,
         sfx: :event_neutral
       }
@@ -113,7 +113,7 @@ class Wraith < Enemy
           { $CARD_TRAITS[:frost] => 1 }
         ]
       },
-      20 => {
+      10 => {
         id: :three,
         name: "Frost + Damage",
         attack_id: "a003",
