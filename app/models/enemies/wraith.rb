@@ -73,11 +73,11 @@ class Wraith < Enemy
       EnemyAnimationComponent.new(
         x: @x,
         y: @y,
-        w: @w,
-        h: @h,
+        w: 256,
+        h: 256,
         tx: 0,
         ty: 0,
-        tw: 512,
+        tw: 512 ,
         th: 512,
         animations: ANIMATIONS
       )

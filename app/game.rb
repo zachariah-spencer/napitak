@@ -240,6 +240,28 @@ class Game
     outputs.primitives << l00
     outputs.primitives << all_render_layers
     outputs.primitives << sub_transitions if sub_transitions
+
+
+    # Cycle duration in frames
+    frames_per_cycle = 360.0
+
+    # Calculate progress as a radian (0 to 2*PI)
+    rads = (Kernel.tick_count % frames_per_cycle) / frames_per_cycle * 2 * Math::PI
+
+    # Convert sin wave (-1.0 to 1.0) to your 0.0 to 1.0 scalar
+    normalized_sin = (Math.sin(rads) + 1) / 2.0
+
+    # Map to your desired range (100 to 200)
+    min_val = 100
+    max_val = 200
+    current_value = min_val + (normalized_sin * (max_val - min_val))
+    outputs.primitives << {
+      x: current_value,
+      y: current_value,
+      w: 256,
+      h: 256,
+      path: "sprites/krita_test_sprite_thin.png",
+    }
   end
 
   def camera_shake(intensity: 8.0, duration: 0.3.seconds, include_ui: false)
