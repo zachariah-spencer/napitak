@@ -1,24 +1,11 @@
-* EXCEPTION:
-* ERROR - :platform? method missing on ~Class~.
-
-#+begin_src ~Class#inspect~
-NIL
-#+end_src ~Class#inspect~
-
-
-
-The method named
-  :platform?
-with args
-  [:win]
-doesn't exist on [NilClass].
-
-(suggestions above)
+* EXCEPTION: missing keyword: x
 ** Backtrace:
-*** app/main.rb:106:in purge_old_version_saves_from_web_build
-*** app/main.rb:90:in tick
-*** app/models/enemies/wraith.rb:133:in tick
-*** app/services/enemy_ai.rb:10:in tick
-*** app/scenes/combat.rb:171:in tick
+*** app/models/cards/card.rb:110:in animate_to_deck_and_remove
+*** app/models/cards/potion_card.rb:68:in animate_to_deck_and_remove
+*** app/services/card_hand_manager.rb:182:in animate_used_card
+*** app/services/card_hand_manager.rb:80:in use_card
+*** app/scenes/combat.rb:879:in calc_mouse_inputs
+*** app/scenes/combat.rb:253:in calc
+*** app/scenes/combat.rb:164:in tick
 *** app/game.rb:131:in tick
 *** app/main.rb:95:in tick

@@ -27,14 +27,17 @@ class AlchemyLab < Scene
       Button.new(
         x: GTK.args.grid.w - 64,
         y: 52,
-        w: 64 + 8,
-        h: 32,
+        w: 80,
+        h: 40,
         text: "#{@leave_btn_text}",
+        path: "sprites/button_sheet_320x160_4.png",
         background_color: {
           r: 255,
           g: 0,
           b: 0
-        }
+        },
+        tile_rect: { x: 320, y: 0, w: 320, h: 160},
+        frame_length: 4
       )
     @brew_btn =
       Button.new(
@@ -98,7 +101,15 @@ class AlchemyLab < Scene
       )
 
     @prev_loadout_btn =
-      Button.new(x: 128 + 48, y: 54, w: 64, h: 64, text: "Prev.")
+      Button.new(
+        x: 64, 
+        y: 52,
+        w: 80,
+        h: 40,
+        text: "PREVIOUS",
+        path: "sprites/button_sheet_320x160_4.png",
+        tile_rect: { x: 320, y: 0, w: 320, h: 160},
+        frame_length: 4)
 
     $AUDIO_SERVICE.play_song(:alchemy_encounter)
 
@@ -331,6 +342,7 @@ class AlchemyLab < Scene
     @visible_potions.each { |id, c| c.tick }
     @selected_ingredients.each { |id, c| c.tick }
     calc
+    @prev_loadout_btn.active = previous_loadout_exists?
     @prev_loadout_btn.tick
     @leave_btn.tick
     @brew_btn.tick
@@ -475,7 +487,7 @@ class AlchemyLab < Scene
     end
     @ingredient_generators.each { |id, c| generator_cards.append(c.prefab) }
 
-    tile_index = 0.frame_index(6, 0.25.seconds, true)
+    tile_index = 0.frame_index(3, 0.25.seconds, true)
     bg_tile_index = 0.frame_index(24, 1.0.seconds, true)
 
     case layer_num
@@ -499,7 +511,7 @@ class AlchemyLab < Scene
         g: 255,
         b: 255,
         a: 80,
-        path: "sprites/alchemy_table_bg.png"
+        path: "sprites/alchemy_table_background_5120x2880.png"
       }
 
       l0 << [background_solid, background]
@@ -511,11 +523,11 @@ class AlchemyLab < Scene
         y: 0,
         w: 128,
         h: GTK.args.grid.h,
-        path: "sprites/sketchypanel02.png",
-        tile_x: 0 + (tile_index * 200),
+        path: "sprites/vertical_panel_sheet_512x2880_3.png",
+        tile_x: 0 + (tile_index * 512),
         tile_y: 0,
-        tile_w: 200,
-        tile_h: GTK.args.grid.h,
+        tile_w: 512,
+        tile_h: 2880,
         primitive_marker: :sprite
       }
 
@@ -524,11 +536,11 @@ class AlchemyLab < Scene
         y: 0,
         w: 128,
         h: GTK.args.grid.h,
-        path: "sprites/sketchypanel02.png",
-        tile_x: 0 + (tile_index * 200),
+        path: "sprites/vertical_panel_sheet_512x2880_3.png",
+        tile_x: 0 + (tile_index * 512),
         tile_y: 0,
-        tile_w: 200,
-        tile_h: GTK.args.grid.h,
+        tile_w: 512,
+        tile_h: 2880,
         primitive_marker: :sprite
       }
 
@@ -609,8 +621,8 @@ class AlchemyLab < Scene
       l4 << [@brew_btn.prefab] if @craftable_potion
 
       uses_left_label ||= {
-        x: 64,
-        y: 48,
+        x: Grid.w / 2,
+        y: Grid.h - 100,
         alignment_enum: 1,
         size_px: 18,
         r: 255,
@@ -623,7 +635,7 @@ class AlchemyLab < Scene
 
       ingredients_stored_label ||= {
         x: 64,
-        y: 64 + 8,
+        y: Grid.h - 10,
         alignment_enum: 1,
         size_px: 18,
         r: 255,
@@ -693,7 +705,7 @@ class AlchemyLab < Scene
   end
 
   def potions_label()
-    sprite_frames = 6
+    sprite_frames = 4
     time_per_frame = 0.5.seconds
     repeat_index = true
     tile_index = 0.frame_index(sprite_frames, time_per_frame, repeat_index)
@@ -705,11 +717,11 @@ class AlchemyLab < Scene
       y: GTK.args.grid.h - 96,
       w: 96,
       h: 64,
-      path: "sprites/sketchymodal_162x114.png",
-      tile_x: 0 + (tile_index * 162),
+      path: "sprites/modal_frame_sheet_384x256_4.png",
+      tile_x: 0 + (tile_index * 384),
       tile_y: 0,
-      tile_w: 162,
-      tile_h: 114,
+      tile_w: 384,
+      tile_h: 256,
       primitive_marker: :sprite
     }
 
@@ -724,12 +736,12 @@ class AlchemyLab < Scene
       g: 255,
       b: 255,
       font: $FONT,
-      size_px: 12
+      size_px: 18
     }
 
     prefabs << {
       x: GTK.args.grid.w - 64,
-      y: GTK.args.grid.h - 52 - 16,
+      y: GTK.args.grid.h - 52 - 20,
       text: "SATCHEL",
       anchor_x: 0.5,
       anchor_y: 0.5,
@@ -738,14 +750,14 @@ class AlchemyLab < Scene
       g: 255,
       b: 255,
       font: $FONT,
-      size_px: 12
+      size_px: 18
     }
 
     prefabs
   end
 
   def ingredients_label()
-    sprite_frames = 6
+    sprite_frames = 4
     time_per_frame = 0.5.seconds
     repeat_index = true
     tile_index = 0.frame_index(sprite_frames, time_per_frame, repeat_index)
@@ -757,11 +769,11 @@ class AlchemyLab < Scene
       y: GTK.args.grid.h - 96,
       w: 96,
       h: 64,
-      path: "sprites/sketchymodal_162x114.png",
-      tile_x: 0 + (tile_index * 162),
+      path: "sprites/modal_frame_sheet_384x256_4.png",
+      tile_x: 0 + (tile_index * 384),
       tile_y: 0,
-      tile_w: 162,
-      tile_h: 114,
+      tile_w: 384,
+      tile_h: 256,
       primitive_marker: :sprite
     }
 
@@ -776,12 +788,12 @@ class AlchemyLab < Scene
       g: 255,
       b: 255,
       font: $FONT,
-      size_px: 12
+      size_px: 18
     }
 
     prefabs << {
       x: 64,
-      y: GTK.args.grid.h - 52 - 16,
+      y: GTK.args.grid.h - 52 - 20,
       text: "SATCHEL",
       anchor_x: 0.5,
       anchor_y: 0.5,
@@ -790,7 +802,7 @@ class AlchemyLab < Scene
       g: 255,
       b: 255,
       font: $FONT,
-      size_px: 12
+      size_px: 18
     }
 
     prefabs
@@ -835,12 +847,12 @@ class AlchemyLab < Scene
     card
   end
 
+  def previous_loadout_exists?
+    $player.prev_loadout_potions.all_cards.size > 0 || $player.prev_loadout_ingredients.all_cards.size > 0
+  end
+
   def calc_mouse_inputs
-    if @prev_loadout_btn.clicked? &&
-         (
-           $player.prev_loadout_potions.all_cards.size > 0 ||
-             $player.prev_loadout_ingredients.all_cards.size > 0
-         )
+    if @prev_loadout_btn.clicked? && previous_loadout_exists?
       clear_loadout
       config_prev_loadout
       update_inventories

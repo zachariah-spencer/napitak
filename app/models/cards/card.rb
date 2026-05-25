@@ -98,6 +98,18 @@ class Card
     @h = 0
   end
 
+  def reset_combat_hand_state
+    @grabbed = false
+    @hovered = false
+    @selected = false
+    @marked_for_removal = false
+    @needs_removed = false
+    @fw = 160
+    @fh = 160
+    @tt_a = 0
+    @tt_f_a = 0
+  end
+
   def grab
     @grabbed = true
     $AUDIO_SERVICE.play_sound(:card_grab)
@@ -107,15 +119,27 @@ class Card
     @marked_for_removal = true
   end
 
+  def animate_to_deck_and_remove(x:, y:)
+    @grabbed = false
+    @hovered = false
+    @selected = false
+    @marked_for_removal = true
+    @f_pos = { x: x, y: y }
+    @fw = 0
+    @fh = 0
+    @f_angle = 0
+    @tt_f_a = 0
+  end
+
   def tick
-    calc_hover
+    calc_hover unless @marked_for_removal
     calc_render_target(GTK.args)
 
     if @marked_for_removal
       @fw = 0
       @fh = 0
 
-      @needs_removed = true if @w <= 10 || @h <= 10 && !@needs_removed
+      @needs_removed = true if (@w <= 10 || @h <= 10) && !@needs_removed
     end
   end
 
@@ -222,10 +246,10 @@ class Card
       b: @b,
       a: prefab_alpha,
       path: @card_back_img,
-      tile_x: (card_sprite_frame * 128),
+      tile_x: (card_sprite_frame * 512),
       tile_y: 0,
-      tile_w: 128,
-      tile_h: 128
+      tile_w: 512,
+      tile_h: 512
     }
   end
 
@@ -234,6 +258,7 @@ class Card
     # the name of the combined sprite is :card_composite_sprite_ref
     args.outputs[@card_composite_sprite_ref].w = @w
     args.outputs[@card_composite_sprite_ref].h = @h
+    args.outputs[@card_composite_sprite_ref].background_color = [0,0,0,0]
     prefab_alpha = 255
     prefab_alpha = (@uses_left > 0) ? 255 : 150 if GameUtils.is_potion(self.id)
 
@@ -534,9 +559,10 @@ class Card
     @angle = @angle.lerp @f_angle, 0.2
     @tt_a = @tt_a.lerp(@tt_f_a, 0.2) if @tt_a && @tt_f_a
 
+    return if @marked_for_removal
+
     @f_pos.y = 0 if @pos.y < 0
     @f_pos.y = GTK.args.grid.h - @h if @pos.y > GTK.args.grid.h - @h
-
     @f_pos.x = 128 + (@w / 2) if @pos.x < 128 + (@w / 2)
     @f_pos.x = GTK.args.grid.w - (@w / 2) - 128 if @pos.x > GTK.args.grid.w - (@w / 2) - 128
 

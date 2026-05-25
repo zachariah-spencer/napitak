@@ -291,6 +291,8 @@ class Combat < Scene
       end
     end
 
+    @hand_manager.used_cards.each { |c| cards << c.prefab }
+
     range = 255 - 0
     x = (Kernel.tick_count * 2) % (2 * range)
     osc_val = range - (x - range).abs
@@ -484,11 +486,11 @@ class Combat < Scene
       deck_sprite =
         deck_rect.merge(
           primitive_marker: :sprite,
-          path: "sprites/deck_sheet.png",
-          tile_x: 0 + (deck_frame * 128),
+          path: "sprites/deck_sheet_512x512_4.png",
+          tile_x: 0 + (deck_frame * 512),
           tile_y: 0,
-          tile_w: 128,
-          tile_h: 128
+          tile_w: 512,
+          tile_h: 512
         )
 
       deck_card_count_label =

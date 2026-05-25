@@ -1,6 +1,6 @@
 class CardHandManager
   attr_gtk
-  attr_reader :hand
+  attr_reader :hand, :used_cards
 
   def initialize(player:, enemy:, combo_manager:, max_hand_size: 5)
     @player = player
@@ -8,6 +8,7 @@ class CardHandManager
     @combo_manager = combo_manager
     @max_hand_size = max_hand_size
     @hand = {}
+    @used_cards = []
   end
 
   def draw_card
@@ -19,8 +20,9 @@ class CardHandManager
     end
     if @player.potions.all_cards.size > 0 && @hand.size < @max_hand_size
       card = @player.potions.draw(true)
+      @used_cards.delete(card)
+      card.reset_combat_hand_state
       card.free_floating = false
-      card.grabbed = false
       card.instant_set_position(x: 64, y: 64)
       @hand[card.entity_id] = card
     end
@@ -35,6 +37,10 @@ class CardHandManager
       card.calc_position(@hand.length, i)
       card.tick
     end
+    @used_cards.each do |card|
+      card.calc_position(0, 0)
+      card.tick
+    end
   end
 
   def cleanup
@@ -44,6 +50,7 @@ class CardHandManager
 
   def remove_marked
     @hand.reject! { |_id, c| c.needs_removed }
+    @used_cards.reject!(&:needs_removed)
   end
 
   def get_card_rects
@@ -58,6 +65,7 @@ class CardHandManager
       @player.combat_stats.focus -= applied_fc
       card.uses_left -= 1
       card.update_sprite
+      animate_used_card(card)
       @player.potions.discard card
       @hand.delete card.entity_id
     end
@@ -70,6 +78,7 @@ class CardHandManager
       @player.combat_stats.focus -= applied_fc
       card.uses_left -= 1
       card.update_sprite
+      animate_used_card(card)
       @player.potions.discard card
       @hand.delete card.entity_id
 
@@ -164,5 +173,15 @@ class CardHandManager
         @enemy.combat_stats.apply_status(type: :BLIND, stacks: blind_trait)
       end
     end
+  end
+
+  def animate_used_card(card)
+    return if @used_cards.include?(card)
+
+    card.animate_to_deck_and_remove(
+      x: 100,
+      y: 100
+    )
+    @used_cards << card
   end
 end

@@ -106,7 +106,7 @@ class ScrollListWidget
         g: color[1],
         b: color[2],
         a: color[3],
-        path: "sprites/button_frame-128x128-sheet-4.png",
+        path: "sprites/button_frame_sheet_128x128_4.png",
         tile_x: 128 * f_i,
         tile_y: 0,
         tile_w: 128,

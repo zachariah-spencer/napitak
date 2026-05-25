@@ -112,4 +112,3 @@ def purge_old_version_saves_from_web_build(args)
 end
 
 GTK.reset
-

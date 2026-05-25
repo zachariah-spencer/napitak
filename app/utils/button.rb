@@ -101,6 +101,7 @@ class Button
       )
     GTK.args.outputs[@id.to_s].w = @w
     GTK.args.outputs[@id.to_s].h = @h
+    GTK.args.outputs[@id.to_s].background_color = [0, 0, 0, 0]
 
     GTK.args.outputs[@id.to_s].primitives << {
       x: 0,
@@ -125,6 +126,7 @@ class Button
       y: @h / 2,
       text: @text,
       anchor_x: 0.5,
+      alignment_enum: 1,
       anchor_y: @anchor_y,
       r: 255,
       g: 255,

@@ -222,10 +222,10 @@ class CollectionCard < Card
         b: @b,
         a: prefab_alpha,
         path: @card_back_img,
-        tile_x: (card_sprite_frame * 128),
+        tile_x: (card_sprite_frame * 512),
         tile_y: 0,
-        tile_w: 128,
-        tile_h: 128
+        tile_w: 512,
+        tile_h: 512
       }
     end
   end
@@ -235,6 +235,7 @@ class CollectionCard < Card
     # the name of the combined sprite is :card_composite_sprite_ref
     args.outputs[@card_composite_sprite_ref].w = @w
     args.outputs[@card_composite_sprite_ref].h = @h
+    args.outputs[@card_composite_sprite_ref].background_color = [0, 0, 0, 0]
     prefab_alpha = 255
 
     calc_render_target_background(args, prefab_alpha)

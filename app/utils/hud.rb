@@ -79,12 +79,12 @@ module Ui
           y: GTK.args.grid.h - UI_TOP_MARGIN,
           w: PAUSE_BUTTON_SIZE,
           h: PAUSE_BUTTON_SIZE,
-          path: "sprites/pause_button-sheet-4.png",
+          path: "sprites/pause_button_sheet_128x128_4.png",
           tile_rect: {
-            x: PAUSE_BUTTON_SIZE,
+            x: PAUSE_BUTTON_SIZE * 4,
             y: 0,
-            w: PAUSE_BUTTON_SIZE,
-            h: PAUSE_BUTTON_SIZE
+            w: PAUSE_BUTTON_SIZE * 4,
+            h: PAUSE_BUTTON_SIZE * 4
           },
           frame_length: 4,
           text: ""

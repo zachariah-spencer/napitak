@@ -7,7 +7,7 @@
   },
   "alchemy_table": {
     "name": "Brew Bench",
-    "path": "sprites/brewbench_icon-sheet-512x512-3.png",
+    "path": "sprites/brew_bench_icon_sheet_512x512_3.png",
     "is_combat": false,
     "chance": 8
   },
@@ -25,7 +25,7 @@
   },
   "wolf": {
     "name": "Wolf",
-    "path": "sprites/wolf-sheet-3.png",
+    "path": "sprites/wolf_idle_sheet_512x512_3.png",
     "is_combat": true,
     "chance": 15
   },

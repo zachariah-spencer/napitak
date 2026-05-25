@@ -329,6 +329,8 @@ class CombatTutorial < Scene
       end
     end
 
+    @hand_manager.used_cards.each { |c| cards << c.prefab }
+
     range = 255 - 0
     x = (Kernel.tick_count * 2) % (2 * range)
     osc_val = range - (x - range).abs

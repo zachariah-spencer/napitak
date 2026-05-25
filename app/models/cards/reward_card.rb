@@ -65,10 +65,10 @@ class RewardCard < Card
         b: 255,
         a: prefab_alpha,
         path: @card_back_img,
-        tile_x: (card_sprite_frame * 128),
+        tile_x: (card_sprite_frame * 512),
         tile_y: 0,
-        tile_w: 128,
-        tile_h: 128
+        tile_w: 512,
+        tile_h: 512
       }
     else
       super
