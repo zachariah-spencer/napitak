@@ -42,15 +42,18 @@ class AlchemyLab < Scene
     @brew_btn =
       Button.new(
         x: GTK.args.grid.w / 2,
-        y: 128 + 32,
-        w: 96,
-        h: 48,
-        text: "Brew",
+        y: 196 + 16,
+        w: 160,
+        h: 80,
+        text: "BREW",
+        path: "sprites/button_sheet_320x160_4.png",
         background_color: {
           r: 0,
           g: 255,
           b: 100
-        }
+        },
+        tile_rect: { x: 320, y: 0, w: 320, h: 160},
+        frame_length: 4
       )
     @selection_squares = []
 
@@ -345,7 +348,7 @@ class AlchemyLab < Scene
     @prev_loadout_btn.active = previous_loadout_exists?
     @prev_loadout_btn.tick
     @leave_btn.tick
-    @brew_btn.tick
+    @brew_btn.tick if can_brew?
 
     if @leave_btn_clicked_tick &&
          @leave_btn_clicked_tick.elapsed_time >= 5.0.seconds
@@ -618,7 +621,7 @@ class AlchemyLab < Scene
       l3 << hotkey_labels if GTK.args.gtk.platform?(:desktop)
       l3
     when 4
-      l4 << [@brew_btn.prefab] if @craftable_potion
+      l4 << [@brew_btn.prefab] if can_brew?
 
       uses_left_label ||= {
         x: Grid.w / 2,
@@ -1130,14 +1133,15 @@ class AlchemyLab < Scene
       y: y,
       anchor_x: 0.5,
       anchor_y: 0.5,
-      w: 170,
-      h: 170,
+      w: 175,
+      h: 175,
       a: 255,
-      path: "sprites/selected_card_outline-sheet-4.png",
-      tile_x: 1024 * f_i,
+      path: "sprites/button_frame_sheet_128x128_4.png",
+      r: 0,
+      tile_x: 128 * f_i,
       tile_y: 0,
-      tile_w: 1024,
-      tile_h: 1024
+      tile_w: 128,
+      tile_h: 128
     }
   end
 
@@ -1179,6 +1183,10 @@ class AlchemyLab < Scene
 
     return unless @craftable_potion and inputs.keyboard.key_down.space
     play_brew_anim
+  end
+
+  def can_brew?
+    @craftable_potion
   end
 
   def gen_ing_center(ing_id_string)

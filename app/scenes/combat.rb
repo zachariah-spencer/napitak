@@ -43,9 +43,12 @@ class Combat < Scene
       Button.new(
         x: 64,
         y: GTK.args.grid.h - 32,
-        w: pass_btn_rect[:w],
-        h: pass_btn_rect[:h],
+        w: 80,
+        h: 40,
         text: "PASS",
+        path: "sprites/button_sheet_320x160_4.png",
+        tile_rect: { x: 320, y: 0, w: 320, h: 160},
+        frame_length: 4,
         font_color: {
           r: 255,
           g: 255,
@@ -61,9 +64,12 @@ class Combat < Scene
       Button.new(
         x: GTK.args.grid.w - 64,
         y: 44,
-        w: pass_btn_rect[:w],
-        h: pass_btn_rect[:h],
+        w: 80,
+        h: 40,
         text: "FLEE",
+        path: "sprites/button_sheet_320x160_4.png",
+        tile_rect: { x: 320, y: 0, w: 320, h: 160},
+        frame_length: 4,
         font_color: {
           r: 255,
           g: 255,
@@ -146,8 +152,8 @@ class Combat < Scene
   end
 
   def tick
-    @pass_btn.tick
-    @flee_btn.tick
+    @pass_btn.tick if can_pass?
+    @flee_btn.tick if can_flee?
     @pass_btn.update_alpha(@pass_btn_alpha)
     @flee_btn.update_alpha(@flee_btn_alpha)
     run_once(:allow_input_after_dealing_completed) do
@@ -464,9 +470,9 @@ class Combat < Scene
 
       flee_percentage_label = {
         x: flee_btn[:x] + 38,
-        y: flee_btn[:y] + 52,
+        y: flee_btn[:y] + 64,
         anchor_x: 0.5,
-        size_px: 14,
+        size_px: 18,
         r: 255,
         g: 255,
         b: 255,
@@ -800,10 +806,18 @@ class Combat < Scene
     $AUDIO_SERVICE.play_sound(:flee_fanfare)
   end
 
+  def can_pass?
+    @turn_stage == @turn_stages[:playing_cards]
+  end
+
   def card_usable?(card)
     potion_info = $PIDS[card.id]
     applied_fc = [(potion_info.fc + card.focus_mod), 0].max
     @player.combat_stats.focus >= applied_fc && card.uses_left > 0
+  end
+
+  def can_flee?
+    @player.my_turn
   end
 
   def calc_mouse_inputs
@@ -830,7 +844,7 @@ class Combat < Scene
       if Geometry.intersect_rect? inputs.mouse, get_deck_rect and
            @turn_stage == @turn_stages[:drawing_cards]
         puts "clicked on deck"
-      elsif @pass_btn.clicked? and @turn_stage == @turn_stages[:playing_cards]
+      elsif @pass_btn.clicked? && can_pass?
         if @player.combat_stats.focus == @player.combat_stats.max_focus
           @hand_manager.draw_card
         end
