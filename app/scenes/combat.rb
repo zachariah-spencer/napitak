@@ -578,7 +578,7 @@ class Combat < Scene
       return l3
     when 4
       banner_f_i =
-        Numeric.frame_index(start_at: 0, count: 18, hold_for: 6, repeat: true)
+        Numeric.frame_index(start_at: 0, count: 8, hold_for: 6, repeat: true)
       # if @defeat_banner_timer
       #   defeat_banner_label = {
       #     x: GTK.args.grid.w / 2,
@@ -631,7 +631,7 @@ class Combat < Scene
 
         victory_banner = {
           path:
-            "sprites/combat_banner_frames/combat_banner#{banner_f_i + 1}.png",
+            "sprites/banner_frames/banner#{banner_f_i + 1}.png",
           x: 0,
           y: GTK.args.grid.h / 2 - 64,
           w: 1280,
@@ -640,6 +640,7 @@ class Combat < Scene
           g: 255,
           b: 255,
           a: @banner_alpha,
+          background_color: [0, 0, 0, 0],
           primitive_marker: :sprite
         }
         l4 << [victory_banner, victory_banner_label]
@@ -664,7 +665,7 @@ class Combat < Scene
 
         flee_banner = {
           path:
-            "sprites/combat_banner_frames/combat_banner#{banner_f_i + 1}.png",
+            "sprites/banner_frames/banner#{banner_f_i + 1}.png",
           x: 0,
           y: GTK.args.grid.h / 2 - 64,
           w: 1280,
@@ -673,6 +674,7 @@ class Combat < Scene
           g: 255,
           b: 0,
           a: @banner_alpha,
+          background_color: [0, 0, 0, 0],
           primitive_marker: :sprite
         }
 

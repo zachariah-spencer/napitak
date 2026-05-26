@@ -181,7 +181,7 @@ class Game
 
     if $player.combat_stats.dead_tick && @mid_run
       banner_f_i =
-        Numeric.frame_index(start_at: 0, count: 18, hold_for: 6, repeat: true)
+        Numeric.frame_index(start_at: 0, count: 8, hold_for: 6, repeat: true)
       defeat_banner_label = {
         x: GTK.args.grid.w / 2,
         y: GTK.args.grid.h / 2,
@@ -199,7 +199,7 @@ class Game
       }
 
       defeat_banner = {
-        path: "sprites/combat_banner_frames/combat_banner#{banner_f_i + 1}.png",
+        path: "sprites/banner_frames/banner#{banner_f_i + 1}.png",
         x: 0,
         y: GTK.args.grid.h / 2 - 64,
         w: 1280,
@@ -208,6 +208,7 @@ class Game
         g: 0,
         b: 0,
         a: @defeat_banner_alpha,
+        background_color: [0, 0, 0, 0],
         primitive_marker: :sprite
       }
 
